@@ -35,11 +35,11 @@
     }
   },
   "scripts": {
-    "test": "phpunit --testsuite=unit",
+    "test": "phpunit --testsuite=unit && phpunit --testsuite=integration",
     "test:all": "phpunit --testsuite=unit && phpunit --testsuite=integration",
     "test:unit": "phpunit --testsuite=unit",
     "test:integration": "phpunit --testsuite=integration",
-    "test:coverage": "XDEBUG_MODE=coverage phpunit --coverage-text --coverage-clover=coverage/clover.xml",
+    "test:coverage": "XDEBUG_MODE=coverage phpunit --testsuite=unit --coverage-text --coverage-clover=coverage/clover-unit.xml && XDEBUG_MODE=coverage phpunit --testsuite=integration --coverage-text --coverage-clover=coverage/clover-integration.xml",
     "test:coverage:unit": "XDEBUG_MODE=coverage phpunit --testsuite=unit --coverage-text --coverage-clover=coverage/clover-unit.xml",
     "test:coverage:integration": "XDEBUG_MODE=coverage phpunit --testsuite=integration --coverage-text --coverage-clover=coverage/clover-integration.xml",
     "phpcs": "phpcs",

@@ -7,6 +7,8 @@
 
 namespace OpsHealthDashboard\Tests\Unit\Core;
 
+use Mockery;
+use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use OpsHealthDashboard\Core\Container;
 use OpsHealthDashboard\Core\Plugin;
 use PHPUnit\Framework\TestCase;
@@ -17,11 +19,10 @@ use PHPUnit\Framework\TestCase;
  * TDD per la classe principale Plugin con constructor injection (NO singleton).
  */
 class PluginTest extends TestCase {
+	use MockeryPHPUnitIntegration;
 
 	/**
 	 * Testa che Plugin può essere istanziato con Container
-	 *
-	 * RED: Fallirà finché non esiste la classe Plugin
 	 */
 	public function test_plugin_can_be_instantiated_with_container() {
 		$container = new Container();
@@ -32,8 +33,6 @@ class PluginTest extends TestCase {
 
 	/**
 	 * Testa che Plugin riceve Container tramite constructor injection
-	 *
-	 * NO pattern singleton - solo dependency injection
 	 */
 	public function test_plugin_receives_container_via_constructor() {
 		$container = new Container();
@@ -55,32 +54,63 @@ class PluginTest extends TestCase {
 	}
 
 	/**
-	 * Testa che init() può essere chiamato senza errori
+	 * Testa che init() registra hooks per Menu e Scheduler
 	 */
-	public function test_init_runs_without_errors() {
-		$container = new Container();
-		$plugin    = new Plugin( $container );
+	public function test_init_registers_menu_and_scheduler_hooks() {
+		$container = Mockery::mock( Container::class );
+		$menu      = Mockery::mock( 'OpsHealthDashboard\Admin\Menu' );
+		$scheduler = Mockery::mock( 'OpsHealthDashboard\Services\Scheduler' );
 
-		// Non dovrebbe lanciare eccezioni.
+		$menu->shouldReceive( 'register_hooks' )->once();
+		$scheduler->shouldReceive( 'register_hooks' )->once();
+
+		$container->shouldReceive( 'make' )
+			->with( 'OpsHealthDashboard\Admin\Menu' )
+			->once()
+			->andReturn( $menu );
+
+		$container->shouldReceive( 'make' )
+			->with( 'OpsHealthDashboard\Services\Scheduler' )
+			->once()
+			->andReturn( $scheduler );
+
+		$plugin = new Plugin( $container );
 		$plugin->init();
 
-		$this->assertTrue( true );
+		// Mockery verifica che register_hooks sia chiamato una volta per ciascuno.
+		$this->assertInstanceOf( Plugin::class, $plugin );
 	}
 
 	/**
-	 * Testa che init() può essere chiamato più volte in sicurezza
-	 *
-	 * Dovrebbe essere idempotente - sicuro da chiamare più volte
+	 * Testa che init() è idempotente - hooks registrati una sola volta
 	 */
 	public function test_init_is_idempotent() {
-		$container = new Container();
-		$plugin    = new Plugin( $container );
+		$container = Mockery::mock( Container::class );
+		$menu      = Mockery::mock( 'OpsHealthDashboard\Admin\Menu' );
+		$scheduler = Mockery::mock( 'OpsHealthDashboard\Services\Scheduler' );
+
+		// Gli hook devono essere registrati SOLO UNA volta (idempotenza).
+		$menu->shouldReceive( 'register_hooks' )->once();
+		$scheduler->shouldReceive( 'register_hooks' )->once();
+
+		$container->shouldReceive( 'make' )
+			->with( 'OpsHealthDashboard\Admin\Menu' )
+			->once()
+			->andReturn( $menu );
+
+		$container->shouldReceive( 'make' )
+			->with( 'OpsHealthDashboard\Services\Scheduler' )
+			->once()
+			->andReturn( $scheduler );
+
+		$plugin = new Plugin( $container );
 
 		$plugin->init();
 		$plugin->init();
 		$plugin->init();
 
-		$this->assertTrue( true );
+		// Mockery verifica che le aspettative 'once()' siano rispettate.
+		$this->assertInstanceOf( Plugin::class, $plugin );
 	}
 
 	/**
@@ -93,14 +123,12 @@ class PluginTest extends TestCase {
 
 	/**
 	 * Testa che NON esistono metodi static
-	 *
-	 * Assicura NO get_instance() o metodi singleton simili
 	 */
 	public function test_no_static_methods() {
 		$reflection = new \ReflectionClass( Plugin::class );
 		$methods    = $reflection->getMethods( \ReflectionMethod::IS_STATIC );
 
-		$static_methods = array_filter( $methods, function( $method ) {
+		$static_methods = array_filter( $methods, function ( $method ) {
 			return ! str_starts_with( $method->getName(), '__' );
 		} );
 
@@ -114,7 +142,7 @@ class PluginTest extends TestCase {
 		$reflection = new \ReflectionClass( Plugin::class );
 		$properties = $reflection->getProperties( \ReflectionProperty::IS_STATIC );
 
-		$static_props = array_filter( $properties, function( $prop ) {
+		$static_props = array_filter( $properties, function ( $prop ) {
 			return ! str_starts_with( $prop->getName(), '__' );
 		} );
 

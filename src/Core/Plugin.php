@@ -52,10 +52,13 @@ class Plugin {
 			return;
 		}
 
-		// TODO: Inizializzare i componenti quando esistono.
-		// Esempio:
-		// $admin = $this->container->make( Admin\Menu::class );
-		// $admin->register_hooks();.
+		// Registra il menu admin.
+		$menu = $this->container->make( \OpsHealthDashboard\Admin\Menu::class );
+		$menu->register_hooks();
+
+		// Registra lo scheduler WP-Cron.
+		$scheduler = $this->container->make( \OpsHealthDashboard\Services\Scheduler::class );
+		$scheduler->register_hooks();
 
 		$this->initialized = true;
 	}

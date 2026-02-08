@@ -33,8 +33,23 @@ class Activator {
 			update_option( 'ops_health_version', OPS_HEALTH_DASHBOARD_VERSION );
 		}
 
-		// Svuota le rewrite rules se necessario.
-		flush_rewrite_rules();
+		// Registra l'intervallo custom e schedula il cron.
+		add_filter(
+			'cron_schedules',
+			function ( $schedules ) {
+				if ( ! isset( $schedules['every_15_minutes'] ) ) {
+					$schedules['every_15_minutes'] = [
+						'interval' => 900,
+						'display'  => 'Every 15 minutes',
+					];
+				}
+				return $schedules;
+			}
+		);
+
+		if ( ! wp_next_scheduled( 'ops_health_run_checks' ) ) {
+			wp_schedule_event( time(), 'every_15_minutes', 'ops_health_run_checks' );
+		}
 	}
 
 	/**
@@ -46,9 +61,6 @@ class Activator {
 	 */
 	public function deactivate(): void {
 		// Cancella gli hook schedulati.
-		wp_clear_scheduled_hook( 'ops_health_scheduled_check' );
-
-		// Svuota le rewrite rules.
-		flush_rewrite_rules();
+		wp_clear_scheduled_hook( 'ops_health_run_checks' );
 	}
 }

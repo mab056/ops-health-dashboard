@@ -25,11 +25,55 @@ function bootstrap(): Plugin {
 	// Crea una nuova istanza del container.
 	$container = new Container();
 
-	// TODO: Configurare i binding quando esistono i servizi.
-	// Esempio:
-	// $container->share( Interfaces\StorageInterface::class, function( $c ) {
-	// return new Services\Storage();
-	// } );.
+	// Configura i binding per i servizi (shared instances).
+	$container->share(
+		Interfaces\StorageInterface::class,
+		// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
+		function ( $c ) {
+			return new Services\Storage();
+		}
+	);
+
+	$container->share(
+		Services\CheckRunner::class,
+		function ( $c ) {
+			$runner = new Services\CheckRunner(
+				$c->make( Interfaces\StorageInterface::class )
+			);
+			// Registra i check disponibili.
+			global $wpdb;
+			$runner->add_check( new Checks\DatabaseCheck( $wpdb ) );
+			return $runner;
+		}
+	);
+
+	$container->share(
+		Services\Scheduler::class,
+		function ( $c ) {
+			return new Services\Scheduler(
+				$c->make( Services\CheckRunner::class )
+			);
+		}
+	);
+
+	// Configura i binding per Admin UI.
+	$container->share(
+		Admin\HealthScreen::class,
+		function ( $c ) {
+			return new Admin\HealthScreen(
+				$c->make( Services\CheckRunner::class )
+			);
+		}
+	);
+
+	$container->share(
+		Admin\Menu::class,
+		function ( $c ) {
+			return new Admin\Menu(
+				$c->make( Admin\HealthScreen::class )
+			);
+		}
+	);
 
 	// Crea e restituisce l'istanza del plugin.
 	return new Plugin( $container );

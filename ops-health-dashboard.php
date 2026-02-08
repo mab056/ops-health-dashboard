@@ -6,7 +6,7 @@
  * Version: 0.0.0
  * Requires at least: 5.8
  * Requires PHP: 7.4
- * Author: Ops Team
+ * Author: Mattia Bondrano
  * Author URI: https://www.mattiabondrano.dev
  * License: GPL-3.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html

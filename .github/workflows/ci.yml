@@ -110,17 +110,11 @@ jobs:
         if: matrix.php == '8.3'
         run: composer run-script test:coverage:integration
 
-      - name: Merge coverage reports (PHP 8.3)
-        if: matrix.php == '8.3'
-        run: |
-          # Merge clover files (simple concatenation for now)
-          cat coverage/clover-unit.xml coverage/clover-integration.xml > coverage/clover.xml
-
       - name: Upload coverage to Codecov
         if: matrix.php == '8.3'
         uses: codecov/codecov-action@v4
         with:
-          files: ./coverage/clover.xml
+          files: ./coverage/clover-unit.xml,./coverage/clover-integration.xml
           flags: unittests
           name: php-8.3
           fail_ci_if_error: false

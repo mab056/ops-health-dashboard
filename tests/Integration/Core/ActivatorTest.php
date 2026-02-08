@@ -20,6 +20,16 @@ use WP_UnitTestCase;
 class ActivatorTest extends WP_UnitTestCase {
 
 	/**
+	 * Cleanup dopo ogni test
+	 */
+	public function tearDown(): void {
+		delete_option( 'ops_health_activated_at' );
+		delete_option( 'ops_health_version' );
+		wp_clear_scheduled_hook( 'ops_health_run_checks' );
+		parent::tearDown();
+	}
+
+	/**
 	 * Testa che Activator può essere istanziato
 	 */
 	public function test_activator_can_be_instantiated() {
@@ -45,93 +55,87 @@ class ActivatorTest extends WP_UnitTestCase {
 
 	/**
 	 * Testa che activate() imposta realmente il timestamp di attivazione
-	 *
-	 * Test di integrazione con WordPress Options API reale.
 	 */
 	public function test_activate_sets_timestamp() {
-		// Definisce la costante per il test.
 		if ( ! defined( 'OPS_HEALTH_DASHBOARD_VERSION' ) ) {
 			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.0.0' );
 		}
 
 		$activator = new Activator();
 
-		// Pulisci l'option prima del test.
 		delete_option( 'ops_health_activated_at' );
 
-		// Esegui l'attivazione.
 		$activator->activate();
 
-		// Verifica che l'option sia stata creata con un timestamp valido.
 		$timestamp = get_option( 'ops_health_activated_at' );
 		$this->assertNotFalse( $timestamp, 'Timestamp dovrebbe essere creato' );
 		$this->assertIsNumeric( $timestamp, 'Timestamp dovrebbe essere numerico' );
 		$this->assertGreaterThan( 0, $timestamp, 'Timestamp dovrebbe essere > 0' );
-
-		// Cleanup.
-		delete_option( 'ops_health_activated_at' );
 	}
 
 	/**
 	 * Testa che activate() imposta la versione del plugin
-	 *
-	 * Test di integrazione con WordPress Options API reale.
 	 */
 	public function test_activate_sets_version() {
-		// Definisce la costante per il test.
 		if ( ! defined( 'OPS_HEALTH_DASHBOARD_VERSION' ) ) {
 			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.0.0' );
 		}
 
 		$activator = new Activator();
 
-		// Pulisci l'option prima del test.
 		delete_option( 'ops_health_version' );
 
-		// Esegui l'attivazione.
 		$activator->activate();
 
-		// Verifica che l'option sia stata creata.
 		$version = get_option( 'ops_health_version' );
 		$this->assertNotFalse( $version, 'Versione dovrebbe essere creata' );
 		$this->assertEquals( '0.0.0', $version, 'Versione dovrebbe matchare la costante' );
-
-		// Cleanup.
-		delete_option( 'ops_health_version' );
 	}
 
 	/**
-	 * Testa che deactivate() può essere eseguito senza errori
+	 * Testa che activate() schedula il cron event
 	 */
-	public function test_deactivate_runs_without_errors() {
+	public function test_activate_schedules_cron_event() {
+		if ( ! defined( 'OPS_HEALTH_DASHBOARD_VERSION' ) ) {
+			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.0.0' );
+		}
+
+		wp_clear_scheduled_hook( 'ops_health_run_checks' );
+
 		$activator = new Activator();
+		$activator->activate();
 
-		// Non dovrebbe lanciare alcuna eccezione.
-		$activator->deactivate();
-
-		$this->assertTrue( true );
+		$timestamp = wp_next_scheduled( 'ops_health_run_checks' );
+		$this->assertNotFalse( $timestamp, 'Cron dovrebbe essere schedulato dopo activate()' );
 	}
 
 	/**
-	 * Testa che deactivate() cancella realmente i cron job schedulati
-	 *
-	 * Test di integrazione con WP-Cron reale.
+	 * Testa che deactivate() cancella il cron corretto
 	 */
 	public function test_deactivate_clears_scheduled_hooks() {
-		// Schedule un hook.
-		wp_schedule_event( time(), 'hourly', 'ops_health_scheduled_check' );
+		// Schedule il hook corretto.
+		wp_schedule_event( time(), 'hourly', 'ops_health_run_checks' );
 
-		// Verifica che il cron sia schedulato.
-		$timestamp = wp_next_scheduled( 'ops_health_scheduled_check' );
+		$timestamp = wp_next_scheduled( 'ops_health_run_checks' );
 		$this->assertNotFalse( $timestamp, 'Cron dovrebbe essere schedulato' );
 
-		// Esegui la disattivazione.
 		$activator = new Activator();
 		$activator->deactivate();
 
-		// Verifica che il cron sia stato cancellato.
-		$timestamp = wp_next_scheduled( 'ops_health_scheduled_check' );
-		$this->assertFalse( $timestamp, 'Cron dovrebbe essere cancellato' );
+		$timestamp = wp_next_scheduled( 'ops_health_run_checks' );
+		$this->assertFalse( $timestamp, 'Cron dovrebbe essere cancellato dopo deactivate()' );
+	}
+
+	/**
+	 * Testa che deactivate() non genera errori se nessun cron è schedulato
+	 */
+	public function test_deactivate_runs_without_errors_when_no_cron() {
+		wp_clear_scheduled_hook( 'ops_health_run_checks' );
+
+		$activator = new Activator();
+		$activator->deactivate();
+
+		$this->assertFalse( wp_next_scheduled( 'ops_health_run_checks' ) );
 	}
 
 	/**

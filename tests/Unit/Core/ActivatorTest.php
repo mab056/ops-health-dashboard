@@ -39,8 +39,6 @@ class ActivatorTest extends TestCase {
 
 	/**
 	 * Testa che Activator può essere istanziato
-	 *
-	 * RED: Fallirà finché non esiste Activator
 	 */
 	public function test_activator_can_be_instantiated() {
 		$activator = new Activator();
@@ -64,17 +62,15 @@ class ActivatorTest extends TestCase {
 	}
 
 	/**
-	 * Testa che activate() imposta il timestamp di attivazione
+	 * Testa che activate() imposta il timestamp e schedula il cron
 	 */
-	public function test_activate_sets_timestamp() {
-		// Definisce la costante per il test.
+	public function test_activate_sets_timestamp_and_schedules_cron() {
 		if ( ! defined( 'OPS_HEALTH_DASHBOARD_VERSION' ) ) {
 			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.0.0' );
 		}
 
 		$activator = new Activator();
 
-		// Mock delle funzioni WordPress.
 		Functions\expect( 'get_option' )
 			->once()
 			->with( 'ops_health_activated_at' )
@@ -88,32 +84,110 @@ class ActivatorTest extends TestCase {
 			->once()
 			->with( 'ops_health_version', '0.0.0' );
 
-		Functions\expect( 'flush_rewrite_rules' )
+		Functions\expect( 'add_filter' )
+			->once()
+			->with( 'cron_schedules', \Mockery::type( 'Closure' ) );
+
+		Functions\expect( 'wp_next_scheduled' )
+			->once()
+			->with( 'ops_health_run_checks' )
+			->andReturn( false );
+
+		Functions\expect( 'wp_schedule_event' )
+			->once()
+			->with( \Mockery::type( 'int' ), 'every_15_minutes', 'ops_health_run_checks' );
+
+		$activator->activate();
+
+		$this->assertInstanceOf( Activator::class, $activator );
+	}
+
+	/**
+	 * Testa che activate() non sovrascrive il timestamp se già presente
+	 */
+	public function test_activate_does_not_overwrite_existing_timestamp() {
+		if ( ! defined( 'OPS_HEALTH_DASHBOARD_VERSION' ) ) {
+			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.0.0' );
+		}
+
+		$activator = new Activator();
+
+		Functions\expect( 'get_option' )
+			->once()
+			->with( 'ops_health_activated_at' )
+			->andReturn( 1234567890 );
+
+		Functions\expect( 'update_option' )
+			->once()
+			->with( 'ops_health_version', '0.0.0' );
+
+		Functions\expect( 'add_filter' )
+			->once()
+			->with( 'cron_schedules', \Mockery::type( 'Closure' ) );
+
+		Functions\expect( 'wp_next_scheduled' )
+			->once()
+			->with( 'ops_health_run_checks' )
+			->andReturn( false );
+
+		Functions\expect( 'wp_schedule_event' )
 			->once();
 
 		$activator->activate();
 
-		$this->assertTrue( true );
+		$this->assertInstanceOf( Activator::class, $activator );
 	}
 
 	/**
-	 * Testa che deactivate() può essere eseguito senza errori
+	 * Testa che activate() non schedula se già schedulato
 	 */
-	public function test_deactivate_runs_without_errors() {
+	public function test_activate_skips_schedule_if_already_scheduled() {
+		if ( ! defined( 'OPS_HEALTH_DASHBOARD_VERSION' ) ) {
+			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.0.0' );
+		}
+
 		$activator = new Activator();
 
-		// Mock delle funzioni WordPress.
+		Functions\expect( 'get_option' )
+			->once()
+			->with( 'ops_health_activated_at' )
+			->andReturn( false );
+
+		Functions\expect( 'update_option' )
+			->with( 'ops_health_activated_at', \Mockery::type( 'int' ) );
+
+		Functions\expect( 'update_option' )
+			->with( 'ops_health_version', '0.0.0' );
+
+		Functions\expect( 'add_filter' )
+			->once()
+			->with( 'cron_schedules', \Mockery::type( 'Closure' ) );
+
+		Functions\expect( 'wp_next_scheduled' )
+			->once()
+			->with( 'ops_health_run_checks' )
+			->andReturn( time() + 900 );
+
+		Functions\expect( 'wp_schedule_event' )->never();
+
+		$activator->activate();
+
+		$this->assertInstanceOf( Activator::class, $activator );
+	}
+
+	/**
+	 * Testa che deactivate() cancella il cron hook corretto
+	 */
+	public function test_deactivate_clears_correct_hook() {
+		$activator = new Activator();
+
 		Functions\expect( 'wp_clear_scheduled_hook' )
 			->once()
-			->with( 'ops_health_scheduled_check' );
+			->with( 'ops_health_run_checks' );
 
-		Functions\expect( 'flush_rewrite_rules' )
-			->once();
-
-		// Non dovrebbe lanciare alcuna eccezione.
 		$activator->deactivate();
 
-		$this->assertTrue( true );
+		$this->assertInstanceOf( Activator::class, $activator );
 	}
 
 	/**
@@ -139,5 +213,15 @@ class ActivatorTest extends TestCase {
 		);
 
 		$this->assertEmpty( $static_methods, 'Activator should have NO static methods' );
+	}
+
+	/**
+	 * Testa che NON esistono proprietà static
+	 */
+	public function test_no_static_properties() {
+		$reflection = new \ReflectionClass( Activator::class );
+		$properties = $reflection->getProperties( \ReflectionProperty::IS_STATIC );
+
+		$this->assertEmpty( $properties, 'Activator should have NO static properties' );
 	}
 }
