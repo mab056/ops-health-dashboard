@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Activation/Deactivation Handler
+ * Gestore Attivazione/Disattivazione Plugin
  *
  * @package OpsHealthDashboard\Core
  */
@@ -10,45 +10,45 @@ namespace OpsHealthDashboard\Core;
 /**
  * Class Activator
  *
- * Handles plugin activation and deactivation.
- * NO singleton, NO static methods, NO final modifier.
+ * Gestisce l'attivazione e la disattivazione del plugin.
+ * NO singleton, NO metodi static, NO modificatore final.
  */
 class Activator {
 
 	/**
-	 * Plugin activation handler
+	 * Gestore attivazione plugin
 	 *
-	 * Sets up plugin on first activation.
+	 * Configura il plugin alla prima attivazione.
 	 *
 	 * @return void
 	 */
 	public function activate(): void {
-		// Store activation timestamp.
+		// Memorizza il timestamp di attivazione.
 		if ( ! get_option( 'ops_health_activated_at' ) ) {
 			update_option( 'ops_health_activated_at', time() );
 		}
 
-		// Store plugin version.
+		// Memorizza la versione del plugin.
 		if ( defined( 'OPS_HEALTH_DASHBOARD_VERSION' ) ) {
 			update_option( 'ops_health_version', OPS_HEALTH_DASHBOARD_VERSION );
 		}
 
-		// Flush rewrite rules if needed.
+		// Svuota le rewrite rules se necessario.
 		flush_rewrite_rules();
 	}
 
 	/**
-	 * Plugin deactivation handler
+	 * Gestore disattivazione plugin
 	 *
-	 * Cleanup on deactivation (but preserve data).
+	 * Pulizia alla disattivazione (ma preserva i dati).
 	 *
 	 * @return void
 	 */
 	public function deactivate(): void {
-		// Clear scheduled hooks.
+		// Cancella gli hook schedulati.
 		wp_clear_scheduled_hook( 'ops_health_scheduled_check' );
 
-		// Flush rewrite rules.
+		// Svuota le rewrite rules.
 		flush_rewrite_rules();
 	}
 }

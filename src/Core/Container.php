@@ -2,8 +2,8 @@
 /**
  * Dependency Injection Container
  *
- * Lightweight DI container without singleton pattern.
- * Uses shared instances managed by container, NOT static singletons.
+ * Container DI lightweight senza singleton pattern.
+ * Usa istanze condivise gestite dal container, NON singleton statici.
  *
  * @package OpsHealthDashboard\Core
  */
@@ -13,39 +13,39 @@ namespace OpsHealthDashboard\Core;
 /**
  * Class Container
  *
- * Simple dependency injection container.
+ * Container per dependency injection semplice.
  * NO singleton pattern, NO static methods, NO final modifier.
  */
 class Container {
 
 	/**
-	 * Registered bindings
+	 * Bindings registrati
 	 *
 	 * @var array
 	 */
 	private $bindings = [];
 
 	/**
-	 * Shared instances (not singletons - managed by container)
+	 * Istanze condivise (non singleton - gestite dal container)
 	 *
 	 * @var array
 	 */
 	private $shared = [];
 
 	/**
-	 * Registered instances
+	 * Istanze registrate
 	 *
 	 * @var array
 	 */
 	private $instances = [];
 
 	/**
-	 * Bind an abstract to a concrete implementation
+	 * Associa un abstract a un'implementazione concreta
 	 *
-	 * Creates new instance on each make() call.
+	 * Crea una nuova istanza ad ogni chiamata a make().
 	 *
-	 * @param string   $abstract Abstract identifier.
-	 * @param callable $concrete Closure that returns instance.
+	 * @param string   $abstract Identificatore abstract.
+	 * @param callable $concrete Closure che restituisce l'istanza.
 	 * @return void
 	 */
 	public function bind( string $abstract, callable $concrete ): void {
@@ -53,13 +53,13 @@ class Container {
 	}
 
 	/**
-	 * Register a shared binding
+	 * Registra un binding condiviso
 	 *
-	 * Creates instance once, reuses on subsequent make() calls.
-	 * NOT a singleton pattern - managed by container, not self-managing.
+	 * Crea l'istanza una volta, la riusa nelle chiamate successive a make().
+	 * NON è un singleton pattern - gestito dal container, non auto-gestito.
 	 *
-	 * @param string   $abstract Abstract identifier.
-	 * @param callable $concrete Closure that returns instance.
+	 * @param string   $abstract Identificatore abstract.
+	 * @param callable $concrete Closure che restituisce l'istanza.
 	 * @return void
 	 */
 	public function share( string $abstract, callable $concrete ): void {
@@ -67,10 +67,10 @@ class Container {
 	}
 
 	/**
-	 * Register an existing instance
+	 * Registra un'istanza esistente
 	 *
-	 * @param string $abstract Abstract identifier.
-	 * @param mixed  $instance Instance to register.
+	 * @param string $abstract Identificatore abstract.
+	 * @param mixed  $instance Istanza da registrare.
 	 * @return void
 	 */
 	public function instance( string $abstract, $instance ): void {
@@ -78,19 +78,19 @@ class Container {
 	}
 
 	/**
-	 * Resolve an abstract from the container
+	 * Risolve un abstract dal container
 	 *
-	 * @param string $abstract Abstract identifier.
-	 * @return mixed Resolved instance.
-	 * @throws \Exception If no binding found.
+	 * @param string $abstract Identificatore abstract.
+	 * @return mixed Istanza risolta.
+	 * @throws \Exception Se nessun binding trovato.
 	 */
 	public function make( string $abstract ) {
-		// Check if instance already exists.
+		// Controlla se l'istanza esiste già.
 		if ( isset( $this->instances[ $abstract ] ) ) {
 			return $this->instances[ $abstract ];
 		}
 
-		// Check if it's a shared binding.
+		// Controlla se è un binding condiviso.
 		if ( isset( $this->shared[ $abstract ] ) ) {
 			if ( ! isset( $this->instances[ $abstract ] ) ) {
 				$this->instances[ $abstract ] = $this->shared[ $abstract ]( $this );
@@ -98,7 +98,7 @@ class Container {
 			return $this->instances[ $abstract ];
 		}
 
-		// Check if it's a regular binding.
+		// Controlla se è un binding regolare.
 		if ( isset( $this->bindings[ $abstract ] ) ) {
 			return $this->bindings[ $abstract ]( $this );
 		}

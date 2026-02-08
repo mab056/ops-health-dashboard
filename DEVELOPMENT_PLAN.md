@@ -49,6 +49,16 @@
 - All tests: ✅ GREEN
 - Pattern enforcement: ✅ NO singleton, NO static, NO final
 
+**Documentation Completed**:
+- Comprehensive README.md with architecture, TDD workflow, security
+- CONTRIBUTING.md with strict TDD requirements and pattern enforcement
+- Clear examples of correct vs incorrect patterns
+- Security guidelines (sanitization, escaping, nonces, anti-SSRF)
+
+**Git Commits**:
+- `1b0944c` - feat(M0): Complete setup & infrastructure with TDD
+- `4e2d182` - docs: add comprehensive README and CONTRIBUTING guides
+
 ---
 
 ## Next Milestones (Preview)

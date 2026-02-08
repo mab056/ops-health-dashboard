@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Test
+ * Test del Plugin
  *
  * @package OpsHealthDashboard\Tests\Unit\Core
  */
@@ -14,14 +14,14 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class PluginTest
  *
- * TDD for main Plugin class with constructor injection (NO singleton).
+ * TDD per la classe principale Plugin con constructor injection (NO singleton).
  */
 class PluginTest extends TestCase {
 
 	/**
-	 * Test Plugin can be instantiated with Container
+	 * Testa che Plugin può essere istanziato con Container
 	 *
-	 * RED: Will fail until Plugin class exists
+	 * RED: Fallirà finché non esiste la classe Plugin
 	 */
 	public function test_plugin_can_be_instantiated_with_container() {
 		$container = new Container();
@@ -31,9 +31,9 @@ class PluginTest extends TestCase {
 	}
 
 	/**
-	 * Test Plugin receives Container via constructor injection
+	 * Testa che Plugin riceve Container tramite constructor injection
 	 *
-	 * NO singleton pattern - dependency injection only
+	 * NO pattern singleton - solo dependency injection
 	 */
 	public function test_plugin_receives_container_via_constructor() {
 		$container = new Container();
@@ -45,7 +45,7 @@ class PluginTest extends TestCase {
 	}
 
 	/**
-	 * Test init() method exists
+	 * Testa che il metodo init() esiste
 	 */
 	public function test_init_method_exists() {
 		$container = new Container();
@@ -55,22 +55,22 @@ class PluginTest extends TestCase {
 	}
 
 	/**
-	 * Test init() can be called without errors
+	 * Testa che init() può essere chiamato senza errori
 	 */
 	public function test_init_runs_without_errors() {
 		$container = new Container();
 		$plugin    = new Plugin( $container );
 
-		// Should not throw exception.
+		// Non dovrebbe lanciare eccezioni.
 		$plugin->init();
 
 		$this->assertTrue( true );
 	}
 
 	/**
-	 * Test init() can be called multiple times safely
+	 * Testa che init() può essere chiamato più volte in sicurezza
 	 *
-	 * Should be idempotent - safe to call multiple times
+	 * Dovrebbe essere idempotente - sicuro da chiamare più volte
 	 */
 	public function test_init_is_idempotent() {
 		$container = new Container();
@@ -84,7 +84,7 @@ class PluginTest extends TestCase {
 	}
 
 	/**
-	 * Test class is NOT final
+	 * Testa che la classe NON è final
 	 */
 	public function test_class_is_not_final() {
 		$reflection = new \ReflectionClass( Plugin::class );
@@ -92,9 +92,9 @@ class PluginTest extends TestCase {
 	}
 
 	/**
-	 * Test NO static methods exist
+	 * Testa che NON esistono metodi static
 	 *
-	 * Ensures NO get_instance() or similar singleton methods
+	 * Assicura NO get_instance() o metodi singleton simili
 	 */
 	public function test_no_static_methods() {
 		$reflection = new \ReflectionClass( Plugin::class );
@@ -108,7 +108,7 @@ class PluginTest extends TestCase {
 	}
 
 	/**
-	 * Test NO static properties exist
+	 * Testa che NON esistono proprietà static
 	 */
 	public function test_no_static_properties() {
 		$reflection = new \ReflectionClass( Plugin::class );

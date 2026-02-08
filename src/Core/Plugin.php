@@ -1,6 +1,6 @@
 <?php
 /**
- * Main Plugin Class
+ * Classe principale del Plugin
  *
  * @package OpsHealthDashboard\Core
  */
@@ -10,40 +10,40 @@ namespace OpsHealthDashboard\Core;
 /**
  * Class Plugin
  *
- * Main plugin orchestrator with dependency injection.
- * NO singleton pattern, NO static methods, NO final modifier.
+ * Orchestratore principale del plugin con dependency injection.
+ * NO pattern singleton, NO metodi static, NO modificatore final.
  */
 class Plugin {
 
 	/**
-	 * Dependency injection container
+	 * Container per la dependency injection
 	 *
 	 * @var Container
 	 */
 	private $container;
 
 	/**
-	 * Initialization flag
+	 * Flag di inizializzazione
 	 *
 	 * @var bool
 	 */
 	private $initialized = false;
 
 	/**
-	 * Constructor
+	 * Costruttore
 	 *
-	 * Receives container via dependency injection (NO singleton).
+	 * Riceve il container tramite dependency injection (NO singleton).
 	 *
-	 * @param Container $container DI container.
+	 * @param Container $container Container DI.
 	 */
 	public function __construct( Container $container ) {
 		$this->container = $container;
 	}
 
 	/**
-	 * Initialize plugin
+	 * Inizializza il plugin
 	 *
-	 * Idempotent - safe to call multiple times.
+	 * Idempotente - sicuro da chiamare più volte.
 	 *
 	 * @return void
 	 */
@@ -52,8 +52,8 @@ class Plugin {
 			return;
 		}
 
-		// TODO: Initialize components when they exist
-		// Example:
+		// TODO: Inizializzare i componenti quando esistono
+		// Esempio:
 		// $admin = $this->container->make( Admin\Menu::class );
 		// $admin->register_hooks();
 
@@ -61,7 +61,7 @@ class Plugin {
 	}
 
 	/**
-	 * Get container instance
+	 * Ottiene l'istanza del container
 	 *
 	 * @return Container
 	 */

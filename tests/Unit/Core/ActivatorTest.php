@@ -1,6 +1,6 @@
 <?php
 /**
- * Activator Test
+ * Test dell'Activator
  *
  * @package OpsHealthDashboard\Tests\Unit\Core
  */
@@ -13,14 +13,14 @@ use WP_UnitTestCase;
 /**
  * Class ActivatorTest
  *
- * TDD for plugin activation/deactivation.
+ * TDD per l'attivazione/disattivazione del plugin.
  */
 class ActivatorTest extends WP_UnitTestCase {
 
 	/**
-	 * Test Activator can be instantiated
+	 * Testa che Activator può essere istanziato
 	 *
-	 * RED: Will fail until Activator exists
+	 * RED: Fallirà finché non esiste Activator
 	 */
 	public function test_activator_can_be_instantiated() {
 		$activator = new Activator();
@@ -28,7 +28,7 @@ class ActivatorTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test activate() method exists
+	 * Testa che il metodo activate() esiste
 	 */
 	public function test_activate_method_exists() {
 		$activator = new Activator();
@@ -36,7 +36,7 @@ class ActivatorTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test deactivate() method exists
+	 * Testa che il metodo deactivate() esiste
 	 */
 	public function test_deactivate_method_exists() {
 		$activator = new Activator();
@@ -44,7 +44,7 @@ class ActivatorTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test activate() sets activation timestamp
+	 * Testa che activate() imposta il timestamp di attivazione
 	 */
 	public function test_activate_sets_timestamp() {
 		$activator = new Activator();
@@ -59,7 +59,7 @@ class ActivatorTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test activate() sets plugin version
+	 * Testa che activate() imposta la versione del plugin
 	 */
 	public function test_activate_sets_version() {
 		$activator = new Activator();
@@ -73,19 +73,19 @@ class ActivatorTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test deactivate() can run without errors
+	 * Testa che deactivate() può essere eseguito senza errori
 	 */
 	public function test_deactivate_runs_without_errors() {
 		$activator = new Activator();
 
-		// Should not throw any exception.
+		// Non dovrebbe lanciare alcuna eccezione.
 		$activator->deactivate();
 
 		$this->assertTrue( true );
 	}
 
 	/**
-	 * Test class is NOT final
+	 * Testa che la classe NON è final
 	 */
 	public function test_class_is_not_final() {
 		$reflection = new \ReflectionClass( Activator::class );
@@ -93,7 +93,7 @@ class ActivatorTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test NO static methods
+	 * Testa che NON esistono metodi static
 	 */
 	public function test_no_static_methods() {
 		$reflection = new \ReflectionClass( Activator::class );

@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Bootstrap Configuration
+ * Configurazione Bootstrap del Plugin
  *
- * Creates and configures the DI container, returns Plugin instance.
- * NO singleton pattern, NO static factories.
+ * Crea e configura il container DI, restituisce l'istanza del Plugin.
+ * NO pattern singleton, NO factory static.
  *
  * @package OpsHealthDashboard
  */
@@ -14,23 +14,23 @@ use OpsHealthDashboard\Core\Container;
 use OpsHealthDashboard\Core\Plugin;
 
 /**
- * Bootstrap function
+ * Funzione di bootstrap
  *
- * Creates container, configures bindings, returns plugin instance.
- * Called from main plugin file on 'plugins_loaded' hook.
+ * Crea il container, configura i binding, restituisce l'istanza del plugin.
+ * Chiamata dal file principale del plugin sull'hook 'plugins_loaded'.
  *
- * @return Plugin Plugin instance with configured container.
+ * @return Plugin Istanza del plugin con container configurato.
  */
 function bootstrap(): Plugin {
-	// Create fresh container instance.
+	// Crea una nuova istanza del container.
 	$container = new Container();
 
-	// TODO: Configure bindings when services exist
-	// Example:
+	// TODO: Configurare i binding quando esistono i servizi
+	// Esempio:
 	// $container->share( Interfaces\StorageInterface::class, function( $c ) {
 	//     return new Services\Storage();
 	// } );
 
-	// Create and return plugin instance.
+	// Crea e restituisce l'istanza del plugin.
 	return new Plugin( $container );
 }

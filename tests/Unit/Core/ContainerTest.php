@@ -1,6 +1,6 @@
 <?php
 /**
- * Container Test
+ * Test del Container
  *
  * @package OpsHealthDashboard\Tests\Unit\Core
  */
@@ -13,14 +13,14 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class ContainerTest
  *
- * TDD for Container class - NO singleton pattern, uses share() for shared instances.
+ * TDD per la classe Container - NO pattern singleton, usa share() per istanze condivise.
  */
 class ContainerTest extends TestCase {
 
 	/**
-	 * Test that Container can be instantiated
+	 * Testa che il Container possa essere istanziato
 	 *
-	 * RED: This will fail until Container class exists
+	 * RED: Questo fallirà finché non esiste la classe Container
 	 */
 	public function test_container_can_be_instantiated() {
 		$container = new Container();
@@ -28,9 +28,9 @@ class ContainerTest extends TestCase {
 	}
 
 	/**
-	 * Test bind() registers a binding
+	 * Testa che bind() registra un binding
 	 *
-	 * RED: Will fail until bind() method exists
+	 * RED: Fallirà finché non esiste il metodo bind()
 	 */
 	public function test_bind_registers_a_binding() {
 		$container = new Container();
@@ -44,9 +44,9 @@ class ContainerTest extends TestCase {
 	}
 
 	/**
-	 * Test bind() creates new instance each time
+	 * Testa che bind() crea una nuova istanza ogni volta
 	 *
-	 * Ensures NO singleton pattern - each make() call creates fresh instance
+	 * Assicura NO pattern singleton - ogni chiamata a make() crea una nuova istanza
 	 */
 	public function test_bind_creates_new_instance_each_time() {
 		$container = new Container();
@@ -62,9 +62,9 @@ class ContainerTest extends TestCase {
 	}
 
 	/**
-	 * Test share() creates shared instance
+	 * Testa che share() crea un'istanza condivisa
 	 *
-	 * share() reuses same instance - but NOT singleton pattern (managed by container)
+	 * share() riusa la stessa istanza - ma NON pattern singleton (gestito dal container)
 	 */
 	public function test_share_creates_shared_instance() {
 		$container = new Container();
@@ -80,7 +80,7 @@ class ContainerTest extends TestCase {
 	}
 
 	/**
-	 * Test instance() registers existing object
+	 * Testa che instance() registra un oggetto esistente
 	 */
 	public function test_instance_registers_existing_object() {
 		$container = new Container();
@@ -96,9 +96,9 @@ class ContainerTest extends TestCase {
 	}
 
 	/**
-	 * Test make() with container dependency injection
+	 * Testa che make() con dependency injection del container
 	 *
-	 * Closure receives container as parameter for resolving dependencies
+	 * La Closure riceve il container come parametro per risolvere le dipendenze
 	 */
 	public function test_make_passes_container_to_closure() {
 		$container = new Container();
@@ -113,7 +113,7 @@ class ContainerTest extends TestCase {
 	}
 
 	/**
-	 * Test make() throws exception for unbound abstract
+	 * Testa che make() lancia un'eccezione per abstract non legato
 	 */
 	public function test_make_throws_exception_for_unbound_abstract() {
 		$container = new Container();
@@ -125,15 +125,15 @@ class ContainerTest extends TestCase {
 	}
 
 	/**
-	 * Test NO static methods exist
+	 * Testa che NON esistono metodi static
 	 *
-	 * Ensures Container has NO static access - dependency injection only
+	 * Assicura che Container NON abbia accesso static - solo dependency injection
 	 */
 	public function test_no_static_methods_for_access() {
 		$reflection = new \ReflectionClass( Container::class );
 		$methods    = $reflection->getMethods( \ReflectionMethod::IS_STATIC );
 
-		// Filter out magic methods and test helpers
+		// Filtra i metodi magic e gli helper di test
 		$static_methods = array_filter( $methods, function( $method ) {
 			return ! str_starts_with( $method->getName(), '__' );
 		} );
@@ -142,9 +142,9 @@ class ContainerTest extends TestCase {
 	}
 
 	/**
-	 * Test class is NOT final
+	 * Testa che la classe NON è final
 	 *
-	 * Ensures testability and extensibility
+	 * Assicura testabilità ed estensibilità
 	 */
 	public function test_class_is_not_final() {
 		$reflection = new \ReflectionClass( Container::class );
