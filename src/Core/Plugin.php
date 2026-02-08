@@ -52,10 +52,10 @@ class Plugin {
 			return;
 		}
 
-		// TODO: Inizializzare i componenti quando esistono
+		// TODO: Inizializzare i componenti quando esistono.
 		// Esempio:
 		// $admin = $this->container->make( Admin\Menu::class );
-		// $admin->register_hooks();
+		// $admin->register_hooks();.
 
 		$this->initialized = true;
 	}

@@ -22,9 +22,16 @@
     <rule ref="WordPress">
         <!-- Allow short array syntax -->
         <exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+        <exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
 
-        <!-- Allow short ternary operators -->
-        <exclude name="WordPress.PHP.DisallowShortTernary"/>
+        <!-- Exclude filename check (we use PSR-4 with PascalCase) -->
+        <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
+
+        <!-- Exclude escape output for exceptions -->
+        <exclude name="WordPress.Security.EscapeOutput.ExceptionNotEscaped"/>
+
+        <!-- Allow reserved keywords as parameter names (technical terms in DI) -->
+        <exclude name="Universal.NamingConventions.NoReservedKeywordParameterNames"/>
     </rule>
 
     <!-- Use WordPress-Extra for additional checks -->

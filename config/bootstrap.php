@@ -25,11 +25,11 @@ function bootstrap(): Plugin {
 	// Crea una nuova istanza del container.
 	$container = new Container();
 
-	// TODO: Configurare i binding quando esistono i servizi
+	// TODO: Configurare i binding quando esistono i servizi.
 	// Esempio:
 	// $container->share( Interfaces\StorageInterface::class, function( $c ) {
-	//     return new Services\Storage();
-	// } );
+	// return new Services\Storage();
+	// } );.
 
 	// Crea e restituisce l'istanza del plugin.
 	return new Plugin( $container );
