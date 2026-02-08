@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Definisce le costanti del plugin.
-define( 'OPS_HEALTH_DASHBOARD_VERSION', '1.0.0' );
+define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.0.0' );
 define( 'OPS_HEALTH_DASHBOARD_FILE', __FILE__ );
 define( 'OPS_HEALTH_DASHBOARD_PATH', plugin_dir_path( __FILE__ ) );
 define( 'OPS_HEALTH_DASHBOARD_URL', plugin_dir_url( __FILE__ ) );
