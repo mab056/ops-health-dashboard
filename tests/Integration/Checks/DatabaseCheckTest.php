@@ -20,12 +20,26 @@ use WP_UnitTestCase;
 class DatabaseCheckTest extends WP_UnitTestCase {
 
 	/**
+	 * Il check da testare
+	 *
+	 * @var DatabaseCheck
+	 */
+	private $check;
+
+	/**
+	 * Setup per ogni test - centralizza $wpdb injection
+	 */
+	public function setUp(): void {
+		parent::setUp();
+		global $wpdb;
+		$this->check = new DatabaseCheck( $wpdb );
+	}
+
+	/**
 	 * Testa che DatabaseCheck esegue correttamente con WordPress reale
 	 */
 	public function test_database_check_runs_successfully() {
-		global $wpdb;
-		$check  = new DatabaseCheck( $wpdb );
-		$result = $check->run();
+		$result = $this->check->run();
 
 		$this->assertIsArray( $result );
 		$this->assertArrayHasKey( 'status', $result );
@@ -41,9 +55,7 @@ class DatabaseCheckTest extends WP_UnitTestCase {
 	 * Testa che DatabaseCheck misura la durata correttamente
 	 */
 	public function test_database_check_measures_duration() {
-		global $wpdb;
-		$check  = new DatabaseCheck( $wpdb );
-		$result = $check->run();
+		$result = $this->check->run();
 
 		$this->assertIsFloat( $result['duration'] );
 		$this->assertGreaterThan( 0, $result['duration'], 'Duration should be positive' );
@@ -54,9 +66,7 @@ class DatabaseCheckTest extends WP_UnitTestCase {
 	 * Testa che DatabaseCheck include query_time nei dettagli ma non info sensibili
 	 */
 	public function test_database_check_includes_safe_details() {
-		global $wpdb;
-		$check  = new DatabaseCheck( $wpdb );
-		$result = $check->run();
+		$result = $this->check->run();
 
 		$this->assertArrayHasKey( 'query_time', $result['details'] );
 		$this->assertStringContainsString( 'ms', $result['details']['query_time'] );
@@ -70,13 +80,10 @@ class DatabaseCheckTest extends WP_UnitTestCase {
 	 * Testa che DatabaseCheck è consistente su multiple esecuzioni
 	 */
 	public function test_database_check_is_consistent() {
-		global $wpdb;
-		$check = new DatabaseCheck( $wpdb );
-
 		// Esegui il check 3 volte.
 		$results = array();
 		for ( $i = 0; $i < 3; $i++ ) {
-			$results[] = $check->run();
+			$results[] = $this->check->run();
 		}
 
 		// Tutti dovrebbero avere lo stesso status.

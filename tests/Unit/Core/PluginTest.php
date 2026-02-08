@@ -129,7 +129,7 @@ class PluginTest extends TestCase {
 		$methods    = $reflection->getMethods( \ReflectionMethod::IS_STATIC );
 
 		$static_methods = array_filter( $methods, function ( $method ) {
-			return ! str_starts_with( $method->getName(), '__' );
+			return strpos( $method->getName(), '__' ) !== 0;
 		} );
 
 		$this->assertEmpty( $static_methods, 'Plugin should have NO static methods (no singleton pattern)' );
@@ -143,7 +143,7 @@ class PluginTest extends TestCase {
 		$properties = $reflection->getProperties( \ReflectionProperty::IS_STATIC );
 
 		$static_props = array_filter( $properties, function ( $prop ) {
-			return ! str_starts_with( $prop->getName(), '__' );
+			return strpos( $prop->getName(), '__' ) !== 0;
 		} );
 
 		$this->assertEmpty( $static_props, 'Plugin should have NO static properties (no singleton state)' );

@@ -156,10 +156,20 @@ class ActivatorTest extends WP_UnitTestCase {
 		$static_methods = array_filter(
 			$methods,
 			function ( $method ) {
-				return ! str_starts_with( $method->getName(), '__' );
+				return strpos( $method->getName(), '__' ) !== 0;
 			}
 		);
 
 		$this->assertEmpty( $static_methods, 'Activator should have NO static methods' );
+	}
+
+	/**
+	 * Testa che NON esistono proprietà static
+	 */
+	public function test_no_static_properties() {
+		$reflection = new \ReflectionClass( Activator::class );
+		$properties = $reflection->getProperties( \ReflectionProperty::IS_STATIC );
+
+		$this->assertEmpty( $properties, 'Activator should have NO static properties' );
 	}
 }

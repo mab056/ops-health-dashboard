@@ -276,10 +276,20 @@ class CheckRunnerTest extends TestCase {
 		$static_methods = array_filter(
 			$methods,
 			function ( $method ) {
-				return ! str_starts_with( $method->getName(), '__' );
+				return strpos( $method->getName(), '__' ) !== 0;
 			}
 		);
 
 		$this->assertEmpty( $static_methods, 'CheckRunner should have NO static methods' );
+	}
+
+	/**
+	 * Testa che NON esistono proprietà static
+	 */
+	public function test_no_static_properties() {
+		$reflection = new \ReflectionClass( CheckRunner::class );
+		$properties = $reflection->getProperties( \ReflectionProperty::IS_STATIC );
+
+		$this->assertEmpty( $properties, 'CheckRunner should have NO static properties' );
 	}
 }

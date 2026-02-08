@@ -231,7 +231,7 @@ class DatabaseCheckTest extends TestCase {
 		$static_methods = array_filter(
 			$methods,
 			function ( $method ) {
-				return ! str_starts_with( $method->getName(), '__' );
+				return strpos( $method->getName(), '__' ) !== 0;
 			}
 		);
 

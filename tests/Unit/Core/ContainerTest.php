@@ -135,10 +135,20 @@ class ContainerTest extends TestCase {
 
 		// Filtra i metodi magic e gli helper di test
 		$static_methods = array_filter( $methods, function( $method ) {
-			return ! str_starts_with( $method->getName(), '__' );
+			return strpos( $method->getName(), '__' ) !== 0;
 		} );
 
 		$this->assertEmpty( $static_methods, 'Container should have NO static methods for global access' );
+	}
+
+	/**
+	 * Testa che NON esistono proprietà static
+	 */
+	public function test_no_static_properties() {
+		$reflection = new \ReflectionClass( Container::class );
+		$properties = $reflection->getProperties( \ReflectionProperty::IS_STATIC );
+
+		$this->assertEmpty( $properties, 'Container should have NO static properties' );
 	}
 
 	/**
