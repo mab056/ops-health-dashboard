@@ -85,12 +85,10 @@ class Container {
 	 * @throws \Exception Se nessun binding trovato.
 	 */
 	public function make( string $abstract ) {
-		// Controlla se l'istanza esiste già.
 		if ( isset( $this->instances[ $abstract ] ) ) {
 			return $this->instances[ $abstract ];
 		}
 
-		// Controlla se è un binding condiviso.
 		if ( isset( $this->shared[ $abstract ] ) ) {
 			if ( ! isset( $this->instances[ $abstract ] ) ) {
 				$this->instances[ $abstract ] = $this->shared[ $abstract ]( $this );
@@ -98,7 +96,6 @@ class Container {
 			return $this->instances[ $abstract ];
 		}
 
-		// Controlla se è un binding regolare.
 		if ( isset( $this->bindings[ $abstract ] ) ) {
 			return $this->bindings[ $abstract ]( $this );
 		}

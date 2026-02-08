@@ -17,7 +17,6 @@ use OpsHealthDashboard\Interfaces\StorageInterface;
  * Class CheckRunner
  *
  * Servizio per eseguire e gestire i check di salute.
- * NO singleton, NO static methods, NO final.
  */
 class CheckRunner {
 

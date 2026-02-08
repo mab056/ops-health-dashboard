@@ -11,7 +11,6 @@ namespace OpsHealthDashboard\Core;
  * Class Plugin
  *
  * Orchestratore principale del plugin con dependency injection.
- * NO pattern singleton, NO metodi static, NO modificatore final.
  */
 class Plugin {
 
@@ -32,7 +31,7 @@ class Plugin {
 	/**
 	 * Costruttore
 	 *
-	 * Riceve il container tramite dependency injection (NO singleton).
+	 * Riceve il container tramite dependency injection.
 	 *
 	 * @param Container $container Container DI.
 	 */

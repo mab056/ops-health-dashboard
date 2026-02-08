@@ -16,7 +16,7 @@ use OpsHealthDashboard\Interfaces\CheckInterface;
  * Class DatabaseCheck
  *
  * Check per la salute del database WordPress.
- * NO singleton, NO static methods, NO final.
+
  */
 class DatabaseCheck implements CheckInterface {
 

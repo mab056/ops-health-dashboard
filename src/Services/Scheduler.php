@@ -14,7 +14,7 @@ namespace OpsHealthDashboard\Services;
  * Class Scheduler
  *
  * Servizio per schedulare l'esecuzione automatica dei check.
- * NO singleton, NO static methods, NO final.
+
  */
 class Scheduler {
 

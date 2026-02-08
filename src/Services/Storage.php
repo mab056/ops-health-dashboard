@@ -16,7 +16,7 @@ use OpsHealthDashboard\Interfaces\StorageInterface;
  * Class Storage
  *
  * Servizio per storage persistente usando WordPress Options API.
- * NO singleton, NO static methods, NO final.
+
  */
 class Storage implements StorageInterface {
 

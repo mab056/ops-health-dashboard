@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class PluginTest
  *
- * TDD per la classe principale Plugin con constructor injection (NO singleton).
+ * TDD per la classe principale Plugin con constructor injection.
  */
 class PluginTest extends TestCase {
 	use MockeryPHPUnitIntegration;

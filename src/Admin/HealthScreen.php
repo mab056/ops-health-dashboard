@@ -15,7 +15,6 @@ use OpsHealthDashboard\Services\CheckRunner;
  * Class HealthScreen
  *
  * Renderizza la pagina principale con i risultati dei check.
- * NO singleton, NO static methods, NO final.
  */
 class HealthScreen {
 
@@ -41,7 +40,6 @@ class HealthScreen {
 	 * @return void
 	 */
 	public function render(): void {
-		// Verifica capability.
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die(
 				esc_html__(
@@ -51,7 +49,6 @@ class HealthScreen {
 			);
 		}
 
-		// Ottiene i risultati.
 		$results = $this->runner->get_latest_results();
 
 		?>

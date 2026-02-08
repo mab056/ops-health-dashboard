@@ -36,8 +36,6 @@ require_once __DIR__ . '/config/bootstrap.php';
 
 /**
  * Hook di attivazione
- *
- * NO metodo static, crea un'istanza di Activator.
  */
 register_activation_hook(
 	__FILE__,
@@ -49,8 +47,6 @@ register_activation_hook(
 
 /**
  * Hook di disattivazione
- *
- * NO metodo static, crea un'istanza di Activator.
  */
 register_deactivation_hook(
 	__FILE__,
@@ -64,7 +60,7 @@ register_deactivation_hook(
  * Inizializza il plugin
  *
  * Bootstrap crea il container, configura i binding, restituisce l'istanza del
- * plugin. NO singleton, nuova istanza gestita dal sistema di hook di WordPress.
+ * plugin.
  */
 add_action(
 	'plugins_loaded',
