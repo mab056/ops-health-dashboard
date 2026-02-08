@@ -5,6 +5,23 @@ Tutte le modifiche rilevanti a questo progetto saranno documentate in questo fil
 Il formato è basato su [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **bin/build-zip.sh** - Script per generare uno ZIP del plugin pronto per l'upload su WordPress
+  - Usa comando `zip` nativo se disponibile, fallback su PHP `ZipArchive`
+  - Output in `dist/` di default, sovrascrivibile con `--output`
+  - Esclude file di sviluppo (test, CI, IDE, docs dev)
+  - Installa dipendenze production-only con `--no-dev`
+
+### Fixed
+- **Autoloader guard** - Il plugin ora mostra un avviso admin se `vendor/autoload.php` manca, invece di terminare con un fatal PHP
+- **PHPCS doc comments** - Rimossi blank line extra nei doc comment di 4 classi (Storage, Scheduler, DatabaseCheck, Menu)
+
+### Changed
+- **README badges** - Licenza aggiornata a GPL v3; aggiunti badge Version e PHPCS
+- **dist/ in .gitignore** - Cartella build esclusa dal repository
+
 ## 0.1.0 - 2026-02-08
 
 ### Added
@@ -41,7 +58,7 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 
 ### Fixed
 - **Scheduler self-healing** - `register_hooks()` ora chiama `schedule()` per ri-creare l'evento cron se scomparso (migrazione DB, cleanup cron, corruzione option). Idempotente grazie al guard `is_scheduled()`.
-- **test-matrix.sh `--parallel`** - Risultati delle subshell ora propagati al processo padre tramite file temporanei. Prima la tabella riepilogativa era vuota e l'exit code sempre 0 in modalita' parallela.
+- **test-matrix.sh `--parallel`** - I risultati delle subshell ora sono propagati al processo padre tramite file temporanei. Prima la tabella riepilogativa era vuota e l'exit code era sempre 0 in modalita parallela.
 
 ### Security
 - Constructor injection di `$wpdb` per evitare accesso globale nei test

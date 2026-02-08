@@ -1,6 +1,6 @@
 # Contribuire a Ops Health Dashboard
 
-Grazie per il tuo interesse nel contribuire! Questo documento fornisce linee guida e requisiti per contribuire a questo progetto.
+Grazie per il tuo interesse nel contribuire. Questo documento fornisce linee guida e requisiti per collaborare al progetto.
 
 ## 🎯 Principi Fondamentali
 
@@ -37,7 +37,7 @@ cd ops-health-dashboard
 git remote add upstream https://github.com/mab056/ops-health-dashboard.git
 ```
 
-### 2. Installa le Dipendenze
+### 2. Installa le dipendenze
 
 ```bash
 # Installa le dipendenze Composer
@@ -47,7 +47,7 @@ composer install
 composer install-wp-tests
 ```
 
-### 3. Crea il Feature Branch
+### 3. Crea il feature branch
 
 ```bash
 # Aggiorna i branch principali
@@ -63,9 +63,9 @@ git checkout -b fix/bug-description
 
 ## 🧪 TDD Workflow (OBBLIGATORIO)
 
-**Ogni feature DEVE seguire il ciclo RED → GREEN → REFACTOR.**
+**Ogni feature deve seguire il ciclo RED → GREEN → REFACTOR.**
 
-### Step 1: RED - Scrivi un Test che Fallisce
+### Step 1: RED - Scrivi un test che fallisce
 
 ```php
 // tests/Unit/Services/MyNewServiceTest.php
@@ -113,14 +113,14 @@ class MyNewServiceTest extends TestCase {
 }
 ```
 
-**Esegui il test - dovrebbe FALLIRE:**
+**Esegui il test: dovrebbe FALLIRE.**
 
 ```bash
 composer test
 # Expected: FAILURES! (Tests: X, Assertions: Y, Failures: Z)
 ```
 
-### Step 2: GREEN - Implementa il Codice Minimo
+### Step 2: GREEN - Implementa il codice minimo
 
 ```php
 // src/Services/MyNewService.php
@@ -145,14 +145,14 @@ class MyNewService {
 }
 ```
 
-**Esegui il test - dovrebbe PASSARE:**
+**Esegui il test: dovrebbe PASSARE.**
 
 ```bash
 composer test
 # Expected: OK (X tests, Y assertions)
 ```
 
-### Step 3: REFACTOR - Migliora la Qualità del Codice
+### Step 3: REFACTOR - Migliora la qualita del codice
 
 ```php
 // Add error handling, validation, dependencies, etc.
@@ -186,7 +186,7 @@ class MyNewService {
 }
 ```
 
-**Esegui nuovamente i test - devono ancora passare:**
+**Esegui nuovamente i test: devono ancora passare.**
 
 ```bash
 composer test
@@ -410,6 +410,9 @@ composer test:matrix
 # Oppure almeno sulla versione corrente
 composer test
 composer phpcs
+
+# Verifica che il build ZIP funzioni
+bin/build-zip.sh
 
 # Aggiorna DEVELOPMENT_PLAN.md se stai completando task di milestone
 

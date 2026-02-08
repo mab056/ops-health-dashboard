@@ -44,10 +44,11 @@ if ( ! file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 }
 require_once __DIR__ . '/vendor/autoload.php';
 
+// Carica la configurazione di bootstrap.
 require_once __DIR__ . '/config/bootstrap.php';
 
 /**
- * Hook di attivazione
+ * Hook di attivazione.
  */
 register_activation_hook(
 	__FILE__,
@@ -58,7 +59,7 @@ register_activation_hook(
 );
 
 /**
- * Hook di disattivazione
+ * Hook di disattivazione.
  */
 register_deactivation_hook(
 	__FILE__,
@@ -69,7 +70,7 @@ register_deactivation_hook(
 );
 
 /**
- * Inizializza il plugin
+ * Inizializza il plugin.
  *
  * Bootstrap crea il container, configura i binding, restituisce l'istanza del
  * plugin.

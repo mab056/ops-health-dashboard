@@ -9,16 +9,16 @@ Plugin WordPress production-grade per monitoraggio operativo con health checks, 
 ## Regole Architetturali Non Negoziabili
 
 1. NO singleton.
-2. NO metodi/proprieta' static.
-3. NO classi/metodi final.
+2. NO metodi/proprieta statiche.
+3. NO classi/metodi `final`.
 4. Usare dependency injection via costruttore.
 5. Usare il container DI con `share()` per istanze condivise (non singleton globali).
 
 ## Pattern Richiesti
 
 1. Design interface-first (`*Interface` + implementazioni concrete).
-2. Bootstrap tramite funzione (`config/bootstrap.php`), non factory static.
-3. Dipendenze WordPress (es. `$wpdb`) iniettate, evitando accesso globale diretto nella business logic.
+2. Bootstrap tramite funzione (`config/bootstrap.php`), non tramite factory static.
+3. Dipendenze WordPress (es. `$wpdb`) iniettate, evitando accesso globale diretto nella logica di business.
 
 ## Testing (Obbligatorio)
 
@@ -62,19 +62,18 @@ Plugin WordPress production-grade per monitoraggio operativo con health checks, 
 
 Milestone M1 completata (Core Checks + Storage + Cron). M2 in corso (Error Log Summary Safe). Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
 
-## Verifica Modifiche Recenti (2026-02-08)
+## Baseline Corrente (v0.1.0)
 
-Modifiche controllate in working tree:
-1. `src/Services/Scheduler.php`: aggiunto self-healing in `register_hooks()` con chiamata a `schedule()`.
-2. `tests/Unit/Services/SchedulerTest.php`: aggiornati test unit per coprire self-healing (cron presente/mancante).
-3. `tests/Integration/Services/SchedulerTest.php`: aggiunto test integrazione per ri-schedulazione automatica.
-4. `bin/test-matrix.sh`: corretto supporto `--parallel` con raccolta risultati da subshell via file temporanei.
-5. `README.md`: aggiornata sezione autori/riferimenti assistenti AI.
+Punti architetturali da preservare nella codebase attuale:
+1. Bootstrap plugin in `ops-health-dashboard.php` con autoloader fail-safe (admin notice se `vendor/autoload.php` manca).
+2. Orchestrazione principale in `src/Core/Plugin.php` con init idempotente.
+3. Container DI custom in `src/Core/Container.php` (`bind`, `share`, `instance`, `make`).
+4. Lifecycle activation/deactivation in `src/Core/Activator.php` con setup opzioni e cron hook.
+5. Scheduling check periodici tramite servizio scheduler (WP-Cron ogni 15 minuti).
 
-Esito verifica locale:
-1. `composer test:unit` OK (104 test, 212 assertion).
-2. `composer phpcs` OK.
-3. `composer test:integration` non eseguibile in sandbox senza accesso DB MySQL (`mysqli_real_connect ... Operation not permitted`).
+Nota operativa:
+1. Evitare sezioni datate o checklist "one-shot" in questo file.
+2. Aggiornare questa sezione solo quando cambia la baseline tecnica (versione, bootstrap, scheduler, contract principali).
 
 ## Checklist Revisione Modifiche
 
@@ -82,11 +81,12 @@ Prima di chiudere PR/commit, verificare sempre:
 1. `git diff --name-only` e `git diff` sui file toccati.
 2. Copertura test aggiornata per ogni comportamento nuovo/modificato.
 3. Assenza regressioni su cron/scheduler (niente duplicati, self-healing attivo).
-4. Compatibilita' script di tooling in esecuzione sequenziale e parallela.
+4. Compatibilita degli script di tooling in esecuzione sequenziale e parallela.
 5. Esecuzione:
    - `composer test:unit`
    - `composer test:integration` (in ambiente con DB disponibile)
    - `composer phpcs`
+6. Se l'ambiente locale/sandbox non consente i test di integrazione, esplicitarlo nel report finale con errore concreto (es. DB non raggiungibile), senza marcarli come "passati".
 
 ## Documenti di Riferimento
 

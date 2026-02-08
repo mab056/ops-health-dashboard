@@ -3,7 +3,9 @@
 [![CI](https://github.com/mab056/ops-health-dashboard/workflows/CI/badge.svg)](https://github.com/mab056/ops-health-dashboard/actions)
 [![PHP Version](https://img.shields.io/badge/PHP-7.4%2B-blue)](https://www.php.net/)
 [![WordPress](https://img.shields.io/badge/WordPress-5.8%2B-blue)](https://wordpress.org/)
-[![License](https://img.shields.io/badge/License-GPL%20v2%2B-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/Version-0.1.0-green)](https://github.com/mab056/ops-health-dashboard/releases)
+[![PHPCS](https://img.shields.io/badge/PHPCS-WordPress%20Standards-green)](https://github.com/WordPress/WordPress-Coding-Standards)
 
 Plugin WordPress di monitoraggio operativo production-grade con controlli automatici e alert configurabili.
 
@@ -16,7 +18,7 @@ Questo plugin fornisce una dashboard operativa in wp-admin con controlli automat
 ## ✨ Funzionalità (MVP)
 
 ### Controlli di Salute
-- **Database** - Connettività + performance query
+- **Database** - Connettivita e performance delle query
 - **Redis** - Rilevamento + smoke test (opzionale)
 - **Spazio Disco** - Libero/totale con soglie configurabili
 - **Log Errori** - Aggregazione sicura con redaction automatica
@@ -38,7 +40,7 @@ Questo plugin fornisce una dashboard operativa in wp-admin con controlli automat
 
 ### Scheduling
 - WP-Cron (default: ogni 15 minuti)
-- Trigger manuale
+- Trigger manuale dei check
 - Alert solo su cambiamenti di stato
 
 ## 🏗️ Architettura
@@ -112,12 +114,12 @@ ops-health-dashboard/
 
 ### Per Utenti (Produzione)
 
-1. Scarica l'ultima release da [GitHub Releases](https://github.com/mab056/ops-health-dashboard/releases)
-2. Carica in `/wp-content/plugins/ops-health-dashboard/`
+1. Scarica l'ultima release da [GitHub Releases](https://github.com/mab056/ops-health-dashboard/releases) oppure genera lo ZIP con `bin/build-zip.sh`
+2. Carica il file ZIP tramite `Plugin → Aggiungi Nuovo → Carica Plugin` in wp-admin
 3. Attiva tramite admin WordPress
 4. Naviga su `Ops → Health Dashboard`
 
-### Per Sviluppatori (Sviluppo Locale)
+### Per sviluppatori (sviluppo locale)
 
 ```bash
 # Clona repository
@@ -127,13 +129,13 @@ cd ops-health-dashboard
 # Installa dipendenze
 composer install
 
-# Esegui test unitari (veloce, no WordPress)
+# Esegui test unitari (veloci, senza WordPress)
 composer test:unit
 
 # Installa la suite di test WordPress per i test di integrazione
 composer install-wp-tests
 
-# Esegui tutti i test (unit + integration)
+# Esegui tutti i test (unit + integrazione)
 composer test
 
 # Esegui PHPCS
@@ -142,27 +144,27 @@ composer phpcs
 
 ## 🧪 Testing
 
-Questo progetto segue **TDD rigoroso** (Test-Driven Development) con **approccio misto**:
+Questo progetto segue **TDD rigoroso** (Test-Driven Development) con un **approccio misto**:
 
 ### Approccio Test Misto
 
 **Unit Tests (Brain\Monkey)** - Veloce, isolato
 - Logica business pura, NO WordPress
-- 104 test, ~0.9s
+- 104 test, ~0.9 s
 - Perfetto per TDD rapido
 
 **Integration Tests (WP Test Suite)** - WordPress reale
 - Test con WordPress completo, database, WP-Cron
-- 33 test, ~0.2s
+- 33 test, ~0.2 s
 - Verifica integrazione reale con WordPress
 
 ### Comandi Test
 
 ```bash
-# Unit tests (veloce, no WordPress required)
+# Unit tests (veloci, WordPress non richiesto)
 composer test:unit
 
-# Integration tests (richiede WP test suite)
+# Integration tests (richiedono WP test suite)
 composer install-wp-tests              # Setup una tantum
 composer test:integration
 
@@ -180,11 +182,15 @@ composer phpcs
 
 # Auto-fix problemi PHPCS
 composer phpcbf
+
+# Build ZIP per la produzione
+bin/build-zip.sh                      # Genera dist/ops-health-dashboard-VERSION.zip
+bin/build-zip.sh --output /tmp/p.zip  # Output path custom
 ```
 
 ### Test Matrix Locale
 
-Esegui l'intera matrice CI localmente (richiede PHP 7.4-8.5 via PPA sury):
+Esegui l'intera matrice CI in locale (richiede PHP 7.4-8.5 via PPA sury):
 
 ```bash
 composer test:matrix                   # Matrice completa (PHPCS + 7 versioni PHP)
@@ -244,8 +250,8 @@ public function test_database_check_runs_successfully() {
 
 ### Matrice Test
 
-- **Unit Tests**: Brain\Monkey - 104 test, tutte le versioni PHP
-- **Integration Tests**: WP Test Suite - 33 test, tutte le versioni PHP
+- **Unit Tests**: Brain\Monkey - 104 test, tutte le versioni di PHP
+- **Integration Tests**: WP Test Suite - 33 test, tutte le versioni di PHP
 - **Versioni PHP**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
 - **Target Coverage**: ≥85% su PHP 8.3
 - **Test E2E**: Viewport Mobile, Tablet, Desktop (futuro)

@@ -56,7 +56,7 @@ class CheckRunner {
 	/**
 	 * Esegue tutti i check abilitati
 	 *
-	 * @return array Array associativo con i risultati per ogni check (key = check ID).
+	 * @return array Array associativo con i risultati per ogni check (chiave = ID check).
 	 */
 	public function run_all(): array {
 		$results = [];

@@ -1,6 +1,6 @@
 # Claude.ai Instructions - Ops Health Dashboard
 
-Questo file contiene istruzioni specifiche per Claude (o altri AI assistant) su come lavorare con questo progetto WordPress.
+Questo file contiene istruzioni specifiche per Claude (o altri assistenti AI) su come lavorare con questo progetto WordPress.
 
 ## 🎯 Obiettivo del Progetto
 
@@ -49,9 +49,9 @@ class GoodService {
 }
 ```
 
-**Rationale:**
-- **Testabilità**: Singleton/static rendono impossibile il mocking
-- **Flessibilità**: Final impedisce estensibilità
+**Motivazione:**
+- **Testabilita**: singleton/static rendono il mocking molto difficile
+- **Flessibilita**: `final` limita l'estensibilita
 - **Best Practices**: WordPress core si è allontanato dai singleton
 - **Dependency Injection**: Tutte le dipendenze devono essere esplicite
 
@@ -246,7 +246,7 @@ echo esc_url($url);
 echo esc_js($javascript);
 ```
 
-### Capability Checks (SEMPRE su admin pages)
+### Capability checks (SEMPRE sulle pagine admin)
 
 ```php
 if (!current_user_can('manage_options')) {
@@ -254,7 +254,7 @@ if (!current_user_can('manage_options')) {
 }
 ```
 
-### Nonces (SEMPRE su forms/AJAX)
+### Nonce (SEMPRE su form/AJAX)
 
 ```php
 // Generate in form
@@ -351,6 +351,10 @@ composer phpcbf                     # Auto-fix coding standards
 
 # WordPress Test Suite
 composer install-wp-tests           # Installa WP test suite (una tantum)
+
+# Build (produzione)
+bin/build-zip.sh                    # Genera dist/ops-health-dashboard-VERSION.zip
+bin/build-zip.sh --output /tmp/p.zip  # Output path custom
 ```
 
 ### Creare una Nuova Feature
@@ -405,6 +409,11 @@ ops-health-dashboard/
 │   └── Integration/       # WP Test Suite tests (WordPress reale)
 ├── config/
 │   └── bootstrap.php      # DI container configuration
+├── bin/
+│   ├── build-zip.sh       # Genera ZIP produzione per WordPress upload
+│   ├── install-wp-tests.sh # Setup WP test suite
+│   └── test-matrix.sh     # Matrice locale PHP 7.4-8.5
+├── dist/                  # Output build ZIP (gitignored)
 └── .github/workflows/     # CI/CD pipelines
 ```
 

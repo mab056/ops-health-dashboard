@@ -60,7 +60,7 @@
 - ✅ Storage: `has()` con sentinel object pattern
 - ✅ HealthScreen: validazione difensiva chiavi risultato (isset)
 - ✅ HealthScreen: messaggio "no checks" quando risultati vuoti
-- ✅ Plugin: `init()` registra solo hooks, non schedula
+- ✅ Plugin: `init()` registra solo hook, non schedula
 - ✅ bootstrap.php: inietta `$wpdb` globale in DatabaseCheck
 - ✅ composer.json: test script esegue suite sequenzialmente
 - ✅ CI: coverage con file separati per suite
@@ -71,11 +71,11 @@
 
 **Statistiche Finali**:
 - 11 file sorgente in `src/`
-- 18 file di test (11 unit + 7 integration)
+- 18 file di test (11 unit + 7 integrazione)
 - 137 test totali, 275 assertions
 - PHPCS 100% clean (0 errori, 0 warning)
 
-**Deliverable**: Dashboard mostra Database check con auto-refresh WP-Cron ✅
+**Deliverable**: la dashboard mostra il Database check con auto-refresh WP-Cron ✅
 
 ---
 
@@ -135,12 +135,12 @@
 
 ### Fasi TDD
 
-1. **Fase 1**: RedactionInterface + Redaction (RED → GREEN → REFACTOR) + test integration
-2. **Fase 2**: ErrorLogCheck (RED → GREEN → REFACTOR) + test integration
+1. **Fase 1**: RedactionInterface + Redaction (RED → GREEN → REFACTOR) + test di integrazione
+2. **Fase 2**: ErrorLogCheck (RED → GREEN → REFACTOR) + test di integrazione
 3. **Fase 3**: Bootstrap wiring
 4. **Fase 4**: Verifica finale (`composer test` + `composer phpcs` + `test:matrix --php 7.4 --php 8.5`)
 
-**Deliverable**: Dashboard mostra Error Log check con contenuti redatti, ~155+ test totali
+**Deliverable**: la dashboard mostra l'Error Log check con contenuti redatti, ~155+ test totali
 
 ---
 
@@ -160,9 +160,16 @@
 - Added `bin/test-matrix.sh` for local PHP 7.4-8.5 matrix testing (mirrors CI)
 
 **Post-M1 Hardening** (code review Codex):
-- Fixed `--parallel` in test-matrix.sh: subshell results now propagated via temp files
+- Fixed `--parallel` in test-matrix.sh: i risultati delle subshell ora sono propagati via file temporanei
 - Added Scheduler self-healing: `register_hooks()` calls `schedule()` to re-create missing cron event
 - 137 tests (104 unit + 33 integration), 275 assertions
+
+**Post-M1 Improvements**:
+- Added autoloader guard in main plugin file (admin notice instead of fatal error if vendor/ missing)
+- Created `bin/build-zip.sh` for production ZIP generation (`zip` CLI with PHP ZipArchive fallback)
+- Fixed PHPCS doc comment SpacingAfter in 4 source files (Storage, Scheduler, DatabaseCheck, Menu)
+- Added Version and PHPCS badges to README.md, updated license badge to GPL v3
+- Added `dist/` to .gitignore
 
 **Completed M0**: Setup & Infrastruttura ✅
 - Created complete directory structure

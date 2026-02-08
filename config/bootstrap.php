@@ -56,7 +56,7 @@ function bootstrap(): Plugin {
 		}
 	);
 
-	// Configura i binding per Admin UI.
+	// Configura i binding per l'interfaccia admin.
 	$container->share(
 		Admin\HealthScreen::class,
 		function ( $c ) {

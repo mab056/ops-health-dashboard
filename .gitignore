@@ -52,6 +52,9 @@ wp-config.php
 composer.phar
 composer.lock
 
+# Build
+/dist/
+
 # Testing
 /coverage/
 /.phpunit.cache/
