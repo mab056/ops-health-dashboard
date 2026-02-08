@@ -36,7 +36,11 @@
   },
   "scripts": {
     "test": "phpunit",
+    "test:unit": "phpunit --testsuite=unit",
+    "test:integration": "phpunit --testsuite=integration",
     "test:coverage": "XDEBUG_MODE=coverage phpunit --coverage-text --coverage-clover=coverage/clover.xml",
+    "test:coverage:unit": "XDEBUG_MODE=coverage phpunit --testsuite=unit --coverage-text --coverage-clover=coverage/clover-unit.xml",
+    "test:coverage:integration": "XDEBUG_MODE=coverage phpunit --testsuite=integration --coverage-text --coverage-clover=coverage/clover-integration.xml",
     "phpcs": "phpcs",
     "phpcbf": "phpcbf",
     "install-wp-tests": "bash bin/install-wp-tests.sh wordpress_test root '' localhost latest"
