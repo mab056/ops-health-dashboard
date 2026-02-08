@@ -82,7 +82,7 @@ function bootstrap(): Plugin {
 - Container, Plugin (logica pura senza WordPress)
 
 **Caratteristiche:**
-- ⚡ Velocissimi (~0.7s per 97 test)
+- ⚡ Velocissimi (~0.9s per 103 test)
 - 🔒 Isolamento completo
 - 🧬 Mock di funzioni WordPress con Brain\Monkey
 - ❌ NO database, NO filesystem, NO WordPress
@@ -139,7 +139,7 @@ composer test:coverage:unit          # Unit tests con coverage
 - ✅ WordPress completo caricato
 - ✅ Database MySQL reale
 - ✅ WP-Cron, Options API, hooks reali
-- 🐢 Più lenti (~0.2s con 31 test, richiede WP install)
+- 🐢 Più lenti (~0.2s con 32 test, richiede WP install)
 
 **Esempio:**
 ```php
@@ -217,7 +217,7 @@ public function test_no_static_methods() {
     $methods = $reflection->getMethods(\ReflectionMethod::IS_STATIC);
 
     $static_methods = array_filter($methods, function($method) {
-        return !str_starts_with($method->getName(), '__');
+        return strpos($method->getName(), '__') !== 0;
     });
 
     $this->assertEmpty($static_methods, 'Class should have NO static methods');
@@ -584,9 +584,9 @@ GitHub Actions esegue automaticamente:
 **Milestone M1 - Core Checks + Storage + Cron** ✅ COMPLETATO
 
 **Stato Attuale:**
-- ✅ 97 test unitari (Brain\Monkey)
-- ✅ 31 test di integrazione (WP Test Suite)
-- ✅ 128 test totali passing, 260 assertions
+- ✅ 103 test unitari (Brain\Monkey)
+- ✅ 32 test di integrazione (WP Test Suite)
+- ✅ 135 test totali passing, 267 assertions
 - ✅ PHPCS 100% compliance (0 errori, 0 warning)
 - ✅ CI/CD completo con PHP 7.4-8.5
 - ✅ 11 file sorgente, 18 file di test

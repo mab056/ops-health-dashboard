@@ -29,11 +29,22 @@ class CheckRunnerTest extends WP_UnitTestCase {
 	private $storage;
 
 	/**
+	 * CheckRunner con DatabaseCheck già aggiunto
+	 *
+	 * @var CheckRunner
+	 */
+	private $runner;
+
+	/**
 	 * Setup per ogni test
 	 */
 	public function setUp(): void {
 		parent::setUp();
 		$this->storage = new Storage();
+		$this->runner  = new CheckRunner( $this->storage );
+
+		global $wpdb;
+		$this->runner->add_check( new DatabaseCheck( $wpdb ) );
 
 		// Pulisci i risultati precedenti.
 		$this->storage->delete( 'latest_results' );
@@ -51,12 +62,7 @@ class CheckRunnerTest extends WP_UnitTestCase {
 	 * Testa che CheckRunner esegue check reali
 	 */
 	public function test_check_runner_executes_real_checks() {
-		$runner = new CheckRunner( $this->storage );
-		global $wpdb;
-		$check  = new DatabaseCheck( $wpdb );
-
-		$runner->add_check( $check );
-		$results = $runner->run_all();
+		$results = $this->runner->run_all();
 
 		$this->assertIsArray( $results );
 		$this->assertArrayHasKey( 'database', $results );
@@ -68,12 +74,7 @@ class CheckRunnerTest extends WP_UnitTestCase {
 	 * Testa che CheckRunner salva i risultati nello storage
 	 */
 	public function test_check_runner_saves_results_to_storage() {
-		$runner = new CheckRunner( $this->storage );
-		global $wpdb;
-		$check  = new DatabaseCheck( $wpdb );
-
-		$runner->add_check( $check );
-		$runner->run_all();
+		$this->runner->run_all();
 
 		// Recupera i risultati dallo storage.
 		$stored_results = $this->storage->get( 'latest_results' );
@@ -86,12 +87,7 @@ class CheckRunnerTest extends WP_UnitTestCase {
 	 * Testa che get_latest_results() recupera i risultati salvati
 	 */
 	public function test_get_latest_results_retrieves_saved_results() {
-		$runner = new CheckRunner( $this->storage );
-		global $wpdb;
-		$check  = new DatabaseCheck( $wpdb );
-
-		$runner->add_check( $check );
-		$runner->run_all();
+		$this->runner->run_all();
 
 		// Crea un nuovo runner e recupera i risultati.
 		$new_runner = new CheckRunner( $this->storage );
@@ -105,22 +101,16 @@ class CheckRunnerTest extends WP_UnitTestCase {
 	 * Testa che CheckRunner gestisce multiple esecuzioni
 	 */
 	public function test_check_runner_handles_multiple_executions() {
-		$runner = new CheckRunner( $this->storage );
-		global $wpdb;
-		$check  = new DatabaseCheck( $wpdb );
-
-		$runner->add_check( $check );
-
 		// Prima esecuzione.
-		$results1 = $runner->run_all();
+		$results1 = $this->runner->run_all();
 		$this->assertArrayHasKey( 'database', $results1 );
 
 		// Seconda esecuzione (dovrebbe sovrascrivere).
-		$results2 = $runner->run_all();
+		$results2 = $this->runner->run_all();
 		$this->assertArrayHasKey( 'database', $results2 );
 
 		// I risultati salvati dovrebbero essere quelli della seconda esecuzione.
-		$stored = $runner->get_latest_results();
+		$stored = $this->runner->get_latest_results();
 		$this->assertEquals( $results2, $stored );
 	}
 }

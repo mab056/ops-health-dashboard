@@ -30,13 +30,20 @@ class SchedulerTest extends WP_UnitTestCase {
 	private $scheduler;
 
 	/**
+	 * Storage per i test
+	 *
+	 * @var Storage
+	 */
+	private $storage;
+
+	/**
 	 * Setup per ogni test
 	 */
 	public function setUp(): void {
 		parent::setUp();
 
-		$storage = new Storage();
-		$runner  = new CheckRunner( $storage );
+		$this->storage = new Storage();
+		$runner        = new CheckRunner( $this->storage );
 		global $wpdb;
 		$runner->add_check( new DatabaseCheck( $wpdb ) );
 
@@ -110,23 +117,17 @@ class SchedulerTest extends WP_UnitTestCase {
 	 * Testa che run_checks() esegue i check realmente
 	 */
 	public function test_run_checks_executes_real_checks() {
-		$storage = new Storage();
-		$storage->delete( 'latest_results' );
+		$this->storage->delete( 'latest_results' );
 
-		$runner = new CheckRunner( $storage );
-		global $wpdb;
-		$runner->add_check( new DatabaseCheck( $wpdb ) );
-
-		$scheduler = new Scheduler( $runner );
-		$scheduler->run_checks();
+		$this->scheduler->run_checks();
 
 		// Verifica che i risultati sono stati salvati.
-		$results = $storage->get( 'latest_results' );
+		$results = $this->storage->get( 'latest_results' );
 
 		$this->assertIsArray( $results );
 		$this->assertArrayHasKey( 'database', $results );
 
 		// Cleanup.
-		$storage->delete( 'latest_results' );
+		$this->storage->delete( 'latest_results' );
 	}
 }

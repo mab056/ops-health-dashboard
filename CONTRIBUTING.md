@@ -97,7 +97,7 @@ class MyNewServiceTest extends TestCase {
 		$methods = $reflection->getMethods(\ReflectionMethod::IS_STATIC);
 
 		$static_methods = array_filter($methods, function($method) {
-			return !str_starts_with($method->getName(), '__');
+			return strpos($method->getName(), '__') !== 0;
 		});
 
 		$this->assertEmpty($static_methods, 'Class should have NO static methods');

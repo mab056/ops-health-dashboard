@@ -45,8 +45,8 @@
 - [x] **M1.6** - Admin Menu registration
 - [x] **M1.7** - HealthScreen rendering con capability check
 - [x] **M1.8** - bootstrap.php con DI wiring completo
-- [x] **M1.9** - Unit tests completi (97 test, Brain\Monkey)
-- [x] **M1.10** - Integration tests completi (31 test, WP Test Suite)
+- [x] **M1.9** - Unit tests completi (103 test, Brain\Monkey)
+- [x] **M1.10** - Integration tests completi (32 test, WP Test Suite)
 
 ### Code Review - Issue Risolte (21/22)
 
@@ -72,7 +72,7 @@
 **Statistiche Finali**:
 - 11 file sorgente in `src/`
 - 18 file di test (11 unit + 7 integration)
-- 128 test totali, 260 assertions
+- 135 test totali, 267 assertions
 - PHPCS 100% clean (0 errori, 0 warning)
 
 **Deliverable**: Dashboard mostra Database check con auto-refresh WP-Cron ✅
@@ -91,7 +91,7 @@
 - Scheduler with 15-minute WP-Cron interval
 - Admin Menu and HealthScreen with capability check and defensive rendering
 - Complete code review: fixed 21/22 issues
-- All 128 tests green, PHPCS 100% clean
+- All 135 tests green, PHPCS 100% clean
 
 **Completed M0**: Setup & Infrastruttura ✅
 - Created complete directory structure
@@ -112,6 +112,10 @@
 - `70a708e` - docs: traduci commenti codice in italiano
 
 ---
+
+## Known Issues / Tech Debt
+
+- **CSS 'unknown' status**: HealthScreen non ha classe CSS per lo stato 'unknown' (solo ok/warning/critical). Aggiungere quando si implementano gli asset CSS (M2+).
 
 ## Next Milestones
 
