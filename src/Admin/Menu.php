@@ -13,7 +13,6 @@ namespace OpsHealthDashboard\Admin;
  * Class Menu
  *
  * Registra il menu admin per Ops Health Dashboard.
-
  */
 class Menu {
 
