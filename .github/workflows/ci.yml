@@ -92,7 +92,7 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-suggest
 
       - name: Install WordPress test suite
-        run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 latest
+        run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 latest true
 
       - name: Run unit tests (Brain\Monkey - fast)
         if: matrix.php != '8.3'
