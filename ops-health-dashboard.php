@@ -26,10 +26,24 @@ define( 'OPS_HEALTH_DASHBOARD_FILE', __FILE__ );
 define( 'OPS_HEALTH_DASHBOARD_PATH', plugin_dir_path( __FILE__ ) );
 define( 'OPS_HEALTH_DASHBOARD_URL', plugin_dir_url( __FILE__ ) );
 
-// Carica l'autoloader di Composer (se disponibile).
-if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
-	require_once __DIR__ . '/vendor/autoload.php';
+// Carica l'autoloader di Composer.
+if ( ! file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
+	add_action(
+		'admin_notices',
+		function () {
+			$msg = __(
+				'Ops Health Dashboard: autoloader missing. Please run "composer install".',
+				'ops-health-dashboard'
+			);
+			printf(
+				'<div class="notice notice-error"><p>%s</p></div>',
+				esc_html( $msg )
+			);
+		}
+	);
+	return;
 }
+require_once __DIR__ . '/vendor/autoload.php';
 
 // Carica la configurazione di bootstrap.
 require_once __DIR__ . '/config/bootstrap.php';
