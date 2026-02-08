@@ -58,6 +58,8 @@
 **Git Commits**:
 - `1b0944c` - feat(M0): Complete setup & infrastructure with TDD
 - `4e2d182` - docs: add comprehensive README and CONTRIBUTING guides
+- `d7b3dd2` - docs: traduci documentazione in italiano
+- `70a708e` - docs: traduci commenti codice in italiano
 
 ---
 
