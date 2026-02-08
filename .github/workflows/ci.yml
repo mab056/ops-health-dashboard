@@ -74,6 +74,9 @@ jobs:
           coverage: ${{ matrix.php == '8.3' && 'xdebug' || 'none' }}
           tools: composer
 
+      - name: Install Subversion
+        run: sudo apt-get update && sudo apt-get install -y subversion
+
       - name: Get Composer cache directory
         id: composer-cache
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
