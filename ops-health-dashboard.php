@@ -2,21 +2,20 @@
 /**
  * Plugin Name: Ops Health Dashboard
  * Plugin URI: https://github.com/mab056/ops-health-dashboard
- * Description: Production-grade WordPress health monitoring with automated checks and configurable alerts
+ * Description: Monitoraggio salute WordPress production-grade con controlli automatici e alert configurabili
  * Version: 0.0.0
  * Requires at least: 5.8
  * Requires PHP: 7.4
  * Author: Ops Team
  * Author URI: https://www.mattiabondrano.dev
- * License: GPL-2.0-or-later
- * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * License: GPL-3.0-or-later
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain: ops-health-dashboard
  * Domain Path: /languages
  *
  * @package OpsHealthDashboard
  */
 
-// Esce se acceduto direttamente.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -38,7 +37,7 @@ require_once __DIR__ . '/config/bootstrap.php';
 /**
  * Hook di attivazione
  *
- * NO metodo static - crea un'istanza di Activator
+ * NO metodo static, crea un'istanza di Activator.
  */
 register_activation_hook(
 	__FILE__,
@@ -51,7 +50,7 @@ register_activation_hook(
 /**
  * Hook di disattivazione
  *
- * NO metodo static - crea un'istanza di Activator
+ * NO metodo static, crea un'istanza di Activator.
  */
 register_deactivation_hook(
 	__FILE__,
@@ -64,8 +63,8 @@ register_deactivation_hook(
 /**
  * Inizializza il plugin
  *
- * Bootstrap crea il container, configura i binding, restituisce l'istanza del plugin.
- * NO singleton - nuova istanza gestita dal sistema di hook di WordPress.
+ * Bootstrap crea il container, configura i binding, restituisce l'istanza del
+ * plugin. NO singleton, nuova istanza gestita dal sistema di hook di WordPress.
  */
 add_action(
 	'plugins_loaded',

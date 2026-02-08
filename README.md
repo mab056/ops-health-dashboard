@@ -341,7 +341,7 @@ GitHub Actions esegue automaticamente su push/PR:
 
 ## 📄 Licenza
 
-GPL-2.0-or-later - vedi file [LICENSE](LICENSE).
+GPL-3.0-or-later - vedi file [LICENSE](LICENSE).
 
 ## 👥 Autori
 

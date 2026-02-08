@@ -568,7 +568,7 @@ Altri approcci a cui hai pensato.
 
 ## 📄 Licenza
 
-Contribuendo, accetti che i tuoi contributi saranno rilasciati sotto licenza GPL-2.0-or-later.
+Contribuendo, accetti che i tuoi contributi saranno rilasciati sotto licenza GPL-3.0-or-later.
 
 ---
 
