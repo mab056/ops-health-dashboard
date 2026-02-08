@@ -41,10 +41,10 @@ git remote add upstream https://github.com/mab056/ops-health-dashboard.git
 
 ```bash
 # Installa le dipendenze Composer
-php composer.phar install
+composer install
 
 # Installa la suite di test WordPress
-bash bin/install-wp-tests.sh wordpress_test root '' localhost latest
+composer install-wp-tests
 ```
 
 ### 3. Crea il Feature Branch
@@ -116,7 +116,7 @@ class MyNewServiceTest extends TestCase {
 **Esegui il test - dovrebbe FALLIRE:**
 
 ```bash
-php composer.phar test
+composer test
 # Expected: FAILURES! (Tests: X, Assertions: Y, Failures: Z)
 ```
 
@@ -148,7 +148,7 @@ class MyNewService {
 **Esegui il test - dovrebbe PASSARE:**
 
 ```bash
-php composer.phar test
+composer test
 # Expected: OK (X tests, Y assertions)
 ```
 
@@ -189,8 +189,8 @@ class MyNewService {
 **Esegui nuovamente i test - devono ancora passare:**
 
 ```bash
-php composer.phar test
-php composer.phar phpcs
+composer test
+composer phpcs
 ```
 
 ## 🚫 Applicazione dei Pattern
@@ -361,10 +361,10 @@ $response = $client->request($url, ['method' => 'POST']);
 
 ```bash
 # Check standards
-php composer.phar phpcs
+composer phpcs
 
 # Auto-fix
-php composer.phar phpcbf
+composer phpcbf
 ```
 
 ### Regole Principali
@@ -405,10 +405,10 @@ public function method_name(string $param1, int $param2): array {
 
 ```bash
 # Assicurati che tutti i test passino
-php composer.phar test
+composer test
 
 # Assicurati che PHPCS passi
-php composer.phar phpcs
+composer phpcs
 
 # Aggiorna DEVELOPMENT_PLAN.md se stai completando task di milestone
 
@@ -480,8 +480,8 @@ Tests: 3 new tests
 ### 4. Checklist della PR
 
 - [ ] Test scritti prima (TDD)
-- [ ] Tutti i test passano (`php composer.phar test`)
-- [ ] PHPCS passa (`php composer.phar phpcs`)
+- [ ] Tutti i test passano (`composer test`)
+- [ ] PHPCS passa (`composer phpcs`)
 - [ ] NON è stato usato il singleton pattern
 - [ ] NON sono stati usati static methods
 - [ ] NON ci sono classi/metodi final

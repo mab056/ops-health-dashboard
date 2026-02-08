@@ -82,7 +82,7 @@ function bootstrap(): Plugin {
 - Container, Plugin (logica pura senza WordPress)
 
 **Caratteristiche:**
-- ⚡ Velocissimi (~0.3s per 24 test)
+- ⚡ Velocissimi (~0.7s per 97 test)
 - 🔒 Isolamento completo
 - 🧬 Mock di funzioni WordPress con Brain\Monkey
 - ❌ NO database, NO filesystem, NO WordPress
@@ -122,7 +122,7 @@ class MyServiceTest extends TestCase {
 
 **Comandi:**
 ```bash
-composer test:unit                    # Run solo unit tests
+composer test:unit                    # Esegue solo test unitari
 composer test:coverage:unit          # Unit tests con coverage
 ```
 
@@ -139,7 +139,7 @@ composer test:coverage:unit          # Unit tests con coverage
 - ✅ WordPress completo caricato
 - ✅ Database MySQL reale
 - ✅ WP-Cron, Options API, hooks reali
-- 🐢 Più lenti (~3-5s, richiede WP install)
+- 🐢 Più lenti (~0.2s con 31 test, richiede WP install)
 
 **Esempio:**
 ```php
@@ -161,7 +161,7 @@ class ActivatorTest extends WP_UnitTestCase {
 **Setup richiesto:**
 ```bash
 composer install-wp-tests             # Una tantum
-composer test:integration            # Run integration tests
+composer test:integration            # Esegue solo test di integrazione
 ```
 
 ### TDD Workflow - RED → GREEN → REFACTOR
@@ -334,8 +334,8 @@ composer install
 ```bash
 # Testing
 composer test                        # Tutti i test (unit + integration)
-composer test:unit                   # Solo unit tests (veloce)
-composer test:integration           # Solo integration tests (con WP)
+composer test:unit                   # Solo test unitari (veloce)
+composer test:integration           # Solo test di integrazione (con WP)
 composer test:coverage              # Tutti con coverage
 
 # Code Quality
@@ -581,18 +581,27 @@ GitHub Actions esegue automaticamente:
 
 ## 🎯 Current Status
 
-**Milestone M0 - Setup & Infrastruttura** ✅ COMPLETATO
+**Milestone M1 - Core Checks + Storage + Cron** ✅ COMPLETATO
 
 **Stato Attuale:**
-- ✅ 24 unit tests (Brain\Monkey)
-- ✅ 8 integration tests (WP Test Suite)
-- ✅ 32 test totali passing
-- ✅ PHPCS 100% compliance
+- ✅ 97 test unitari (Brain\Monkey)
+- ✅ 31 test di integrazione (WP Test Suite)
+- ✅ 128 test totali passing, 260 assertions
+- ✅ PHPCS 100% compliance (0 errori, 0 warning)
 - ✅ CI/CD completo con PHP 7.4-8.5
-- ✅ Approccio test misto implementato
+- ✅ 11 file sorgente, 18 file di test
 - ✅ Pattern enforcement (NO singleton/static/final)
+- ✅ Code review: 21/22 issue risolte
 
-**Next: M1 - Core Checks + Storage + Cron**
+**Componenti Implementati (M1):**
+- StorageInterface, CheckInterface (contratti DI)
+- Storage (Options API, sentinel pattern in `has()`)
+- CheckRunner (try/catch, type safety)
+- DatabaseCheck ($wpdb injection, no info disclosure, i18n)
+- Scheduler (WP-Cron 15 min, prevenzione duplicati)
+- Menu, HealthScreen (capability check, validazione difensiva)
+
+**Next: M2 - Riepilogo Error Log Sicuro**
 
 ## 📞 Per Aiuto
 

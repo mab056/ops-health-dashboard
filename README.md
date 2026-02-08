@@ -130,7 +130,7 @@ composer install
 # Esegui test unitari (veloce, no WordPress)
 composer test:unit
 
-# Installa suite test WordPress per integration tests
+# Installa la suite di test WordPress per i test di integrazione
 composer install-wp-tests
 
 # Esegui tutti i test (unit + integration)
@@ -148,12 +148,12 @@ Questo progetto segue **TDD rigoroso** (Test-Driven Development) con **approccio
 
 **Unit Tests (Brain\Monkey)** - Veloce, isolato
 - Logica business pura, NO WordPress
-- ~24 test, ~0.3s
+- 97 test, ~0.7s
 - Perfetto per TDD rapido
 
 **Integration Tests (WP Test Suite)** - WordPress reale
 - Test con WordPress completo, database, WP-Cron
-- ~8 test, ~3-5s
+- 31 test, ~0.2s
 - Verifica integrazione reale con WordPress
 
 ### Comandi Test
@@ -192,41 +192,47 @@ Esempio:
 
 ```php
 // RED: Unit test con Brain\Monkey (veloce)
-public function test_database_check_calls_wpdb() {
-    Functions\expect('sanitize_text_field')
-        ->once()
-        ->andReturnFirstArg();
+public function test_run_returns_ok_when_database_healthy() {
+    $wpdb = Mockery::mock( 'wpdb' );
+    $wpdb->shouldReceive( 'query' )->once()->with( 'SELECT 1' )->andReturn( 1 );
+    $wpdb->last_error = '';
 
-    $check = new DatabaseCheck($storage);
+    Functions\expect( '__' )->andReturnFirstArg();
+
+    $check  = new DatabaseCheck( $wpdb );
     $result = $check->run();
-    $this->assertEquals('ok', $result['status']);
+    $this->assertEquals( 'ok', $result['status'] );
 }
 
 // GREEN: Implementa codice minimo
 public function run(): array {
-    global $wpdb;
-    $result = $wpdb->query('SELECT 1');
-    return ['status' => $result !== false ? 'ok' : 'critical'];
+    $start  = microtime( true );
+    $result = $this->wpdb->query( 'SELECT 1' );
+    return [
+        'status'  => false !== $result ? 'ok' : 'critical',
+        'message' => __( 'Database connection healthy', 'ops-health-dashboard' ),
+        'duration' => microtime( true ) - $start,
+    ];
 }
 
-// REFACTOR + INTEGRATION: Aggiungi test con WordPress reale
-public function test_database_check_with_real_wordpress() {
-    $check = new DatabaseCheck($storage);
+// INTEGRATION: Test con WordPress reale
+public function test_database_check_runs_successfully() {
+    global $wpdb;
+    $check  = new DatabaseCheck( $wpdb );
     $result = $check->run();
 
-    // Test con database MySQL reale
-    $this->assertArrayHasKey('status', $result);
-    $this->assertContains($result['status'], ['ok', 'warning', 'critical']);
+    $this->assertEquals( 'ok', $result['status'] );
+    $this->assertArrayNotHasKey( 'db_host', $result['details'] );
 }
 ```
 
 ### Matrice Test
 
-- **Unit Tests**: Brain\Monkey - 24 test, tutte le versioni PHP
-- **Integration Tests**: WP Test Suite - 8 test, tutte le versioni PHP
+- **Unit Tests**: Brain\Monkey - 97 test, tutte le versioni PHP
+- **Integration Tests**: WP Test Suite - 31 test, tutte le versioni PHP
 - **Versioni PHP**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
 - **Target Coverage**: ≥85% su PHP 8.3
-- **Test E2E**: Viewport Mobile, Tablet, Desktop (future)
+- **Test E2E**: Viewport Mobile, Tablet, Desktop (futuro)
 
 ## 🔒 Sicurezza
 
@@ -257,12 +263,19 @@ public function test_database_check_with_real_wordpress() {
 
 ## 📊 Stato Sviluppo
 
-Milestone corrente: **M0 - Setup & Infrastruttura** ✅
+Milestone corrente: **M2 - Riepilogo Error Log Sicuro** 🚧
+
+### Statistiche
+
+- **11 file sorgente** in `src/`
+- **18 file di test** (11 unit + 7 integration)
+- **128 test totali** (97 unit + 31 integration), 260 assertions
+- **PHPCS**: 100% compliance (0 errori, 0 warning)
 
 ### Roadmap
 
 - [x] **M0**: Setup & Infrastruttura (TDD, CI/CD, classi core)
-- [ ] **M1**: Check Core + Storage + Cron
+- [x] **M1**: Core Checks + Storage + Cron
 - [ ] **M2**: Riepilogo Error Log Sicuro
 - [ ] **M3**: Check Redis
 - [ ] **M4**: Sistema Alerting
@@ -292,13 +305,13 @@ cd ops-health-dashboard
 git checkout -b feature/nome-tua-feature
 
 # Installa dipendenze
-php composer.phar install
+composer install
 
 # Scrivi prima i test (TDD)
 # Poi implementa feature
 # Assicurati che tutti i test passino
-php composer.phar test
-php composer.phar phpcs
+composer test
+composer phpcs
 
 # Commit e push
 git commit -m "feat: descrizione tua feature"
@@ -319,8 +332,8 @@ git push origin feature/nome-tua-feature
 ```bash
 # Testing
 composer test                    # Tutti i test (unit + integration)
-composer test:unit               # Solo unit tests (Brain\Monkey, veloce)
-composer test:integration        # Solo integration tests (WP Test Suite)
+composer test:unit               # Solo test unitari (Brain\Monkey, veloce)
+composer test:integration        # Solo test di integrazione (WP Test Suite)
 composer test:coverage           # Coverage completa
 
 # Code Quality
@@ -328,7 +341,7 @@ composer phpcs                   # Controlla WordPress Coding Standards
 composer phpcbf                  # Auto-fix standard codifica
 
 # Setup
-composer install-wp-tests        # Installa suite test WordPress (una tantum)
+composer install-wp-tests        # Installa la suite di test WordPress (una tantum)
 ```
 
 ### CI/CD
