@@ -20,7 +20,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Definisce le costanti del plugin.
 define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.1.0' );
 define( 'OPS_HEALTH_DASHBOARD_FILE', __FILE__ );
 define( 'OPS_HEALTH_DASHBOARD_PATH', plugin_dir_path( __FILE__ ) );
@@ -45,7 +44,6 @@ if ( ! file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 }
 require_once __DIR__ . '/vendor/autoload.php';
 
-// Carica la configurazione di bootstrap.
 require_once __DIR__ . '/config/bootstrap.php';
 
 /**
