@@ -1,71 +1,71 @@
-# Contributing to Ops Health Dashboard
+# Contribuire a Ops Health Dashboard
 
-Thank you for your interest in contributing! This document provides guidelines and requirements for contributing to this project.
+Grazie per il tuo interesse nel contribuire! Questo documento fornisce linee guida e requisiti per contribuire a questo progetto.
 
-## 🎯 Core Principles
+## 🎯 Principi Fondamentali
 
-This project follows **strict development standards**:
+Questo progetto segue **standard di sviluppo rigorosi**:
 
-1. **TDD (Test-Driven Development)** - Tests before code, always
-2. **NO Singleton Pattern** - Use dependency injection
-3. **NO Static Methods/Properties** - Explicit dependencies only
-4. **NO Final Classes/Methods** - Ensure testability and extensibility
-5. **Security First** - Hardening is non-negotiable
-6. **WordPress Coding Standards** - WPCS compliance required
+1. **TDD (Test-Driven Development)** - Test prima del codice, sempre
+2. **NO Singleton Pattern** - Usa dependency injection
+3. **NO Static Methods/Properties** - Solo dipendenze esplicite
+4. **NO Final Classes/Methods** - Garantisci testabilità ed estensibilità
+5. **Security First** - L'hardening non è negoziabile
+6. **WordPress Coding Standards** - Conformità WPCS richiesta
 
-## 📋 Prerequisites
+## 📋 Prerequisiti
 
-Before contributing, ensure you have:
+Prima di contribuire, assicurati di avere:
 
-- PHP 7.4+ installed (8.3+ recommended)
-- Composer installed
-- Git configured
-- WordPress local development environment
-- Familiarity with PHPUnit and TDD
+- PHP 7.4+ installato (8.3+ raccomandato)
+- Composer installato
+- Git configurato
+- Ambiente di sviluppo WordPress locale
+- Familiarità con PHPUnit e TDD
 
-## 🚀 Getting Started
+## 🚀 Iniziare
 
-### 1. Fork and Clone
+### 1. Fork e Clone
 
 ```bash
-# Fork the repository on GitHub
-# Then clone your fork
+# Fai il fork del repository su GitHub
+# Poi clona il tuo fork
 git clone https://github.com/YOUR_USERNAME/ops-health-dashboard.git
 cd ops-health-dashboard
 
-# Add upstream remote
+# Aggiungi il remote upstream
 git remote add upstream https://github.com/mab056/ops-health-dashboard.git
 ```
 
-### 2. Install Dependencies
+### 2. Installa le Dipendenze
 
 ```bash
-# Install Composer dependencies
+# Installa le dipendenze Composer
 php composer.phar install
 
-# Install WordPress test suite
+# Installa la suite di test WordPress
 bash bin/install-wp-tests.sh wordpress_test root '' localhost latest
 ```
 
-### 3. Create Feature Branch
+### 3. Crea il Feature Branch
 
 ```bash
-# Update main branches
+# Aggiorna i branch principali
 git checkout dev
 git pull upstream dev
 
-# Create feature branch
+# Crea il feature branch
 git checkout -b feature/your-feature-name
 
-# Or for bug fixes
+# Oppure per bug fix
 git checkout -b fix/bug-description
 ```
 
-## 🧪 TDD Workflow (MANDATORY)
+## 🧪 TDD Workflow (OBBLIGATORIO)
 
-**Every feature MUST follow the RED → GREEN → REFACTOR cycle.**
+**Ogni feature DEVE seguire il ciclo RED → GREEN → REFACTOR.**
 
-### Step 1: RED - Write Failing Test
+### Step 1: RED - Scrivi un Test che Fallisce
 
 ```php
 // tests/Unit/Services/MyNewServiceTest.php
@@ -77,50 +77,50 @@ use PHPUnit\Framework\TestCase;
 
 class MyNewServiceTest extends TestCase {
 
-    /**
-     * Test new feature behavior
-     *
-     * This test will FAIL until implementation exists
-     */
-    public function test_my_new_feature_returns_expected_result() {
-        $service = new MyNewService();
-        $result = $service->doSomething();
+	/**
+	 * Test new feature behavior
+	 *
+	 * This test will FAIL until implementation exists
+	 */
+	public function test_my_new_feature_returns_expected_result() {
+		$service = new MyNewService();
+		$result = $service->doSomething();
 
-        $this->assertEquals('expected', $result);
-    }
+		$this->assertEquals('expected', $result);
+	}
 
-    /**
-     * CRITICAL: Test NO static methods
-     */
-    public function test_no_static_methods() {
-        $reflection = new \ReflectionClass(MyNewService::class);
-        $methods = $reflection->getMethods(\ReflectionMethod::IS_STATIC);
+	/**
+	 * CRITICAL: Test NO static methods
+	 */
+	public function test_no_static_methods() {
+		$reflection = new \ReflectionClass(MyNewService::class);
+		$methods = $reflection->getMethods(\ReflectionMethod::IS_STATIC);
 
-        $static_methods = array_filter($methods, function($method) {
-            return !str_starts_with($method->getName(), '__');
-        });
+		$static_methods = array_filter($methods, function($method) {
+			return !str_starts_with($method->getName(), '__');
+		});
 
-        $this->assertEmpty($static_methods, 'Class should have NO static methods');
-    }
+		$this->assertEmpty($static_methods, 'Class should have NO static methods');
+	}
 
-    /**
-     * CRITICAL: Test class is NOT final
-     */
-    public function test_class_is_not_final() {
-        $reflection = new \ReflectionClass(MyNewService::class);
-        $this->assertFalse($reflection->isFinal(), 'Class should NOT be final');
-    }
+	/**
+	 * CRITICAL: Test class is NOT final
+	 */
+	public function test_class_is_not_final() {
+		$reflection = new \ReflectionClass(MyNewService::class);
+		$this->assertFalse($reflection->isFinal(), 'Class should NOT be final');
+	}
 }
 ```
 
-**Run test - it should FAIL:**
+**Esegui il test - dovrebbe FALLIRE:**
 
 ```bash
 php composer.phar test
 # Expected: FAILURES! (Tests: X, Assertions: Y, Failures: Z)
 ```
 
-### Step 2: GREEN - Implement Minimal Code
+### Step 2: GREEN - Implementa il Codice Minimo
 
 ```php
 // src/Services/MyNewService.php
@@ -134,172 +134,172 @@ namespace OpsHealthDashboard\Services;
  */
 class MyNewService {
 
-    /**
-     * Do something
-     *
-     * @return string
-     */
-    public function doSomething(): string {
-        return 'expected';
-    }
+	/**
+	 * Do something
+	 *
+	 * @return string
+	 */
+	public function doSomething(): string {
+		return 'expected';
+	}
 }
 ```
 
-**Run test - it should PASS:**
+**Esegui il test - dovrebbe PASSARE:**
 
 ```bash
 php composer.phar test
 # Expected: OK (X tests, Y assertions)
 ```
 
-### Step 3: REFACTOR - Improve Code Quality
+### Step 3: REFACTOR - Migliora la Qualità del Codice
 
 ```php
 // Add error handling, validation, dependencies, etc.
 class MyNewService {
 
-    private $dependency;
+	private $dependency;
 
-    /**
-     * Constructor injection (NO singleton)
-     */
-    public function __construct(DependencyInterface $dependency) {
-        $this->dependency = $dependency;
-    }
+	/**
+	 * Constructor injection (NO singleton)
+	 */
+	public function __construct(DependencyInterface $dependency) {
+		$this->dependency = $dependency;
+	}
 
-    /**
-     * Do something with proper error handling
-     */
-    public function doSomething(): string {
-        try {
-            $result = $this->dependency->process();
-            return $this->validate($result);
-        } catch (\Exception $e) {
-            // Handle error
-            return 'default';
-        }
-    }
+	/**
+	 * Do something with proper error handling
+	 */
+	public function doSomething(): string {
+		try {
+			$result = $this->dependency->process();
+			return $this->validate($result);
+		} catch (\Exception $e) {
+			// Handle error
+			return 'default';
+		}
+	}
 
-    private function validate(string $result): string {
-        return sanitize_text_field($result);
-    }
+	private function validate(string $result): string {
+		return sanitize_text_field($result);
+	}
 }
 ```
 
-**Run tests again - still passing:**
+**Esegui nuovamente i test - devono ancora passare:**
 
 ```bash
 php composer.phar test
 php composer.phar phpcs
 ```
 
-## 🚫 Pattern Enforcement
+## 🚫 Applicazione dei Pattern
 
-### ❌ DO NOT Use Singleton Pattern
+### ❌ NON Usare il Singleton Pattern
 
 ```php
-// ❌ WRONG - This will fail tests
+// ❌ SBAGLIATO - Questo farà fallire i test
 class BadService {
-    private static $instance;
+	private static $instance;
 
-    public static function get_instance() {
-        if (null === self::$instance) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
+	public static function get_instance() {
+		if (null === self::$instance) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
 
-    private function __construct() {}
+	private function __construct() {}
 }
 ```
 
-### ✅ DO Use Dependency Injection
+### ✅ USA la Dependency Injection
 
 ```php
-// ✅ CORRECT
+// ✅ CORRETTO
 class GoodService {
-    private $container;
+	private $container;
 
-    // Constructor injection
-    public function __construct(Container $container) {
-        $this->container = $container;
-    }
+	// Constructor injection
+	public function __construct(Container $container) {
+		$this->container = $container;
+	}
 }
 
 // Bootstrap configuration
 function bootstrap(): Plugin {
-    $container = new Container();
+	$container = new Container();
 
-    // Register shared instance (NOT singleton)
-    $container->share(GoodService::class, function($c) {
-        return new GoodService($c);
-    });
+	// Register shared instance (NOT singleton)
+	$container->share(GoodService::class, function($c) {
+		return new GoodService($c);
+	});
 
-    return new Plugin($container);
+	return new Plugin($container);
 }
 ```
 
-### ❌ DO NOT Use Static Methods
+### ❌ NON Usare Static Methods
 
 ```php
-// ❌ WRONG
+// ❌ SBAGLIATO
 class BadHelper {
-    public static function doSomething() {
-        return 'value';
-    }
+	public static function doSomething() {
+		return 'value';
+	}
 }
 ```
 
-### ✅ DO Use Instance Methods
+### ✅ USA Instance Methods
 
 ```php
-// ✅ CORRECT
+// ✅ CORRETTO
 class GoodHelper {
-    public function doSomething(): string {
-        return 'value';
-    }
+	public function doSomething(): string {
+		return 'value';
+	}
 }
 
 // Inject where needed
 class Consumer {
-    private $helper;
+	private $helper;
 
-    public function __construct(GoodHelper $helper) {
-        $this->helper = $helper;
-    }
+	public function __construct(GoodHelper $helper) {
+		$this->helper = $helper;
+	}
 }
 ```
 
-### ❌ DO NOT Use Final Modifier
+### ❌ NON Usare il Modificatore Final
 
 ```php
-// ❌ WRONG - Prevents testing with mocks
+// ❌ SBAGLIATO - Impedisce il testing con mock
 final class BadClass {
-    public function method() {}
+	public function method() {}
 }
 
 class AnotherBadClass {
-    final public function method() {}
+	final public function method() {}
 }
 ```
 
-### ✅ DO Keep Classes Extensible
+### ✅ Mantieni le Classi Estensibili
 
 ```php
-// ✅ CORRECT - Testable and extensible
+// ✅ CORRETTO - Testabile ed estensibile
 class GoodClass {
-    public function method() {}
+	public function method() {}
 }
 
 // Can be mocked in tests
 class GoodClassMock extends GoodClass {
-    public function method() {
-        return 'mocked';
-    }
+	public function method() {
+		return 'mocked';
+	}
 }
 ```
 
-## 🔒 Security Requirements
+## 🔒 Requisiti di Sicurezza
 
 ### Input Sanitization
 
@@ -326,7 +326,7 @@ echo esc_js($javascript);
 ```php
 // Check user capabilities
 if (!current_user_can('manage_options')) {
-    wp_die(__('Unauthorized', 'ops-health-dashboard'));
+	wp_die(__('Unauthorized', 'ops-health-dashboard'));
 }
 ```
 
@@ -338,24 +338,24 @@ wp_nonce_field('ops_health_action', 'ops_health_nonce');
 
 // Verify nonce in handler
 if (!wp_verify_nonce($_POST['ops_health_nonce'], 'ops_health_action')) {
-    wp_die(__('Invalid nonce', 'ops-health-dashboard'));
+	wp_die(__('Invalid nonce', 'ops-health-dashboard'));
 }
 ```
 
-### Anti-SSRF for Webhooks
+### Anti-SSRF per Webhooks
 
 ```php
 // Use HttpClient service (includes anti-SSRF)
 $client = $container->make(HttpClientInterface::class);
 
 if (!$client->is_safe_url($url)) {
-    throw new \Exception('Unsafe URL detected');
+	throw new \Exception('Unsafe URL detected');
 }
 
 $response = $client->request($url, ['method' => 'POST']);
 ```
 
-## 📝 Coding Standards
+## 📝 Standard di Codifica
 
 ### PHP - WordPress Coding Standards
 
@@ -367,18 +367,18 @@ php composer.phar phpcs
 php composer.phar phpcbf
 ```
 
-### Key Rules
+### Regole Principali
 
-- **Indentation**: Tabs (not spaces)
-- **Line length**: 120 chars (soft), 150 (hard)
-- **Brace style**: Allman style
-- **Naming**:
-  - Classes: `PascalCase`
-  - Methods: `snake_case`
-  - Constants: `UPPER_SNAKE_CASE`
-  - Globals: `ops_health_` prefix
+- **Indentazione**: Tab (non spazi)
+- **Lunghezza riga**: 120 caratteri (soft), 150 (hard)
+- **Stile parentesi**: Allman style
+- **Nomenclatura**:
+  - Classi: `PascalCase`
+  - Metodi: `snake_case`
+  - Costanti: `UPPER_SNAKE_CASE`
+  - Globali: prefisso `ops_health_`
 
-### Documentation
+### Documentazione
 
 ```php
 /**
@@ -395,32 +395,32 @@ php composer.phar phpcbf
  * @throws \Exception If error condition.
  */
 public function method_name(string $param1, int $param2): array {
-    // Implementation
+	// Implementation
 }
 ```
 
-## 🔄 Pull Request Process
+## 🔄 Processo di Pull Request
 
-### 1. Before Opening PR
+### 1. Prima di Aprire una PR
 
 ```bash
-# Ensure all tests pass
+# Assicurati che tutti i test passino
 php composer.phar test
 
-# Ensure PHPCS passes
+# Assicurati che PHPCS passi
 php composer.phar phpcs
 
-# Update DEVELOPMENT_PLAN.md if completing milestone tasks
+# Aggiorna DEVELOPMENT_PLAN.md se stai completando task di milestone
 
-# Commit with conventional commit format
+# Commit con formato conventional commit
 git commit -m "feat: add new feature"
-# or
+# oppure
 git commit -m "fix: resolve bug"
 ```
 
-### 2. Commit Message Format
+### 2. Formato del Messaggio di Commit
 
-Follow [Conventional Commits](https://www.conventionalcommits.org/):
+Segui [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
 <type>(<scope>): <description>
@@ -432,16 +432,16 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 Co-Authored-By: Your Name <your.email@example.com>
 ```
 
-**Types:**
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation only
-- `style`: Code style (formatting, no logic change)
-- `refactor`: Code refactoring
-- `test`: Adding/updating tests
-- `chore`: Build/config changes
+**Tipi:**
+- `feat`: Nuova funzionalità
+- `fix`: Correzione di bug
+- `docs`: Solo documentazione
+- `style`: Stile del codice (formattazione, nessun cambio di logica)
+- `refactor`: Refactoring del codice
+- `test`: Aggiunta/aggiornamento test
+- `chore`: Modifiche di build/configurazione
 
-**Examples:**
+**Esempi:**
 
 ```bash
 feat(checks): add Redis health check with TDD
@@ -467,92 +467,92 @@ descriptive exception instead of infinite loop.
 Tests: 3 new tests
 ```
 
-### 3. Open Pull Request
+### 3. Apri la Pull Request
 
-- **Title**: Same as commit message subject
-- **Description**:
-  - What changes were made
-  - Why (link to issue if applicable)
-  - How to test
-  - Screenshots (if UI changes)
-- **Base branch**: `dev` (not `main`)
+- **Titolo**: Uguale all'oggetto del messaggio di commit
+- **Descrizione**:
+  - Quali modifiche sono state fatte
+  - Perché (link all'issue se applicabile)
+  - Come testare
+  - Screenshot (se ci sono modifiche UI)
+- **Branch di base**: `dev` (non `main`)
 
-### 4. PR Checklist
+### 4. Checklist della PR
 
-- [ ] Tests written first (TDD)
-- [ ] All tests passing (`php composer.phar test`)
-- [ ] PHPCS passing (`php composer.phar phpcs`)
-- [ ] NO singleton pattern used
-- [ ] NO static methods used
-- [ ] NO final classes/methods
-- [ ] Security: inputs sanitized, outputs escaped
-- [ ] Documentation updated (if needed)
-- [ ] CHANGELOG.md updated
-- [ ] Conventional commit format
+- [ ] Test scritti prima (TDD)
+- [ ] Tutti i test passano (`php composer.phar test`)
+- [ ] PHPCS passa (`php composer.phar phpcs`)
+- [ ] NON è stato usato il singleton pattern
+- [ ] NON sono stati usati static methods
+- [ ] NON ci sono classi/metodi final
+- [ ] Sicurezza: input sanitizzati, output escaped
+- [ ] Documentazione aggiornata (se necessario)
+- [ ] CHANGELOG.md aggiornato
+- [ ] Formato conventional commit
 
-### 5. Review Process
+### 5. Processo di Review
 
-- Maintainers will review within 3-5 business days
-- Address feedback in new commits
-- Once approved, squash and merge to `dev`
+- I maintainer effettueranno la review entro 3-5 giorni lavorativi
+- Rispondi al feedback con nuovi commit
+- Una volta approvato, squash e merge su `dev`
 
-## 🐛 Bug Reports
+## 🐛 Segnalazione Bug
 
-### Before Opening Issue
+### Prima di Aprire un Issue
 
-1. Search existing issues
-2. Try latest version
-3. Reproduce with minimal test case
+1. Cerca negli issue esistenti
+2. Prova l'ultima versione
+3. Riproduci con un test case minimo
 
-### Issue Template
-
-```markdown
-**Describe the bug**
-Clear description of what the bug is.
-
-**To Reproduce**
-Steps to reproduce:
-1. Go to '...'
-2. Click on '...'
-3. See error
-
-**Expected behavior**
-What you expected to happen.
-
-**Environment:**
-- PHP Version: [e.g. 8.3]
-- WordPress Version: [e.g. 6.4]
-- Plugin Version: [e.g. 1.0.0]
-
-**Additional context**
-Any other context about the problem.
-```
-
-## 💡 Feature Requests
-
-### Before Requesting
-
-1. Check roadmap in [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)
-2. Search existing issues
-3. Consider WordPress.org compliance
-
-### Request Template
+### Template dell'Issue
 
 ```markdown
-**Feature Description**
-Clear description of the feature.
+**Descrivi il bug**
+Descrizione chiara di cosa sia il bug.
 
-**Use Case**
-Why is this feature needed? What problem does it solve?
+**Come Riprodurre**
+Passi per riprodurre:
+1. Vai a '...'
+2. Clicca su '...'
+3. Vedi l'errore
 
-**Proposed Solution**
-How would you implement this?
+**Comportamento atteso**
+Cosa ti aspettavi che accadesse.
 
-**Alternatives Considered**
-Other approaches you've thought about.
+**Ambiente:**
+- Versione PHP: [es. 8.3]
+- Versione WordPress: [es. 6.4]
+- Versione Plugin: [es. 1.0.0]
+
+**Contesto aggiuntivo**
+Qualsiasi altro contesto sul problema.
 ```
 
-## 📚 Resources
+## 💡 Richieste di Funzionalità
+
+### Prima di Richiedere
+
+1. Controlla la roadmap in [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)
+2. Cerca negli issue esistenti
+3. Considera la conformità con WordPress.org
+
+### Template della Richiesta
+
+```markdown
+**Descrizione della Funzionalità**
+Descrizione chiara della funzionalità.
+
+**Caso d'Uso**
+Perché questa funzionalità è necessaria? Quale problema risolve?
+
+**Soluzione Proposta**
+Come la implementeresti?
+
+**Alternative Considerate**
+Altri approcci a cui hai pensato.
+```
+
+## 📚 Risorse
 
 - [WordPress Plugin Handbook](https://developer.wordpress.org/plugins/)
 - [WordPress Coding Standards](https://make.wordpress.org/core/handbook/best-practices/coding-standards/php/)
@@ -560,16 +560,16 @@ Other approaches you've thought about.
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [TDD Best Practices](https://testdriven.io/)
 
-## ❓ Questions
+## ❓ Domande
 
-- **General questions**: Open a [GitHub Discussion](https://github.com/mab056/ops-health-dashboard/discussions)
-- **Bug reports**: Open an [Issue](https://github.com/mab056/ops-health-dashboard/issues)
-- **Security issues**: Email directly (do NOT open public issue)
+- **Domande generali**: Apri una [GitHub Discussion](https://github.com/mab056/ops-health-dashboard/discussions)
+- **Segnalazione bug**: Apri un [Issue](https://github.com/mab056/ops-health-dashboard/issues)
+- **Problemi di sicurezza**: Invia un'email direttamente (NON aprire un issue pubblico)
 
-## 📄 License
+## 📄 Licenza
 
-By contributing, you agree that your contributions will be licensed under GPL-2.0-or-later.
+Contribuendo, accetti che i tuoi contributi saranno rilasciati sotto licenza GPL-2.0-or-later.
 
 ---
 
-**Thank you for contributing! 🙏**
+**Grazie per aver contribuito! 🙏**

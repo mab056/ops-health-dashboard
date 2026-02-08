@@ -5,60 +5,60 @@
 [![WordPress](https://img.shields.io/badge/WordPress-5.8%2B-blue)](https://wordpress.org/)
 [![License](https://img.shields.io/badge/License-GPL%20v2%2B-blue.svg)](LICENSE)
 
-Production-grade WordPress health monitoring plugin with automated checks and configurable alerts.
+Plugin WordPress di monitoraggio operativo production-grade con controlli automatici e alert configurabili.
 
-## 🎯 Problem
+## 🎯 Problema
 
 **"Non so cosa sta succedendo finché non esplode."**
 
-This plugin provides an operational dashboard in wp-admin with automatic health checks and configurable alerting (email, webhooks, Slack, Telegram, WhatsApp) to know what's happening *before* it breaks.
+Questo plugin fornisce una dashboard operativa in wp-admin con controlli automatici di salute e alerting configurabile (email, webhook, Slack, Telegram, WhatsApp) per sapere cosa sta succedendo *prima* che si rompa.
 
-## ✨ Features (MVP)
+## ✨ Funzionalità (MVP)
 
-### Health Checks
-- **Database** - Connectivity + query performance
-- **Redis** - Detection + smoke test (optional)
-- **Disk Space** - Free/total with configurable thresholds
-- **Error Log** - Safe aggregation with automatic redaction
-- **Versions** - WordPress, PHP, themes, plugins + update notifications
+### Controlli di Salute
+- **Database** - Connettività + performance query
+- **Redis** - Rilevamento + smoke test (opzionale)
+- **Spazio Disco** - Libero/totale con soglie configurabili
+- **Log Errori** - Aggregazione sicura con redaction automatica
+- **Versioni** - WordPress, PHP, temi, plugin + notifiche aggiornamenti
 
 ### Dashboard
-- Admin page: `Ops → Health Dashboard`
-- Dashboard widget with global status (✅/⚠️/🛑)
-- "What changed in last 24h" summary
-- Manual "Run Checks Now" button
+- Pagina admin: `Ops → Health Dashboard`
+- Widget dashboard con stato globale (✅/⚠️/🛑)
+- Riepilogo "Cosa è cambiato nelle ultime 24h"
+- Pulsante manuale "Esegui Check Ora"
 
 ### Alerting
 - Email via `wp_mail()`
-- Generic webhook (POST JSON)
-- Slack (opt-in with Incoming Webhook)
-- Telegram (opt-in with Bot API)
-- WhatsApp (via generic webhook)
-- Smart cooldown to prevent alert spam
+- Webhook generico (POST JSON)
+- Slack (opt-in con Incoming Webhook)
+- Telegram (opt-in con Bot API)
+- WhatsApp (via webhook generico)
+- Cooldown intelligente per prevenire spam di alert
 
 ### Scheduling
-- WP-Cron (default: every 15 minutes)
-- Manual trigger
-- Alerts only on state changes
+- WP-Cron (default: ogni 15 minuti)
+- Trigger manuale
+- Alert solo su cambiamenti di stato
 
-## 🏗️ Architecture
+## 🏗️ Architettura
 
-Built with **modern OOP, TDD, and strict security hardening**.
+Costruito con **OOP moderno, TDD e hardening di sicurezza rigoroso**.
 
-### Core Principles
+### Principi Core
 
 #### ⚠️ NO Singleton, NO Static, NO Final
 
-This plugin strictly avoids anti-patterns that harm testability:
+Questo plugin evita rigorosamente anti-pattern che danneggiano la testabilità:
 
 ```php
-// ❌ WRONG - Singleton pattern
+// ❌ SBAGLIATO - Pattern singleton
 class Plugin {
     private static $instance;
     public static function get_instance() { ... }
 }
 
-// ✅ CORRECT - Dependency injection
+// ✅ CORRETTO - Dependency injection
 class Plugin {
     private $container;
     public function __construct(Container $container) {
@@ -67,256 +67,256 @@ class Plugin {
 }
 ```
 
-**Why?**
-- **Testability**: Singleton and static make mocking impossible
-- **Flexibility**: Final prevents extensibility
-- **Best Practices**: WordPress core moved away from singletons
-- **Predictability**: Explicit dependencies are easier to trace
+**Perché?**
+- **Testabilità**: Singleton e static rendono impossibile il mocking
+- **Flessibilità**: Final impedisce l'estensibilità
+- **Best Practices**: WordPress core si è allontanato dai singleton
+- **Prevedibilità**: Dipendenze esplicite sono più facili da tracciare
 
-### Directory Structure
+### Struttura Directory
 
 ```
 ops-health-dashboard/
 ├── src/
 │   ├── Core/           # Container, Plugin, Activator
-│   ├── Interfaces/     # CheckInterface, NotifierInterface, etc.
-│   ├── Checks/         # Health check implementations
-│   ├── Alerts/         # Notification channels
-│   ├── Services/       # Business logic (Storage, HttpClient, etc.)
-│   ├── Admin/          # wp-admin UI
-│   └── Utilities/      # Helpers
+│   ├── Interfaces/     # CheckInterface, NotifierInterface, ecc.
+│   ├── Checks/         # Implementazioni controlli salute
+│   ├── Alerts/         # Canali di notifica
+│   ├── Services/       # Logica business (Storage, HttpClient, ecc.)
+│   ├── Admin/          # UI wp-admin
+│   └── Utilities/      # Helper
 ├── tests/
-│   ├── Unit/           # Unit tests (isolated)
-│   └── Integration/    # Integration tests (WordPress loaded)
-├── tests-e2e/          # Playwright E2E tests
-└── config/             # Bootstrap and DI configuration
+│   ├── Unit/           # Test unitari (isolati)
+│   └── Integration/    # Test integrazione (WordPress caricato)
+├── tests-e2e/          # Test E2E Playwright
+└── config/             # Bootstrap e configurazione DI
 ```
 
-### Key Components
+### Componenti Chiave
 
-- **Container** - Lightweight DI container with `share()` (not singleton)
-- **Plugin** - Main orchestrator with constructor injection
-- **CheckRunner** - Orchestrates health checks
-- **Storage** - WordPress Options API wrapper
-- **HttpClient** - Anti-SSRF protected HTTP requests
-- **Redaction** - Sensitive data sanitization
+- **Container** - Container DI lightweight con `share()` (non singleton)
+- **Plugin** - Orchestratore principale con constructor injection
+- **CheckRunner** - Orchestra i controlli di salute
+- **Storage** - Wrapper WordPress Options API
+- **HttpClient** - Richieste HTTP protette anti-SSRF
+- **Redaction** - Sanitizzazione dati sensibili
 
-## 📋 Requirements
+## 📋 Requisiti
 
-- **PHP**: 7.4+ (declared minimum), 8.3+ (recommended)
+- **PHP**: 7.4+ (minimo dichiarato), 8.3+ (raccomandato)
 - **WordPress**: 5.8+
-- **MySQL**: 5.7+ or MariaDB 10.2+
-- **Composer**: For development dependencies
+- **MySQL**: 5.7+ o MariaDB 10.2+
+- **Composer**: Per dipendenze di sviluppo
 
-## 🚀 Installation
+## 🚀 Installazione
 
-### For Users (Production)
+### Per Utenti (Produzione)
 
-1. Download the latest release from [GitHub Releases](https://github.com/mab056/ops-health-dashboard/releases)
-2. Upload to `/wp-content/plugins/ops-health-dashboard/`
-3. Activate via WordPress admin
-4. Navigate to `Ops → Health Dashboard`
+1. Scarica l'ultima release da [GitHub Releases](https://github.com/mab056/ops-health-dashboard/releases)
+2. Carica in `/wp-content/plugins/ops-health-dashboard/`
+3. Attiva tramite admin WordPress
+4. Naviga su `Ops → Health Dashboard`
 
-### For Developers (Local Development)
+### Per Sviluppatori (Sviluppo Locale)
 
 ```bash
-# Clone repository
+# Clona repository
 git clone https://github.com/mab056/ops-health-dashboard.git
 cd ops-health-dashboard
 
-# Install dependencies
+# Installa dipendenze
 php composer.phar install
 
-# Install WordPress test suite
+# Installa suite test WordPress
 bash bin/install-wp-tests.sh wordpress_test root '' localhost latest
 
-# Run tests
+# Esegui test
 php composer.phar test
 
-# Run PHPCS
+# Esegui PHPCS
 php composer.phar phpcs
 ```
 
 ## 🧪 Testing
 
-This project follows **strict TDD** (Test-Driven Development).
+Questo progetto segue **TDD rigoroso** (Test-Driven Development).
 
-### Run All Tests
+### Esegui Tutti i Test
 
 ```bash
 # PHPUnit
 php composer.phar test
 
-# With coverage (requires Xdebug)
+# Con coverage (richiede Xdebug)
 XDEBUG_MODE=coverage php composer.phar test:coverage
 
 # PHPCS (WordPress Coding Standards)
 php composer.phar phpcs
 
-# Auto-fix PHPCS issues
+# Auto-fix problemi PHPCS
 php composer.phar phpcbf
 ```
 
-### TDD Workflow
+### Workflow TDD
 
-Every feature follows: **RED → GREEN → REFACTOR**
+Ogni funzionalità segue: **RED → GREEN → REFACTOR**
 
-1. **RED**: Write failing test first
-2. **GREEN**: Write minimal code to pass
-3. **REFACTOR**: Clean up and optimize
+1. **RED**: Scrivi prima il test che fallisce
+2. **GREEN**: Scrivi codice minimo per passare
+3. **REFACTOR**: Pulisci e ottimizza
 
-Example:
+Esempio:
 
 ```php
-// RED: Write test that fails
+// RED: Scrivi test che fallisce
 public function test_database_check_returns_ok_on_healthy_connection() {
     $check = new DatabaseCheck($storage);
     $result = $check->run();
     $this->assertEquals('ok', $result['status']);
 }
 
-// GREEN: Implement minimal code
+// GREEN: Implementa codice minimo
 public function run(): array {
     global $wpdb;
     $result = $wpdb->query('SELECT 1');
     return ['status' => $result !== false ? 'ok' : 'critical'];
 }
 
-// REFACTOR: Add error handling, timing, redaction
+// REFACTOR: Aggiungi gestione errori, timing, redaction
 ```
 
-### Test Matrix
+### Matrice Test
 
-- **PHP Versions**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
-- **Coverage Target**: ≥85% on PHP 8.3
-- **E2E Tests**: Mobile, Tablet, Desktop viewports
+- **Versioni PHP**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
+- **Target Coverage**: ≥85% su PHP 8.3
+- **Test E2E**: Viewport Mobile, Tablet, Desktop
 
-## 🔒 Security
+## 🔒 Sicurezza
 
-### Hardening Features
+### Funzionalità Hardening
 
-- **Admin-only**: All features require `manage_options` capability
-- **Nonces**: CSRF protection on all forms and AJAX
-- **Anti-SSRF**: Multi-layer protection for webhooks
-  - Schema validation (http/https only)
-  - DNS rebinding prevention
-  - Private IP blocking
+- **Solo Admin**: Tutte le funzionalità richiedono capability `manage_options`
+- **Nonces**: Protezione CSRF su tutti i form e AJAX
+- **Anti-SSRF**: Protezione multi-layer per webhook
+  - Validazione schema (solo http/https)
+  - Prevenzione DNS rebinding
+  - Blocco IP privati
   - No redirect following
-  - 5-second timeout
-- **Data Redaction**: Automatic sanitization of:
-  - Credentials (passwords, API keys, tokens)
-  - File paths (ABSPATH, WP_CONTENT_DIR)
-  - Database credentials
-  - User data (emails, IPs)
-- **Input Sanitization**: All user inputs sanitized
-- **Output Escaping**: All outputs escaped
+  - Timeout 5 secondi
+- **Redaction Dati**: Sanitizzazione automatica di:
+  - Credenziali (password, API key, token)
+  - Path file (ABSPATH, WP_CONTENT_DIR)
+  - Credenziali database
+  - Dati utente (email, IP)
+- **Sanitizzazione Input**: Tutti gli input utente sanitizzati
+- **Escaping Output**: Tutti gli output escaped
 
 ### WordPress.org Ready
 
-- ✅ Plugin Check tool passes (zero errors)
-- ✅ No outbound calls without opt-in
-- ✅ WordPress Coding Standards compliant
-- ✅ Complete uninstall cleanup
+- ✅ Plugin Check tool passa (zero errori)
+- ✅ Nessuna chiamata outbound senza opt-in
+- ✅ Conforme WordPress Coding Standards
+- ✅ Cleanup completo in disinstallazione
 
-## 📊 Development Status
+## 📊 Stato Sviluppo
 
-Current milestone: **M0 - Setup & Infrastructure** ✅
+Milestone corrente: **M0 - Setup & Infrastruttura** ✅
 
 ### Roadmap
 
-- [x] **M0**: Setup & Infrastructure (TDD, CI/CD, core classes)
-- [ ] **M1**: Core Checks + Storage + Cron
-- [ ] **M2**: Error Log Summary Safe
-- [ ] **M3**: Redis Check
-- [ ] **M4**: Alerting System
-- [ ] **M5**: E2E Testing (Playwright)
-- [ ] **M6**: WordPress.org Readiness
+- [x] **M0**: Setup & Infrastruttura (TDD, CI/CD, classi core)
+- [ ] **M1**: Check Core + Storage + Cron
+- [ ] **M2**: Riepilogo Error Log Sicuro
+- [ ] **M3**: Check Redis
+- [ ] **M4**: Sistema Alerting
+- [ ] **M5**: Testing E2E (Playwright)
+- [ ] **M6**: Readiness WordPress.org
 
-See [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) for detailed progress.
+Vedi [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) per progressi dettagliati.
 
-## 🤝 Contributing
+## 🤝 Contribuire
 
-We welcome contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for:
+Accogliamo contributi! Leggi [CONTRIBUTING.md](CONTRIBUTING.md) per:
 
-- TDD workflow requirements
+- Requisiti workflow TDD
 - Pattern enforcement (NO singleton/static/final)
-- Coding standards
-- Pull request process
-- Testing requirements
+- Standard di codifica
+- Processo pull request
+- Requisiti testing
 
-### Quick Start for Contributors
+### Quick Start per Contributori
 
 ```bash
-# Fork and clone
-git clone https://github.com/YOUR_USERNAME/ops-health-dashboard.git
+# Fork e clone
+git clone https://github.com/TUO_USERNAME/ops-health-dashboard.git
 cd ops-health-dashboard
 
-# Create feature branch
-git checkout -b feature/your-feature-name
+# Crea feature branch
+git checkout -b feature/nome-tua-feature
 
-# Install dependencies
+# Installa dipendenze
 php composer.phar install
 
-# Write tests first (TDD)
-# Then implement feature
-# Ensure all tests pass
+# Scrivi prima i test (TDD)
+# Poi implementa feature
+# Assicurati che tutti i test passino
 php composer.phar test
 php composer.phar phpcs
 
-# Commit and push
-git commit -m "feat: your feature description"
-git push origin feature/your-feature-name
+# Commit e push
+git commit -m "feat: descrizione tua feature"
+git push origin feature/nome-tua-feature
 ```
 
-## 📝 Coding Standards
+## 📝 Standard di Codifica
 
 - **PHP**: WordPress Coding Standards (WPCS)
 - **HTML/CSS**: Code Guide
 - **JavaScript**: MDN Code Style Guide
-- **Line Length**: 120 characters (soft), 150 (hard)
+- **Lunghezza Riga**: 120 caratteri (soft), 150 (hard)
 
-## 🔧 Configuration
+## 🔧 Configurazione
 
-### Composer Commands
+### Comandi Composer
 
 ```bash
-php composer.phar test              # Run PHPUnit tests
-php composer.phar test:coverage     # Run with coverage (Xdebug required)
-php composer.phar phpcs             # Check coding standards
-php composer.phar phpcbf            # Auto-fix coding standards
-php composer.phar install-wp-tests  # Install WordPress test suite
+php composer.phar test              # Esegui test PHPUnit
+php composer.phar test:coverage     # Esegui con coverage (richiede Xdebug)
+php composer.phar phpcs             # Controlla standard codifica
+php composer.phar phpcbf            # Auto-fix standard codifica
+php composer.phar install-wp-tests  # Installa suite test WordPress
 ```
 
 ### CI/CD
 
-GitHub Actions automatically runs on push/PR:
-- PHPCS check (WordPress Coding Standards)
-- PHPUnit on PHP 7.4, 8.0, 8.1, 8.2, 8.3, 8.4, 8.5
-- Coverage report (PHP 8.3 only)
-- Codecov upload
+GitHub Actions esegue automaticamente su push/PR:
+- Check PHPCS (WordPress Coding Standards)
+- PHPUnit su PHP 7.4, 8.0, 8.1, 8.2, 8.3, 8.4, 8.5
+- Report coverage (solo PHP 8.3)
+- Upload Codecov
 
-## 📄 License
+## 📄 Licenza
 
-GPL-2.0-or-later - see [LICENSE](LICENSE) file.
+GPL-2.0-or-later - vedi file [LICENSE](LICENSE).
 
-## 👥 Authors
+## 👥 Autori
 
 - **Ops Team** - [GitHub](https://github.com/mab056)
 - **Co-Authored-By**: Claude Sonnet 4.5
 
-## 🙏 Acknowledgments
+## 🙏 Ringraziamenti
 
 - WordPress Plugin Handbook
 - WordPress Coding Standards
-- PHPUnit Documentation
-- Brain\Monkey for WordPress testing
+- Documentazione PHPUnit
+- Brain\Monkey per testing WordPress
 
-## 📞 Support
+## 📞 Supporto
 
 - **Issues**: [GitHub Issues](https://github.com/mab056/ops-health-dashboard/issues)
-- **Documentation**: See [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)
-- **Contributing**: See [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Documentazione**: Vedi [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)
+- **Contribuire**: Vedi [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ---
 
-**Built with ❤️ and strict TDD**
+**Costruito con ❤️ e TDD rigoroso**

@@ -1,31 +1,26 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+Tutte le modifiche rilevanti a questo progetto saranno documentate in questo file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+Il formato è basato su [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## Unreleased
+
+## 0.0.0 - 2026-02-08
 
 ### Added
-- Initial plugin scaffolding
+- Scaffolding iniziale del plugin
 - Core dependency injection container (NO singleton pattern)
-- Main plugin orchestrator with constructor injection
-- Activation/deactivation handler
-- Complete test suite with TDD approach
+- Orchestratore principale del plugin con constructor injection
+- Handler di attivazione/disattivazione
+- Suite di test completa con approccio TDD
 - GitHub Actions CI workflow (PHPCS + PHPUnit matrix)
-- WordPress Coding Standards configuration
-- PHPUnit configuration with coverage support
+- Configurazione WordPress Coding Standards
+- Configurazione PHPUnit con supporto coverage
 
 ### Development Notes
 - **M0 Completed**: Setup & Infrastruttura ✅
-- All core classes follow NO singleton, NO static, NO final pattern
-- TDD workflow enforced: RED → GREEN → REFACTOR
-- Coverage target: PHP 8.3
-
-## [1.0.0] - TBD
-
-Initial release.
-
-[Unreleased]: https://github.com/ops-team/ops-health-dashboard/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/ops-team/ops-health-dashboard/releases/tag/v1.0.0
+- Tutte le classi core seguono il pattern NO singleton, NO static, NO final
+- TDD workflow applicato: RED → GREEN → REFACTOR
+- Target di coverage: PHP 8.3
