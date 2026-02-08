@@ -1,6 +1,6 @@
 <?php
 /**
- * Dependency Injection Container
+ * Container Dependency Injection
  *
  * Container DI lightweight senza singleton pattern.
  * Usa istanze condivise gestite dal container, NON singleton statici.
@@ -14,7 +14,7 @@ namespace OpsHealthDashboard\Core;
  * Class Container
  *
  * Container per dependency injection semplice.
- * NO singleton pattern, NO static methods, NO final modifier.
+ * NO singleton pattern, NO metodi static, NO modificatore final.
  */
 class Container {
 
