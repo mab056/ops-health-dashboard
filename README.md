@@ -125,51 +125,78 @@ git clone https://github.com/mab056/ops-health-dashboard.git
 cd ops-health-dashboard
 
 # Installa dipendenze
-php composer.phar install
+composer install
 
-# Installa suite test WordPress
-bash bin/install-wp-tests.sh wordpress_test root '' localhost latest
+# Esegui test unitari (veloce, no WordPress)
+composer test:unit
 
-# Esegui test
-php composer.phar test
+# Installa suite test WordPress per integration tests
+composer install-wp-tests
+
+# Esegui tutti i test (unit + integration)
+composer test
 
 # Esegui PHPCS
-php composer.phar phpcs
+composer phpcs
 ```
 
 ## 🧪 Testing
 
-Questo progetto segue **TDD rigoroso** (Test-Driven Development).
+Questo progetto segue **TDD rigoroso** (Test-Driven Development) con **approccio misto**:
 
-### Esegui Tutti i Test
+### Approccio Test Misto
+
+**Unit Tests (Brain\Monkey)** - Veloce, isolato
+- Logica business pura, NO WordPress
+- ~24 test, ~0.3s
+- Perfetto per TDD rapido
+
+**Integration Tests (WP Test Suite)** - WordPress reale
+- Test con WordPress completo, database, WP-Cron
+- ~8 test, ~3-5s
+- Verifica integrazione reale con WordPress
+
+### Comandi Test
 
 ```bash
-# PHPUnit
-php composer.phar test
+# Unit tests (veloce, no WordPress required)
+composer test:unit
+
+# Integration tests (richiede WP test suite)
+composer install-wp-tests              # Setup una tantum
+composer test:integration
+
+# Tutti i test (unit + integration)
+composer test
 
 # Con coverage (richiede Xdebug)
-XDEBUG_MODE=coverage php composer.phar test:coverage
+composer test:coverage
 
 # PHPCS (WordPress Coding Standards)
-php composer.phar phpcs
+composer phpcs
 
 # Auto-fix problemi PHPCS
-php composer.phar phpcbf
+composer phpcbf
 ```
 
 ### Workflow TDD
 
 Ogni funzionalità segue: **RED → GREEN → REFACTOR**
 
-1. **RED**: Scrivi prima il test che fallisce
+1. **RED**: Scrivi prima il test che fallisce (unit test con Brain\Monkey)
 2. **GREEN**: Scrivi codice minimo per passare
 3. **REFACTOR**: Pulisci e ottimizza
+4. **INTEGRATION**: Aggiungi integration test per verificare con WordPress reale
 
 Esempio:
 
 ```php
-// RED: Scrivi test che fallisce
-public function test_database_check_returns_ok_on_healthy_connection() {
+// RED: Unit test con Brain\Monkey (veloce)
+public function test_database_check_calls_wpdb() {
+    Functions\expect('sanitize_text_field')
+        ->once()
+        ->andReturnFirstArg();
+
     $check = new DatabaseCheck($storage);
     $result = $check->run();
     $this->assertEquals('ok', $result['status']);
@@ -182,14 +209,24 @@ public function run(): array {
     return ['status' => $result !== false ? 'ok' : 'critical'];
 }
 
-// REFACTOR: Aggiungi gestione errori, timing, redaction
+// REFACTOR + INTEGRATION: Aggiungi test con WordPress reale
+public function test_database_check_with_real_wordpress() {
+    $check = new DatabaseCheck($storage);
+    $result = $check->run();
+
+    // Test con database MySQL reale
+    $this->assertArrayHasKey('status', $result);
+    $this->assertContains($result['status'], ['ok', 'warning', 'critical']);
+}
 ```
 
 ### Matrice Test
 
+- **Unit Tests**: Brain\Monkey - 24 test, tutte le versioni PHP
+- **Integration Tests**: WP Test Suite - 8 test, tutte le versioni PHP
 - **Versioni PHP**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
 - **Target Coverage**: ≥85% su PHP 8.3
-- **Test E2E**: Viewport Mobile, Tablet, Desktop
+- **Test E2E**: Viewport Mobile, Tablet, Desktop (future)
 
 ## 🔒 Sicurezza
 
@@ -280,11 +317,18 @@ git push origin feature/nome-tua-feature
 ### Comandi Composer
 
 ```bash
-php composer.phar test              # Esegui test PHPUnit
-php composer.phar test:coverage     # Esegui con coverage (richiede Xdebug)
-php composer.phar phpcs             # Controlla standard codifica
-php composer.phar phpcbf            # Auto-fix standard codifica
-php composer.phar install-wp-tests  # Installa suite test WordPress
+# Testing
+composer test                    # Tutti i test (unit + integration)
+composer test:unit               # Solo unit tests (Brain\Monkey, veloce)
+composer test:integration        # Solo integration tests (WP Test Suite)
+composer test:coverage           # Coverage completa
+
+# Code Quality
+composer phpcs                   # Controlla WordPress Coding Standards
+composer phpcbf                  # Auto-fix standard codifica
+
+# Setup
+composer install-wp-tests        # Installa suite test WordPress (una tantum)
 ```
 
 ### CI/CD
@@ -316,6 +360,7 @@ GPL-2.0-or-later - vedi file [LICENSE](LICENSE).
 - **Issues**: [GitHub Issues](https://github.com/mab056/ops-health-dashboard/issues)
 - **Documentazione**: Vedi [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)
 - **Contribuire**: Vedi [CONTRIBUTING.md](CONTRIBUTING.md)
+- **AI Assistant**: Vedi [CLAUDE.md](CLAUDE.md) per istruzioni Claude/AI
 
 ---
 
