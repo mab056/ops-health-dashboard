@@ -404,10 +404,11 @@ public function method_name(string $param1, int $param2): array {
 ### 1. Prima di Aprire una PR
 
 ```bash
-# Assicurati che tutti i test passino
-composer test
+# Assicurati che tutti i test passino su tutte le versioni PHP
+composer test:matrix
 
-# Assicurati che PHPCS passi
+# Oppure almeno sulla versione corrente
+composer test
 composer phpcs
 
 # Aggiorna DEVELOPMENT_PLAN.md se stai completando task di milestone
@@ -480,7 +481,7 @@ Tests: 3 new tests
 ### 4. Checklist della PR
 
 - [ ] Test scritti prima (TDD)
-- [ ] Tutti i test passano (`composer test`)
+- [ ] Tutti i test passano su tutte le versioni PHP (`composer test:matrix`)
 - [ ] PHPCS passa (`composer phpcs`)
 - [ ] NON è stato usato il singleton pattern
 - [ ] NON sono stati usati static methods

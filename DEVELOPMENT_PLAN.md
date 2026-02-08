@@ -92,6 +92,7 @@
 - Admin Menu and HealthScreen with capability check and defensive rendering
 - Complete code review: fixed 21/22 issues
 - All 135 tests green, PHPCS 100% clean
+- Added `bin/test-matrix.sh` for local PHP 7.4-8.5 matrix testing (mirrors CI)
 
 **Completed M0**: Setup & Infrastruttura ✅
 - Created complete directory structure

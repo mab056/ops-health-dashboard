@@ -337,6 +337,13 @@ composer test                        # Tutti i test (unit + integration)
 composer test:unit                   # Solo test unitari (veloce)
 composer test:integration           # Solo test di integrazione (con WP)
 composer test:coverage              # Tutti con coverage
+composer test:matrix                # Matrice completa PHP 7.4-8.5 + PHPCS (come CI)
+
+# Test Matrix (opzioni)
+bin/test-matrix.sh --php 7.4        # Solo una versione
+bin/test-matrix.sh --parallel       # Tutte le versioni in parallelo
+bin/test-matrix.sh --phpcs-only     # Solo PHPCS
+bin/test-matrix.sh --tests-only     # Solo PHPUnit, salta PHPCS
 
 # Code Quality
 composer phpcs                      # Check WordPress Coding Standards
@@ -573,6 +580,12 @@ GitHub Actions esegue automaticamente:
 - ✅ Integration tests (WP Test Suite) su tutte le versioni
 - ✅ Coverage report (solo PHP 8.3)
 - ✅ Upload Codecov
+
+**Test Matrix Locale** (replica CI localmente):
+```bash
+composer test:matrix                # PHPCS + PHPUnit su tutte le 7 versioni PHP
+```
+Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`.
 
 **Quality Gates (DEVONO PASSARE):**
 - PHPCS: 100% compliance

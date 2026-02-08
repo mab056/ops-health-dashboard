@@ -169,6 +169,9 @@ composer test:integration
 # Tutti i test (unit + integration)
 composer test
 
+# Matrice completa PHP 7.4-8.5 + PHPCS (come CI)
+composer test:matrix
+
 # Con coverage (richiede Xdebug)
 composer test:coverage
 
@@ -177,6 +180,19 @@ composer phpcs
 
 # Auto-fix problemi PHPCS
 composer phpcbf
+```
+
+### Test Matrix Locale
+
+Esegui l'intera matrice CI localmente (richiede PHP 7.4-8.5 via PPA sury):
+
+```bash
+composer test:matrix                   # Matrice completa (PHPCS + 7 versioni PHP)
+bin/test-matrix.sh --php 7.4           # Solo una versione
+bin/test-matrix.sh --php 7.4 --php 8.3 # Versioni specifiche
+bin/test-matrix.sh --parallel          # Esecuzione parallela
+bin/test-matrix.sh --phpcs-only        # Solo PHPCS
+bin/test-matrix.sh --tests-only        # Solo PHPUnit
 ```
 
 ### Workflow TDD
@@ -335,6 +351,7 @@ composer test                    # Tutti i test (unit + integration)
 composer test:unit               # Solo test unitari (Brain\Monkey, veloce)
 composer test:integration        # Solo test di integrazione (WP Test Suite)
 composer test:coverage           # Coverage completa
+composer test:matrix             # Matrice PHP 7.4-8.5 + PHPCS (come CI)
 
 # Code Quality
 composer phpcs                   # Controlla WordPress Coding Standards
