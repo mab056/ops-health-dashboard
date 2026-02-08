@@ -82,7 +82,7 @@ function bootstrap(): Plugin {
 - Container, Plugin (logica pura senza WordPress)
 
 **Caratteristiche:**
-- ⚡ Velocissimi (~0.9s per 103 test)
+- ⚡ Velocissimi (~0.9s per 104 test)
 - 🔒 Isolamento completo
 - 🧬 Mock di funzioni WordPress con Brain\Monkey
 - ❌ NO database, NO filesystem, NO WordPress
@@ -139,7 +139,7 @@ composer test:coverage:unit          # Unit tests con coverage
 - ✅ WordPress completo caricato
 - ✅ Database MySQL reale
 - ✅ WP-Cron, Options API, hooks reali
-- 🐢 Più lenti (~0.2s con 32 test, richiede WP install)
+- 🐢 Più lenti (~0.2s con 33 test, richiede WP install)
 
 **Esempio:**
 ```php
@@ -597,9 +597,9 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 **Milestone M1 - Core Checks + Storage + Cron** ✅ COMPLETATO
 
 **Stato Attuale:**
-- ✅ 103 test unitari (Brain\Monkey)
-- ✅ 32 test di integrazione (WP Test Suite)
-- ✅ 135 test totali passing, 267 assertions
+- ✅ 104 test unitari (Brain\Monkey)
+- ✅ 33 test di integrazione (WP Test Suite)
+- ✅ 137 test totali passing, 275 assertions
 - ✅ PHPCS 100% compliance (0 errori, 0 warning)
 - ✅ CI/CD completo con PHP 7.4-8.5
 - ✅ 11 file sorgente, 18 file di test
@@ -611,7 +611,7 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 - Storage (Options API, sentinel pattern in `has()`)
 - CheckRunner (try/catch, type safety)
 - DatabaseCheck ($wpdb injection, no info disclosure, i18n)
-- Scheduler (WP-Cron 15 min, prevenzione duplicati)
+- Scheduler (WP-Cron 15 min, prevenzione duplicati, self-healing in register_hooks)
 - Menu, HealthScreen (capability check, validazione difensiva)
 
 **Next: M2 - Riepilogo Error Log Sicuro**

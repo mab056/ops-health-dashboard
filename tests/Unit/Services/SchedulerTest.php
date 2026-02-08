@@ -203,7 +203,7 @@ class SchedulerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che register_hooks() registra l'action hook corretto
+	 * Testa che register_hooks() registra hook e non ri-schedula se cron presente
 	 */
 	public function test_register_hooks_registers_action() {
 		$runner = Mockery::mock( CheckRunner::class );
@@ -216,10 +216,53 @@ class SchedulerTest extends TestCase {
 				10
 			);
 
+		// Cron già schedulato: nessuna ri-schedulazione.
+		Functions\expect( 'wp_next_scheduled' )
+			->once()
+			->with( 'ops_health_run_checks' )
+			->andReturn( time() + 900 );
+
+		Functions\expect( 'wp_schedule_event' )->never();
+
 		$scheduler = new Scheduler( $runner );
 		$scheduler->register_hooks();
 
-		// Mockery verifica l'add_action.
+		$this->assertInstanceOf( Scheduler::class, $scheduler );
+	}
+
+	/**
+	 * Testa che register_hooks() ri-schedula il cron se mancante (self-healing)
+	 */
+	public function test_register_hooks_reschedules_when_cron_missing() {
+		$runner = Mockery::mock( CheckRunner::class );
+
+		Functions\expect( 'add_action' )
+			->once()
+			->with(
+				'ops_health_run_checks',
+				Mockery::type( 'array' ),
+				10
+			);
+
+		// Cron mancante.
+		Functions\expect( 'wp_next_scheduled' )
+			->once()
+			->with( 'ops_health_run_checks' )
+			->andReturn( false );
+
+		// Deve ri-schedulare.
+		Functions\expect( 'wp_schedule_event' )
+			->once()
+			->with(
+				Mockery::type( 'int' ),
+				'every_15_minutes',
+				'ops_health_run_checks'
+			)
+			->andReturn( true );
+
+		$scheduler = new Scheduler( $runner );
+		$scheduler->register_hooks();
+
 		$this->assertInstanceOf( Scheduler::class, $scheduler );
 	}
 

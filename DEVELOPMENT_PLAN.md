@@ -45,8 +45,8 @@
 - [x] **M1.6** - Admin Menu registration
 - [x] **M1.7** - HealthScreen rendering con capability check
 - [x] **M1.8** - bootstrap.php con DI wiring completo
-- [x] **M1.9** - Unit tests completi (103 test, Brain\Monkey)
-- [x] **M1.10** - Integration tests completi (32 test, WP Test Suite)
+- [x] **M1.9** - Unit tests completi (104 test, Brain\Monkey)
+- [x] **M1.10** - Integration tests completi (33 test, WP Test Suite)
 
 ### Code Review - Issue Risolte (21/22)
 
@@ -72,7 +72,7 @@
 **Statistiche Finali**:
 - 11 file sorgente in `src/`
 - 18 file di test (11 unit + 7 integration)
-- 135 test totali, 267 assertions
+- 137 test totali, 275 assertions
 - PHPCS 100% clean (0 errori, 0 warning)
 
 **Deliverable**: Dashboard mostra Database check con auto-refresh WP-Cron ✅
@@ -91,8 +91,13 @@
 - Scheduler with 15-minute WP-Cron interval
 - Admin Menu and HealthScreen with capability check and defensive rendering
 - Complete code review: fixed 21/22 issues
-- All 135 tests green, PHPCS 100% clean
+- All 137 tests green, PHPCS 100% clean
 - Added `bin/test-matrix.sh` for local PHP 7.4-8.5 matrix testing (mirrors CI)
+
+**Post-M1 Hardening** (code review Codex):
+- Fixed `--parallel` in test-matrix.sh: subshell results now propagated via temp files
+- Added Scheduler self-healing: `register_hooks()` calls `schedule()` to re-create missing cron event
+- 137 tests (104 unit + 33 integration), 275 assertions
 
 **Completed M0**: Setup & Infrastruttura ✅
 - Created complete directory structure

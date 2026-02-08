@@ -148,12 +148,12 @@ Questo progetto segue **TDD rigoroso** (Test-Driven Development) con **approccio
 
 **Unit Tests (Brain\Monkey)** - Veloce, isolato
 - Logica business pura, NO WordPress
-- 103 test, ~0.9s
+- 104 test, ~0.9s
 - Perfetto per TDD rapido
 
 **Integration Tests (WP Test Suite)** - WordPress reale
 - Test con WordPress completo, database, WP-Cron
-- 32 test, ~0.2s
+- 33 test, ~0.2s
 - Verifica integrazione reale con WordPress
 
 ### Comandi Test
@@ -244,8 +244,8 @@ public function test_database_check_runs_successfully() {
 
 ### Matrice Test
 
-- **Unit Tests**: Brain\Monkey - 103 test, tutte le versioni PHP
-- **Integration Tests**: WP Test Suite - 32 test, tutte le versioni PHP
+- **Unit Tests**: Brain\Monkey - 104 test, tutte le versioni PHP
+- **Integration Tests**: WP Test Suite - 33 test, tutte le versioni PHP
 - **Versioni PHP**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
 - **Target Coverage**: ≥85% su PHP 8.3
 - **Test E2E**: Viewport Mobile, Tablet, Desktop (futuro)
@@ -285,7 +285,7 @@ Milestone corrente: **M2 - Riepilogo Error Log Sicuro** 🚧
 
 - **11 file sorgente** in `src/`
 - **18 file di test** (11 unit + 7 integration)
-- **135 test totali** (103 unit + 32 integration), 267 assertions
+- **137 test totali** (104 unit + 33 integration), 275 assertions
 - **PHPCS**: 100% compliance (0 errori, 0 warning)
 
 ### Roadmap
@@ -375,8 +375,9 @@ GPL-3.0-or-later - vedi file [LICENSE](LICENSE).
 
 ## 👥 Autori
 
-- **Ops Team** - [GitHub](https://github.com/mab056)
-- **Co-Authored-By**: Claude Sonnet 4.5
+- Mattia Bondrano - [GitHub](https://github.com/mab056)
+
+Sviluppato con il supporto di Claude Code (Opus 4.5, 4.6, Sonnet 4.5) e Codex (Codex 5.2, 5.3)
 
 ## 🙏 Ringraziamenti
 
@@ -390,7 +391,7 @@ GPL-3.0-or-later - vedi file [LICENSE](LICENSE).
 - **Issues**: [GitHub Issues](https://github.com/mab056/ops-health-dashboard/issues)
 - **Documentazione**: Vedi [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)
 - **Contribuire**: Vedi [CONTRIBUTING.md](CONTRIBUTING.md)
-- **AI Assistant**: Vedi [CLAUDE.md](CLAUDE.md) per istruzioni Claude/AI
+- **AI Assistant**: Vedi [CLAUDE.md](CLAUDE.md) per istruzioni Claude Code, [AGENTS.md](AGENTS.md) per istruzioni Codex
 
 ---
 

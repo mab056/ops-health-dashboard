@@ -5,8 +5,6 @@ Tutte le modifiche rilevanti a questo progetto saranno documentate in questo fil
 Il formato è basato su [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
-
 ## 0.1.0 - 2026-02-08
 
 ### Added
@@ -29,7 +27,7 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
   - Capability check `manage_options` con `wp_die()`
   - Validazione difensiva di chiavi risultato (status, message)
   - Messaggio informativo quando nessun check è stato eseguito
-- **97 unit test** (Brain\Monkey) + **31 integration test** (WP Test Suite)
+- **104 unit test** (Brain\Monkey) + **33 integration test** (WP Test Suite)
 - Pattern enforcement tests su ogni classe (NO final, NO static methods/properties)
 
 ### Changed
@@ -39,6 +37,11 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 - **Plugin** - `init()` registra solo hooks, non schedula direttamente
 - **bootstrap.php** - Inietta `$wpdb` globale in DatabaseCheck
 - **composer.json** - Script `test` esegue unit e integration sequenzialmente
+- **Scheduler** - `register_hooks()` include self-healing del cron
+
+### Fixed
+- **Scheduler self-healing** - `register_hooks()` ora chiama `schedule()` per ri-creare l'evento cron se scomparso (migrazione DB, cleanup cron, corruzione option). Idempotente grazie al guard `is_scheduled()`.
+- **test-matrix.sh `--parallel`** - Risultati delle subshell ora propagati al processo padre tramite file temporanei. Prima la tabella riepilogativa era vuota e l'exit code sempre 0 in modalita' parallela.
 
 ### Security
 - Constructor injection di `$wpdb` per evitare accesso globale nei test
@@ -48,7 +51,7 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 
 ### Development Notes
 - **M1 Completed**: Core Checks + Storage + Cron
-- 128 test totali, 260 assertions, PHPCS 100% clean
+- 137 test totali, 275 assertions, PHPCS 100% clean
 - Code review: 21/22 issue risolte (uninstall.php pianificato per M6)
 
 ## 0.0.0 - 2026-02-08

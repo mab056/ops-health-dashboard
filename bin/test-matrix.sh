@@ -77,6 +77,7 @@ declare -A STATUSES
 declare -A DURATIONS
 declare -A DETAILS
 HAS_FAILURE=false
+RESULTS_DIR=""
 
 # --- Helper: check PHP binary exists ---
 check_php_binary() {
@@ -146,20 +147,32 @@ run_tests_for_version() {
 	end_time=$(date +%s)
 	local duration=$(( end_time - start_time ))
 
-	DURATIONS["$version"]="${duration}s"
+	local status
+	local details
 
 	if [ $exit_code -eq 0 ]; then
-		STATUSES["$version"]="PASS"
-		DETAILS["$version"]="${unit_count} unit, ${integ_count} integration"
-		echo -e "  PHP ${version}: ${GREEN}PASS${NC} - ${unit_count} unit, ${integ_count} integration (${duration}s)"
+		status="PASS"
+		details="${unit_count} unit, ${integ_count} integration"
+		echo -e "  PHP ${version}: ${GREEN}PASS${NC} - ${details} (${duration}s)"
 	else
-		STATUSES["$version"]="FAIL"
-		DETAILS["$version"]="see output above"
-		HAS_FAILURE=true
+		status="FAIL"
+		details="see output"
 		echo -e "  PHP ${version}: ${RED}FAIL${NC} (${duration}s)"
 		echo ""
 		tail -20 "$tmpfile"
 		echo ""
+	fi
+
+	# Salva risultati: su file per modalita' parallela, su array per sequenziale.
+	if [ -n "$RESULTS_DIR" ]; then
+		printf '%s\n' "$status" "${duration}s" "$details" > "${RESULTS_DIR}/${version}.result"
+	else
+		STATUSES["$version"]="$status"
+		DURATIONS["$version"]="${duration}s"
+		DETAILS["$version"]="$details"
+		if [ "$status" = "FAIL" ]; then
+			HAS_FAILURE=true
+		fi
 	fi
 
 	rm -f "$tmpfile"
@@ -197,10 +210,30 @@ if [ "$RUN_TESTS" = true ]; then
 	echo -e "${BOLD}=== PHPUnit Matrix ===${NC}"
 
 	if [ "$PARALLEL" = true ]; then
+		RESULTS_DIR=$(mktemp -d)
 		for version in "${SELECTED_VERSIONS[@]}"; do
 			run_tests_for_version "$version" &
 		done
 		wait
+
+		# Raccoglie risultati dai file delle subshell.
+		for version in "${SELECTED_VERSIONS[@]}"; do
+			if [ -f "${RESULTS_DIR}/${version}.result" ]; then
+				{
+					read -r status
+					read -r duration
+					read -r details
+				} < "${RESULTS_DIR}/${version}.result"
+				STATUSES["$version"]="$status"
+				DURATIONS["$version"]="$duration"
+				DETAILS["$version"]="$details"
+				if [ "$status" = "FAIL" ]; then
+					HAS_FAILURE=true
+				fi
+			fi
+		done
+		rm -rf "$RESULTS_DIR"
+		RESULTS_DIR=""
 	else
 		for version in "${SELECTED_VERSIONS[@]}"; do
 			run_tests_for_version "$version"

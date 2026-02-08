@@ -65,12 +65,22 @@ class SchedulerTest extends WP_UnitTestCase {
 	 * Testa che schedule() registra un evento cron reale
 	 */
 	public function test_schedule_registers_real_cron_event() {
-		$this->scheduler->register_hooks();
 		$this->assertFalse( $this->scheduler->is_scheduled(), 'Should not be scheduled initially' );
 
 		$this->scheduler->schedule();
 
 		$this->assertTrue( $this->scheduler->is_scheduled(), 'Should be scheduled after schedule()' );
+	}
+
+	/**
+	 * Testa self-healing: register_hooks() ri-schedula se cron mancante
+	 */
+	public function test_register_hooks_reschedules_when_cron_missing() {
+		$this->assertFalse( $this->scheduler->is_scheduled(), 'Should not be scheduled initially' );
+
+		$this->scheduler->register_hooks();
+
+		$this->assertTrue( $this->scheduler->is_scheduled(), 'Should be scheduled after register_hooks() (self-healing)' );
 	}
 
 	/**

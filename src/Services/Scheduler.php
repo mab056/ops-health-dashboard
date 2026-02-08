@@ -56,6 +56,9 @@ class Scheduler {
 	public function register_hooks(): void {
 		add_action( $this->hook_name, [ $this, 'run_checks' ], 10 );
 		add_filter( 'cron_schedules', [ $this, 'add_custom_cron_interval' ] );
+
+		// Self-healing: ri-schedula se l'evento cron e' scomparso.
+		$this->schedule();
 	}
 
 	/**

@@ -62,6 +62,32 @@ Plugin WordPress production-grade per monitoraggio operativo con health checks, 
 
 Milestone M1 completata (Core Checks + Storage + Cron). M2 in corso (Error Log Summary Safe). Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
 
+## Verifica Modifiche Recenti (2026-02-08)
+
+Modifiche controllate in working tree:
+1. `src/Services/Scheduler.php`: aggiunto self-healing in `register_hooks()` con chiamata a `schedule()`.
+2. `tests/Unit/Services/SchedulerTest.php`: aggiornati test unit per coprire self-healing (cron presente/mancante).
+3. `tests/Integration/Services/SchedulerTest.php`: aggiunto test integrazione per ri-schedulazione automatica.
+4. `bin/test-matrix.sh`: corretto supporto `--parallel` con raccolta risultati da subshell via file temporanei.
+5. `README.md`: aggiornata sezione autori/riferimenti assistenti AI.
+
+Esito verifica locale:
+1. `composer test:unit` OK (104 test, 212 assertion).
+2. `composer phpcs` OK.
+3. `composer test:integration` non eseguibile in sandbox senza accesso DB MySQL (`mysqli_real_connect ... Operation not permitted`).
+
+## Checklist Revisione Modifiche
+
+Prima di chiudere PR/commit, verificare sempre:
+1. `git diff --name-only` e `git diff` sui file toccati.
+2. Copertura test aggiornata per ogni comportamento nuovo/modificato.
+3. Assenza regressioni su cron/scheduler (niente duplicati, self-healing attivo).
+4. Compatibilita' script di tooling in esecuzione sequenziale e parallela.
+5. Esecuzione:
+   - `composer test:unit`
+   - `composer test:integration` (in ambiente con DB disponibile)
+   - `composer phpcs`
+
 ## Documenti di Riferimento
 
 1. `README.md`
