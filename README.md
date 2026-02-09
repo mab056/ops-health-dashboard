@@ -18,19 +18,18 @@ Questo plugin fornisce una dashboard operativa in wp-admin con controlli automat
 ## ✨ Funzionalità (MVP)
 
 ### Controlli di Salute
-- **Database** - Connettività e performance delle query
-- **Redis** - Rilevamento + smoke test (opzionale)
-- **Spazio Disco** - Libero/totale con soglie configurabili
-- **Log Errori** - Aggregazione sicura con redaction automatica
-- **Versioni** - WordPress, PHP, temi, plugin + notifiche aggiornamenti
+- **Database** - Connettivita' e performance delle query *(implementato)*
+- **Log Errori** - Aggregazione sicura con redaction automatica *(implementato)*
+- **Redis** - Rilevamento + smoke test (opzionale) *(pianificato M3)*
+- **Spazio Disco** - Libero/totale con soglie configurabili *(pianificato)*
+- **Versioni** - WordPress, PHP, temi, plugin + notifiche aggiornamenti *(pianificato)*
 
 ### Dashboard
-- Pagina admin: `Ops → Health Dashboard`
-- Widget dashboard con stato globale (✅/⚠️/🛑)
-- Riepilogo "Cosa è cambiato nelle ultime 24h"
-- Pulsante manuale "Esegui Check Ora"
+- Pagina admin: `Ops → Health Dashboard` *(implementato)*
+- Widget dashboard con stato globale *(pianificato M4+)*
+- Pulsante manuale "Esegui Check Ora" *(pianificato)*
 
-### Alerting
+### Alerting *(pianificato M4)*
 - Email via `wp_mail()`
 - Webhook generico (POST JSON)
 - Slack (opt-in con Incoming Webhook)
@@ -39,9 +38,9 @@ Questo plugin fornisce una dashboard operativa in wp-admin con controlli automat
 - Cooldown intelligente per prevenire spam di alert
 
 ### Scheduling
-- WP-Cron (default: ogni 15 minuti)
-- Trigger manuale dei check
-- Alert solo su cambiamenti di stato
+- WP-Cron (default: ogni 15 minuti) *(implementato)*
+- Trigger manuale dei check *(pianificato)*
+- Alert solo su cambiamenti di stato *(pianificato M4)*
 
 ## 🏗️ Architettura
 
@@ -281,12 +280,12 @@ public function test_database_check_runs_successfully() {
 - **Sanitizzazione Input**: Tutti gli input utente sanitizzati
 - **Escaping Output**: Tutti gli output escaped
 
-### WordPress.org Ready
+### WordPress.org Ready *(pianificato M6)*
 
-- ✅ Plugin Check tool passa (zero errori)
-- ✅ Nessuna chiamata outbound senza opt-in
 - ✅ Conforme WordPress Coding Standards
-- ✅ Cleanup completo in disinstallazione
+- ✅ Nessuna chiamata outbound senza opt-in
+- Plugin Check tool *(da verificare in M6)*
+- Cleanup in disinstallazione via `uninstall.php` *(pianificato M6)*
 
 ## 📊 Stato Sviluppo
 
@@ -295,8 +294,8 @@ Milestone corrente: **M3 - Check Redis** 🚧
 ### Statistiche
 
 - **15 file sorgente** in `src/`
-- **24 file di test** (15 unit + 9 integration)
-- **210 test totali** (169 unit + 41 integration), 472 assertions
+- **25 file di test** (15 unit + 10 integration)
+- **218 test totali** (172 unit + 46 integration), 487 assertions
 - **PHPCS**: 100% compliance (0 errori, 0 warning)
 
 ### Roadmap

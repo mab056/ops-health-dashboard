@@ -303,6 +303,48 @@ class SchedulerTest extends TestCase {
 	}
 
 	/**
+	 * Testa che add_custom_cron_interval() aggiunge l'intervallo personalizzato
+	 */
+	public function test_add_custom_cron_interval_adds_schedule() {
+		if ( ! defined( 'MINUTE_IN_SECONDS' ) ) {
+			define( 'MINUTE_IN_SECONDS', 60 );
+		}
+
+		$runner    = Mockery::mock( CheckRunnerInterface::class );
+		$scheduler = new Scheduler( $runner );
+
+		Functions\expect( '__' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
+
+		$schedules = $scheduler->add_custom_cron_interval( [] );
+
+		$this->assertArrayHasKey( 'every_15_minutes', $schedules );
+		$this->assertEquals( 900, $schedules['every_15_minutes']['interval'] );
+		$this->assertArrayHasKey( 'display', $schedules['every_15_minutes'] );
+	}
+
+	/**
+	 * Testa che add_custom_cron_interval() non sovrascrive intervallo esistente
+	 */
+	public function test_add_custom_cron_interval_does_not_overwrite_existing() {
+		$runner    = Mockery::mock( CheckRunnerInterface::class );
+		$scheduler = new Scheduler( $runner );
+
+		$existing = [
+			'every_15_minutes' => [
+				'interval' => 999,
+				'display'  => 'Custom',
+			],
+		];
+
+		$schedules = $scheduler->add_custom_cron_interval( $existing );
+
+		$this->assertEquals( 999, $schedules['every_15_minutes']['interval'] );
+	}
+
+	/**
 	 * Testa che la classe NON è final
 	 */
 	public function test_class_is_not_final() {

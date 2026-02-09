@@ -735,6 +735,60 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
+	 * Testa che critical samples hanno priorità sui warning nei campioni
+	 *
+	 * Con 3 critical e 10 warning, i 5 campioni devono includere tutti i 3 critical.
+	 */
+	public function test_run_prioritizes_critical_over_warning_in_samples() {
+		$redaction = $this->create_redaction_mock();
+		$check     = $this->create_check_mock( $redaction );
+
+		$check->shouldReceive( 'resolve_log_path' )
+			->once()
+			->andReturn( '/var/log/php-error.log' );
+
+		$check->shouldReceive( 'validate_log_file' )
+			->once()
+			->andReturn( [ 'valid' => true ] );
+
+		$lines = [];
+		for ( $i = 0; $i < 10; $i++ ) {
+			$lines[] = "[08-Feb-2026] PHP Warning: warning number {$i}";
+		}
+		$lines[] = '[08-Feb-2026] PHP Fatal error: critical one';
+		$lines[] = '[08-Feb-2026] PHP Fatal error: critical two';
+		$lines[] = '[08-Feb-2026] PHP Fatal error: critical three';
+
+		$check->shouldReceive( 'read_tail' )
+			->once()
+			->andReturn( $lines );
+
+		Functions\expect( '__' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
+
+		Functions\expect( 'size_format' )
+			->andReturnUsing( function ( $bytes ) {
+				return $bytes . ' B';
+			} );
+
+		$result  = $check->run();
+		$samples = $result['details']['recent_samples'];
+
+		$this->assertCount( 5, $samples );
+
+		// Tutti e 3 i critical devono essere presenti.
+		$critical_count = 0;
+		foreach ( $samples as $sample ) {
+			if ( false !== strpos( $sample, 'Fatal error' ) ) {
+				++$critical_count;
+			}
+		}
+		$this->assertEquals( 3, $critical_count, 'All critical samples must be included' );
+	}
+
+	/**
 	 * Testa che la classe NON è final
 	 */
 	public function test_class_is_not_final() {

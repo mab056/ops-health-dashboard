@@ -1,8 +1,7 @@
 # Development Plan - Ops Health Dashboard
 
 **Current Milestone**: M3 - Check Redis
-**Started**: 2026-02-08
-**Status**: 🚧 In Progress
+**Status**: Planned (not yet started)
 
 ---
 
@@ -48,7 +47,7 @@
 - [x] **M1.9** - Unit tests completi (104 test, Brain\Monkey)
 - [x] **M1.10** - Integration tests completi (33 test, WP Test Suite)
 
-### Code Review - Issue Risolte (21/22)
+### Code Review - Issue Risolte (17/18)
 
 - ✅ Activator: hook name corretto `ops_health_run_checks`, rimosso `flush_rewrite_rules()`
 - ✅ Activator: gestisce schedule/unschedule cron (non Plugin::init)
@@ -171,7 +170,7 @@
 - DatabaseCheck with `$wpdb` constructor injection, no info disclosure
 - Scheduler with 15-minute WP-Cron interval
 - Admin Menu and HealthScreen with capability check and defensive rendering
-- Complete code review: fixed 21/22 issues
+- Complete code review: fixed 17/18 issues
 - All 137 tests green, PHPCS 100% clean
 - Added `bin/test-matrix.sh` for local PHP 7.4-8.5 matrix testing (mirrors CI)
 
@@ -209,7 +208,8 @@
 
 ## Known Issues / Tech Debt
 
-- **CSS 'unknown' status**: HealthScreen non ha classe CSS per lo stato 'unknown' (solo ok/warning/critical). Aggiungere quando si implementano gli asset CSS (M2+).
+- **CSS 'unknown' status**: HealthScreen non ha classe CSS per lo stato 'unknown' (solo ok/warning/critical). Aggiungere quando si implementano gli asset CSS (M4+).
+- **uninstall.php**: pianificato per M6.
 
 ## Next Milestones
 

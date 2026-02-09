@@ -105,7 +105,7 @@ class DatabaseCheck implements CheckInterface {
 	 * @return string Nome del check.
 	 */
 	public function get_name(): string {
-		return 'Database Connection';
+		return __( 'Database Connection', 'ops-health-dashboard' );
 	}
 
 	/**

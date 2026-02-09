@@ -606,14 +606,14 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 **Milestone M2 - Riepilogo Error Log Sicuro** ✅ COMPLETATO (+ Code Review 15/15)
 
 **Stato Attuale:**
-- ✅ 169 test unitari (Brain\Monkey)
-- ✅ 41 test di integrazione (WP Test Suite)
-- ✅ 210 test totali passing, 472 assertions
+- ✅ 172 test unitari (Brain\Monkey)
+- ✅ 46 test di integrazione (WP Test Suite)
+- ✅ 218 test totali passing, 487 assertions
 - ✅ PHPCS 100% compliance (0 errori, 0 warning)
 - ✅ CI/CD completo con PHP 7.4-8.5
-- ✅ 15 file sorgente, 24 file di test
+- ✅ 15 file sorgente, 25 file di test (15 unit + 10 integration)
 - ✅ Pattern enforcement (NO singleton/static/final)
-- ✅ Code review: 15/15 issue risolte
+- ✅ Code review: 15/15 issue risolte + audit fix
 
 **Componenti Implementati (M1+M2):**
 - StorageInterface, CheckInterface, RedactionInterface, CheckRunnerInterface (contratti DI)

@@ -89,7 +89,7 @@ class ActivatorTest extends WP_UnitTestCase {
 
 		$version = get_option( 'ops_health_version' );
 		$this->assertNotFalse( $version, 'Versione dovrebbe essere creata' );
-		$this->assertEquals( '0.2.0', $version, 'Versione dovrebbe matchare la costante' );
+		$this->assertEquals( OPS_HEALTH_DASHBOARD_VERSION, $version, 'Versione dovrebbe matchare la costante' );
 	}
 
 	/**

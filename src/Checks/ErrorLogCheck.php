@@ -170,15 +170,25 @@ class ErrorLogCheck implements CheckInterface {
 	/**
 	 * Risolve il path del file di log degli errori
 	 *
-	 * Controlla WP_DEBUG_LOG (stringa = path custom, true = fallback a ini_get).
-	 * Se non configurato, usa ini_get('error_log').
+	 * Controlla WP_DEBUG_LOG:
+	 * - stringa = path custom
+	 * - true = wp-content/debug.log (comportamento WordPress standard)
+	 * - false/non definito = fallback a ini_get('error_log')
 	 *
 	 * @return string Path del file di log, stringa vuota se non trovato.
 	 */
 	protected function resolve_log_path(): string {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
-		if ( defined( 'WP_DEBUG_LOG' ) && is_string( WP_DEBUG_LOG ) && '' !== WP_DEBUG_LOG ) {
-			return WP_DEBUG_LOG;
+		if ( defined( 'WP_DEBUG_LOG' ) ) {
+			// Stringa = path custom.
+			if ( is_string( WP_DEBUG_LOG ) && '' !== WP_DEBUG_LOG ) {
+				return WP_DEBUG_LOG;
+			}
+
+			// true = WordPress scrive in wp-content/debug.log.
+			if ( true === WP_DEBUG_LOG && defined( 'WP_CONTENT_DIR' ) ) {
+				return WP_CONTENT_DIR . '/debug.log';
+			}
 		}
 
 		$ini_path = ini_get( 'error_log' );
@@ -254,7 +264,11 @@ class ErrorLogCheck implements CheckInterface {
 		}
 
 		// Lock condiviso per evitare lettura durante scrittura.
-		flock( $handle, LOCK_SH );
+		if ( ! flock( $handle, LOCK_SH ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+			fclose( $handle );
+			return [];
+		}
 
 		// Seek alla posizione di partenza.
 		$offset = max( 0, $file_size - $this->max_bytes );
@@ -265,6 +279,7 @@ class ErrorLogCheck implements CheckInterface {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fread
 		$content = fread( $handle, $this->max_bytes );
 
+		flock( $handle, LOCK_UN );
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 		fclose( $handle );
 
@@ -436,14 +451,13 @@ class ErrorLogCheck implements CheckInterface {
 	 * @return array Campioni redatti (massimo max_samples).
 	 */
 	private function collect_samples( array $severity_lines ): array {
-		// Priorità: critical prima, poi warning.
-		$samples = array_merge(
-			array_slice( $severity_lines['critical'], -$this->max_samples ),
-			array_slice( $severity_lines['warning'], -$this->max_samples )
-		);
-
-		// Limita a max_samples.
-		$samples = array_slice( $samples, -$this->max_samples );
+		// Priorità: critical prima, poi riempi gli slot rimanenti con warning.
+		$critical  = array_slice( $severity_lines['critical'], -$this->max_samples );
+		$remaining = $this->max_samples - count( $critical );
+		$warnings  = $remaining > 0
+			? array_slice( $severity_lines['warning'], -$remaining )
+			: [];
+		$samples   = array_merge( $critical, $warnings );
 
 		// Redigi tutti i campioni.
 		return $this->redaction->redact_lines( $samples );

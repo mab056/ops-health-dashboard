@@ -5,6 +5,32 @@ Tutte le modifiche rilevanti a questo progetto saranno documentate in questo fil
 Il formato è basato su [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+- **ErrorLogCheck::collect_samples()** - I campioni critical ora hanno priorita' sui warning; prima `array_slice(..., -max)` scartava i critical quando c'erano molti warning
+- **ErrorLogCheck::resolve_log_path()** - Gestisce `WP_DEBUG_LOG === true` (WordPress scrive in `wp-content/debug.log`)
+- **ErrorLogCheck::read_tail()** - Verifica return value di `flock()`; `flock(LOCK_UN)` esplicito prima di `fclose()`
+- **DatabaseCheck::get_name()** - Wrappato con `__()` per i18n (era l'unico check senza traduzione)
+
+### Changed
+- **build-zip.sh** - Copia condizionale di `languages/` e `assets/` (non fallisce se mancanti)
+- **install-wp-tests.sh** - Endpoint API WordPress usa HTTPS invece di HTTP (hardening anti-MITM)
+
+### Removed
+- `tests/bootstrap-integration.php` - File orfano non referenziato in phpunit.xml.dist
+
+### Added
+- Integration test per HealthScreen (render output, no-checks message, capability check)
+- Integration test per Menu::render_page() (delega a HealthScreen)
+- Unit test per Scheduler::add_custom_cron_interval() (aggiunta intervallo + no-overwrite)
+- Unit test per priorita' campioni critical vs warning in ErrorLogCheck
+
+### Development Notes
+- 218 test totali (172 unit + 46 integration), 487 assertions
+- PHPCS 100% clean (0 errori, 0 warning)
+- ActivatorTest integration usa costante `OPS_HEALTH_DASHBOARD_VERSION` invece di stringa hardcoded
+
 ## 0.2.0 - 2026-02-09
 
 ### Added
@@ -33,7 +59,7 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
   - Status: critical (fatal/parse), warning (warning/deprecated/strict), ok (solo notice/other)
   - Nessuna esposizione del path raw del file di log
   - Messaggi internazionalizzati con `__()`
-- **65 nuovi test** (62 unit + 3 integration) per le nuove classi
+- **73 nuovi test** (65 unit + 8 integration) per le nuove classi
 - Pattern enforcement tests su RedactionInterface, CheckRunnerInterface, Redaction, ErrorLogCheck
 
 ### Changed

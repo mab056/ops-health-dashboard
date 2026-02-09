@@ -97,12 +97,18 @@ class DatabaseCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get_name() ritorna il nome corretto
+	 * Testa che get_name() ritorna il nome corretto con i18n
 	 */
 	public function test_get_name_returns_correct_name() {
 		$wpdb      = $this->create_wpdb_mock();
 		$redaction = $this->create_redaction_mock();
 		$check     = new DatabaseCheck( $wpdb, $redaction );
+
+		Functions\expect( '__' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
+
 		$this->assertEquals( 'Database Connection', $check->get_name() );
 	}
 
