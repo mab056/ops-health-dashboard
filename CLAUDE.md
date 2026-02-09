@@ -588,7 +588,8 @@ GitHub Actions esegue automaticamente:
 - ✅ Unit tests (Brain\Monkey) su tutte le versioni
 - ✅ Integration tests (WP Test Suite) su tutte le versioni
 - ✅ Coverage report (solo PHP 8.3)
-- ✅ Upload Codecov
+- ✅ Upload Codecov con flag separati (`unit`, `integration`) via `codecov-action@v5`
+- ✅ `codecov.yml`: soglia progetto 95%, patch 90%, `carryforward: true`
 
 **Test Matrix Locale** (replica CI localmente):
 ```bash

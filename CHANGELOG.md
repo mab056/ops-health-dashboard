@@ -10,6 +10,7 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 ### Added
 - **SECURITY.md**
 - **.gitattributes** - `export-ignore` per escludere file di sviluppo da `git archive` e GitHub Download ZIP
+- **codecov.yml** - Configurazione Codecov con soglie progetto 95%, patch 90%, flag separati `unit`/`integration` con `carryforward`
 
 ### Changed
 - **DatabaseCheckTest** - Timing test usa busy-wait loop (resiste a EINTR da SIGALRM) invece di `usleep()` singolo
@@ -18,7 +19,7 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 - **DatabaseCheck** - Soglia slow query estratta in costante `SLOW_QUERY_THRESHOLD = 0.5`
 - **ErrorLogCheck** - Aggiunto null coalesce difensivo `?? 'other'` in `classify_line()`
 - **Activator** - Commento esplicativo sul filtro `cron_schedules` duplicato (necessario durante attivazione)
-- **CI workflow** - Rimosso flag deprecato `--no-suggest` da Composer; aggiunto `permissions: contents: read`
+- **CI workflow** - Rimosso flag deprecato `--no-suggest` da Composer; aggiunto `permissions: contents: read`; Codecov upload separato per unit e integration con flag distinti (`codecov-action@v5`, `CODECOV_TOKEN`)
 - **HealthScreenTest** - `$_POST` cleanup centralizzato in `tearDown()` per isolamento test robusto
 - **HealthScreenTest/MenuTest/ActivatorTest** - 7× `assertTrue(true)` sostituiti con `assertInstanceOf()` (asserzioni reali)
 - **CheckRunnerTest** - Verifica `__()` chiamata in test eccezione per i18n
