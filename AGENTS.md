@@ -9,7 +9,7 @@ Plugin WordPress production-grade per monitoraggio operativo con health checks, 
 ## Regole Architetturali Non Negoziabili
 
 1. NO singleton.
-2. NO metodi/proprieta' statiche.
+2. NO metodi/proprietà statiche.
 3. NO classi/metodi `final`.
 4. Usare dependency injection via costruttore.
 5. Usare il container DI con `share()` per istanze condivise (non singleton globali).
@@ -72,7 +72,7 @@ Punti architetturali da preservare nella codebase attuale:
 4. Lifecycle activation/deactivation in `src/Core/Activator.php` con setup opzioni e cron hook (`ops_health_run_checks`).
 5. Scheduling check periodici tramite `src/Services/Scheduler.php` (WP-Cron ogni 15 minuti) con self-healing throttled via transient `ops_health_cron_check` (valido su admin e frontend).
 6. Check registrati in `config/bootstrap.php`: `DatabaseCheck`, `ErrorLogCheck`, `RedisCheck`.
-7. Flusso azioni admin in `src/Admin/HealthScreen.php`: `process_actions()` con nonce + capability check e redirect PRG; uscita isolata in `do_exit()` per testabilita'.
+7. Flusso azioni admin in `src/Admin/HealthScreen.php`: `process_actions()` con nonce + capability check e redirect PRG; uscita isolata in `do_exit()` per testabilità.
 8. Redazione dati sensibili centralizzata in `src/Services/Redaction.php`, iniettata in `CheckRunner`, `DatabaseCheck`, `ErrorLogCheck` e `RedisCheck`.
 9. `RedisCheck` usa chiave smoke test univoca per run (`ops_health_smoke_test_<uniqid>`) per evitare race condition tra run concorrenti.
 10. Contratto `CheckRunnerInterface` con `clear_results()` usato dal flusso admin (`Run Now` / `Clear Cache`) in `HealthScreen::process_actions()`.
@@ -89,7 +89,7 @@ Prima di chiudere PR/commit, verificare sempre:
 1. `git diff --name-only` e `git diff` sui file toccati.
 2. Copertura test aggiornata per ogni comportamento nuovo/modificato.
 3. Assenza regressioni su cron/scheduler (niente duplicati, self-healing attivo).
-4. Compatibilita' degli script di tooling in esecuzione sequenziale e parallela.
+4. Compatibilità degli script di tooling in esecuzione sequenziale e parallela.
 5. Esecuzione:
    - `composer test:unit`
    - `composer test:integration` (in ambiente con DB disponibile)
@@ -104,3 +104,4 @@ Prima di chiudere PR/commit, verificare sempre:
 3. `DEVELOPMENT_PLAN.md`
 4. `CHANGELOG.md`
 5. `CLAUDE.md`
+6. `SECURITY.md`

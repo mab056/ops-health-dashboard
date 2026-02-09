@@ -5,6 +5,20 @@ Tutte le modifiche rilevanti a questo progetto saranno documentate in questo fil
 Il formato è basato su [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.3.1 - 2026-02-09
+
+### Added
+- **SECURITY.md**
+
+### Changed
+- **DatabaseCheckTest** - Timing test usa busy-wait loop (resiste a EINTR da SIGALRM) invece di `usleep()` singolo
+- **test-matrix.sh** - Grep fallback per output PHPUnit con test skipped (`Tests: N, ...` oltre a `OK (N tests, ...)`)
+
+### Fixed
+- **test-matrix.sh** - Integration test count mostrava "?" quando PHPUnit aveva test skipped (formato output diverso da `OK (N tests, ...)`)
+- **DatabaseCheckTest flaky** - `usleep()` interrotto da SIGALRM (PHPUnit php-invoker) causava test timing intermittentemente fallimentari; sostituito con busy-wait loop resistente a EINTR
+
+
 ## 0.3.0 - 2026-02-09
 
 ### Added
@@ -31,7 +45,6 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 - **ActivatorTest** - Aggiornati 3 test con definizione `MINUTE_IN_SECONDS` e mock `__()`
 - **RedisCheckTest** - Aggiornato `test_returns_ok_when_smoke_test_passes` con `Mockery::on()` pattern matcher per chiave dinamica
 - **Copertura test migliorata** - 49 nuovi test (215 unit + 99 integration), 743 assertions
-- **Documentazione post-mortem** - `docs/postmortem-redis-test-matrix.md` per analisi fix test matrix Redis
 
 ### Changed
 - **Activator** - Usa `MINUTE_IN_SECONDS` e `__()` i18n per intervallo cron (allineato con Scheduler)
@@ -45,23 +58,18 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 - **ErrorLogCheck::resolve_log_path()** - `WP_DEBUG_LOG` assegnato a variabile locale con `@phpstan-ignore` per compatibilità PHPStan (stubs WordPress tipano `bool`, ma WordPress accetta anche stringhe)
 - **.phpcs.xml.dist** - Aggiunto exclude per `.phpstan-cache`
 - **RedisCheckTest integration** - `@requires extension redis` su test individuali (non `return;` a livello file); `extension_loaded('redis')` guard su `require_once FakeRedisHelpers.php`
-- **DatabaseCheckTest** - Timing test usa busy-wait loop (resiste a EINTR da SIGALRM) invece di `usleep()` singolo
-- **test-matrix.sh** - Grep fallback per output PHPUnit con test skipped (`Tests: N, ...` oltre a `OK (N tests, ...)`)
 
 ### Fixed
 - **Integration HealthScreenTest** - Corretta option key da `ops_health_results` a `ops_health_latest_results` (allineata con Storage prefix `ops_health_` + CheckRunner key `latest_results`)
-- **test-matrix.sh** - Integration test count mostrava "?" quando PHPUnit aveva test skipped (formato output diverso da `OK (N tests, ...)`)
-- **DatabaseCheckTest flaky** - `usleep()` interrotto da SIGALRM (PHPUnit php-invoker) causava test timing intermittentemente fallimentari; sostituito con busy-wait loop resistente a EINTR
 - **RedisCheckTest fatale senza ext-redis** - `extends \Redis` nelle classi helper causava fatal error su PHP senza ext-redis; risolto con guard `extension_loaded('redis')` e `@requires extension redis`
 
 ### Development Notes
 - 314 test totali (215 unit + 99 integration), 743 assertions
 - PHPCS 100% clean (0 errori, 0 warning)
 - PHPStan level 6: 0 errori
-- 16 file sorgente, 26 file di test (16 unit + 10 integration)
+- 16 file sorgente, 29 file di test (16 unit + 12 integration)
 - Code review post-M3: 5 fix sorgente + 9 nuovi test + 6 test aggiornati
 - Code review 2: 3 fix sorgente + 4 test aggiornati
-- Test matrix stabilization: fix EINTR, fix grep, fix ext-redis guard
 
 ## 0.2.1 - 2026-02-09
 
@@ -76,19 +84,19 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 - Integration test per HealthScreen (render output, no-checks message, capability check, action buttons)
 - Integration test per Menu::render_page() (delega a HealthScreen)
 - Unit test per Scheduler::add_custom_cron_interval() (aggiunta intervallo + no-overwrite)
-- Unit test per priorita' campioni critical vs warning in ErrorLogCheck
+- Unit test per priorità campioni critical vs warning in ErrorLogCheck
 - Unit test per bottoni Run Now/Clear Cache e nonce fields in HealthScreen
 
 ### Fixed
 - **ErrorLogCheck::validate_log_file()** - Distingue "non configurato" (warning) da "configurato ma file non esiste ancora" (ok); prima mostrava erroneamente warning quando `WP_DEBUG_LOG=true` ma `debug.log` non era ancora stato creato
-- **ErrorLogCheck::collect_samples()** - I campioni critical ora hanno priorita' sui warning; prima `array_slice(..., -max)` scartava i critical quando c'erano molti warning
+- **ErrorLogCheck::collect_samples()** - I campioni critical ora hanno priorità sui warning; prima `array_slice(..., -max)` scartava i critical quando c'erano molti warning
 - **ErrorLogCheck::resolve_log_path()** - Gestisce `WP_DEBUG_LOG === true` (WordPress scrive in `wp-content/debug.log`)
 - **ErrorLogCheck::read_tail()** - Verifica return value di `flock()`; `flock(LOCK_UN)` esplicito prima di `fclose()`
 - **DatabaseCheck::get_name()** - Wrappato con `__()` per i18n (era l'unico check senza traduzione)
 - **install-wp-tests.sh** - `grep -o` restituiva tutte le versioni WordPress dall'API invece della sola ultima; `svn export` riceveva argomenti multipli e falliva in CI. Aggiunto `head -1` per prendere solo la prima (latest). Rimossa riga `grep` morta senza effetto.
 
 ### Changed
-- **HealthScreen::process_actions()** - Metodo ora public, invocato da `load-{$page_hook}` hook (non piu' dentro `render()`)
+- **HealthScreen::process_actions()** - Metodo ora public, invocato da `load-{$page_hook}` hook (non più dentro `render()`)
 - **Menu::add_menu()** - Registra hook `load-{$page_hook}` per processare azioni prima dell'output
 - **build-zip.sh** - Copia condizionale di `languages/` e `assets/` (non fallisce se mancanti)
 - **install-wp-tests.sh** - Endpoint API WordPress usa HTTPS invece di HTTP (hardening anti-MITM)
@@ -118,13 +126,13 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
   - Indirizzi IPv4 e IPv6 -> `[IP_REDACTED]`
   - Path ABSPATH e WP_CONTENT_DIR -> placeholder
   - Directory home utenti -> `/home/[USER_REDACTED]`
-  - Constructor injection di path (ABSPATH, WP_CONTENT_DIR) per testabilita'
-  - Ordine chain: WP_CONTENT_DIR prima di ABSPATH (piu' specifico)
+  - Constructor injection di path (ABSPATH, WP_CONTENT_DIR) per testabilità
+  - Ordine chain: WP_CONTENT_DIR prima di ABSPATH (più specifico)
 - **ErrorLogCheck** - Check riepilogo sicuro del log errori PHP
   - Risoluzione path log: WP_DEBUG_LOG (stringa) -> ini_get('error_log')
-  - Validazione file: esistenza, leggibilita', anti-symlink
+  - Validazione file: esistenza, leggibilità, anti-symlink
   - Lettura tail efficiente: max 512KB, max 100 righe con `flock(LOCK_SH)`
-  - Aggregazione per severita': fatal, parse, warning, notice, deprecated, strict, other
+  - Aggregazione per severità: fatal, parse, warning, notice, deprecated, strict, other
   - Campioni redatti: max 5 righe critiche/warning, sanitizzate via Redaction
   - Status: critical (fatal/parse), warning (warning/deprecated/strict), ok (solo notice/other)
   - Nessuna esposizione del path raw del file di log
@@ -196,7 +204,7 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 
 ### Fixed
 - **Scheduler self-healing** - `register_hooks()` ora chiama `schedule()` per ri-creare l'evento cron se scomparso (migrazione DB, cleanup cron, corruzione option). Idempotente grazie al guard `is_scheduled()`.
-- **test-matrix.sh `--parallel`** - I risultati delle subshell ora sono propagati al processo padre tramite file temporanei. Prima la tabella riepilogativa era vuota e l'exit code era sempre 0 in modalita parallela.
+- **test-matrix.sh `--parallel`** - I risultati delle subshell ora sono propagati al processo padre tramite file temporanei. Prima la tabella riepilogativa era vuota e l'exit code era sempre 0 in modalità parallela.
 
 ### Security
 - Constructor injection di `$wpdb` per evitare accesso globale nei test

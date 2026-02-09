@@ -18,7 +18,7 @@ Questo plugin fornisce una dashboard operativa in wp-admin con controlli automat
 ## ✨ Funzionalità (MVP)
 
 ### Controlli di Salute
-- **Database** - Connettivita' e performance delle query *(implementato)*
+- **Database** - Connettività e performance delle query *(implementato)*
 - **Log Errori** - Aggregazione sicura con redaction automatica *(implementato)*
 - **Redis** - Rilevamento estensione + connessione + smoke test con graceful degradation *(implementato)*
 - **Spazio Disco** - Libero/totale con soglie configurabili *(pianificato)*
@@ -117,7 +117,7 @@ ops-health-dashboard/
 3. Attiva tramite admin WordPress
 4. Naviga su `Ops → Health Dashboard`
 
-### Per sviluppatori (sviluppo locale)
+### Per Sviluppatori (sviluppo locale)
 
 ```bash
 # Clona repository
@@ -194,7 +194,7 @@ bin/build-zip.sh --output /tmp/p.zip  # Output path custom
 Esegui l'intera matrice CI in locale (richiede PHP 7.4-8.5 via PPA sury):
 
 ```bash
-composer test:matrix                   # Matrice completa (PHPCS + 7 versioni PHP)
+composer test:matrix                   # Matrice completa (PHPCS + PHPStan + 7 versioni PHP)
 bin/test-matrix.sh --php 7.4           # Solo una versione
 bin/test-matrix.sh --php 7.4 --php 8.3 # Versioni specifiche
 bin/test-matrix.sh --parallel          # Esecuzione parallela
@@ -296,7 +296,7 @@ Milestone corrente: **M4 - Alerting System** 🚧
 ### Statistiche
 
 - **16 file sorgente** in `src/`
-- **26 file di test** (16 unit + 10 integration)
+- **29 file di test** (16 unit + 12 integration)
 - **314 test totali** (215 unit + 99 integration), 743 assertions
 - **PHPCS**: 100% compliance (0 errori, 0 warning)
 - **PHPStan**: level 6, 0 errori
@@ -392,7 +392,7 @@ GPL-3.0-or-later - vedi file [LICENSE](LICENSE).
 
 - Mattia Bondrano - [GitHub](https://github.com/mab056)
 
-Sviluppato con il supporto di Claude Code (Opus 4.5, 4.6, Sonnet 4.5) e Codex (Codex 5.2, 5.3)
+Sviluppato con il supporto di Claude Code (Opus 4.5, 4.6, Sonnet 4.5) e Codex (Codex 5.2, 5.3).
 
 ## 📞 Supporto
 

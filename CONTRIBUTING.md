@@ -152,7 +152,7 @@ composer test
 # Expected: OK (X tests, Y assertions)
 ```
 
-### Step 3: REFACTOR - Migliora la qualita' del codice
+### Step 3: REFACTOR - Migliora la qualità del codice
 
 ```php
 // Add error handling, validation, dependencies, etc.

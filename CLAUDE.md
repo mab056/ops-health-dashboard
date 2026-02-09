@@ -50,8 +50,8 @@ class GoodService {
 ```
 
 **Motivazione:**
-- **Testabilita**: singleton/static rendono il mocking molto difficile
-- **Flessibilita**: `final` limita l'estensibilita
+- **Testabilità**: singleton/static rendono il mocking molto difficile
+- **Flessibilità**: `final` limita l'estensibilità
 - **Best Practices**: WordPress core si è allontanato dai singleton
 - **Dependency Injection**: Tutte le dipendenze devono essere esplicite
 
@@ -613,7 +613,7 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 - ✅ PHPCS 100% compliance (0 errori, 0 warning)
 - ✅ PHPStan level 6: 0 errori (szepeviktor/phpstan-wordpress)
 - ✅ CI/CD completo con PHP 7.4-8.5
-- ✅ 16 file sorgente, 26 file di test (16 unit + 10 integration)
+- ✅ 16 file sorgente, 29 file di test (16 unit + 12 integration)
 - ✅ Pattern enforcement (NO singleton/static/final)
 
 **Componenti Implementati (M1+M2+M3):**

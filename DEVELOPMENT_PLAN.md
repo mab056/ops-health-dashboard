@@ -94,7 +94,7 @@
 ### Dettagli Implementazione
 
 **Redaction Service** - 11 pattern di redazione in catena ordinata:
-1. Path WP_CONTENT_DIR -> `[WP_CONTENT]` (str_replace, piu' specifico prima)
+1. Path WP_CONTENT_DIR -> `[WP_CONTENT]` (str_replace, più specifico prima)
 2. Path ABSPATH -> `[ABSPATH]/` (str_replace)
 3. Credenziali DB (DB_PASSWORD, DB_USER, DB_NAME, DB_HOST) -> `[REDACTED]`
 4. WordPress salts (AUTH_KEY, SECURE_AUTH_KEY, ecc.) -> `[REDACTED]`
@@ -108,12 +108,12 @@
 
 **ErrorLogCheck** - Riepilogo sicuro del log errori:
 - Risoluzione path: `WP_DEBUG_LOG` (stringa) -> `ini_get('error_log')`
-- Validazione: esistenza, leggibilita', anti-symlink
+- Validazione: esistenza, leggibilità, anti-symlink
 - Tail efficiente: max 512KB, max 100 righe, `flock(LOCK_SH)` per accesso concorrente
 - Classificazione: fatal, parse, warning, notice, deprecated, strict, other
 - Status: critical (fatal/parse > 0), warning (warning/deprecated/strict > 0), ok
 - Max 5 campioni critici/warning, redatti prima dell'inclusione
-- Protected methods per testabilita' con Mockery partial mock
+- Protected methods per testabilità con Mockery partial mock
 
 ### Code Review - Issue Risolte (15/15)
 
@@ -153,7 +153,7 @@
 - Aggiunto `composer analyse` script
 - Aggiunto job PHPStan in GitHub Actions CI (`.github/workflows/ci.yml`)
 - Integrato in `bin/test-matrix.sh` (eseguito con PHPCS)
-- Fix: `ErrorLogCheck::resolve_log_path()` assegnazione WP_DEBUG_LOG a variabile con `@phpstan-ignore` per compatibilita' con gli stubs
+- Fix: `ErrorLogCheck::resolve_log_path()` assegnazione WP_DEBUG_LOG a variabile con `@phpstan-ignore` per compatibilità con gli stubs
 - Fix: `.phpcs.xml.dist` exclude `.phpstan-cache`
 - PHPStan level 6: 0 errori
 
@@ -305,7 +305,7 @@
 
 **Statistiche Finali**:
 - 16 file sorgente in `src/`
-- 26 file di test (16 unit + 10 integration)
+- 29 file di test (16 unit + 12 integration)
 - 314 test totali (215 unit + 99 integration), 743 assertions
 - PHPCS 100% clean (0 errori, 0 warning)
 - PHPStan level 6: 0 errori
@@ -327,7 +327,7 @@
 3. **test-matrix.sh count "?"**: il grep `'OK \(\K[0-9]+'` non matchava l'output PHPUnit quando ci sono test skipped (`Tests: N, Assertions: M, Skipped: S.` invece di `OK (N tests, M assertions)`). Fix: grep fallback con `Tests: \K[0-9]+`.
 
 **Copertura test migliorata**: 265 → 314 test (+49), 620 → 743 assertions (+123)
-- Documentazione post-mortem: `docs/postmortem-redis-test-matrix.md`
+- Documentazione post-mortem del fix test matrix Redis integrata nel changelog e nel progress log
 - **Lesson**: `usleep()` può essere interrotto da SIGALRM (EINTR); usare busy-wait loop per timing tests
 - **Lesson**: PHPUnit cambia formato output con test skipped; grep patterns devono gestire entrambi i formati
 - **Lesson**: `@requires extension redis` su metodi individuali è il modo corretto per skip senza ext-redis
