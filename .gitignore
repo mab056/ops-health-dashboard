@@ -58,6 +58,7 @@ composer.phar
 /coverage/
 /.phpunit.cache/
 /phpunit.xml
+/.phpstan-cache
 
 # IDE
 .idea/

@@ -29,6 +29,7 @@ Plugin WordPress production-grade per monitoraggio operativo con health checks, 
 5. Prima di chiudere una modifica, eseguire:
    - `composer test`
    - `composer phpcs`
+   - `composer analyse`
 
 ## Sicurezza (Obbligatoria)
 
@@ -55,7 +56,7 @@ Plugin WordPress production-grade per monitoraggio operativo con health checks, 
 1. Scrivere/aggiornare test.
 2. Implementare il minimo codice necessario.
 3. Rifinire (refactor) mantenendo i test verdi.
-4. Eseguire `composer test` e `composer phpcs`.
+4. Eseguire `composer test`, `composer phpcs` e `composer analyse`.
 5. Usare conventional commits (`feat`, `fix`, `docs`, `refactor`, `test`, `chore`).
 
 ## Stato Progetto (Riferimento)

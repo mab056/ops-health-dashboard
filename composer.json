@@ -19,7 +19,9 @@
     "wp-coding-standards/wpcs": "^3.0",
     "phpcompatibility/phpcompatibility-wp": "^2.1",
     "brain/monkey": "^2.6",
-    "mockery/mockery": "^1.5"
+    "mockery/mockery": "^1.5",
+    "phpstan/phpstan": "^1.10",
+    "szepeviktor/phpstan-wordpress": "^1.3"
   },
   "autoload": {
     "psr-4": {
@@ -42,7 +44,8 @@
     "phpcs": "phpcs",
     "phpcbf": "phpcbf",
     "install-wp-tests": "bash bin/install-wp-tests.sh wordpress_test root '' localhost latest",
-    "test:matrix": "bash bin/test-matrix.sh"
+    "test:matrix": "bash bin/test-matrix.sh",
+    "analyse": "phpstan analyse"
   },
   "config": {
     "allow-plugins": {

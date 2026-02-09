@@ -1,0 +1,17 @@
+includes:
+	- vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+	level: 6
+	paths:
+		- src/
+		- config/
+		- ops-health-dashboard.php
+	bootstrapFiles:
+		- vendor/autoload.php
+	scanDirectories:
+		- vendor/php-stubs/wordpress-stubs/
+	ignoreErrors:
+		-
+			identifier: missingType.iterableValue
+	tmpDir: .phpstan-cache

@@ -3,11 +3,11 @@
 # test-matrix.sh - Run test suite across all PHP versions (like CI)
 #
 # Usage:
-#   bin/test-matrix.sh                  # Full matrix + PHPCS
+#   bin/test-matrix.sh                  # Full matrix + PHPCS + PHPStan
 #   bin/test-matrix.sh --php 7.4        # Single version
 #   bin/test-matrix.sh --php 7.4 --php 8.3  # Multiple versions
 #   bin/test-matrix.sh --phpcs-only     # PHPCS only
-#   bin/test-matrix.sh --tests-only     # Skip PHPCS
+#   bin/test-matrix.sh --tests-only     # Skip PHPCS and PHPStan
 #   bin/test-matrix.sh --parallel       # Run versions in parallel
 #
 set -uo pipefail
@@ -116,6 +116,32 @@ run_phpcs() {
 	fi
 }
 
+# --- Run PHPStan ---
+run_phpstan() {
+	local start_time
+	start_time=$(date +%s)
+	local output
+	local exit_code=0
+
+	output=$(cd "$PROJECT_DIR" && "php${PHPCS_PHP}" vendor/bin/phpstan analyse 2>&1) || exit_code=$?
+
+	local end_time
+	end_time=$(date +%s)
+	local duration=$(( end_time - start_time ))
+
+	DURATIONS["phpstan"]="${duration}s"
+
+	if [ $exit_code -eq 0 ]; then
+		STATUSES["phpstan"]="PASS"
+		echo -e "  PHPStan: ${GREEN}PASS${NC} (${duration}s)"
+	else
+		STATUSES["phpstan"]="FAIL"
+		HAS_FAILURE=true
+		echo -e "  PHPStan: ${RED}FAIL${NC} (${duration}s)"
+		echo "$output" | tail -20
+	fi
+}
+
 # --- Run PHPUnit for one version ---
 run_tests_for_version() {
 	local version=$1
@@ -203,6 +229,10 @@ if [ "$RUN_PHPCS" = true ]; then
 	echo -e "${BOLD}=== PHPCS (PHP ${PHPCS_PHP}) ===${NC}"
 	run_phpcs
 	echo ""
+
+	echo -e "${BOLD}=== PHPStan (PHP ${PHPCS_PHP}) ===${NC}"
+	run_phpstan
+	echo ""
 fi
 
 # PHPUnit matrix
@@ -262,6 +292,10 @@ print_row() {
 
 if [ -n "${STATUSES[phpcs]+x}" ]; then
 	print_row "phpcs" "${STATUSES[phpcs]}" "${DURATIONS[phpcs]}"
+fi
+
+if [ -n "${STATUSES[phpstan]+x}" ]; then
+	print_row "phpstan" "${STATUSES[phpstan]}" "${DURATIONS[phpstan]}"
 fi
 
 for version in "${SELECTED_VERSIONS[@]}"; do

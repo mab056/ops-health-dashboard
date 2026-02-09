@@ -140,6 +140,9 @@ composer test
 
 # Esegui PHPCS
 composer phpcs
+
+# Esegui PHPStan (analisi statica level 6)
+composer analyse
 ```
 
 ## 🧪 Testing
@@ -171,7 +174,7 @@ composer test:integration
 # Tutti i test (unit + integration)
 composer test
 
-# Matrice completa PHP 7.4-8.5 + PHPCS (come CI)
+# Matrice completa PHP 7.4-8.5 + PHPCS + PHPStan (come CI)
 composer test:matrix
 
 # Con coverage (richiede Xdebug)
@@ -256,6 +259,7 @@ public function test_database_check_runs_successfully() {
 
 - **Unit Tests**: Brain\Monkey - 212 test, tutte le versioni PHP
 - **Integration Tests**: WP Test Suite - 53 test, tutte le versioni PHP
+- **PHPStan**: Level 6 con szepeviktor/phpstan-wordpress, 0 errori
 - **Versioni PHP**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
 - **Target Coverage**: ≥85% su PHP 8.3
 - **Test E2E**: Viewport Mobile, Tablet, Desktop (futuro)
@@ -295,8 +299,9 @@ Milestone corrente: **M4 - Alerting System** 🚧
 
 - **16 file sorgente** in `src/`
 - **27 file di test** (16 unit + 11 integration)
-- **265 test totali** (212 unit + 53 integration), 617 assertions
+- **265 test totali** (212 unit + 53 integration), 620 assertions
 - **PHPCS**: 100% compliance (0 errori, 0 warning)
+- **PHPStan**: level 6, 0 errori
 
 ### Roadmap
 

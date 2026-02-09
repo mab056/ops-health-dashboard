@@ -180,10 +180,12 @@ class ErrorLogCheck implements CheckInterface {
 	protected function resolve_log_path(): string {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
 		if ( defined( 'WP_DEBUG_LOG' ) ) {
-			/** @var string|bool $debug_log WP_DEBUG_LOG can be string path or bool. */
+			// WP_DEBUG_LOG can be string path or bool; WP stubs type it as bool only.
 			$debug_log = WP_DEBUG_LOG;
 
-			// Stringa = path custom.
+			// Stringa = path custom (WP stubs incorrectly type WP_DEBUG_LOG as bool).
+			// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar -- PHPStan directive
+			// @phpstan-ignore function.impossibleType, booleanAnd.alwaysFalse
 			if ( is_string( $debug_log ) && '' !== $debug_log ) {
 				return $debug_log;
 			}

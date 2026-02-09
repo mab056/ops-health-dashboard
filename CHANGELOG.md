@@ -8,6 +8,11 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 ## 0.3.0 - 2026-02-09
 
 ### Added
+- **PHPStan** - Analisi statica livello 6 con `szepeviktor/phpstan-wordpress`
+  - Configurazione `phpstan.neon` (level 6, `missingType.iterableValue` ignorato)
+  - Script `composer analyse` per esecuzione locale
+  - Job dedicato in GitHub Actions CI
+  - Integrazione in `bin/test-matrix.sh` (eseguito insieme a PHPCS)
 - **RedisCheck** - Health check per Redis con graceful degradation (M3)
   - Rilevamento estensione PHP Redis (`extension_loaded`)
   - Test di connessione con costanti WordPress (`WP_REDIS_HOST`, `WP_REDIS_PORT`)
@@ -35,6 +40,8 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 - **Scheduler** - Self-healing usa transient throttle (ogni ora) invece di `is_admin()` guard; funziona anche su frontend
 - **RedisCheck** - Smoke test usa chiave unica per run (`uniqid()`) per evitare race condition tra cron e run manuale
 - **cleanup_and_close()** - Accetta `$smoke_key` come parametro per cleanup preciso
+- **ErrorLogCheck::resolve_log_path()** - `WP_DEBUG_LOG` assegnato a variabile locale con `@phpstan-ignore` per compatibilità PHPStan (stubs WordPress tipano `bool`, ma WordPress accetta anche stringhe)
+- **.phpcs.xml.dist** - Aggiunto exclude per `.phpstan-cache`
 
 ### Fixed
 - **Integration HealthScreenTest** - Corretta option key da `ops_health_results` a `ops_health_latest_results` (allineata con Storage prefix `ops_health_` + CheckRunner key `latest_results`)
@@ -42,6 +49,7 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 ### Development Notes
 - 265 test totali (212 unit + 53 integration), 620 assertions
 - PHPCS 100% clean (0 errori, 0 warning)
+- PHPStan level 6: 0 errori
 - 16 file sorgente, 27 file di test (16 unit + 11 integration)
 - Code review post-M3: 5 fix sorgente + 9 nuovi test + 6 test aggiornati
 - Code review 2: 3 fix sorgente + 4 test aggiornati

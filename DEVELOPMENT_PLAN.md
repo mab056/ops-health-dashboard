@@ -147,6 +147,16 @@
 
 ### 2026-02-09 (Code Review 2)
 
+**PHPStan Integration** - Analisi statica level 6:
+- Installato `phpstan/phpstan` + `szepeviktor/phpstan-wordpress`
+- Creato `phpstan.neon` (level 6, `missingType.iterableValue` ignorato)
+- Aggiunto `composer analyse` script
+- Aggiunto job PHPStan in GitHub Actions CI (`.github/workflows/ci.yml`)
+- Integrato in `bin/test-matrix.sh` (eseguito con PHPCS)
+- Fix: `ErrorLogCheck::resolve_log_path()` assegnazione WP_DEBUG_LOG a variabile con `@var` per compatibilità stubs
+- Fix: `.phpcs.xml.dist` exclude `.phpstan-cache`
+- PHPStan level 6: 0 errori
+
 **Code Review 2** - 3 fix sorgente + 4 test aggiornati:
 - Scheduler: self-healing con transient throttle (ogni ora) invece di `is_admin()` guard
 - RedisCheck: chiave smoke test unica per run con `uniqid()` (evita race condition cron vs manual)
@@ -296,8 +306,9 @@
 **Statistiche Finali**:
 - 16 file sorgente in `src/`
 - 27 file di test (16 unit + 11 integration)
-- 265 test totali (212 unit + 53 integration), 617 assertions
+- 265 test totali (212 unit + 53 integration), 620 assertions
 - PHPCS 100% clean (0 errori, 0 warning)
+- PHPStan level 6: 0 errori
 
 **Deliverable**: Dashboard mostra Database + Error Log + Redis check con graceful degradation ✅
 

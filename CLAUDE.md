@@ -286,6 +286,7 @@ $response = $client->request($url, ['method' => 'POST']);
 ```bash
 composer phpcs              # Check standards
 composer phpcbf             # Auto-fix
+composer analyse            # PHPStan static analysis (level 6)
 ```
 
 **Regole principali:**
@@ -337,17 +338,18 @@ composer test                        # Tutti i test (unit + integration)
 composer test:unit                   # Solo test unitari (veloce)
 composer test:integration           # Solo test di integrazione (con WP)
 composer test:coverage              # Tutti con coverage
-composer test:matrix                # Matrice completa PHP 7.4-8.5 + PHPCS (come CI)
+composer test:matrix                # Matrice completa PHP 7.4-8.5 + PHPCS + PHPStan (come CI)
 
 # Test Matrix (opzioni)
 bin/test-matrix.sh --php 7.4        # Solo una versione
 bin/test-matrix.sh --parallel       # Tutte le versioni in parallelo
-bin/test-matrix.sh --phpcs-only     # Solo PHPCS
-bin/test-matrix.sh --tests-only     # Solo PHPUnit, salta PHPCS
+bin/test-matrix.sh --phpcs-only     # Solo PHPCS + PHPStan
+bin/test-matrix.sh --tests-only     # Solo PHPUnit, salta PHPCS e PHPStan
 
 # Code Quality
 composer phpcs                      # Check WordPress Coding Standards
 composer phpcbf                     # Auto-fix coding standards
+composer analyse                    # PHPStan static analysis (level 6)
 
 # WordPress Test Suite
 composer install-wp-tests           # Installa WP test suite (una tantum)
@@ -377,6 +379,7 @@ bin/build-zip.sh --output /tmp/p.zip  # Output path custom
    ```bash
    composer test
    composer phpcs
+   composer analyse
    ```
 
 5. **Commit con conventional commits:**
@@ -584,6 +587,7 @@ class CheckRunner {
 
 GitHub Actions esegue automaticamente:
 - ✅ PHPCS check (WordPress Coding Standards)
+- ✅ PHPStan level 6 (Static Analysis con szepeviktor/phpstan-wordpress)
 - ✅ PHPUnit su PHP 7.4, 8.0, 8.1, 8.2, 8.3, 8.4, 8.5
 - ✅ Unit tests (Brain\Monkey) su tutte le versioni
 - ✅ Integration tests (WP Test Suite) su tutte le versioni
@@ -592,12 +596,13 @@ GitHub Actions esegue automaticamente:
 
 **Test Matrix Locale** (replica CI localmente):
 ```bash
-composer test:matrix                # PHPCS + PHPUnit su tutte le 7 versioni PHP
+composer test:matrix                # PHPCS + PHPStan + PHPUnit su tutte le 7 versioni PHP
 ```
 Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`.
 
 **Quality Gates (DEVONO PASSARE):**
 - PHPCS: 100% compliance
+- PHPStan: level 6, 0 errors
 - Tests: 100% passing
 - Coverage: ≥85% (target)
 
@@ -610,6 +615,7 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 - ✅ 53 test di integrazione (WP Test Suite)
 - ✅ 265 test totali passing, 617 assertions
 - ✅ PHPCS 100% compliance (0 errori, 0 warning)
+- ✅ PHPStan level 6: 0 errori (szepeviktor/phpstan-wordpress)
 - ✅ CI/CD completo con PHP 7.4-8.5
 - ✅ 16 file sorgente, 27 file di test (16 unit + 11 integration)
 - ✅ Pattern enforcement (NO singleton/static/final)
