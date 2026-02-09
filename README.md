@@ -1,6 +1,7 @@
 # Ops Health Dashboard
 
 [![CI](https://github.com/mab056/ops-health-dashboard/workflows/CI/badge.svg)](https://github.com/mab056/ops-health-dashboard/actions)
+[![codecov](https://codecov.io/gh/mab056/ops-health-dashboard/graph/badge.svg)](https://codecov.io/gh/mab056/ops-health-dashboard)
 [![PHP Version](https://img.shields.io/badge/PHP-7.4%2B-blue)](https://www.php.net/)
 [![WordPress](https://img.shields.io/badge/WordPress-5.8%2B-blue)](https://wordpress.org/)
 [![License](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)

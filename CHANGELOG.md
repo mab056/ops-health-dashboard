@@ -14,7 +14,7 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 ### Changed
 - **DatabaseCheckTest** - Timing test usa busy-wait loop (resiste a EINTR da SIGALRM) invece di `usleep()` singolo
 - **test-matrix.sh** - Grep fallback per output PHPUnit con test skipped (`Tests: N, ...` oltre a `OK (N tests, ...)`)
-- **CheckRunner** - Messaggio eccezione wrappato con `__()` per i18n (`sprintf(__('Check exception: %s'), ...)`)
+- **CheckRunner** - Messaggio eccezione internazionalizzato con `__()` (`sprintf(__('Check exception: %s'), ...)`)
 - **DatabaseCheck** - Soglia slow query estratta in costante `SLOW_QUERY_THRESHOLD = 0.5`
 - **ErrorLogCheck** - Aggiunto null coalesce difensivo `?? 'other'` in `classify_line()`
 - **Activator** - Commento esplicativo sul filtro `cron_schedules` duplicato (necessario durante attivazione)
@@ -30,7 +30,7 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 - **DatabaseCheckTest flaky** - `usleep()` interrotto da SIGALRM (PHPUnit php-invoker) causava test timing intermittentemente fallimentari; sostituito con busy-wait loop resistente a EINTR
 
 ### Development Notes
-- Code review post-M3: 4 fix sorgente, 4 test migliorati, 1 file nuovo, 2 CI/script fix
+- Code review post-M3: 4 fix sorgente, 4 test migliorati, 1 file nuovo, 2 fix CI/script
 - Coverage push: +36 test (+12 unit, +24 integration), 2 nuovi file test integration (ContainerTest, PluginTest)
 - 350 test totali (227 unit + 123 integration), 810 assertions
 - Coverage: unit 99.50% lines, integration 100% lines (12/12 classi, 73/73 metodi, 603/603 linee)

@@ -145,11 +145,22 @@ jobs:
         if: matrix.php == '8.3'
         run: composer run-script test:coverage:integration
 
-      - name: Upload coverage to Codecov
+      - name: Upload unit coverage to Codecov
         if: matrix.php == '8.3'
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
-          files: ./coverage/clover-unit.xml,./coverage/clover-integration.xml
-          flags: unittests
-          name: php-8.3
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/clover-unit.xml
+          flags: unit
+          name: unit-php-8.3
+          fail_ci_if_error: false
+
+      - name: Upload integration coverage to Codecov
+        if: matrix.php == '8.3'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/clover-integration.xml
+          flags: integration
+          name: integration-php-8.3
           fail_ci_if_error: false

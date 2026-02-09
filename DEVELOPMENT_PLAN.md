@@ -319,7 +319,7 @@
 ### 2026-02-09 (Code Review 3)
 
 **Code Review 3** - 4 fix sorgente + 4 test migliorati + CI/config:
-- CheckRunner: exception message wrappato con `__()` per i18n
+- CheckRunner: exception message internazionalizzato con `__()` per i18n
 - DatabaseCheck: soglia 0.5s estratta in costante `SLOW_QUERY_THRESHOLD`
 - ErrorLogCheck: null coalesce difensivo `?? 'other'` in `classify_line()`
 - Activator: commento esplicativo sul filtro `cron_schedules` duplicato

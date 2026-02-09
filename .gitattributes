@@ -16,4 +16,5 @@ CLAUDE.md           export-ignore
 AGENTS.md           export-ignore
 SECURITY.md         export-ignore
 .gitattributes      export-ignore
+codecov.yml         export-ignore
 .gitignore          export-ignore
