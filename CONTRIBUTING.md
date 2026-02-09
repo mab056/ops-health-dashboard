@@ -51,8 +51,8 @@ composer install-wp-tests
 
 ```bash
 # Aggiorna il branch principale
-git checkout main
-git pull upstream main
+git checkout dev
+git pull upstream dev
 
 # Crea il feature branch
 git checkout -b feature/your-feature-name
@@ -152,7 +152,7 @@ composer test
 # Expected: OK (X tests, Y assertions)
 ```
 
-### Step 3: REFACTOR - Migliora la qualita del codice
+### Step 3: REFACTOR - Migliora la qualita' del codice
 
 ```php
 // Add error handling, validation, dependencies, etc.
@@ -191,6 +191,7 @@ class MyNewService {
 ```bash
 composer test
 composer phpcs
+composer analyse
 ```
 
 ## 🚫 Applicazione dei Pattern
@@ -432,6 +433,7 @@ composer test:matrix
 # Oppure almeno sulla versione corrente
 composer test
 composer phpcs
+composer analyse
 
 # Verifica che il build ZIP funzioni
 bin/build-zip.sh
@@ -501,13 +503,14 @@ Tests: 3 new tests
   - Perché (link all'issue se applicabile)
   - Come testare
   - Screenshot (se ci sono modifiche UI)
-- **Branch di base**: `main`
+- **Branch di base**: `dev`
 
 ### 4. Checklist della PR
 
 - [ ] Test scritti prima (TDD)
 - [ ] Tutti i test passano su tutte le versioni PHP (`composer test:matrix`)
 - [ ] PHPCS passa (`composer phpcs`)
+- [ ] PHPStan passa (`composer analyse`)
 - [ ] NON è stato usato il singleton pattern
 - [ ] NON sono stati usati static methods
 - [ ] NON ci sono classi/metodi final
@@ -520,7 +523,7 @@ Tests: 3 new tests
 
 - I maintainer effettueranno la review entro 3-5 giorni lavorativi
 - Rispondi al feedback con nuovi commit
-- Una volta approvato, squash e merge su `main`
+- Una volta approvato, squash e merge su `dev`
 
 ## 🐛 Segnalazione Bug
 

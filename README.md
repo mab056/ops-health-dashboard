@@ -7,7 +7,7 @@
 [![Version](https://img.shields.io/badge/Version-0.3.0-green)](https://github.com/mab056/ops-health-dashboard/releases)
 [![PHPCS](https://img.shields.io/badge/PHPCS-WordPress%20Standards-green)](https://github.com/WordPress/WordPress-Coding-Standards)
 
-Plugin WordPress di monitoraggio operativo production-grade con controlli automatici e alert configurabili.
+Plugin WordPress di monitoraggio operativo production-grade con controlli automatici e roadmap di alerting configurabile.
 
 ## 🎯 Problema
 
@@ -80,17 +80,15 @@ class Plugin {
 ops-health-dashboard/
 ├── src/
 │   ├── Core/           # Container, Plugin, Activator
-│   ├── Interfaces/     # CheckInterface, NotifierInterface, ecc.
+│   ├── Interfaces/     # Contratti (CheckInterface, CheckRunnerInterface, ecc.)
 │   ├── Checks/         # Implementazioni controlli salute
-│   ├── Alerts/         # Canali di notifica
-│   ├── Services/       # Logica business (Storage, HttpClient, ecc.)
-│   ├── Admin/          # UI wp-admin
-│   └── Utilities/      # Helper
+│   ├── Services/       # Logica business (Storage, Scheduler, Redaction, CheckRunner)
+│   └── Admin/          # UI wp-admin
 ├── tests/
-│   ├── Unit/           # Test unitari (isolati)
-│   └── Integration/    # Test integrazione (WordPress caricato)
-├── tests-e2e/          # Test E2E Playwright
-└── config/             # Bootstrap e configurazione DI
+│   ├── Unit/           # Test unitari (Brain\Monkey)
+│   └── Integration/    # Test integrazione (WordPress Test Suite)
+├── config/             # Bootstrap e configurazione DI
+└── bin/                # Script tooling (build, matrix, setup test)
 ```
 
 ### Componenti Chiave
@@ -100,8 +98,8 @@ ops-health-dashboard/
 - **CheckRunnerInterface** - Contratto per disaccoppiare Scheduler e HealthScreen dal CheckRunner concreto
 - **CheckRunner** - Orchestra i controlli di salute, redige messaggi eccezione via RedactionInterface
 - **Storage** - Wrapper WordPress Options API con `autoload=false`
-- **HttpClient** - Richieste HTTP protette anti-SSRF
 - **Redaction** - Sanitizzazione dati sensibili (11 pattern, IPv4 con validazione ottetti)
+- **Scheduler** - Scheduling WP-Cron ogni 15 minuti + self-healing throttled
 
 ## 📋 Requisiti
 
@@ -153,12 +151,12 @@ Questo progetto segue **TDD rigoroso** (Test-Driven Development) con un **approc
 
 **Unit Tests (Brain\Monkey)** - Veloce, isolato
 - Logica business pura, NO WordPress
-- 212 test, ~2.9 s
+- 212 test, ~3-4 s
 - Perfetto per TDD rapido
 
 **Integration Tests (WP Test Suite)** - WordPress reale
 - Test con WordPress completo, database, WP-Cron
-- 53 test, ~0.6 s
+- 53 test, ~1 s
 - Verifica integrazione reale con WordPress
 
 ### Comandi Test
@@ -270,7 +268,7 @@ public function test_database_check_runs_successfully() {
 
 - **Solo Admin**: Tutte le funzionalità richiedono capability `manage_options`
 - **Nonces**: Protezione CSRF su tutti i form e AJAX
-- **Anti-SSRF**: Protezione multi-layer per webhook
+- **Anti-SSRF**: Requisito di progetto per webhook *(pianificato M4)*
   - Validazione schema (solo http/https)
   - Prevenzione DNS rebinding
   - Blocco IP privati
@@ -343,6 +341,7 @@ composer install
 # Assicurati che tutti i test passino
 composer test
 composer phpcs
+composer analyse
 
 # Commit e push
 git commit -m "feat: descrizione tua feature"
@@ -366,7 +365,7 @@ composer test                    # Tutti i test (unit + integration)
 composer test:unit               # Solo test unitari (Brain\Monkey, veloce)
 composer test:integration        # Solo test di integrazione (WP Test Suite)
 composer test:coverage           # Coverage completa
-composer test:matrix             # Matrice PHP 7.4-8.5 + PHPCS (come CI)
+composer test:matrix             # Matrice PHP 7.4-8.5 + PHPCS + PHPStan (come CI)
 
 # Code Quality
 composer phpcs                   # Controlla WordPress Coding Standards
@@ -380,6 +379,7 @@ composer install-wp-tests        # Installa la suite di test WordPress (una tant
 
 GitHub Actions esegue automaticamente su push/PR:
 - Check PHPCS (WordPress Coding Standards)
+- PHPStan (analisi statica livello 6)
 - PHPUnit su PHP 7.4, 8.0, 8.1, 8.2, 8.3, 8.4, 8.5
 - Report coverage (solo PHP 8.3)
 - Upload Codecov

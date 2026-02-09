@@ -9,7 +9,7 @@ Plugin WordPress production-grade per monitoraggio operativo con health checks, 
 ## Regole Architetturali Non Negoziabili
 
 1. NO singleton.
-2. NO metodi/proprieta statiche.
+2. NO metodi/proprieta' statiche.
 3. NO classi/metodi `final`.
 4. Usare dependency injection via costruttore.
 5. Usare il container DI con `share()` per istanze condivise (non singleton globali).
@@ -69,8 +69,13 @@ Punti architetturali da preservare nella codebase attuale:
 1. Bootstrap plugin in `ops-health-dashboard.php` con autoloader fail-safe (admin notice se `vendor/autoload.php` manca).
 2. Orchestrazione principale in `src/Core/Plugin.php` con init idempotente.
 3. Container DI custom in `src/Core/Container.php` (`bind`, `share`, `instance`, `make`).
-4. Lifecycle activation/deactivation in `src/Core/Activator.php` con setup opzioni e cron hook.
-5. Scheduling check periodici tramite servizio scheduler (WP-Cron ogni 15 minuti).
+4. Lifecycle activation/deactivation in `src/Core/Activator.php` con setup opzioni e cron hook (`ops_health_run_checks`).
+5. Scheduling check periodici tramite `src/Services/Scheduler.php` (WP-Cron ogni 15 minuti) con self-healing throttled via transient `ops_health_cron_check` (valido su admin e frontend).
+6. Check registrati in `config/bootstrap.php`: `DatabaseCheck`, `ErrorLogCheck`, `RedisCheck`.
+7. Flusso azioni admin in `src/Admin/HealthScreen.php`: `process_actions()` con nonce + capability check e redirect PRG; uscita isolata in `do_exit()` per testabilita'.
+8. Redazione dati sensibili centralizzata in `src/Services/Redaction.php`, iniettata in `CheckRunner`, `DatabaseCheck`, `ErrorLogCheck` e `RedisCheck`.
+9. `RedisCheck` usa chiave smoke test univoca per run (`ops_health_smoke_test_<uniqid>`) per evitare race condition tra run concorrenti.
+10. Tooling quality gate: `composer test`, `composer phpcs`, `composer analyse` (PHPStan livello 6 con `phpstan.neon`).
 
 Nota operativa:
 1. Evitare sezioni datate o checklist "one-shot" in questo file.
@@ -82,11 +87,12 @@ Prima di chiudere PR/commit, verificare sempre:
 1. `git diff --name-only` e `git diff` sui file toccati.
 2. Copertura test aggiornata per ogni comportamento nuovo/modificato.
 3. Assenza regressioni su cron/scheduler (niente duplicati, self-healing attivo).
-4. Compatibilita degli script di tooling in esecuzione sequenziale e parallela.
+4. Compatibilita' degli script di tooling in esecuzione sequenziale e parallela.
 5. Esecuzione:
    - `composer test:unit`
    - `composer test:integration` (in ambiente con DB disponibile)
    - `composer phpcs`
+   - `composer analyse`
 6. Se l'ambiente locale/sandbox non consente i test di integrazione, esplicitarlo nel report finale con errore concreto (es. DB non raggiungibile), senza marcarli come "passati".
 
 ## Documenti di Riferimento

@@ -59,7 +59,7 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 ### Added
 - **Admin Action Buttons** - Bottoni "Run Now" e "Clear Cache" nella pagina Ops Health Dashboard
   - "Run Now": esegue tutti i check immediatamente via `CheckRunnerInterface::run_all()`
-  - "Clear Cache": cancella i risultati cachati via `CheckRunnerInterface::clear_results()`
+  - "Clear Cache": cancella i risultati in cache via `CheckRunnerInterface::clear_results()`
   - Protezione nonce (`ops_health_admin_action`) e capability check (`manage_options`)
   - Pattern PRG (Post-Redirect-Get) via hook `load-{$page_hook}` per evitare "headers already sent"
   - Notice di conferma con transient auto-cancellante

@@ -74,6 +74,7 @@ class ActivatorTest extends TestCase {
 		}
 
 		$activator = new Activator();
+		$closure   = null;
 
 		Functions\expect( 'get_option' )
 			->once()
@@ -95,7 +96,13 @@ class ActivatorTest extends TestCase {
 
 		Functions\expect( 'add_filter' )
 			->once()
-			->with( 'cron_schedules', \Mockery::type( 'Closure' ) );
+			->with( 'cron_schedules', \Mockery::type( 'Closure' ) )
+			->andReturnUsing(
+				function ( $hook, $callback ) use ( &$closure ) {
+					$closure = $callback;
+					return true;
+				}
+			);
 
 		Functions\expect( 'wp_next_scheduled' )
 			->once()
@@ -108,7 +115,12 @@ class ActivatorTest extends TestCase {
 
 		$activator->activate();
 
-		$this->assertInstanceOf( Activator::class, $activator );
+		// Esegui la closure per coprire le linee interne.
+		$this->assertNotNull( $closure );
+		$schedules = $closure( [] );
+		$this->assertArrayHasKey( 'every_15_minutes', $schedules );
+		$this->assertEquals( 900, $schedules['every_15_minutes']['interval'] );
+		$this->assertEquals( 'Every 15 minutes', $schedules['every_15_minutes']['display'] );
 	}
 
 	/**
@@ -124,6 +136,7 @@ class ActivatorTest extends TestCase {
 		}
 
 		$activator = new Activator();
+		$closure   = null;
 
 		Functions\expect( 'get_option' )
 			->once()
@@ -141,7 +154,13 @@ class ActivatorTest extends TestCase {
 
 		Functions\expect( 'add_filter' )
 			->once()
-			->with( 'cron_schedules', \Mockery::type( 'Closure' ) );
+			->with( 'cron_schedules', \Mockery::type( 'Closure' ) )
+			->andReturnUsing(
+				function ( $hook, $callback ) use ( &$closure ) {
+					$closure = $callback;
+					return true;
+				}
+			);
 
 		Functions\expect( 'wp_next_scheduled' )
 			->once()
@@ -153,7 +172,12 @@ class ActivatorTest extends TestCase {
 
 		$activator->activate();
 
-		$this->assertInstanceOf( Activator::class, $activator );
+		// Esegui la closure e verifica che non duplichi intervallo se già esiste.
+		$this->assertNotNull( $closure );
+		$existing_schedules = [ 'every_15_minutes' => [ 'interval' => 900 ] ];
+		$schedules          = $closure( $existing_schedules );
+		$this->assertArrayHasKey( 'every_15_minutes', $schedules );
+		$this->assertCount( 1, $schedules ); // Non duplicato.
 	}
 
 	/**
@@ -169,6 +193,7 @@ class ActivatorTest extends TestCase {
 		}
 
 		$activator = new Activator();
+		$closure   = null;
 
 		Functions\expect( 'get_option' )
 			->once()
@@ -188,7 +213,13 @@ class ActivatorTest extends TestCase {
 
 		Functions\expect( 'add_filter' )
 			->once()
-			->with( 'cron_schedules', \Mockery::type( 'Closure' ) );
+			->with( 'cron_schedules', \Mockery::type( 'Closure' ) )
+			->andReturnUsing(
+				function ( $hook, $callback ) use ( &$closure ) {
+					$closure = $callback;
+					return true;
+				}
+			);
 
 		Functions\expect( 'wp_next_scheduled' )
 			->once()
@@ -199,7 +230,10 @@ class ActivatorTest extends TestCase {
 
 		$activator->activate();
 
-		$this->assertInstanceOf( Activator::class, $activator );
+		// Esegui la closure per coprire le linee interne.
+		$this->assertNotNull( $closure );
+		$schedules = $closure( [] );
+		$this->assertArrayHasKey( 'every_15_minutes', $schedules );
 	}
 
 	/**
@@ -250,5 +284,21 @@ class ActivatorTest extends TestCase {
 		$properties = $reflection->getProperties( \ReflectionProperty::IS_STATIC );
 
 		$this->assertEmpty( $properties, 'Activator should have NO static properties' );
+	}
+
+	/**
+	 * Testa che deactivate() rimuove il cron job
+	 */
+	public function test_deactivate_clears_scheduled_hook() {
+		Functions\expect( 'wp_clear_scheduled_hook' )
+			->once()
+			->with( 'ops_health_run_checks' )
+			->andReturn( true );
+
+		$activator = new Activator();
+		$activator->deactivate();
+
+		// deactivate() completes successfully.
+		$this->assertTrue( true );
 	}
 }

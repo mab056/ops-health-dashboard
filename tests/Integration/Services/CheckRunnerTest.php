@@ -10,6 +10,7 @@
 namespace OpsHealthDashboard\Tests\Integration\Services;
 
 use OpsHealthDashboard\Checks\DatabaseCheck;
+use OpsHealthDashboard\Interfaces\CheckInterface;
 use OpsHealthDashboard\Services\CheckRunner;
 use OpsHealthDashboard\Services\Redaction;
 use OpsHealthDashboard\Services\Storage;
@@ -115,5 +116,156 @@ class CheckRunnerTest extends WP_UnitTestCase {
 		// I risultati salvati dovrebbero essere quelli della seconda esecuzione.
 		$stored = $this->runner->get_latest_results();
 		$this->assertEquals( $results2, $stored );
+	}
+
+	/**
+	 * Testa che run_all() salta i check disabilitati
+	 */
+	public function test_run_all_skips_disabled_check() {
+		$this->runner->add_check( new DisabledCheck() );
+
+		$results = $this->runner->run_all();
+
+		$this->assertArrayHasKey( 'database', $results );
+		$this->assertArrayNotHasKey( 'disabled', $results );
+	}
+
+	/**
+	 * Testa che run_all() cattura eccezioni dai check
+	 */
+	public function test_run_all_catches_check_exception() {
+		$storage   = new Storage();
+		$redaction = new Redaction();
+		$runner    = new CheckRunner( $storage, $redaction );
+		$runner->add_check( new FailingCheck() );
+
+		$results = $runner->run_all();
+
+		$this->assertArrayHasKey( 'failing', $results );
+		$this->assertEquals( 'critical', $results['failing']['status'] );
+		$this->assertStringContainsString( 'Check exception', $results['failing']['message'] );
+	}
+
+	/**
+	 * Testa che run_all() redige i messaggi di eccezione
+	 */
+	public function test_run_all_redacts_exception_message() {
+		$storage   = new Storage();
+		$redaction = new Redaction( ABSPATH, WP_CONTENT_DIR );
+		$runner    = new CheckRunner( $storage, $redaction );
+		$runner->add_check( new FailingCheck() );
+
+		$results = $runner->run_all();
+
+		$this->assertArrayHasKey( 'failing', $results );
+		$this->assertStringNotContainsString( ABSPATH, $results['failing']['message'] );
+	}
+
+	/**
+	 * Testa che clear_results() rimuove i dati dallo storage
+	 */
+	public function test_clear_results_removes_stored_data() {
+		$this->runner->run_all();
+
+		// Verifica che i risultati esistano.
+		$this->assertNotEmpty( $this->runner->get_latest_results() );
+
+		$this->runner->clear_results();
+
+		$this->assertEmpty( $this->runner->get_latest_results() );
+	}
+}
+
+/**
+ * Check disabilitato per test
+ *
+ * Implementa CheckInterface con is_enabled() = false.
+ */
+class DisabledCheck implements CheckInterface {
+
+	/**
+	 * Esegue il check
+	 *
+	 * @return array Risultati.
+	 */
+	public function run(): array {
+		return [
+			'status'   => 'ok',
+			'message'  => 'Should not run',
+			'details'  => [],
+			'duration' => 0,
+		];
+	}
+
+	/**
+	 * ID del check
+	 *
+	 * @return string ID.
+	 */
+	public function get_id(): string {
+		return 'disabled';
+	}
+
+	/**
+	 * Nome del check
+	 *
+	 * @return string Nome.
+	 */
+	public function get_name(): string {
+		return 'Disabled Check';
+	}
+
+	/**
+	 * Check disabilitato
+	 *
+	 * @return bool False.
+	 */
+	public function is_enabled(): bool {
+		return false;
+	}
+}
+
+/**
+ * Check che lancia eccezione per test
+ *
+ * Implementa CheckInterface con run() che lancia RuntimeException.
+ */
+class FailingCheck implements CheckInterface {
+
+	/**
+	 * Esegue il check (lancia eccezione)
+	 *
+	 * @return array Mai raggiunto.
+	 * @throws \RuntimeException Sempre.
+	 */
+	public function run(): array {
+		throw new \RuntimeException( 'Sensitive error at ' . ABSPATH . 'wp-config.php' );
+	}
+
+	/**
+	 * ID del check
+	 *
+	 * @return string ID.
+	 */
+	public function get_id(): string {
+		return 'failing';
+	}
+
+	/**
+	 * Nome del check
+	 *
+	 * @return string Nome.
+	 */
+	public function get_name(): string {
+		return 'Failing Check';
+	}
+
+	/**
+	 * Check abilitato
+	 *
+	 * @return bool True.
+	 */
+	public function is_enabled(): bool {
+		return true;
 	}
 }

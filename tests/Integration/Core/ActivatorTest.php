@@ -139,6 +139,52 @@ class ActivatorTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Testa che activate() registra l'intervallo custom in cron_schedules
+	 *
+	 * Copre le righe 41-44 della closure in activate().
+	 */
+	public function test_activate_registers_custom_cron_interval() {
+		if ( ! defined( 'OPS_HEALTH_DASHBOARD_VERSION' ) ) {
+			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.3.0' );
+		}
+
+		// Rimuovi tutti i filtri cron_schedules per assicurarsi che l'intervallo non esista.
+		remove_all_filters( 'cron_schedules' );
+		wp_clear_scheduled_hook( 'ops_health_run_checks' );
+
+		$activator = new Activator();
+		$activator->activate();
+
+		$schedules = wp_get_schedules();
+		$this->assertArrayHasKey( 'every_15_minutes', $schedules );
+		$this->assertEquals( 15 * MINUTE_IN_SECONDS, $schedules['every_15_minutes']['interval'] );
+	}
+
+	/**
+	 * Testa che activate() non duplica il cron se già schedulato
+	 */
+	public function test_activate_does_not_duplicate_cron_event() {
+		if ( ! defined( 'OPS_HEALTH_DASHBOARD_VERSION' ) ) {
+			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.3.0' );
+		}
+
+		// Pre-schedula il cron.
+		wp_schedule_event( time(), 'hourly', 'ops_health_run_checks' );
+		$original_timestamp = wp_next_scheduled( 'ops_health_run_checks' );
+		$this->assertNotFalse( $original_timestamp );
+
+		$activator = new Activator();
+		$activator->activate();
+
+		// Il cron deve esistere ancora (non duplicato).
+		$after_timestamp = wp_next_scheduled( 'ops_health_run_checks' );
+		$this->assertNotFalse( $after_timestamp );
+
+		// Il timestamp originale deve essere preservato (non ri-schedulato).
+		$this->assertEquals( $original_timestamp, $after_timestamp );
+	}
+
+	/**
 	 * Testa che la classe NON è final
 	 */
 	public function test_class_is_not_final() {

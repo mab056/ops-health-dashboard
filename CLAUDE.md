@@ -77,15 +77,16 @@ function bootstrap(): Plugin {
 
 **Quando usare:**
 - Logica business pura
-- Services (HttpClient, Redaction, Storage wrapper)
+- Services (Redaction, Storage, Scheduler, CheckRunner)
 - Utilities (formatter, validator, sanitizer)
 - Container, Plugin (logica pura senza WordPress)
 
 **Caratteristiche:**
-- ⚡ Velocissimi (~0.9s per 178 test)
+- ⚡ Velocissimi (~3-4s sull'attuale suite unit)
 - 🔒 Isolamento completo
 - 🧬 Mock di funzioni WordPress con Brain\Monkey
 - ❌ NO database, NO filesystem, NO WordPress
+- 📊 Coverage: verificare sempre l'output corrente di PHPUnit
 
 **Esempio:**
 ```php
@@ -139,7 +140,8 @@ composer test:coverage:unit          # Unit tests con coverage
 - ✅ WordPress completo caricato
 - ✅ Database MySQL reale
 - ✅ WP-Cron, Options API, hooks reali
-- 🐢 Più lenti (~0.2s con 47 test, richiede WP install)
+- 🐢 Più lenti dei test unitari (richiedono WP test suite + DB)
+- 📊 Coverage: verificare sempre l'output corrente di PHPUnit
 
 **Esempio:**
 ```php
@@ -266,10 +268,10 @@ if (!wp_verify_nonce($_POST['ops_health_nonce'], 'ops_health_action')) {
 }
 ```
 
-### Anti-SSRF per Webhooks (CRITICO)
+### Anti-SSRF per Webhooks (CRITICO, milestone M4)
 
 ```php
-// Use HttpClient service (multi-layer protection)
+// Esempio di servizio HTTP con protezioni anti-SSRF (M4).
 $client = $container->make(HttpClientInterface::class);
 
 if (!$client->is_safe_url($url)) {
@@ -401,12 +403,10 @@ bin/build-zip.sh --output /tmp/p.zip  # Output path custom
 ops-health-dashboard/
 ├── src/
 │   ├── Core/              # Container, Plugin, Activator (NO singleton/static/final)
-│   ├── Interfaces/        # Interface contracts (CheckInterface, NotifierInterface, etc.)
-│   ├── Services/          # Business logic (Storage, HttpClient, Redaction, CheckRunner)
-│   ├── Checks/            # Health checks (DatabaseCheck, RedisCheck, DiskCheck, etc.)
-│   ├── Alerts/            # Notifiers (EmailNotifier, WebhookNotifier, SlackNotifier, etc.)
-│   ├── Admin/             # UI wp-admin (Menu, HealthScreen, DashboardWidget, AjaxHandler)
-│   └── Utilities/         # Helpers
+│   ├── Interfaces/        # Interface contracts (CheckInterface, CheckRunnerInterface, ecc.)
+│   ├── Services/          # Business logic (Storage, Scheduler, Redaction, CheckRunner)
+│   ├── Checks/            # Health checks (DatabaseCheck, ErrorLogCheck, RedisCheck)
+│   └── Admin/             # UI wp-admin (Menu, HealthScreen)
 ├── tests/
 │   ├── Unit/              # Brain\Monkey tests (veloce, isolato)
 │   └── Integration/       # WP Test Suite tests (WordPress reale)
@@ -515,14 +515,14 @@ function my_function() {
 ```php
 class Service {
     private $storage;
-    private $http_client;
+    private $redaction;
 
     public function __construct(
         StorageInterface $storage,
-        HttpClientInterface $http_client
+        RedactionInterface $redaction
     ) {
         $this->storage = $storage;
-        $this->http_client = $http_client;
+        $this->redaction = $redaction;
     }
 }
 ```
@@ -537,10 +537,6 @@ function bootstrap(): Plugin {
     // Shared instances (NOT singleton)
     $container->share(StorageInterface::class, function($c) {
         return new Storage();
-    });
-
-    $container->share(HttpClientInterface::class, function($c) {
-        return new HttpClient();
     });
 
     $container->share(CheckRunnerInterface::class, function($c) {
@@ -608,12 +604,12 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 
 ## 🎯 Current Status
 
-**Milestone M3 - Check Redis** ✅ COMPLETATO
+**Milestone M4 - Alerting System** 🚧 IN CORSO
 
 **Stato Attuale:**
-- ✅ 212 test unitari (Brain\Monkey)
-- ✅ 53 test di integrazione (WP Test Suite)
-- ✅ 265 test totali passing, 617 assertions
+- ✅ **212 test unitari** (Brain\Monkey)
+- ✅ **53 test di integrazione** (WP Test Suite)
+- ✅ **265 test totali passing**, 620 assertions
 - ✅ PHPCS 100% compliance (0 errori, 0 warning)
 - ✅ PHPStan level 6: 0 errori (szepeviktor/phpstan-wordpress)
 - ✅ CI/CD completo con PHP 7.4-8.5
@@ -628,7 +624,7 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 - Redaction (11 pattern: credenziali DB, salts, API key, token, password, email, IP, path; IPv4 validazione ottetti)
 - ErrorLogCheck (tail log, aggregazione severità, campioni redatti, anti-symlink, flock LOCK_SH)
 - RedisCheck (graceful degradation, estensione+connessione+auth+smoke test, response time, RedactionInterface)
-- Scheduler (WP-Cron 15 min, prevenzione duplicati, self-healing admin-only, costanti HOOK_NAME/INTERVAL)
+- Scheduler (WP-Cron 15 min, prevenzione duplicati, self-healing throttled con transient anche su frontend, costanti HOOK_NAME/INTERVAL)
 - Container (DI con rilevazione dipendenze circolari)
 - Menu (capability check, `load-{$page_hook}` per process_actions PRG)
 - HealthScreen (capability check, bottoni Run Now/Clear Cache con nonce, validazione difensiva, CheckRunnerInterface)

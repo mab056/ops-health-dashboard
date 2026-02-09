@@ -76,4 +76,37 @@ class RedactionTest extends WP_UnitTestCase {
 		// Implementa RedactionInterface.
 		$this->assertInstanceOf( RedactionInterface::class, $redaction );
 	}
+
+	/**
+	 * Testa che redact() restituisce stringa vuota invariata (early return)
+	 */
+	public function test_redact_returns_empty_string_unchanged() {
+		$redaction = new Redaction( ABSPATH, WP_CONTENT_DIR );
+		$this->assertSame( '', $redaction->redact( '' ) );
+	}
+
+	/**
+	 * Testa che la classe NON è final
+	 */
+	public function test_class_is_not_final() {
+		$reflection = new \ReflectionClass( Redaction::class );
+		$this->assertFalse( $reflection->isFinal(), 'Redaction should NOT be final' );
+	}
+
+	/**
+	 * Testa che NON esistono metodi static
+	 */
+	public function test_no_static_methods() {
+		$reflection = new \ReflectionClass( Redaction::class );
+		$methods    = $reflection->getMethods( \ReflectionMethod::IS_STATIC );
+
+		$static_methods = array_filter(
+			$methods,
+			function ( $method ) {
+				return strpos( $method->getName(), '__' ) !== 0;
+			}
+		);
+
+		$this->assertEmpty( $static_methods, 'Redaction should have NO static methods' );
+	}
 }

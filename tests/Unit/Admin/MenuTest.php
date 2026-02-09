@@ -156,4 +156,19 @@ class MenuTest extends TestCase {
 
 		$this->assertEmpty( $properties, 'Menu should have NO static properties' );
 	}
+
+	/**
+	 * Testa che render_page() chiama HealthScreen::render()
+	 */
+	public function test_render_page_calls_health_screen_render() {
+		$health_screen = \Mockery::mock( \OpsHealthDashboard\Admin\HealthScreen::class );
+		$health_screen->shouldReceive( 'render' )
+			->once();
+
+		$menu = new Menu( $health_screen );
+		$menu->render_page();
+
+		// Mockery verifica che render() sia stato chiamato.
+		$this->assertTrue( true );
+	}
 }

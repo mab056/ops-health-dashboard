@@ -1,7 +1,7 @@
 # Development Plan - Ops Health Dashboard
 
 **Current Milestone**: M4 - Alerting System
-**Status**: M3 completed, M4 planned
+**Status**: M3 completata, M4 pianificata
 
 ---
 
@@ -153,7 +153,7 @@
 - Aggiunto `composer analyse` script
 - Aggiunto job PHPStan in GitHub Actions CI (`.github/workflows/ci.yml`)
 - Integrato in `bin/test-matrix.sh` (eseguito con PHPCS)
-- Fix: `ErrorLogCheck::resolve_log_path()` assegnazione WP_DEBUG_LOG a variabile con `@var` per compatibilità stubs
+- Fix: `ErrorLogCheck::resolve_log_path()` assegnazione WP_DEBUG_LOG a variabile con `@phpstan-ignore` per compatibilita' con gli stubs
 - Fix: `.phpcs.xml.dist` exclude `.phpstan-cache`
 - PHPStan level 6: 0 errori
 

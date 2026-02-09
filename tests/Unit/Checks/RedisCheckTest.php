@@ -799,4 +799,38 @@ class RedisCheckTest extends TestCase {
 
 		$this->assertContains( $result['status'], [ 'ok', 'warning' ] );
 	}
+
+	/**
+	 * Testa che restituisce warning quando database selection fallisce
+	 */
+	public function test_returns_warning_when_database_selection_fails() {
+		$redaction = $this->create_redaction_mock();
+		$check     = $this->create_check_mock( $redaction );
+		$redis     = $this->create_redis_mock();
+
+		$check->shouldReceive( 'is_extension_loaded' )->andReturn( true );
+		$check->shouldReceive( 'get_redis_config' )
+			->andReturn(
+				[
+					'host'     => '127.0.0.1',
+					'port'     => 6379,
+					'password' => '',
+					'database' => 999, // Database non valido.
+				]
+			);
+		$check->shouldReceive( 'create_redis_instance' )->andReturn( $redis );
+
+		$redis->shouldReceive( 'connect' )->andReturn( true );
+		$redis->shouldReceive( 'select' )
+			->once()
+			->with( 999 )
+			->andThrow( new \Exception( 'ERR DB index is out of range' ) );
+
+		$this->mock_i18n();
+
+		$result = $check->run();
+
+		$this->assertEquals( 'warning', $result['status'] );
+		$this->assertStringContainsString( 'database selection failed', $result['message'] );
+	}
 }

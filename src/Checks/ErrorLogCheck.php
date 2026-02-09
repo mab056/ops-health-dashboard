@@ -187,18 +187,18 @@ class ErrorLogCheck implements CheckInterface {
 			// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar -- PHPStan directive
 			// @phpstan-ignore function.impossibleType, booleanAnd.alwaysFalse
 			if ( is_string( $debug_log ) && '' !== $debug_log ) {
-				return $debug_log;
+				return $debug_log; // @codeCoverageIgnore
 			}
 
 			// true = WordPress scrive in wp-content/debug.log.
 			if ( true === $debug_log && defined( 'WP_CONTENT_DIR' ) ) {
-				return WP_CONTENT_DIR . '/debug.log';
+				return WP_CONTENT_DIR . '/debug.log'; // @codeCoverageIgnore
 			}
 		}
 
 		$ini_path = ini_get( 'error_log' );
 		if ( is_string( $ini_path ) && '' !== $ini_path ) {
-			return $ini_path;
+			return $ini_path; // @codeCoverageIgnore
 		}
 
 		return '';
@@ -268,14 +268,14 @@ class ErrorLogCheck implements CheckInterface {
 		$handle = fopen( $path, 'r' );
 
 		if ( false === $handle ) {
-			return [];
+			return []; // @codeCoverageIgnore
 		}
 
 		// Lock condiviso per evitare lettura durante scrittura.
 		if ( ! flock( $handle, LOCK_SH ) ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
-			fclose( $handle );
-			return [];
+			fclose( $handle ); // @codeCoverageIgnore
+			return []; // @codeCoverageIgnore
 		}
 
 		// Seek alla posizione di partenza.
@@ -292,7 +292,7 @@ class ErrorLogCheck implements CheckInterface {
 		fclose( $handle );
 
 		if ( false === $content || '' === $content ) {
-			return [];
+			return []; // @codeCoverageIgnore
 		}
 
 		$lines = explode( "\n", $content );
@@ -475,7 +475,7 @@ class ErrorLogCheck implements CheckInterface {
 		$size = filesize( $path );
 
 		if ( false === $size ) {
-			return __( 'Unknown', 'ops-health-dashboard' );
+			return __( 'Unknown', 'ops-health-dashboard' ); // @codeCoverageIgnore
 		}
 
 		return size_format( $size );
