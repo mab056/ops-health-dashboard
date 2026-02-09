@@ -205,7 +205,11 @@ class SchedulerTest extends TestCase {
 	/**
 	 * Testa che register_hooks() registra hook e non ri-schedula se cron presente
 	 */
-	public function test_register_hooks_registers_action() {
+	public function test_register_hooks_registers_action_and_filter() {
+		if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
+			define( 'HOUR_IN_SECONDS', 3600 );
+		}
+
 		$runner = Mockery::mock( CheckRunnerInterface::class );
 
 		Functions\expect( 'add_action' )
@@ -216,9 +220,18 @@ class SchedulerTest extends TestCase {
 				10
 			);
 
-		Functions\expect( 'is_admin' )
+		Functions\expect( 'add_filter' )
 			->once()
-			->andReturn( true );
+			->with(
+				'cron_schedules',
+				Mockery::type( 'array' )
+			);
+
+		// Throttle scaduto: esegue il check.
+		Functions\expect( 'get_transient' )
+			->once()
+			->with( 'ops_health_cron_check' )
+			->andReturn( false );
 
 		// Cron già schedulato: nessuna ri-schedulazione.
 		Functions\expect( 'wp_next_scheduled' )
@@ -227,6 +240,10 @@ class SchedulerTest extends TestCase {
 			->andReturn( time() + 900 );
 
 		Functions\expect( 'wp_schedule_event' )->never();
+
+		Functions\expect( 'set_transient' )
+			->once()
+			->with( 'ops_health_cron_check', 1, 3600 );
 
 		$scheduler = new Scheduler( $runner );
 		$scheduler->register_hooks();
@@ -238,6 +255,10 @@ class SchedulerTest extends TestCase {
 	 * Testa che register_hooks() ri-schedula il cron se mancante (self-healing)
 	 */
 	public function test_register_hooks_reschedules_when_cron_missing() {
+		if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
+			define( 'HOUR_IN_SECONDS', 3600 );
+		}
+
 		$runner = Mockery::mock( CheckRunnerInterface::class );
 
 		Functions\expect( 'add_action' )
@@ -248,9 +269,15 @@ class SchedulerTest extends TestCase {
 				10
 			);
 
-		Functions\expect( 'is_admin' )
+		Functions\expect( 'add_filter' )
 			->once()
-			->andReturn( true );
+			->with( 'cron_schedules', Mockery::type( 'array' ) );
+
+		// Throttle scaduto: esegue il check.
+		Functions\expect( 'get_transient' )
+			->once()
+			->with( 'ops_health_cron_check' )
+			->andReturn( false );
 
 		// Cron mancante.
 		Functions\expect( 'wp_next_scheduled' )
@@ -268,6 +295,10 @@ class SchedulerTest extends TestCase {
 			)
 			->andReturn( true );
 
+		Functions\expect( 'set_transient' )
+			->once()
+			->with( 'ops_health_cron_check', 1, 3600 );
+
 		$scheduler = new Scheduler( $runner );
 		$scheduler->register_hooks();
 
@@ -275,9 +306,9 @@ class SchedulerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che register_hooks() non ri-schedula se non in admin
+	 * Testa che register_hooks() non ri-schedula quando il throttle è attivo
 	 */
-	public function test_register_hooks_skips_self_healing_when_not_admin() {
+	public function test_register_hooks_skips_self_healing_when_throttled() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
 
 		Functions\expect( 'add_action' )
@@ -288,13 +319,20 @@ class SchedulerTest extends TestCase {
 				10
 			);
 
-		Functions\expect( 'is_admin' )
+		Functions\expect( 'add_filter' )
 			->once()
-			->andReturn( false );
+			->with( 'cron_schedules', Mockery::type( 'array' ) );
 
-		// schedule() non dovrebbe essere chiamato, quindi nessun wp_next_scheduled.
+		// Throttle attivo: skip self-healing.
+		Functions\expect( 'get_transient' )
+			->once()
+			->with( 'ops_health_cron_check' )
+			->andReturn( 1 );
+
+		// schedule() non dovrebbe essere chiamato.
 		Functions\expect( 'wp_next_scheduled' )->never();
 		Functions\expect( 'wp_schedule_event' )->never();
+		Functions\expect( 'set_transient' )->never();
 
 		$scheduler = new Scheduler( $runner );
 		$scheduler->register_hooks();

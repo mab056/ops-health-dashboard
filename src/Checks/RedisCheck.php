@@ -130,14 +130,15 @@ class RedisCheck implements CheckInterface {
 			}
 		}
 
-		// 6. Smoke test SET/GET/DEL.
+		// 6. Smoke test SET/GET/DEL (chiave unica per evitare race condition).
+		$smoke_key   = self::SMOKE_TEST_KEY . '_' . uniqid( '', true );
 		$smoke_start = microtime( true );
 
 		try {
-			$set_result = $redis->set( self::SMOKE_TEST_KEY, self::SMOKE_TEST_VALUE );
+			$set_result = $redis->set( $smoke_key, self::SMOKE_TEST_VALUE );
 
 			if ( false === $set_result ) {
-				$this->cleanup_and_close( $redis );
+				$this->cleanup_and_close( $redis, $smoke_key );
 				return $this->build_result(
 					'warning',
 					__( 'Redis smoke test failed (SET returned false)', 'ops-health-dashboard' ),
@@ -146,10 +147,10 @@ class RedisCheck implements CheckInterface {
 				);
 			}
 
-			$get_result = $redis->get( self::SMOKE_TEST_KEY );
+			$get_result = $redis->get( $smoke_key );
 
 			if ( self::SMOKE_TEST_VALUE !== $get_result ) {
-				$this->cleanup_and_close( $redis );
+				$this->cleanup_and_close( $redis, $smoke_key );
 				return $this->build_result(
 					'warning',
 					__( 'Redis smoke test failed (GET value mismatch)', 'ops-health-dashboard' ),
@@ -158,9 +159,9 @@ class RedisCheck implements CheckInterface {
 				);
 			}
 
-			$redis->del( self::SMOKE_TEST_KEY );
+			$redis->del( $smoke_key );
 		} catch ( \Exception $e ) {
-			$this->cleanup_and_close( $redis );
+			$this->cleanup_and_close( $redis, $smoke_key );
 			return $this->build_result(
 				'warning',
 				__( 'Redis smoke test failed', 'ops-health-dashboard' ),
@@ -277,22 +278,24 @@ class RedisCheck implements CheckInterface {
 	private function close_connection( $redis ): void {
 		try {
 			$redis->close();
+			// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 		} catch ( \Exception $e ) {
 			// Ignora errori di chiusura.
-			unset( $e );
 		}
 	}
 
 	/**
 	 * Cleanup dello smoke test key e chiusura connessione
 	 *
-	 * @param \Redis $redis Istanza Redis.
+	 * @param \Redis $redis     Istanza Redis.
+	 * @param string $smoke_key Chiave smoke test da cancellare.
 	 */
-	private function cleanup_and_close( $redis ): void {
+	private function cleanup_and_close( $redis, string $smoke_key ): void {
 		try {
-			$redis->del( self::SMOKE_TEST_KEY );
+			$redis->del( $smoke_key );
+			// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 		} catch ( \Exception $e ) {
-			unset( $e );
+			// Ignora errori di cleanup.
 		}
 		$this->close_connection( $redis );
 	}

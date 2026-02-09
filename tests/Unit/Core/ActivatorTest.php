@@ -69,6 +69,10 @@ class ActivatorTest extends TestCase {
 			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.2.1' );
 		}
 
+		if ( ! defined( 'MINUTE_IN_SECONDS' ) ) {
+			define( 'MINUTE_IN_SECONDS', 60 );
+		}
+
 		$activator = new Activator();
 
 		Functions\expect( 'get_option' )
@@ -83,6 +87,11 @@ class ActivatorTest extends TestCase {
 		Functions\expect( 'update_option' )
 			->once()
 			->with( 'ops_health_version', '0.2.1' );
+
+		Functions\expect( '__' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
 
 		Functions\expect( 'add_filter' )
 			->once()
@@ -110,6 +119,10 @@ class ActivatorTest extends TestCase {
 			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.2.1' );
 		}
 
+		if ( ! defined( 'MINUTE_IN_SECONDS' ) ) {
+			define( 'MINUTE_IN_SECONDS', 60 );
+		}
+
 		$activator = new Activator();
 
 		Functions\expect( 'get_option' )
@@ -120,6 +133,11 @@ class ActivatorTest extends TestCase {
 		Functions\expect( 'update_option' )
 			->once()
 			->with( 'ops_health_version', '0.2.1' );
+
+		Functions\expect( '__' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
 
 		Functions\expect( 'add_filter' )
 			->once()
@@ -146,6 +164,10 @@ class ActivatorTest extends TestCase {
 			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.2.1' );
 		}
 
+		if ( ! defined( 'MINUTE_IN_SECONDS' ) ) {
+			define( 'MINUTE_IN_SECONDS', 60 );
+		}
+
 		$activator = new Activator();
 
 		Functions\expect( 'get_option' )
@@ -158,6 +180,11 @@ class ActivatorTest extends TestCase {
 
 		Functions\expect( 'update_option' )
 			->with( 'ops_health_version', '0.2.1' );
+
+		Functions\expect( '__' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
 
 		Functions\expect( 'add_filter' )
 			->once()

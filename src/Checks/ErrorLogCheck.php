@@ -360,35 +360,29 @@ class ErrorLogCheck implements CheckInterface {
 	/**
 	 * Classifica una singola riga per severità
 	 *
+	 * Usa un singolo preg_match con alternazione per efficienza.
+	 *
 	 * @param string $line Riga del log.
 	 * @return string Severità: fatal, parse, warning, notice, deprecated, strict, other.
 	 */
 	private function classify_line( string $line ): string {
-		if ( preg_match( '/PHP Fatal error/i', $line ) || preg_match( '/PHP Core error/i', $line ) ) {
-			return 'fatal';
+		$pattern = '/PHP (Fatal error|Core error|Parse error|Warning|Notice|Deprecated|Strict Standards)/i';
+
+		if ( ! preg_match( $pattern, $line, $matches ) ) {
+			return 'other';
 		}
 
-		if ( preg_match( '/PHP Parse error/i', $line ) ) {
-			return 'parse';
-		}
+		$map = [
+			'fatal error'      => 'fatal',
+			'core error'       => 'fatal',
+			'parse error'      => 'parse',
+			'warning'          => 'warning',
+			'notice'           => 'notice',
+			'deprecated'       => 'deprecated',
+			'strict standards' => 'strict',
+		];
 
-		if ( preg_match( '/PHP Warning/i', $line ) ) {
-			return 'warning';
-		}
-
-		if ( preg_match( '/PHP Notice/i', $line ) ) {
-			return 'notice';
-		}
-
-		if ( preg_match( '/PHP Deprecated/i', $line ) ) {
-			return 'deprecated';
-		}
-
-		if ( preg_match( '/PHP Strict Standards/i', $line ) || preg_match( '/PHP Strict standards/i', $line ) ) {
-			return 'strict';
-		}
-
-		return 'other';
+		return $map[ strtolower( $matches[1] ) ];
 	}
 
 	/**

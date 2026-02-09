@@ -20,10 +20,35 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 - 25 unit test + 6 integration test per RedisCheck
 - Registrazione RedisCheck in `config/bootstrap.php`
 
+### Changed (Code Review Post-M3)
+- **Activator** - Usa `MINUTE_IN_SECONDS` e `__()` i18n per intervallo cron (allineato con Scheduler)
+- **ErrorLogCheck::classify_line()** - Ottimizzato da 6 regex sequenziali a singola regex con alternazione + mappa di lookup
+- **HealthScreen** - Estratto `exit` in metodo protetto `do_exit()` per testabilità con Mockery
+- **RedisCheck** - Rimosso anti-pattern `unset($e)` nei catch block, sostituito con `phpcs:ignore`
+- **.gitignore** - Rimosso `composer.lock` (deve essere committato per build riproducibili)
+
+### Changed (Code Review 2)
+- **Scheduler** - Self-healing usa transient throttle (ogni ora) invece di `is_admin()` guard; funziona anche su frontend
+- **RedisCheck** - Smoke test usa chiave unica per run (`uniqid()`) per evitare race condition tra cron e run manuale
+- **cleanup_and_close()** - Accetta `$smoke_key` come parametro per cleanup preciso
+
+### Fixed (Code Review 2)
+- **Integration HealthScreenTest** - Corretta option key da `ops_health_results` a `ops_health_latest_results` (allineata con Storage prefix `ops_health_` + CheckRunner key `latest_results`)
+
+### Tests Added (Code Review Post-M3)
+- **HealthScreenTest** - +7 test: `process_actions()` early returns (3), `run_now` action, `clear_cache` action, notice transient display; helper `create_testable_screen()` e `mock_process_functions()`
+- **DatabaseCheckTest** - +2 test: warning su query lenta (>0.5s), fallback `Unknown error` con `last_error` vuoto
+- **MenuTest** - +1 test: skip `load-hook` quando `add_menu_page` ritorna false; aggiornato test esistente con asserzione `add_action` per `load-{$page_hook}`
+- **SchedulerTest** - Aggiornati 3 test `register_hooks` con `get_transient`/`set_transient` mocks (sostituito `is_admin`)
+- **ActivatorTest** - Aggiornati 3 test con definizione `MINUTE_IN_SECONDS` e mock `__()`
+- **RedisCheckTest** - Aggiornato `test_returns_ok_when_smoke_test_passes` con `Mockery::on()` pattern matcher per chiave dinamica
+
 ### Development Notes
-- 256 test totali (203 unit + 53 integration), 572 assertions
+- 265 test totali (212 unit + 53 integration), 620 assertions
 - PHPCS 100% clean (0 errori, 0 warning)
 - 16 file sorgente, 27 file di test (16 unit + 11 integration)
+- Code review post-M3: 5 fix sorgente + 9 nuovi test + 6 test aggiornati
+- Code review 2: 3 fix sorgente + 4 test aggiornati
 
 ## 0.2.1 - 2026-02-09
 

@@ -58,9 +58,10 @@ class Scheduler {
 		add_action( self::HOOK_NAME, [ $this, 'run_checks' ], 10 );
 		add_filter( 'cron_schedules', [ $this, 'add_custom_cron_interval' ] );
 
-		// Self-healing: ri-schedula se l'evento cron e' assente (solo in admin).
-		if ( is_admin() ) {
+		// Self-healing: ri-schedula se l'evento cron e' assente (throttled, ogni ora).
+		if ( false === get_transient( 'ops_health_cron_check' ) ) {
 			$this->schedule();
+			set_transient( 'ops_health_cron_check', 1, HOUR_IN_SECONDS );
 		}
 	}
 

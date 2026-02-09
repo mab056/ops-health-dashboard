@@ -60,7 +60,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 		wp_set_current_user( $user_id );
 
 		// Pulisci eventuali risultati precedenti.
-		delete_option( 'ops_health_results' );
+		delete_option( 'ops_health_latest_results' );
 
 		$health_screen = $this->create_health_screen();
 

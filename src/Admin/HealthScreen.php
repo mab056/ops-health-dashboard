@@ -84,6 +84,18 @@ class HealthScreen {
 		}
 
 		wp_safe_redirect( admin_url( 'admin.php?page=ops-health-dashboard' ) );
+		$this->do_exit();
+	}
+
+	/**
+	 * Termina l'esecuzione dello script
+	 *
+	 * Estratto in metodo protetto per testabilità.
+	 *
+	 * @return void
+	 * @codeCoverageIgnore
+	 */
+	protected function do_exit(): void {
 		exit;
 	}
 

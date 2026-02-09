@@ -439,15 +439,28 @@ class RedisCheckTest extends TestCase {
 		$redis->shouldReceive( 'connect' )->andReturn( true );
 		$redis->shouldReceive( 'set' )
 			->once()
-			->with( 'ops_health_smoke_test', 'ops_health_test_value' )
+			->with(
+				Mockery::on( function ( $key ) {
+					return 0 === strpos( $key, 'ops_health_smoke_test_' );
+				} ),
+				'ops_health_test_value'
+			)
 			->andReturn( true );
 		$redis->shouldReceive( 'get' )
 			->once()
-			->with( 'ops_health_smoke_test' )
+			->with(
+				Mockery::on( function ( $key ) {
+					return 0 === strpos( $key, 'ops_health_smoke_test_' );
+				} )
+			)
 			->andReturn( 'ops_health_test_value' );
 		$redis->shouldReceive( 'del' )
 			->once()
-			->with( 'ops_health_smoke_test' )
+			->with(
+				Mockery::on( function ( $key ) {
+					return 0 === strpos( $key, 'ops_health_smoke_test_' );
+				} )
+			)
 			->andReturn( 1 );
 
 		$this->mock_i18n();

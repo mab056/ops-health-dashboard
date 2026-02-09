@@ -211,6 +211,58 @@ class DatabaseCheckTest extends TestCase {
 	}
 
 	/**
+	 * Testa che run() ritorna 'warning' quando la query è lenta (> 0.5s)
+	 */
+	public function test_run_returns_warning_when_query_slow() {
+		$wpdb = $this->create_wpdb_mock();
+		$wpdb->shouldReceive( 'query' )
+			->once()
+			->with( 'SELECT 1' )
+			->andReturnUsing( function () {
+				// Simula query lenta con usleep (600ms).
+				usleep( 600000 );
+				return 1;
+			} );
+
+		Functions\expect( '__' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
+
+		$redaction = $this->create_redaction_mock();
+		$check     = new DatabaseCheck( $wpdb, $redaction );
+		$result    = $check->run();
+
+		$this->assertEquals( 'warning', $result['status'] );
+		$this->assertStringContainsString( 'healthy', strtolower( $result['message'] ) );
+		$this->assertGreaterThan( 0.5, $result['duration'] );
+	}
+
+	/**
+	 * Testa che run() ritorna 'critical' con messaggio Unknown quando last_error vuoto
+	 */
+	public function test_run_returns_unknown_error_when_last_error_empty() {
+		$wpdb = $this->create_wpdb_mock();
+		$wpdb->shouldReceive( 'query' )
+			->once()
+			->with( 'SELECT 1' )
+			->andReturn( false );
+		$wpdb->last_error = '';
+
+		Functions\expect( '__' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
+
+		$redaction = $this->create_redaction_mock();
+		$check     = new DatabaseCheck( $wpdb, $redaction );
+		$result    = $check->run();
+
+		$this->assertEquals( 'critical', $result['status'] );
+		$this->assertEquals( 'Unknown error', $result['details']['error'] );
+	}
+
+	/**
 	 * Testa che run() non espone db_host o db_name nei dettagli
 	 */
 	public function test_run_does_not_expose_database_info() {

@@ -145,6 +145,32 @@
 
 ## Progress Log
 
+### 2026-02-09 (Code Review 2)
+
+**Code Review 2** - 3 fix sorgente + 4 test aggiornati:
+- Scheduler: self-healing con transient throttle (ogni ora) invece di `is_admin()` guard
+- RedisCheck: chiave smoke test unica per run con `uniqid()` (evita race condition cron vs manual)
+- RedisCheck `cleanup_and_close()`: accetta `$smoke_key` parametro
+- Integration HealthScreenTest: corretta option key `ops_health_results` → `ops_health_latest_results`
+- SchedulerTest: mocks `get_transient`/`set_transient` al posto di `is_admin`
+- RedisCheckTest: `Mockery::on()` pattern matcher per chiave dinamica
+- Integration SchedulerTest: `delete_transient` al posto di `set_current_screen`
+- Totale: 265 test (212 unit + 53 integration), 620 assertions, PHPCS clean
+- **Lesson**: `is_admin()` limita self-healing al solo admin; usare transient throttle per copertura frontend
+- **Lesson**: chiavi Redis condivise tra run concorrenti causano race condition; usare `uniqid()` per unicità
+
+### 2026-02-09 (Code Review Post-M3)
+
+**Code Review Post-M3** - 5 fix sorgente + 9 nuovi test + 6 test aggiornati:
+- Activator.php: `900` → `15 * MINUTE_IN_SECONDS`, aggiunto `__()` i18n
+- ErrorLogCheck.php: `classify_line()` da 6 regex a singola regex + map (riduce da 600 a 100 valutazioni per 100 righe)
+- HealthScreen.php: estratto `exit` → `do_exit()` protetto per testabilità
+- RedisCheck.php: `unset($e)` → `phpcs:ignore` (2 catch block)
+- .gitignore: rimosso `composer.lock`
+- +7 test HealthScreen (process_actions completo), +2 DatabaseCheck, +1 Menu
+- Aggiornati 3 SchedulerTest + 3 ActivatorTest per nuove dipendenze
+- Totale: 265 test (212 unit + 53 integration), 617 assertions, PHPCS clean
+
 ### 2026-02-09 (M3)
 
 **M3 - Redis Check** completata:
@@ -254,10 +280,23 @@
 
 - [x] **M3.1** - RedisCheck con TDD (rilevamento estensione, connessione, auth, smoke test, response time)
 
+### Code Review Post-M3
+
+- ✅ **Activator MINUTE_IN_SECONDS**: usa `15 * MINUTE_IN_SECONDS` e `__()` i18n per intervallo cron (allineato con Scheduler)
+- ✅ **ErrorLogCheck classify_line()**: ottimizzato da 6 regex sequenziali a singola regex con alternazione + mappa di lookup
+- ✅ **HealthScreen do_exit()**: estratto `exit` in metodo protetto per testabilità con Mockery partial mock
+- ✅ **RedisCheck unset($e)**: rimosso anti-pattern, sostituito con `phpcs:ignore`
+- ✅ **.gitignore composer.lock**: rimosso entry (deve essere committato per build riproducibili)
+- ✅ **HealthScreenTest +7 test**: copertura completa di `process_actions()` (early returns, run_now, clear_cache, notice)
+- ✅ **DatabaseCheckTest +2 test**: warning su query lenta, fallback `Unknown error`
+- ✅ **MenuTest +1 test**: skip `load-hook` quando `add_menu_page` ritorna false
+- ✅ **SchedulerTest aggiornati**: expectation `add_filter` in 3 test `register_hooks`
+- ✅ **ActivatorTest aggiornati**: definizione `MINUTE_IN_SECONDS` e mock `__()`
+
 **Statistiche Finali**:
 - 16 file sorgente in `src/`
 - 27 file di test (16 unit + 11 integration)
-- 256 test totali (203 unit + 53 integration), 572 assertions
+- 265 test totali (212 unit + 53 integration), 617 assertions
 - PHPCS 100% clean (0 errori, 0 warning)
 
 **Deliverable**: Dashboard mostra Database + Error Log + Redis check con graceful degradation ✅

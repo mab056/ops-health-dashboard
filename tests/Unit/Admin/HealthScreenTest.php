@@ -251,6 +251,256 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
+	 * Helper: crea un mock parziale di HealthScreen con do_exit() disabilitato
+	 *
+	 * @param \Mockery\MockInterface $runner CheckRunner mock.
+	 * @return \Mockery\MockInterface
+	 */
+	private function create_testable_screen( $runner ) {
+		$screen = Mockery::mock( HealthScreen::class, [ $runner ] )
+			->makePartial()
+			->shouldAllowMockingProtectedMethods();
+
+		$screen->shouldReceive( 'do_exit' )->andReturnNull();
+
+		return $screen;
+	}
+
+	/**
+	 * Helper: mock comuni per process_actions
+	 *
+	 * @return void
+	 */
+	private function mock_process_functions() {
+		Functions\expect( 'sanitize_text_field' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
+
+		Functions\expect( 'wp_unslash' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
+
+		Functions\expect( '__' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
+	}
+
+	/**
+	 * Testa che process_actions() ritorna subito senza POST action
+	 */
+	public function test_process_actions_returns_early_without_post_action() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldNotReceive( 'run_all' );
+		$runner->shouldNotReceive( 'clear_results' );
+
+		unset( $_POST['ops_health_action'] );
+
+		$screen = new HealthScreen( $runner );
+		$screen->process_actions();
+
+		$this->assertArrayNotHasKey( 'ops_health_action', $_POST );
+	}
+
+	/**
+	 * Testa che process_actions() ritorna subito con nonce invalido
+	 */
+	public function test_process_actions_returns_early_with_invalid_nonce() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldNotReceive( 'run_all' );
+		$runner->shouldNotReceive( 'clear_results' );
+
+		$_POST['ops_health_action'] = 'run_now';
+		$_POST['_ops_health_nonce'] = 'invalid_nonce';
+
+		$this->mock_process_functions();
+
+		Functions\expect( 'wp_verify_nonce' )
+			->once()
+			->andReturn( false );
+
+		$screen = new HealthScreen( $runner );
+		$screen->process_actions();
+
+		unset( $_POST['ops_health_action'], $_POST['_ops_health_nonce'] );
+
+		$this->assertTrue( true );
+	}
+
+	/**
+	 * Testa che process_actions() ritorna subito senza capability
+	 */
+	public function test_process_actions_returns_early_without_capability() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldNotReceive( 'run_all' );
+		$runner->shouldNotReceive( 'clear_results' );
+
+		$_POST['ops_health_action'] = 'run_now';
+		$_POST['_ops_health_nonce'] = 'valid_nonce';
+
+		$this->mock_process_functions();
+
+		Functions\expect( 'wp_verify_nonce' )
+			->once()
+			->andReturn( 1 );
+
+		Functions\expect( 'current_user_can' )
+			->once()
+			->with( 'manage_options' )
+			->andReturn( false );
+
+		$screen = new HealthScreen( $runner );
+		$screen->process_actions();
+
+		unset( $_POST['ops_health_action'], $_POST['_ops_health_nonce'] );
+
+		$this->assertTrue( true );
+	}
+
+	/**
+	 * Testa che process_actions() esegue run_all con action run_now
+	 */
+	public function test_process_actions_runs_checks_on_run_now() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'run_all' )
+			->once()
+			->andReturn( [] );
+
+		$_POST['ops_health_action'] = 'run_now';
+		$_POST['_ops_health_nonce'] = 'valid_nonce';
+
+		$this->mock_process_functions();
+
+		Functions\expect( 'wp_verify_nonce' )
+			->once()
+			->andReturn( 1 );
+
+		Functions\expect( 'current_user_can' )
+			->once()
+			->with( 'manage_options' )
+			->andReturn( true );
+
+		Functions\expect( 'set_transient' )
+			->once()
+			->with( 'ops_health_admin_notice', \Mockery::type( 'string' ), 30 );
+
+		Functions\expect( 'admin_url' )
+			->once()
+			->andReturn( 'http://example.com/wp-admin/admin.php?page=ops-health-dashboard' );
+
+		Functions\expect( 'wp_safe_redirect' )
+			->once()
+			->with( 'http://example.com/wp-admin/admin.php?page=ops-health-dashboard' );
+
+		$screen = $this->create_testable_screen( $runner );
+		$screen->process_actions();
+
+		unset( $_POST['ops_health_action'], $_POST['_ops_health_nonce'] );
+
+		$this->assertTrue( true );
+	}
+
+	/**
+	 * Testa che process_actions() esegue clear_results con action clear_cache
+	 */
+	public function test_process_actions_clears_cache_on_clear_cache() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'clear_results' )
+			->once();
+
+		$_POST['ops_health_action'] = 'clear_cache';
+		$_POST['_ops_health_nonce'] = 'valid_nonce';
+
+		$this->mock_process_functions();
+
+		Functions\expect( 'wp_verify_nonce' )
+			->once()
+			->andReturn( 1 );
+
+		Functions\expect( 'current_user_can' )
+			->once()
+			->with( 'manage_options' )
+			->andReturn( true );
+
+		Functions\expect( 'set_transient' )
+			->once()
+			->with( 'ops_health_admin_notice', \Mockery::type( 'string' ), 30 );
+
+		Functions\expect( 'admin_url' )
+			->once()
+			->andReturn( 'http://example.com/wp-admin/admin.php?page=ops-health-dashboard' );
+
+		Functions\expect( 'wp_safe_redirect' )
+			->once();
+
+		$screen = $this->create_testable_screen( $runner );
+		$screen->process_actions();
+
+		unset( $_POST['ops_health_action'], $_POST['_ops_health_nonce'] );
+
+		$this->assertTrue( true );
+	}
+
+	/**
+	 * Testa che render() mostra notice quando transient presente
+	 */
+	public function test_render_shows_notice_when_transient_set() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )
+			->once()
+			->andReturn( [] );
+
+		Functions\expect( 'current_user_can' )
+			->with( 'manage_options' )
+			->andReturn( true );
+
+		Functions\expect( 'esc_html__' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
+
+		Functions\expect( 'esc_html' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
+
+		Functions\expect( 'esc_attr' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
+
+		Functions\expect( 'wp_nonce_field' )
+			->andReturnUsing( function ( $action, $name ) {
+				echo '<input type="hidden" name="' . $name . '" value="nonce_token" />';
+			} );
+
+		Functions\expect( 'submit_button' )
+			->andReturnUsing( function ( $text, $type, $name ) {
+				echo '<input type="submit" name="' . $name . '" value="' . $text . '" />';
+			} );
+
+		Functions\expect( 'get_transient' )
+			->once()
+			->with( 'ops_health_admin_notice' )
+			->andReturn( 'Test notice message' );
+
+		Functions\expect( 'delete_transient' )
+			->once()
+			->with( 'ops_health_admin_notice' );
+
+		$screen = new HealthScreen( $runner );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'notice-success', $output );
+		$this->assertStringContainsString( 'Test notice message', $output );
+	}
+
+	/**
 	 * Testa che la classe NON è final
 	 */
 	public function test_class_is_not_final() {

@@ -80,8 +80,8 @@ class SchedulerTest extends WP_UnitTestCase {
 	public function test_register_hooks_reschedules_when_cron_missing() {
 		$this->assertFalse( $this->scheduler->is_scheduled(), 'Should not be scheduled initially' );
 
-		// Simula contesto admin per attivare self-healing.
-		set_current_screen( 'dashboard' );
+		// Assicura throttle scaduto per attivare self-healing.
+		delete_transient( 'ops_health_cron_check' );
 		$this->scheduler->register_hooks();
 
 		$this->assertTrue( $this->scheduler->is_scheduled(), 'Should be scheduled after register_hooks() (self-healing)' );

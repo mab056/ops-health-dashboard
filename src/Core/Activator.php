@@ -39,8 +39,8 @@ class Activator {
 			function ( $schedules ) {
 				if ( ! isset( $schedules[ Scheduler::INTERVAL ] ) ) {
 					$schedules[ Scheduler::INTERVAL ] = [
-						'interval' => 900,
-						'display'  => 'Every 15 minutes',
+						'interval' => 15 * MINUTE_IN_SECONDS,
+						'display'  => __( 'Every 15 minutes', 'ops-health-dashboard' ),
 					];
 				}
 				return $schedules;

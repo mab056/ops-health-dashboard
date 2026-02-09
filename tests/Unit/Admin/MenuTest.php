@@ -85,12 +85,41 @@ class MenuTest extends TestCase {
 			)
 			->andReturn( 'ops-health-page' );
 
+		Functions\expect( 'add_action' )
+			->once()
+			->with(
+				'load-ops-health-page',
+				\Mockery::type( 'array' )
+			);
+
 		$health_screen = \Mockery::mock( \OpsHealthDashboard\Admin\HealthScreen::class );
 		$menu          = new Menu( $health_screen );
 		$menu->add_menu();
 
-		// Mockery verifica che add_menu_page sia stato chiamato.
+		// Mockery verifica che add_menu_page e add_action siano stati chiamati.
 		$this->assertInstanceOf( Menu::class, $menu );
+	}
+
+	/**
+	 * Testa che add_menu() non registra load-hook se add_menu_page ritorna false
+	 */
+	public function test_add_menu_skips_load_hook_when_menu_page_returns_false() {
+		Functions\expect( '__' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
+
+		Functions\expect( 'add_menu_page' )
+			->once()
+			->andReturn( false );
+
+		Functions\expect( 'add_action' )->never();
+
+		$health_screen = \Mockery::mock( \OpsHealthDashboard\Admin\HealthScreen::class );
+		$menu          = new Menu( $health_screen );
+		$menu->add_menu();
+
+		$this->assertTrue( true );
 	}
 
 	/**
