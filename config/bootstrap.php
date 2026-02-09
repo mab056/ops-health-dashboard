@@ -25,6 +25,10 @@ function bootstrap(): Plugin {
 	// Crea una nuova istanza del container.
 	$container = new Container();
 
+	// Registra l'istanza wpdb nel container.
+	global $wpdb;
+	$container->instance( 'wpdb', $wpdb );
+
 	// Configura i binding per i servizi (shared instances).
 	$container->share(
 		Interfaces\StorageInterface::class,
@@ -47,14 +51,19 @@ function bootstrap(): Plugin {
 	);
 
 	$container->share(
-		Services\CheckRunner::class,
+		Interfaces\CheckRunnerInterface::class,
 		function ( $c ) {
 			$runner = new Services\CheckRunner(
-				$c->make( Interfaces\StorageInterface::class )
+				$c->make( Interfaces\StorageInterface::class ),
+				$c->make( Interfaces\RedactionInterface::class )
 			);
 			// Registra i check disponibili.
-			global $wpdb;
-			$runner->add_check( new Checks\DatabaseCheck( $wpdb ) );
+			$runner->add_check(
+				new Checks\DatabaseCheck(
+					$c->make( 'wpdb' ),
+					$c->make( Interfaces\RedactionInterface::class )
+				)
+			);
 			$runner->add_check(
 				new Checks\ErrorLogCheck(
 					$c->make( Interfaces\RedactionInterface::class )
@@ -68,7 +77,7 @@ function bootstrap(): Plugin {
 		Services\Scheduler::class,
 		function ( $c ) {
 			return new Services\Scheduler(
-				$c->make( Services\CheckRunner::class )
+				$c->make( Interfaces\CheckRunnerInterface::class )
 			);
 		}
 	);
@@ -78,7 +87,7 @@ function bootstrap(): Plugin {
 		Admin\HealthScreen::class,
 		function ( $c ) {
 			return new Admin\HealthScreen(
-				$c->make( Services\CheckRunner::class )
+				$c->make( Interfaces\CheckRunnerInterface::class )
 			);
 		}
 	);

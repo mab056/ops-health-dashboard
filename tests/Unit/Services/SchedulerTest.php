@@ -12,7 +12,7 @@ namespace OpsHealthDashboard\Tests\Unit\Services;
 use Brain\Monkey\Functions;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
-use OpsHealthDashboard\Services\CheckRunner;
+use OpsHealthDashboard\Interfaces\CheckRunnerInterface;
 use OpsHealthDashboard\Services\Scheduler;
 use PHPUnit\Framework\TestCase;
 
@@ -44,7 +44,7 @@ class SchedulerTest extends TestCase {
 	 * Testa che Scheduler può essere istanziato con dipendenze
 	 */
 	public function test_scheduler_can_be_instantiated() {
-		$runner    = Mockery::mock( CheckRunner::class );
+		$runner    = Mockery::mock( CheckRunnerInterface::class );
 		$scheduler = new Scheduler( $runner );
 
 		$this->assertInstanceOf( Scheduler::class, $scheduler );
@@ -54,7 +54,7 @@ class SchedulerTest extends TestCase {
 	 * Testa che schedule() registra un evento cron se non esiste
 	 */
 	public function test_schedule_registers_cron_event() {
-		$runner = Mockery::mock( CheckRunner::class );
+		$runner = Mockery::mock( CheckRunnerInterface::class );
 
 		// Mock wp_next_scheduled ritorna false (non schedulato).
 		Functions\expect( 'wp_next_scheduled' )
@@ -83,7 +83,7 @@ class SchedulerTest extends TestCase {
 	 * Testa che schedule() non registra se già schedulato
 	 */
 	public function test_schedule_skips_if_already_scheduled() {
-		$runner = Mockery::mock( CheckRunner::class );
+		$runner = Mockery::mock( CheckRunnerInterface::class );
 
 		// Mock wp_next_scheduled ritorna timestamp (già schedulato).
 		Functions\expect( 'wp_next_scheduled' )
@@ -105,7 +105,7 @@ class SchedulerTest extends TestCase {
 	 * Testa che unschedule() rimuove l'evento cron
 	 */
 	public function test_unschedule_removes_cron_event() {
-		$runner = Mockery::mock( CheckRunner::class );
+		$runner = Mockery::mock( CheckRunnerInterface::class );
 
 		$timestamp = time() + 900;
 
@@ -132,7 +132,7 @@ class SchedulerTest extends TestCase {
 	 * Testa che unschedule() non fa nulla se non schedulato
 	 */
 	public function test_unschedule_does_nothing_when_not_scheduled() {
-		$runner = Mockery::mock( CheckRunner::class );
+		$runner = Mockery::mock( CheckRunnerInterface::class );
 
 		Functions\expect( 'wp_next_scheduled' )
 			->once()
@@ -151,7 +151,7 @@ class SchedulerTest extends TestCase {
 	 * Testa che is_scheduled() ritorna true se schedulato
 	 */
 	public function test_is_scheduled_returns_true_when_scheduled() {
-		$runner = Mockery::mock( CheckRunner::class );
+		$runner = Mockery::mock( CheckRunnerInterface::class );
 
 		Functions\expect( 'wp_next_scheduled' )
 			->once()
@@ -168,7 +168,7 @@ class SchedulerTest extends TestCase {
 	 * Testa che is_scheduled() ritorna false se non schedulato
 	 */
 	public function test_is_scheduled_returns_false_when_not_scheduled() {
-		$runner = Mockery::mock( CheckRunner::class );
+		$runner = Mockery::mock( CheckRunnerInterface::class );
 
 		Functions\expect( 'wp_next_scheduled' )
 			->once()
@@ -185,7 +185,7 @@ class SchedulerTest extends TestCase {
 	 * Testa che run_checks() esegue i check tramite CheckRunner
 	 */
 	public function test_run_checks_executes_checks() {
-		$runner = Mockery::mock( CheckRunner::class );
+		$runner = Mockery::mock( CheckRunnerInterface::class );
 		$runner->shouldReceive( 'run_all' )
 			->once()
 			->andReturn( [
@@ -206,7 +206,7 @@ class SchedulerTest extends TestCase {
 	 * Testa che register_hooks() registra hook e non ri-schedula se cron presente
 	 */
 	public function test_register_hooks_registers_action() {
-		$runner = Mockery::mock( CheckRunner::class );
+		$runner = Mockery::mock( CheckRunnerInterface::class );
 
 		Functions\expect( 'add_action' )
 			->once()
@@ -215,6 +215,10 @@ class SchedulerTest extends TestCase {
 				Mockery::type( 'array' ),
 				10
 			);
+
+		Functions\expect( 'is_admin' )
+			->once()
+			->andReturn( true );
 
 		// Cron già schedulato: nessuna ri-schedulazione.
 		Functions\expect( 'wp_next_scheduled' )
@@ -234,7 +238,7 @@ class SchedulerTest extends TestCase {
 	 * Testa che register_hooks() ri-schedula il cron se mancante (self-healing)
 	 */
 	public function test_register_hooks_reschedules_when_cron_missing() {
-		$runner = Mockery::mock( CheckRunner::class );
+		$runner = Mockery::mock( CheckRunnerInterface::class );
 
 		Functions\expect( 'add_action' )
 			->once()
@@ -243,6 +247,10 @@ class SchedulerTest extends TestCase {
 				Mockery::type( 'array' ),
 				10
 			);
+
+		Functions\expect( 'is_admin' )
+			->once()
+			->andReturn( true );
 
 		// Cron mancante.
 		Functions\expect( 'wp_next_scheduled' )
@@ -259,6 +267,34 @@ class SchedulerTest extends TestCase {
 				'ops_health_run_checks'
 			)
 			->andReturn( true );
+
+		$scheduler = new Scheduler( $runner );
+		$scheduler->register_hooks();
+
+		$this->assertInstanceOf( Scheduler::class, $scheduler );
+	}
+
+	/**
+	 * Testa che register_hooks() non ri-schedula se non in admin
+	 */
+	public function test_register_hooks_skips_self_healing_when_not_admin() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+
+		Functions\expect( 'add_action' )
+			->once()
+			->with(
+				'ops_health_run_checks',
+				Mockery::type( 'array' ),
+				10
+			);
+
+		Functions\expect( 'is_admin' )
+			->once()
+			->andReturn( false );
+
+		// schedule() non dovrebbe essere chiamato, quindi nessun wp_next_scheduled.
+		Functions\expect( 'wp_next_scheduled' )->never();
+		Functions\expect( 'wp_schedule_event' )->never();
 
 		$scheduler = new Scheduler( $runner );
 		$scheduler->register_hooks();

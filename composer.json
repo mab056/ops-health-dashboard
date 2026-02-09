@@ -24,10 +24,7 @@
   "autoload": {
     "psr-4": {
       "OpsHealthDashboard\\": "src/"
-    },
-    "files": [
-      "config/bootstrap.php"
-    ]
+    }
   },
   "autoload-dev": {
     "psr-4": {

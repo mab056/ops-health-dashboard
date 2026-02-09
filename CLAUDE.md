@@ -82,7 +82,7 @@ function bootstrap(): Plugin {
 - Container, Plugin (logica pura senza WordPress)
 
 **Caratteristiche:**
-- ⚡ Velocissimi (~0.9s per 104 test)
+- ⚡ Velocissimi (~0.9s per 169 test)
 - 🔒 Isolamento completo
 - 🧬 Mock di funzioni WordPress con Brain\Monkey
 - ❌ NO database, NO filesystem, NO WordPress
@@ -139,7 +139,7 @@ composer test:coverage:unit          # Unit tests con coverage
 - ✅ WordPress completo caricato
 - ✅ Database MySQL reale
 - ✅ WP-Cron, Options API, hooks reali
-- 🐢 Più lenti (~0.2s con 33 test, richiede WP install)
+- 🐢 Più lenti (~0.2s con 41 test, richiede WP install)
 
 **Esempio:**
 ```php
@@ -540,10 +540,10 @@ function bootstrap(): Plugin {
         return new HttpClient();
     });
 
-    $container->share(CheckRunner::class, function($c) {
+    $container->share(CheckRunnerInterface::class, function($c) {
         return new CheckRunner(
             $c->make(StorageInterface::class),
-            $c->make(CooldownManager::class)
+            $c->make(RedactionInterface::class)
         );
     });
 
@@ -603,26 +603,29 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 
 ## 🎯 Current Status
 
-**Milestone M2 - Riepilogo Error Log Sicuro** ✅ COMPLETATO
+**Milestone M2 - Riepilogo Error Log Sicuro** ✅ COMPLETATO (+ Code Review 15/15)
 
 **Stato Attuale:**
-- ✅ 163 test unitari (Brain\Monkey)
+- ✅ 169 test unitari (Brain\Monkey)
 - ✅ 41 test di integrazione (WP Test Suite)
-- ✅ 204 test totali passing, 455 assertions
+- ✅ 210 test totali passing, 472 assertions
 - ✅ PHPCS 100% compliance (0 errori, 0 warning)
 - ✅ CI/CD completo con PHP 7.4-8.5
-- ✅ 14 file sorgente, 23 file di test
+- ✅ 15 file sorgente, 24 file di test
 - ✅ Pattern enforcement (NO singleton/static/final)
+- ✅ Code review: 15/15 issue risolte
 
 **Componenti Implementati (M1+M2):**
-- StorageInterface, CheckInterface, RedactionInterface (contratti DI)
-- Storage (Options API, sentinel pattern in `has()`)
-- CheckRunner (try/catch, type safety)
-- DatabaseCheck ($wpdb injection, no info disclosure, i18n)
-- Redaction (11 pattern: credenziali DB, salts, API key, token, password, email, IP, path)
-- ErrorLogCheck (tail log, aggregazione severità, campioni redatti, anti-symlink)
-- Scheduler (WP-Cron 15 min, prevenzione duplicati, self-healing in register_hooks)
-- Menu, HealthScreen (capability check, validazione difensiva)
+- StorageInterface, CheckInterface, RedactionInterface, CheckRunnerInterface (contratti DI)
+- Storage (Options API, sentinel pattern in `has()`, autoload=false)
+- CheckRunner (try/catch, type safety, RedactionInterface per redazione eccezioni)
+- DatabaseCheck ($wpdb injection, no info disclosure, i18n, RedactionInterface per $wpdb errors)
+- Redaction (11 pattern: credenziali DB, salts, API key, token, password, email, IP, path; IPv4 validazione ottetti)
+- ErrorLogCheck (tail log, aggregazione severità, campioni redatti, anti-symlink, flock LOCK_SH)
+- Scheduler (WP-Cron 15 min, prevenzione duplicati, self-healing admin-only, costanti HOOK_NAME/INTERVAL)
+- Container (DI con rilevazione dipendenze circolari)
+- Menu, HealthScreen (capability check, validazione difensiva, CheckRunnerInterface)
+- Activator (usa costanti Scheduler::HOOK_NAME/INTERVAL)
 
 **Next: M3 - Check Redis**
 

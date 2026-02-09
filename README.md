@@ -18,7 +18,7 @@ Questo plugin fornisce una dashboard operativa in wp-admin con controlli automat
 ## ✨ Funzionalità (MVP)
 
 ### Controlli di Salute
-- **Database** - Connettivita e performance delle query
+- **Database** - Connettività e performance delle query
 - **Redis** - Rilevamento + smoke test (opzionale)
 - **Spazio Disco** - Libero/totale con soglie configurabili
 - **Log Errori** - Aggregazione sicura con redaction automatica
@@ -96,12 +96,13 @@ ops-health-dashboard/
 
 ### Componenti Chiave
 
-- **Container** - Container DI lightweight con `share()` (non singleton)
+- **Container** - Container DI lightweight con `share()` (non singleton), rilevazione dipendenze circolari
 - **Plugin** - Orchestratore principale con constructor injection
-- **CheckRunner** - Orchestra i controlli di salute
-- **Storage** - Wrapper WordPress Options API
+- **CheckRunnerInterface** - Contratto per disaccoppiare Scheduler e HealthScreen dal CheckRunner concreto
+- **CheckRunner** - Orchestra i controlli di salute, redige messaggi eccezione via RedactionInterface
+- **Storage** - Wrapper WordPress Options API con `autoload=false`
 - **HttpClient** - Richieste HTTP protette anti-SSRF
-- **Redaction** - Sanitizzazione dati sensibili
+- **Redaction** - Sanitizzazione dati sensibili (11 pattern, IPv4 con validazione ottetti)
 
 ## 📋 Requisiti
 
@@ -150,12 +151,12 @@ Questo progetto segue **TDD rigoroso** (Test-Driven Development) con un **approc
 
 **Unit Tests (Brain\Monkey)** - Veloce, isolato
 - Logica business pura, NO WordPress
-- 104 test, ~0.9 s
+- 169 test, ~0.9 s
 - Perfetto per TDD rapido
 
 **Integration Tests (WP Test Suite)** - WordPress reale
 - Test con WordPress completo, database, WP-Cron
-- 33 test, ~0.2 s
+- 41 test, ~0.2 s
 - Verifica integrazione reale con WordPress
 
 ### Comandi Test
@@ -221,7 +222,10 @@ public function test_run_returns_ok_when_database_healthy() {
 
     Functions\expect( '__' )->andReturnFirstArg();
 
-    $check  = new DatabaseCheck( $wpdb );
+    $redaction = Mockery::mock( RedactionInterface::class );
+    $redaction->shouldReceive( 'redact' )->andReturnUsing( function ( $t ) { return $t; } );
+
+    $check  = new DatabaseCheck( $wpdb, $redaction );
     $result = $check->run();
     $this->assertEquals( 'ok', $result['status'] );
 }
@@ -240,8 +244,9 @@ public function run(): array {
 // INTEGRATION: Test con WordPress reale
 public function test_database_check_runs_successfully() {
     global $wpdb;
-    $check  = new DatabaseCheck( $wpdb );
-    $result = $check->run();
+    $redaction = new Redaction();
+    $check     = new DatabaseCheck( $wpdb, $redaction );
+    $result    = $check->run();
 
     $this->assertEquals( 'ok', $result['status'] );
     $this->assertArrayNotHasKey( 'db_host', $result['details'] );
@@ -250,7 +255,7 @@ public function test_database_check_runs_successfully() {
 
 ### Matrice Test
 
-- **Unit Tests**: Brain\Monkey - 163 test, tutte le versioni PHP
+- **Unit Tests**: Brain\Monkey - 169 test, tutte le versioni PHP
 - **Integration Tests**: WP Test Suite - 41 test, tutte le versioni PHP
 - **Versioni PHP**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
 - **Target Coverage**: ≥85% su PHP 8.3
@@ -289,9 +294,9 @@ Milestone corrente: **M3 - Check Redis** 🚧
 
 ### Statistiche
 
-- **14 file sorgente** in `src/`
-- **23 file di test** (14 unit + 9 integration)
-- **204 test totali** (163 unit + 41 integration), 455 assertions
+- **15 file sorgente** in `src/`
+- **24 file di test** (15 unit + 9 integration)
+- **210 test totali** (169 unit + 41 integration), 472 assertions
 - **PHPCS**: 100% compliance (0 errori, 0 warning)
 
 ### Roadmap
@@ -384,13 +389,6 @@ GPL-3.0-or-later - vedi file [LICENSE](LICENSE).
 - Mattia Bondrano - [GitHub](https://github.com/mab056)
 
 Sviluppato con il supporto di Claude Code (Opus 4.5, 4.6, Sonnet 4.5) e Codex (Codex 5.2, 5.3)
-
-## 🙏 Ringraziamenti
-
-- WordPress Plugin Handbook
-- WordPress Coding Standards
-- Documentazione PHPUnit
-- Brain\Monkey per testing WordPress
 
 ## 📞 Supporto
 

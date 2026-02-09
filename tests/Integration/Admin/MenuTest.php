@@ -12,6 +12,7 @@ namespace OpsHealthDashboard\Tests\Integration\Admin;
 use OpsHealthDashboard\Admin\HealthScreen;
 use OpsHealthDashboard\Admin\Menu;
 use OpsHealthDashboard\Services\CheckRunner;
+use OpsHealthDashboard\Services\Redaction;
 use OpsHealthDashboard\Services\Storage;
 use WP_UnitTestCase;
 
@@ -29,7 +30,8 @@ class MenuTest extends WP_UnitTestCase {
 	 */
 	private function create_menu(): Menu {
 		$storage       = new Storage();
-		$runner        = new CheckRunner( $storage );
+		$redaction     = new Redaction();
+		$runner        = new CheckRunner( $storage, $redaction );
 		$health_screen = new HealthScreen( $runner );
 		return new Menu( $health_screen );
 	}

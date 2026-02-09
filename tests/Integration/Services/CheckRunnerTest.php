@@ -11,6 +11,7 @@ namespace OpsHealthDashboard\Tests\Integration\Services;
 
 use OpsHealthDashboard\Checks\DatabaseCheck;
 use OpsHealthDashboard\Services\CheckRunner;
+use OpsHealthDashboard\Services\Redaction;
 use OpsHealthDashboard\Services\Storage;
 use WP_UnitTestCase;
 
@@ -41,10 +42,11 @@ class CheckRunnerTest extends WP_UnitTestCase {
 	public function setUp(): void {
 		parent::setUp();
 		$this->storage = new Storage();
-		$this->runner  = new CheckRunner( $this->storage );
+		$redaction     = new Redaction();
+		$this->runner  = new CheckRunner( $this->storage, $redaction );
 
 		global $wpdb;
-		$this->runner->add_check( new DatabaseCheck( $wpdb ) );
+		$this->runner->add_check( new DatabaseCheck( $wpdb, $redaction ) );
 
 		// Pulisci i risultati precedenti.
 		$this->storage->delete( 'latest_results' );
@@ -90,7 +92,8 @@ class CheckRunnerTest extends WP_UnitTestCase {
 		$this->runner->run_all();
 
 		// Crea un nuovo runner e recupera i risultati.
-		$new_runner = new CheckRunner( $this->storage );
+		$redaction  = new Redaction();
+		$new_runner = new CheckRunner( $this->storage, $redaction );
 		$results    = $new_runner->get_latest_results();
 
 		$this->assertIsArray( $results );

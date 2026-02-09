@@ -13,7 +13,7 @@ use Brain\Monkey\Functions;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use OpsHealthDashboard\Admin\HealthScreen;
-use OpsHealthDashboard\Services\CheckRunner;
+use OpsHealthDashboard\Interfaces\CheckRunnerInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -44,7 +44,7 @@ class HealthScreenTest extends TestCase {
 	 * Testa che HealthScreen può essere istanziato con dipendenze
 	 */
 	public function test_health_screen_can_be_instantiated() {
-		$runner = Mockery::mock( CheckRunner::class );
+		$runner = Mockery::mock( CheckRunnerInterface::class );
 		$screen = new HealthScreen( $runner );
 
 		$this->assertInstanceOf( HealthScreen::class, $screen );
@@ -54,13 +54,14 @@ class HealthScreenTest extends TestCase {
 	 * Testa che render() mostra i risultati dei check
 	 */
 	public function test_render_shows_check_results() {
-		$runner = Mockery::mock( CheckRunner::class );
+		$runner = Mockery::mock( CheckRunnerInterface::class );
 		$runner->shouldReceive( 'get_latest_results' )
 			->once()
 			->andReturn( [
 				'database' => [
 					'status'  => 'ok',
 					'message' => 'Database OK',
+					'name'    => 'Database Connection',
 					'details' => [],
 				],
 			] );
@@ -92,7 +93,7 @@ class HealthScreenTest extends TestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( 'Ops Health Dashboard', $output );
-		$this->assertStringContainsString( 'Database', $output );
+		$this->assertStringContainsString( 'Database Connection', $output );
 		$this->assertStringContainsString( 'ops-health-check-ok', $output );
 	}
 
@@ -100,7 +101,7 @@ class HealthScreenTest extends TestCase {
 	 * Testa che render() mostra messaggio "no checks" quando non ci sono risultati
 	 */
 	public function test_render_shows_no_checks_message_when_empty() {
-		$runner = Mockery::mock( CheckRunner::class );
+		$runner = Mockery::mock( CheckRunnerInterface::class );
 		$runner->shouldReceive( 'get_latest_results' )
 			->once()
 			->andReturn( [] );
@@ -129,7 +130,7 @@ class HealthScreenTest extends TestCase {
 	 * Testa che render() blocca utenti senza capability
 	 */
 	public function test_render_blocks_unauthorized_users() {
-		$runner = Mockery::mock( CheckRunner::class );
+		$runner = Mockery::mock( CheckRunnerInterface::class );
 
 		Functions\expect( 'current_user_can' )
 			->once()
@@ -160,7 +161,7 @@ class HealthScreenTest extends TestCase {
 	 * Testa che render() gestisce risultati senza chiavi status/message
 	 */
 	public function test_render_handles_result_with_missing_keys() {
-		$runner = Mockery::mock( CheckRunner::class );
+		$runner = Mockery::mock( CheckRunnerInterface::class );
 		$runner->shouldReceive( 'get_latest_results' )
 			->once()
 			->andReturn( [

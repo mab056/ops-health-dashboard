@@ -11,6 +11,8 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 - **RedactionInterface** - Contratto per il servizio di redazione dati sensibili
   - `redact( string $text ): string` - Redige un singolo testo
   - `redact_lines( array $lines ): array` - Redige un array di righe
+- **CheckRunnerInterface** - Contratto per disaccoppiare HealthScreen e Scheduler da CheckRunner concreto
+  - `add_check()`, `run_all()`, `get_latest_results()`
 - **Redaction** - Servizio di sanitizzazione dati sensibili con 11 pattern
   - Credenziali DB (DB_PASSWORD, DB_USER, DB_NAME, DB_HOST) -> `[REDACTED]`
   - WordPress salts (AUTH_KEY, SECURE_AUTH_KEY, ecc.) -> `[REDACTED]`
@@ -25,27 +27,40 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 - **ErrorLogCheck** - Check riepilogo sicuro del log errori PHP
   - Risoluzione path log: WP_DEBUG_LOG (stringa) -> ini_get('error_log')
   - Validazione file: esistenza, leggibilita', anti-symlink
-  - Lettura tail efficiente: max 512KB, max 100 righe
+  - Lettura tail efficiente: max 512KB, max 100 righe con `flock(LOCK_SH)`
   - Aggregazione per severita': fatal, parse, warning, notice, deprecated, strict, other
   - Campioni redatti: max 5 righe critiche/warning, sanitizzate via Redaction
   - Status: critical (fatal/parse), warning (warning/deprecated/strict), ok (solo notice/other)
   - Nessuna esposizione del path raw del file di log
   - Messaggi internazionalizzati con `__()`
-- **59 nuovi test** (56 unit + 3 integration) per le nuove classi
-- Pattern enforcement tests su RedactionInterface, Redaction, ErrorLogCheck
+- **65 nuovi test** (62 unit + 3 integration) per le nuove classi
+- Pattern enforcement tests su RedactionInterface, CheckRunnerInterface, Redaction, ErrorLogCheck
 
 ### Changed
-- **bootstrap.php** - Aggiunto binding per RedactionInterface e ErrorLogCheck nel container DI
+- **CheckRunner** - Riceve `RedactionInterface` in constructor, redige messaggi eccezione; include `name` nei risultati
+- **DatabaseCheck** - Riceve `RedactionInterface` in constructor, redige `$wpdb->last_error`
+- **Scheduler** - Usa `CheckRunnerInterface` (non classe concreta); costanti `HOOK_NAME`/`INTERVAL`; self-healing solo in contesto admin (`is_admin()` guard)
+- **HealthScreen** - Usa `CheckRunnerInterface`; mostra `result['name']` con `ucfirst()` fallback
+- **Activator** - Usa costanti `Scheduler::HOOK_NAME` e `Scheduler::INTERVAL`
+- **Container** - Aggiunta rilevazione dipendenze circolari con array `$resolving`
+- **Storage** - `update_option()` con `autoload=false` per dati grandi
+- **Redaction** - IPv4 regex con validazione ottetti (0-255); URL password regex restrittiva (no whitespace)
+- **bootstrap.php** - Usa `container->instance()` per `$wpdb`; binding CheckRunnerInterface; RedactionInterface iniettata in CheckRunner e DatabaseCheck
 
 ### Security
 - Servizio Redaction impedisce esposizione di credenziali, token, PII nei log
 - ErrorLogCheck non espone path raw del filesystem nei risultati
 - Protezione anti-symlink: file di log symlink vengono rifiutati
 - Limite di lettura a 512KB per prevenire consumo eccessivo di memoria
+- `flock(LOCK_SH)` su lettura log per sicurezza in accesso concorrente
+- RedactionInterface iniettata in CheckRunner per redazione messaggi eccezione
+- RedactionInterface iniettata in DatabaseCheck per redazione errori `$wpdb`
+- Storage `autoload=false` previene caricamento dati grandi ad ogni richiesta
+- Container rileva dipendenze circolari (previene loop infiniti)
 
 ### Development Notes
-- **M2 Completed**: Riepilogo Error Log Sicuro
-- 204 test totali (163 unit + 41 integration), 455 assertions
+- **M2 Completed**: Riepilogo Error Log Sicuro + Code Review (15/15 issue risolte)
+- 210 test totali (169 unit + 41 integration), 472 assertions
 - PHPCS 100% clean (0 errori, 0 warning)
 - TDD rigoroso: RED -> GREEN -> REFACTOR per ogni componente
 

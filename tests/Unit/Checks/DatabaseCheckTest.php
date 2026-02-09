@@ -14,6 +14,7 @@ use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use OpsHealthDashboard\Checks\DatabaseCheck;
 use OpsHealthDashboard\Interfaces\CheckInterface;
+use OpsHealthDashboard\Interfaces\RedactionInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -52,11 +53,26 @@ class DatabaseCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che DatabaseCheck può essere istanziato con $wpdb
+	 * Crea un mock RedactionInterface per i test
+	 *
+	 * @return \Mockery\MockInterface
+	 */
+	private function create_redaction_mock() {
+		$redaction = Mockery::mock( RedactionInterface::class );
+		$redaction->shouldReceive( 'redact' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
+		return $redaction;
+	}
+
+	/**
+	 * Testa che DatabaseCheck può essere istanziato con $wpdb e RedactionInterface
 	 */
 	public function test_database_check_can_be_instantiated() {
-		$wpdb  = $this->create_wpdb_mock();
-		$check = new DatabaseCheck( $wpdb );
+		$wpdb      = $this->create_wpdb_mock();
+		$redaction = $this->create_redaction_mock();
+		$check     = new DatabaseCheck( $wpdb, $redaction );
 		$this->assertInstanceOf( DatabaseCheck::class, $check );
 	}
 
@@ -64,8 +80,9 @@ class DatabaseCheckTest extends TestCase {
 	 * Testa che DatabaseCheck implementa CheckInterface
 	 */
 	public function test_database_check_implements_interface() {
-		$wpdb  = $this->create_wpdb_mock();
-		$check = new DatabaseCheck( $wpdb );
+		$wpdb      = $this->create_wpdb_mock();
+		$redaction = $this->create_redaction_mock();
+		$check     = new DatabaseCheck( $wpdb, $redaction );
 		$this->assertInstanceOf( CheckInterface::class, $check );
 	}
 
@@ -73,8 +90,9 @@ class DatabaseCheckTest extends TestCase {
 	 * Testa che get_id() ritorna 'database'
 	 */
 	public function test_get_id_returns_database() {
-		$wpdb  = $this->create_wpdb_mock();
-		$check = new DatabaseCheck( $wpdb );
+		$wpdb      = $this->create_wpdb_mock();
+		$redaction = $this->create_redaction_mock();
+		$check     = new DatabaseCheck( $wpdb, $redaction );
 		$this->assertEquals( 'database', $check->get_id() );
 	}
 
@@ -82,8 +100,9 @@ class DatabaseCheckTest extends TestCase {
 	 * Testa che get_name() ritorna il nome corretto
 	 */
 	public function test_get_name_returns_correct_name() {
-		$wpdb  = $this->create_wpdb_mock();
-		$check = new DatabaseCheck( $wpdb );
+		$wpdb      = $this->create_wpdb_mock();
+		$redaction = $this->create_redaction_mock();
+		$check     = new DatabaseCheck( $wpdb, $redaction );
 		$this->assertEquals( 'Database Connection', $check->get_name() );
 	}
 
@@ -91,8 +110,9 @@ class DatabaseCheckTest extends TestCase {
 	 * Testa che is_enabled() ritorna true di default
 	 */
 	public function test_is_enabled_returns_true_by_default() {
-		$wpdb  = $this->create_wpdb_mock();
-		$check = new DatabaseCheck( $wpdb );
+		$wpdb      = $this->create_wpdb_mock();
+		$redaction = $this->create_redaction_mock();
+		$check     = new DatabaseCheck( $wpdb, $redaction );
 		$this->assertTrue( $check->is_enabled() );
 	}
 
@@ -111,8 +131,9 @@ class DatabaseCheckTest extends TestCase {
 				return $text;
 			} );
 
-		$check  = new DatabaseCheck( $wpdb );
-		$result = $check->run();
+		$redaction = $this->create_redaction_mock();
+		$check     = new DatabaseCheck( $wpdb, $redaction );
+		$result    = $check->run();
 
 		$this->assertIsArray( $result );
 		$this->assertArrayHasKey( 'status', $result );
@@ -125,7 +146,7 @@ class DatabaseCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna 'critical' quando il DB fallisce
+	 * Testa che run() ritorna 'critical' quando il DB fallisce e redaziona l'errore
 	 */
 	public function test_run_returns_critical_when_database_fails() {
 		$wpdb = $this->create_wpdb_mock();
@@ -140,13 +161,19 @@ class DatabaseCheckTest extends TestCase {
 				return $text;
 			} );
 
-		$check  = new DatabaseCheck( $wpdb );
+		$redaction = Mockery::mock( RedactionInterface::class );
+		$redaction->shouldReceive( 'redact' )
+			->once()
+			->with( 'Connection error' )
+			->andReturn( '[REDACTED]' );
+
+		$check  = new DatabaseCheck( $wpdb, $redaction );
 		$result = $check->run();
 
 		$this->assertEquals( 'critical', $result['status'] );
 		$this->assertStringContainsString( 'failed', strtolower( $result['message'] ) );
 		$this->assertArrayHasKey( 'error', $result['details'] );
-		$this->assertEquals( 'Connection error', $result['details']['error'] );
+		$this->assertEquals( '[REDACTED]', $result['details']['error'] );
 	}
 
 	/**
@@ -165,7 +192,13 @@ class DatabaseCheckTest extends TestCase {
 				return $text;
 			} );
 
-		$check  = new DatabaseCheck( $wpdb );
+		$redaction = Mockery::mock( RedactionInterface::class );
+		$redaction->shouldReceive( 'redact' )
+			->once()
+			->with( 'Some DB error' )
+			->andReturn( '[REDACTED]' );
+
+		$check  = new DatabaseCheck( $wpdb, $redaction );
 		$result = $check->run();
 
 		$this->assertEquals( 'critical', $result['status'] );
@@ -185,8 +218,9 @@ class DatabaseCheckTest extends TestCase {
 				return $text;
 			} );
 
-		$check  = new DatabaseCheck( $wpdb );
-		$result = $check->run();
+		$redaction = $this->create_redaction_mock();
+		$check     = new DatabaseCheck( $wpdb, $redaction );
+		$result    = $check->run();
 
 		$this->assertArrayNotHasKey( 'db_host', $result['details'] );
 		$this->assertArrayNotHasKey( 'db_name', $result['details'] );
@@ -206,8 +240,9 @@ class DatabaseCheckTest extends TestCase {
 				return $text;
 			} );
 
-		$check  = new DatabaseCheck( $wpdb );
-		$result = $check->run();
+		$redaction = $this->create_redaction_mock();
+		$check     = new DatabaseCheck( $wpdb, $redaction );
+		$result    = $check->run();
 
 		$this->assertIsFloat( $result['duration'] );
 		$this->assertGreaterThanOrEqual( 0, $result['duration'] );

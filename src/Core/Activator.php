@@ -7,6 +7,8 @@
 
 namespace OpsHealthDashboard\Core;
 
+use OpsHealthDashboard\Services\Scheduler;
+
 /**
  * Class Activator
  *
@@ -35,8 +37,8 @@ class Activator {
 		add_filter(
 			'cron_schedules',
 			function ( $schedules ) {
-				if ( ! isset( $schedules['every_15_minutes'] ) ) {
-					$schedules['every_15_minutes'] = [
+				if ( ! isset( $schedules[ Scheduler::INTERVAL ] ) ) {
+					$schedules[ Scheduler::INTERVAL ] = [
 						'interval' => 900,
 						'display'  => 'Every 15 minutes',
 					];
@@ -45,8 +47,8 @@ class Activator {
 			}
 		);
 
-		if ( ! wp_next_scheduled( 'ops_health_run_checks' ) ) {
-			wp_schedule_event( time(), 'every_15_minutes', 'ops_health_run_checks' );
+		if ( ! wp_next_scheduled( Scheduler::HOOK_NAME ) ) {
+			wp_schedule_event( time(), Scheduler::INTERVAL, Scheduler::HOOK_NAME );
 		}
 	}
 
@@ -58,6 +60,6 @@ class Activator {
 	 * @return void
 	 */
 	public function deactivate(): void {
-		wp_clear_scheduled_hook( 'ops_health_run_checks' );
+		wp_clear_scheduled_hook( Scheduler::HOOK_NAME );
 	}
 }

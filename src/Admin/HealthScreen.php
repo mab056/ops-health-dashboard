@@ -9,7 +9,7 @@
 
 namespace OpsHealthDashboard\Admin;
 
-use OpsHealthDashboard\Services\CheckRunner;
+use OpsHealthDashboard\Interfaces\CheckRunnerInterface;
 
 /**
  * Class HealthScreen
@@ -21,16 +21,16 @@ class HealthScreen {
 	/**
 	 * CheckRunner per ottenere i risultati
 	 *
-	 * @var CheckRunner
+	 * @var CheckRunnerInterface
 	 */
 	private $runner;
 
 	/**
 	 * Constructor
 	 *
-	 * @param CheckRunner $runner CheckRunner per i risultati.
+	 * @param CheckRunnerInterface $runner CheckRunner per i risultati.
 	 */
-	public function __construct( CheckRunner $runner ) {
+	public function __construct( CheckRunnerInterface $runner ) {
 		$this->runner = $runner;
 	}
 
@@ -65,9 +65,10 @@ class HealthScreen {
 						<?php
 						$status  = isset( $result['status'] ) ? $result['status'] : 'unknown';
 						$message = isset( $result['message'] ) ? $result['message'] : '';
+						$name    = isset( $result['name'] ) ? $result['name'] : ucfirst( $check_id );
 						?>
 						<div class="ops-health-check ops-health-check-<?php echo esc_attr( $status ); ?>">
-							<h3><?php echo esc_html( ucfirst( $check_id ) ); ?></h3>
+							<h3><?php echo esc_html( $name ); ?></h3>
 							<p class="status">
 								<strong><?php echo esc_html__( 'Status:', 'ops-health-dashboard' ); ?></strong>
 								<?php echo esc_html( ucfirst( $status ) ); ?>

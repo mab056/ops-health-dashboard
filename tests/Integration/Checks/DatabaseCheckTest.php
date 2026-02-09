@@ -10,6 +10,7 @@
 namespace OpsHealthDashboard\Tests\Integration\Checks;
 
 use OpsHealthDashboard\Checks\DatabaseCheck;
+use OpsHealthDashboard\Services\Redaction;
 use WP_UnitTestCase;
 
 /**
@@ -32,7 +33,8 @@ class DatabaseCheckTest extends WP_UnitTestCase {
 	public function setUp(): void {
 		parent::setUp();
 		global $wpdb;
-		$this->check = new DatabaseCheck( $wpdb );
+		$redaction   = new Redaction();
+		$this->check = new DatabaseCheck( $wpdb, $redaction );
 	}
 
 	/**

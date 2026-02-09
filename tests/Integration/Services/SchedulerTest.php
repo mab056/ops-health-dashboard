@@ -11,6 +11,7 @@ namespace OpsHealthDashboard\Tests\Integration\Services;
 
 use OpsHealthDashboard\Checks\DatabaseCheck;
 use OpsHealthDashboard\Services\CheckRunner;
+use OpsHealthDashboard\Services\Redaction;
 use OpsHealthDashboard\Services\Scheduler;
 use OpsHealthDashboard\Services\Storage;
 use WP_UnitTestCase;
@@ -43,9 +44,10 @@ class SchedulerTest extends WP_UnitTestCase {
 		parent::setUp();
 
 		$this->storage = new Storage();
-		$runner        = new CheckRunner( $this->storage );
+		$redaction     = new Redaction();
+		$runner        = new CheckRunner( $this->storage, $redaction );
 		global $wpdb;
-		$runner->add_check( new DatabaseCheck( $wpdb ) );
+		$runner->add_check( new DatabaseCheck( $wpdb, $redaction ) );
 
 		$this->scheduler = new Scheduler( $runner );
 
@@ -78,6 +80,8 @@ class SchedulerTest extends WP_UnitTestCase {
 	public function test_register_hooks_reschedules_when_cron_missing() {
 		$this->assertFalse( $this->scheduler->is_scheduled(), 'Should not be scheduled initially' );
 
+		// Simula contesto admin per attivare self-healing.
+		set_current_screen( 'dashboard' );
 		$this->scheduler->register_hooks();
 
 		$this->assertTrue( $this->scheduler->is_scheduled(), 'Should be scheduled after register_hooks() (self-healing)' );

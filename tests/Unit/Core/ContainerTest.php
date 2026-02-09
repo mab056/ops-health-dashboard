@@ -152,6 +152,26 @@ class ContainerTest extends TestCase {
 	}
 
 	/**
+	 * Testa che make() lancia un'eccezione per dipendenze circolari
+	 */
+	public function test_make_throws_exception_for_circular_dependency() {
+		$container = new Container();
+
+		$container->share( 'A', function ( $c ) {
+			return $c->make( 'B' );
+		} );
+
+		$container->share( 'B', function ( $c ) {
+			return $c->make( 'A' );
+		} );
+
+		$this->expectException( \Exception::class );
+		$this->expectExceptionMessage( 'Circular dependency detected for [A]' );
+
+		$container->make( 'A' );
+	}
+
+	/**
 	 * Testa che la classe NON è final
 	 *
 	 * Assicura testabilità ed estensibilità

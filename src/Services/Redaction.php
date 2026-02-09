@@ -175,7 +175,7 @@ class Redaction implements RedactionInterface {
 	private function redact_passwords( string $text ): string {
 		// Password in URL (es: mysql://user:pass@host).
 		$text = preg_replace(
-			'/(:\/\/[^:\/]+:)[^@]+(@)/',
+			'/(:\/\/[^:\/\s]+:)[^@\s]+(@)/',
 			'$1[REDACTED]$2',
 			$text
 		);
@@ -204,9 +204,9 @@ class Redaction implements RedactionInterface {
 			$text
 		);
 
-		// IPv4.
+		// IPv4 (con validazione ottetti 0-255).
 		$text = preg_replace(
-			'/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/',
+			'/\b(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\b/',
 			'[IP_REDACTED]',
 			$text
 		);

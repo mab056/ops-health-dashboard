@@ -13,6 +13,7 @@ use Brain\Monkey;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use OpsHealthDashboard\Interfaces\CheckInterface;
+use OpsHealthDashboard\Interfaces\RedactionInterface;
 use OpsHealthDashboard\Interfaces\StorageInterface;
 use OpsHealthDashboard\Services\CheckRunner;
 use PHPUnit\Framework\TestCase;
@@ -42,11 +43,26 @@ class CheckRunnerTest extends TestCase {
 	}
 
 	/**
+	 * Crea un mock RedactionInterface per i test
+	 *
+	 * @return \Mockery\MockInterface
+	 */
+	private function create_redaction_mock() {
+		$redaction = Mockery::mock( RedactionInterface::class );
+		$redaction->shouldReceive( 'redact' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
+		return $redaction;
+	}
+
+	/**
 	 * Testa che CheckRunner può essere istanziato con dipendenze
 	 */
 	public function test_check_runner_can_be_instantiated() {
-		$storage = Mockery::mock( StorageInterface::class );
-		$runner  = new CheckRunner( $storage );
+		$storage   = Mockery::mock( StorageInterface::class );
+		$redaction = $this->create_redaction_mock();
+		$runner    = new CheckRunner( $storage, $redaction );
 
 		$this->assertInstanceOf( CheckRunner::class, $runner );
 	}
@@ -57,10 +73,12 @@ class CheckRunnerTest extends TestCase {
 	public function test_add_check_adds_check() {
 		$storage = Mockery::mock( StorageInterface::class );
 		$storage->shouldReceive( 'set' )->andReturn( true );
+		$redaction = $this->create_redaction_mock();
 
 		$check = Mockery::mock( CheckInterface::class );
 		$check->shouldReceive( 'is_enabled' )->andReturn( true );
 		$check->shouldReceive( 'get_id' )->andReturn( 'test_check' );
+		$check->shouldReceive( 'get_name' )->andReturn( 'Test Check' );
 		$check->shouldReceive( 'run' )->once()->andReturn( [
 			'status'   => 'ok',
 			'message'  => 'OK',
@@ -68,7 +86,7 @@ class CheckRunnerTest extends TestCase {
 			'duration' => 0.1,
 		] );
 
-		$runner = new CheckRunner( $storage );
+		$runner = new CheckRunner( $storage, $redaction );
 		$runner->add_check( $check );
 
 		$results = $runner->run_all();
@@ -84,10 +102,12 @@ class CheckRunnerTest extends TestCase {
 			->once()
 			->with( 'latest_results', Mockery::type( 'array' ) )
 			->andReturn( true );
+		$redaction = $this->create_redaction_mock();
 
 		$check1 = Mockery::mock( CheckInterface::class );
 		$check1->shouldReceive( 'is_enabled' )->andReturn( true );
 		$check1->shouldReceive( 'get_id' )->andReturn( 'check1' );
+		$check1->shouldReceive( 'get_name' )->andReturn( 'Check 1' );
 		$check1->shouldReceive( 'run' )->once()->andReturn( [
 			'status'   => 'ok',
 			'message'  => 'Check 1 OK',
@@ -95,7 +115,7 @@ class CheckRunnerTest extends TestCase {
 			'duration' => 0.1,
 		] );
 
-		$runner = new CheckRunner( $storage );
+		$runner = new CheckRunner( $storage, $redaction );
 		$runner->add_check( $check1 );
 
 		$results = $runner->run_all();
@@ -111,13 +131,14 @@ class CheckRunnerTest extends TestCase {
 	public function test_run_all_skips_disabled_checks() {
 		$storage = Mockery::mock( StorageInterface::class );
 		$storage->shouldReceive( 'set' )->andReturn( true );
+		$redaction = $this->create_redaction_mock();
 
 		$check1 = Mockery::mock( CheckInterface::class );
 		$check1->shouldReceive( 'is_enabled' )->andReturn( false );
 		$check1->shouldReceive( 'get_id' )->andReturn( 'check1' );
 		$check1->shouldReceive( 'run' )->never();
 
-		$runner = new CheckRunner( $storage );
+		$runner = new CheckRunner( $storage, $redaction );
 		$runner->add_check( $check1 );
 
 		$results = $runner->run_all();
@@ -132,10 +153,12 @@ class CheckRunnerTest extends TestCase {
 	public function test_run_all_handles_multiple_checks() {
 		$storage = Mockery::mock( StorageInterface::class );
 		$storage->shouldReceive( 'set' )->andReturn( true );
+		$redaction = $this->create_redaction_mock();
 
 		$check1 = Mockery::mock( CheckInterface::class );
 		$check1->shouldReceive( 'is_enabled' )->andReturn( true );
 		$check1->shouldReceive( 'get_id' )->andReturn( 'check1' );
+		$check1->shouldReceive( 'get_name' )->andReturn( 'Check 1' );
 		$check1->shouldReceive( 'run' )->once()->andReturn( [
 			'status'   => 'ok',
 			'message'  => 'Check 1 OK',
@@ -146,6 +169,7 @@ class CheckRunnerTest extends TestCase {
 		$check2 = Mockery::mock( CheckInterface::class );
 		$check2->shouldReceive( 'is_enabled' )->andReturn( true );
 		$check2->shouldReceive( 'get_id' )->andReturn( 'check2' );
+		$check2->shouldReceive( 'get_name' )->andReturn( 'Check 2' );
 		$check2->shouldReceive( 'run' )->once()->andReturn( [
 			'status'   => 'warning',
 			'message'  => 'Check 2 Warning',
@@ -153,7 +177,7 @@ class CheckRunnerTest extends TestCase {
 			'duration' => 0.2,
 		] );
 
-		$runner = new CheckRunner( $storage );
+		$runner = new CheckRunner( $storage, $redaction );
 		$runner->add_check( $check1 );
 		$runner->add_check( $check2 );
 
@@ -177,10 +201,12 @@ class CheckRunnerTest extends TestCase {
 				return is_array( $arg ) && isset( $arg['check1'] );
 			} ) )
 			->andReturn( true );
+		$redaction = $this->create_redaction_mock();
 
 		$check = Mockery::mock( CheckInterface::class );
 		$check->shouldReceive( 'is_enabled' )->andReturn( true );
 		$check->shouldReceive( 'get_id' )->andReturn( 'check1' );
+		$check->shouldReceive( 'get_name' )->andReturn( 'Check 1' );
 		$check->shouldReceive( 'run' )->andReturn( [
 			'status'   => 'ok',
 			'message'  => 'OK',
@@ -188,7 +214,7 @@ class CheckRunnerTest extends TestCase {
 			'duration' => 0.1,
 		] );
 
-		$runner = new CheckRunner( $storage );
+		$runner = new CheckRunner( $storage, $redaction );
 		$runner->add_check( $check );
 		$results = $runner->run_all();
 
@@ -212,8 +238,9 @@ class CheckRunnerTest extends TestCase {
 			->once()
 			->with( 'latest_results', [] )
 			->andReturn( $stored_results );
+		$redaction = $this->create_redaction_mock();
 
-		$runner  = new CheckRunner( $storage );
+		$runner  = new CheckRunner( $storage, $redaction );
 		$results = $runner->get_latest_results();
 
 		$this->assertEquals( $stored_results, $results );
@@ -226,19 +253,27 @@ class CheckRunnerTest extends TestCase {
 		$storage = Mockery::mock( StorageInterface::class );
 		$storage->shouldReceive( 'set' )->andReturn( true );
 
+		$redaction = Mockery::mock( RedactionInterface::class );
+		$redaction->shouldReceive( 'redact' )
+			->once()
+			->with( 'Test exception' )
+			->andReturn( '[REDACTED]' );
+
 		$check = Mockery::mock( CheckInterface::class );
 		$check->shouldReceive( 'is_enabled' )->andReturn( true );
 		$check->shouldReceive( 'get_id' )->andReturn( 'failing_check' );
+		$check->shouldReceive( 'get_name' )->andReturn( 'Failing Check' );
 		$check->shouldReceive( 'run' )->once()->andThrow( new \RuntimeException( 'Test exception' ) );
 
-		$runner = new CheckRunner( $storage );
+		$runner = new CheckRunner( $storage, $redaction );
 		$runner->add_check( $check );
 
 		$results = $runner->run_all();
 
 		$this->assertArrayHasKey( 'failing_check', $results );
 		$this->assertEquals( 'critical', $results['failing_check']['status'] );
-		$this->assertStringContainsString( 'Test exception', $results['failing_check']['message'] );
+		$this->assertStringContainsString( '[REDACTED]', $results['failing_check']['message'] );
+		$this->assertEquals( 'Failing Check', $results['failing_check']['name'] );
 	}
 
 	/**
@@ -250,8 +285,9 @@ class CheckRunnerTest extends TestCase {
 			->once()
 			->with( 'latest_results', [] )
 			->andReturn( 'not_an_array' );
+		$redaction = $this->create_redaction_mock();
 
-		$runner  = new CheckRunner( $storage );
+		$runner  = new CheckRunner( $storage, $redaction );
 		$results = $runner->get_latest_results();
 
 		$this->assertIsArray( $results );

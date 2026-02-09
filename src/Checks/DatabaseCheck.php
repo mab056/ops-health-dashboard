@@ -11,6 +11,7 @@
 namespace OpsHealthDashboard\Checks;
 
 use OpsHealthDashboard\Interfaces\CheckInterface;
+use OpsHealthDashboard\Interfaces\RedactionInterface;
 
 /**
  * Class DatabaseCheck
@@ -27,12 +28,21 @@ class DatabaseCheck implements CheckInterface {
 	private $wpdb;
 
 	/**
+	 * Servizio di redazione dati sensibili
+	 *
+	 * @var RedactionInterface
+	 */
+	private $redaction;
+
+	/**
 	 * Constructor
 	 *
-	 * @param \wpdb $wpdb Istanza wpdb per le query.
+	 * @param \wpdb              $wpdb      Istanza wpdb per le query.
+	 * @param RedactionInterface $redaction Servizio di redazione dati sensibili.
 	 */
-	public function __construct( \wpdb $wpdb ) {
-		$this->wpdb = $wpdb;
+	public function __construct( \wpdb $wpdb, RedactionInterface $redaction ) {
+		$this->wpdb      = $wpdb;
+		$this->redaction = $redaction;
 	}
 
 	/**
@@ -51,13 +61,14 @@ class DatabaseCheck implements CheckInterface {
 
 		// Verifica il risultato.
 		if ( false === $result || ! empty( $this->wpdb->last_error ) ) {
+			$error_msg = ! empty( $this->wpdb->last_error )
+				? $this->redaction->redact( $this->wpdb->last_error )
+				: __( 'Unknown error', 'ops-health-dashboard' );
 			return [
 				'status'   => 'critical',
 				'message'  => __( 'Database connection failed', 'ops-health-dashboard' ),
 				'details'  => [
-					'error' => ! empty( $this->wpdb->last_error )
-						? $this->wpdb->last_error
-						: __( 'Unknown error', 'ops-health-dashboard' ),
+					'error' => $error_msg,
 				],
 				'duration' => $duration,
 			];

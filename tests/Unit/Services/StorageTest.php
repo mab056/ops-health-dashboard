@@ -86,12 +86,12 @@ class StorageTest extends TestCase {
 	}
 
 	/**
-	 * Testa che set() salva un valore con update_option()
+	 * Testa che set() salva un valore con update_option() senza autoload
 	 */
 	public function test_set_saves_value() {
 		Functions\expect( 'update_option' )
 			->once()
-			->with( 'ops_health_test_key', 'new_value' )
+			->with( 'ops_health_test_key', 'new_value', false )
 			->andReturn( true );
 
 		$storage = new Storage();
@@ -106,7 +106,7 @@ class StorageTest extends TestCase {
 	public function test_set_returns_false_on_error() {
 		Functions\expect( 'update_option' )
 			->once()
-			->with( 'ops_health_test_key', 'value' )
+			->with( 'ops_health_test_key', 'value', false )
 			->andReturn( false );
 
 		$storage = new Storage();

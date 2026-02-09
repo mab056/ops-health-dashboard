@@ -11,6 +11,8 @@
 namespace OpsHealthDashboard\Services;
 
 use OpsHealthDashboard\Interfaces\CheckInterface;
+use OpsHealthDashboard\Interfaces\CheckRunnerInterface;
+use OpsHealthDashboard\Interfaces\RedactionInterface;
 use OpsHealthDashboard\Interfaces\StorageInterface;
 
 /**
@@ -18,7 +20,7 @@ use OpsHealthDashboard\Interfaces\StorageInterface;
  *
  * Servizio per eseguire e gestire i check di salute.
  */
-class CheckRunner {
+class CheckRunner implements CheckRunnerInterface {
 
 	/**
 	 * Storage per salvare i risultati
@@ -26,6 +28,13 @@ class CheckRunner {
 	 * @var StorageInterface
 	 */
 	private $storage;
+
+	/**
+	 * Servizio di redazione per sanitizzare messaggi di eccezione
+	 *
+	 * @var RedactionInterface
+	 */
+	private $redaction;
 
 	/**
 	 * Array di check registrati
@@ -37,10 +46,12 @@ class CheckRunner {
 	/**
 	 * Constructor
 	 *
-	 * @param StorageInterface $storage Storage per i risultati.
+	 * @param StorageInterface   $storage   Storage per i risultati.
+	 * @param RedactionInterface $redaction Servizio di redazione dati sensibili.
 	 */
-	public function __construct( StorageInterface $storage ) {
-		$this->storage = $storage;
+	public function __construct( StorageInterface $storage, RedactionInterface $redaction ) {
+		$this->storage   = $storage;
+		$this->redaction = $redaction;
 	}
 
 	/**
@@ -70,11 +81,14 @@ class CheckRunner {
 			$check_id = $check->get_id();
 
 			try {
-				$results[ $check_id ] = $check->run();
+				$result               = $check->run();
+				$result['name']       = $check->get_name();
+				$results[ $check_id ] = $result;
 			} catch ( \Throwable $e ) {
 				$results[ $check_id ] = [
 					'status'   => 'critical',
-					'message'  => 'Check exception: ' . $e->getMessage(),
+					'message'  => 'Check exception: ' . $this->redaction->redact( $e->getMessage() ),
+					'name'     => $check->get_name(),
 					'details'  => [],
 					'duration' => 0,
 				];

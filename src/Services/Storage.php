@@ -47,7 +47,7 @@ class Storage implements StorageInterface {
 	 */
 	public function set( string $key, $value ): bool {
 		$prefixed_key = $this->get_prefixed_key( $key );
-		return update_option( $prefixed_key, $value );
+		return update_option( $prefixed_key, $value, false );
 	}
 
 	/**

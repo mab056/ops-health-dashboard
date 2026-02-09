@@ -79,72 +79,7 @@
 
 ---
 
-## Milestone 2: Riepilogo Error Log Sicuro 🚧 0/8
-
-**Obiettivo**: Secondo health check che legge gli error log PHP/WordPress, ne estrae un riepilogo sicuro (ultime N righe) e oscura informazioni sensibili prima di mostrarle nella dashboard.
-
-### Decisioni Architetturali
-
-- **RedactionInterface** per disaccoppiare e testare il servizio di oscuramento
-- **Redaction**: riceve `array $path_replacements` e `array $sensitive_values` via constructor (NO accesso runtime a costanti)
-- **ErrorLogCheck**: riceve `RedactionInterface $redaction`, `array $log_paths`, `int $max_lines = 50` via constructor
-- **Lettura file**: seek-based `read_tail()` per performance su log grandi, con guard 10MB
-- **Path replacement**: sort per lunghezza decrescente (evita match parziali)
-- **Sensitive values**: minimo 3 caratteri (evita falsi positivi)
-- **WP_DEBUG_LOG**: gestisce `true` (default wp-content/debug.log), stringa (path custom), `false`/undefined
-- **Status thresholds**: Critical se Fatal/Parse error trovati, Warning se >10 warning/notice, OK altrimenti
-
-### Tasks
-
-- [ ] **M2.1** - `RedactionInterface` contratto DI (`src/Interfaces/RedactionInterface.php`)
-- [ ] **M2.2** - `Redaction` service con path, email, IP, hash, sensitive values (`src/Services/Redaction.php`)
-- [ ] **M2.3** - Unit tests Redaction (~15 test, Brain\Monkey) (`tests/Unit/Services/RedactionTest.php`)
-- [ ] **M2.4** - Integration tests Redaction (~4 test) (`tests/Integration/Services/RedactionTest.php`)
-- [ ] **M2.5** - `ErrorLogCheck` con seek-based tail + redaction (`src/Checks/ErrorLogCheck.php`)
-- [ ] **M2.6** - Unit tests ErrorLogCheck (~15 test) (`tests/Unit/Checks/ErrorLogCheckTest.php`)
-- [ ] **M2.7** - Integration tests ErrorLogCheck (~6 test, file temp) (`tests/Integration/Checks/ErrorLogCheckTest.php`)
-- [ ] **M2.8** - Bootstrap wiring: Redaction + ErrorLogCheck in `config/bootstrap.php`
-
-### Redaction Patterns
-
-| Pattern | Replacement | Esempio |
-|---------|-------------|---------|
-| Filesystem paths (ABSPATH, WP_CONTENT_DIR) | `[WP_ROOT]/`, `[WP_CONTENT]/` | `/var/www/html/wp-content/...` → `[WP_CONTENT]/...` |
-| Sensitive values (DB_PASSWORD, AUTH_KEY) | `[REDACTED]` | `password123` → `[REDACTED]` |
-| Email | `[REDACTED_EMAIL]` | `user@example.com` → `[REDACTED_EMAIL]` |
-| IPv4 | `[REDACTED_IP]` | `192.168.1.100` → `[REDACTED_IP]` |
-| Hex hash (32+ chars) | `[REDACTED_HASH]` | `a1b2c3d4e5f6...` → `[REDACTED_HASH]` |
-
-### File da Creare
-
-| File | Tipo | Descrizione |
-|------|------|-------------|
-| `src/Interfaces/RedactionInterface.php` | Interface | Contratto: `redact(string): string` |
-| `src/Services/Redaction.php` | Service | Oscuramento path, email, IP, hash, valori sensibili |
-| `src/Checks/ErrorLogCheck.php` | Check | Lettura log, riepilogo, seek-based tail, redaction |
-| `tests/Unit/Services/RedactionTest.php` | Unit Test | ~15 test Brain\Monkey |
-| `tests/Unit/Checks/ErrorLogCheckTest.php` | Unit Test | ~15 test Brain\Monkey |
-| `tests/Integration/Services/RedactionTest.php` | Integration Test | ~4 test WP Test Suite |
-| `tests/Integration/Checks/ErrorLogCheckTest.php` | Integration Test | ~6 test con file temp |
-
-### File da Modificare
-
-| File | Modifica |
-|------|----------|
-| `config/bootstrap.php` | Binding RedactionInterface + ErrorLogCheck nel CheckRunner |
-
-### Fasi TDD
-
-1. **Fase 1**: RedactionInterface + Redaction (RED → GREEN → REFACTOR) + test di integrazione
-2. **Fase 2**: ErrorLogCheck (RED → GREEN → REFACTOR) + test di integrazione
-3. **Fase 3**: Bootstrap wiring
-4. **Fase 4**: Verifica finale (`composer test` + `composer phpcs` + `test:matrix --php 7.4 --php 8.5`)
-
-**Deliverable**: la dashboard mostra l'Error Log check con contenuti redatti, ~155+ test totali
-
----
-
-## Milestone 2: Riepilogo Error Log Sicuro ✅ 6/6
+## Milestone 2: Riepilogo Error Log Sicuro ✅ 6/6 + Code Review 15/15
 
 **Obiettivo**: Check error log con redazione automatica dei dati sensibili
 
@@ -168,23 +103,41 @@
 6. Bearer token -> `[REDACTED]`
 7. Password in URL e campi generici -> `[REDACTED]`
 8. Email -> `[EMAIL_REDACTED]`
-9. IPv4 -> `[IP_REDACTED]`
+9. IPv4 -> `[IP_REDACTED]` (con validazione ottetti 0-255)
 10. IPv6 (min 5 gruppi per evitare falsi positivi su timestamp) -> `[IP_REDACTED]`
 11. Home directory `/home/user` -> `/home/[USER_REDACTED]`
 
 **ErrorLogCheck** - Riepilogo sicuro del log errori:
 - Risoluzione path: `WP_DEBUG_LOG` (stringa) -> `ini_get('error_log')`
 - Validazione: esistenza, leggibilita', anti-symlink
-- Tail efficiente: max 512KB, max 100 righe
+- Tail efficiente: max 512KB, max 100 righe, `flock(LOCK_SH)` per accesso concorrente
 - Classificazione: fatal, parse, warning, notice, deprecated, strict, other
 - Status: critical (fatal/parse > 0), warning (warning/deprecated/strict > 0), ok
 - Max 5 campioni critici/warning, redatti prima dell'inclusione
 - Protected methods per testabilita' con Mockery partial mock
 
+### Code Review - Issue Risolte (15/15)
+
+- ✅ **CheckRunnerInterface**: nuovo contratto per disaccoppiare HealthScreen e Scheduler da CheckRunner concreto
+- ✅ **RedactionInterface in CheckRunner**: messaggi eccezione redatti prima dell'inclusione nei risultati
+- ✅ **RedactionInterface in DatabaseCheck**: `$wpdb->last_error` redatto prima dell'inclusione nei risultati
+- ✅ **Container dipendenze circolari**: array `$resolving` rileva loop infiniti durante la risoluzione
+- ✅ **Storage autoload=false**: `update_option()` con terzo parametro `false` per dati grandi
+- ✅ **Scheduler self-healing admin-only**: guard `is_admin()` in `register_hooks()` previene self-healing su frontend
+- ✅ **Scheduler costanti**: `HOOK_NAME` e `INTERVAL` come costanti di classe
+- ✅ **Activator usa costanti Scheduler**: `Scheduler::HOOK_NAME` e `Scheduler::INTERVAL` invece di stringhe hardcoded
+- ✅ **HealthScreen CheckRunnerInterface**: type-hint su interfaccia, mostra `result['name']` con `ucfirst()` fallback
+- ✅ **ErrorLogCheck flock(LOCK_SH)**: lock condiviso durante lettura log per sicurezza concorrente
+- ✅ **IPv4 regex validazione ottetti**: regex verifica che ogni ottetto sia 0-255 (non solo \d{1,3})
+- ✅ **URL password regex restrittiva**: no whitespace nel pattern per evitare falsi positivi
+- ✅ **bootstrap.php container->instance()**: `$wpdb` registrato con `instance()` invece di closure
+- ✅ **bootstrap.php CheckRunnerInterface binding**: CheckRunner registrato sotto `CheckRunnerInterface::class`
+- ✅ **CheckRunner include 'name' nei risultati**: ogni risultato include la chiave `name` dal check
+
 **Statistiche Finali**:
-- 14 file sorgente in `src/`
-- 23 file di test (14 unit + 9 integration)
-- 204 test totali, 455 assertions
+- 15 file sorgente in `src/`
+- 24 file di test (15 unit + 9 integration)
+- 210 test totali (169 unit + 41 integration), 472 assertions
 - PHPCS 100% clean (0 errori, 0 warning)
 
 **Deliverable**: Dashboard mostra Database + Error Log check con redazione automatica ✅
@@ -192,6 +145,22 @@
 ---
 
 ## Progress Log
+
+### 2026-02-09
+
+**M2 Code Review** (15/15 issue risolte):
+- CheckRunnerInterface per disaccoppiamento (HealthScreen, Scheduler usano interfaccia)
+- RedactionInterface iniettata in CheckRunner (redige eccezioni) e DatabaseCheck (redige $wpdb errors)
+- Container: rilevazione dipendenze circolari con array `$resolving`
+- Storage: `autoload=false` in `update_option()`
+- Scheduler: self-healing solo in contesto admin (`is_admin()` guard), costanti HOOK_NAME/INTERVAL
+- ErrorLogCheck: `flock(LOCK_SH)` per accesso concorrente sicuro
+- Redaction: IPv4 regex con validazione ottetti (0-255), URL password regex restrittiva
+- bootstrap.php: `container->instance($wpdb)`, binding CheckRunnerInterface
+- Activator: usa `Scheduler::HOOK_NAME` e `Scheduler::INTERVAL`
+- CheckRunner: include chiave `name` nei risultati
+- 210 test (169 unit + 41 integration), 472 assertions, PHPCS clean
+- Lesson learned: WP test suite `is_admin()` restituisce false; usare `set_current_screen('dashboard')` per abilitare contesto admin nei test di integrazione
 
 ### 2026-02-08
 
@@ -244,7 +213,6 @@
 
 ## Next Milestones
 
-- **M2**: Error Log Summary Safe (Redaction service + ErrorLogCheck)
 - **M3**: Redis Check (opzionale, graceful degradation)
 - **M4**: Alerting System (Email, Webhook, Slack, Telegram, WhatsApp + anti-SSRF)
 - **M5**: E2E Testing (Playwright multi-viewport)

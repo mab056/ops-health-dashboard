@@ -40,6 +40,13 @@ class Container {
 	private $instances = [];
 
 	/**
+	 * Abstract in fase di risoluzione (rilevamento dipendenze circolari)
+	 *
+	 * @var array
+	 */
+	private $resolving = [];
+
+	/**
 	 * Associa un abstract a un'implementazione concreta
 	 *
 	 * Crea una nuova istanza ad ogni chiamata a make().
@@ -89,17 +96,27 @@ class Container {
 			return $this->instances[ $abstract ];
 		}
 
-		if ( isset( $this->shared[ $abstract ] ) ) {
-			if ( ! isset( $this->instances[ $abstract ] ) ) {
-				$this->instances[ $abstract ] = $this->shared[ $abstract ]( $this );
+		if ( isset( $this->resolving[ $abstract ] ) ) {
+			throw new \Exception( "Circular dependency detected for [{$abstract}]" );
+		}
+
+		$this->resolving[ $abstract ] = true;
+
+		try {
+			if ( isset( $this->shared[ $abstract ] ) ) {
+				if ( ! isset( $this->instances[ $abstract ] ) ) {
+					$this->instances[ $abstract ] = $this->shared[ $abstract ]( $this );
+				}
+				return $this->instances[ $abstract ];
 			}
-			return $this->instances[ $abstract ];
-		}
 
-		if ( isset( $this->bindings[ $abstract ] ) ) {
-			return $this->bindings[ $abstract ]( $this );
-		}
+			if ( isset( $this->bindings[ $abstract ] ) ) {
+				return $this->bindings[ $abstract ]( $this );
+			}
 
-		throw new \Exception( "No binding found for [{$abstract}]" );
+			throw new \Exception( "No binding found for [{$abstract}]" );
+		} finally {
+			unset( $this->resolving[ $abstract ] );
+		}
 	}
 }

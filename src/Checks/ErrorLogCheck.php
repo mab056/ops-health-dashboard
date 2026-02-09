@@ -121,7 +121,7 @@ class ErrorLogCheck implements CheckInterface {
 		$message = $this->build_message( $status, $parsed['counts'], count( $lines ) );
 
 		// 6. Colleziona campioni redatti.
-		$samples = $this->collect_samples( $lines, $parsed['severity_lines'] );
+		$samples = $this->collect_samples( $parsed['severity_lines'] );
 
 		// 7. File size formattato.
 		$file_size = $this->get_file_size( $log_path );
@@ -252,6 +252,9 @@ class ErrorLogCheck implements CheckInterface {
 		if ( false === $handle ) {
 			return [];
 		}
+
+		// Lock condiviso per evitare lettura durante scrittura.
+		flock( $handle, LOCK_SH );
 
 		// Seek alla posizione di partenza.
 		$offset = max( 0, $file_size - $this->max_bytes );
@@ -429,11 +432,10 @@ class ErrorLogCheck implements CheckInterface {
 	 *
 	 * Prende le righe critiche/warning più recenti e le redige.
 	 *
-	 * @param array $lines          Tutte le righe.
 	 * @param array $severity_lines Righe raggruppate per severità.
 	 * @return array Campioni redatti (massimo max_samples).
 	 */
-	private function collect_samples( array $lines, array $severity_lines ): array {
+	private function collect_samples( array $severity_lines ): array {
 		// Priorità: critical prima, poi warning.
 		$samples = array_merge(
 			array_slice( $severity_lines['critical'], -$this->max_samples ),
