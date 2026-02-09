@@ -4,7 +4,7 @@
 [![PHP Version](https://img.shields.io/badge/PHP-7.4%2B-blue)](https://www.php.net/)
 [![WordPress](https://img.shields.io/badge/WordPress-5.8%2B-blue)](https://wordpress.org/)
 [![License](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.2.0-green)](https://github.com/mab056/ops-health-dashboard/releases)
+[![Version](https://img.shields.io/badge/Version-0.2.1-green)](https://github.com/mab056/ops-health-dashboard/releases)
 [![PHPCS](https://img.shields.io/badge/PHPCS-WordPress%20Standards-green)](https://github.com/WordPress/WordPress-Coding-Standards)
 
 Plugin WordPress di monitoraggio operativo production-grade con controlli automatici e alert configurabili.
@@ -26,8 +26,8 @@ Questo plugin fornisce una dashboard operativa in wp-admin con controlli automat
 
 ### Dashboard
 - Pagina admin: `Ops → Health Dashboard` *(implementato)*
+- Bottoni manuali "Run Now" e "Clear Cache" con protezione nonce *(implementato)*
 - Widget dashboard con stato globale *(pianificato M4+)*
-- Pulsante manuale "Esegui Check Ora" *(pianificato)*
 
 ### Alerting *(pianificato M4)*
 - Email via `wp_mail()`
@@ -39,7 +39,7 @@ Questo plugin fornisce una dashboard operativa in wp-admin con controlli automat
 
 ### Scheduling
 - WP-Cron (default: ogni 15 minuti) *(implementato)*
-- Trigger manuale dei check *(pianificato)*
+- Trigger manuale dei check via bottone "Run Now" *(implementato)*
 - Alert solo su cambiamenti di stato *(pianificato M4)*
 
 ## 🏗️ Architettura
@@ -254,8 +254,8 @@ public function test_database_check_runs_successfully() {
 
 ### Matrice Test
 
-- **Unit Tests**: Brain\Monkey - 169 test, tutte le versioni PHP
-- **Integration Tests**: WP Test Suite - 41 test, tutte le versioni PHP
+- **Unit Tests**: Brain\Monkey - 178 test, tutte le versioni PHP
+- **Integration Tests**: WP Test Suite - 47 test, tutte le versioni PHP
 - **Versioni PHP**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
 - **Target Coverage**: ≥85% su PHP 8.3
 - **Test E2E**: Viewport Mobile, Tablet, Desktop (futuro)
@@ -295,7 +295,7 @@ Milestone corrente: **M3 - Check Redis** 🚧
 
 - **15 file sorgente** in `src/`
 - **25 file di test** (15 unit + 10 integration)
-- **218 test totali** (172 unit + 46 integration), 487 assertions
+- **225 test totali** (178 unit + 47 integration), 497 assertions
 - **PHPCS**: 100% compliance (0 errori, 0 warning)
 
 ### Roadmap

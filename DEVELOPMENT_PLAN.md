@@ -145,6 +145,27 @@
 
 ## Progress Log
 
+### 2026-02-09 (CI Fix)
+
+**install-wp-tests.sh version resolution fix**:
+- `grep -o` returned ALL WordPress versions from API (6.9.1, 6.9.0, 6.8.3, ...) instead of just the latest
+- `svn export` received multiple arguments and failed with `E205000: Error parsing arguments`
+- Fix: added `head -1` to take only the first (latest) version; removed dead `grep` line
+- **Lesson**: WP version-check API returns multiple versions in JSON; always `head -1` when extracting latest
+
+### 2026-02-09 (Post-M2)
+
+**Admin Action Buttons + ErrorLogCheck Fix**:
+- Added "Run Now" and "Clear Cache" buttons to admin dashboard page
+- `CheckRunnerInterface::clear_results()` new method for cache clearing
+- `HealthScreen::process_actions()` handles POST with nonce + capability verification
+- `Menu::add_menu()` registers `load-{$page_hook}` hook for PRG pattern (avoids "headers already sent")
+- Fixed ErrorLogCheck: distinguishes "not configured" (warning) from "configured but file not yet created" (ok)
+- Admin notice with auto-clearing transient for action feedback
+- 225 tests (178 unit + 47 integration), 497 assertions, PHPCS clean
+- **Lesson**: `wp_safe_redirect()` must be called before any output; use `load-{$page_hook}` hook, not inside `render()` callback
+- **Lesson**: `wp_nonce_field()` echoes by default; Brain\Monkey mock must use `echo` not `return`
+
 ### 2026-02-09
 
 **M2 Code Review** (15/15 issue risolte):
@@ -209,6 +230,7 @@
 ## Known Issues / Tech Debt
 
 - **CSS 'unknown' status**: HealthScreen non ha classe CSS per lo stato 'unknown' (solo ok/warning/critical). Aggiungere quando si implementano gli asset CSS (M4+).
+- **Action buttons inline style**: i bottoni usano `style="display:inline"` inline; migrarli a foglio CSS dedicato in M4+.
 - **uninstall.php**: pianificato per M6.
 
 ## Next Milestones

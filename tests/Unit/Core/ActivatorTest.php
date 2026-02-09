@@ -66,7 +66,7 @@ class ActivatorTest extends TestCase {
 	 */
 	public function test_activate_sets_timestamp_and_schedules_cron() {
 		if ( ! defined( 'OPS_HEALTH_DASHBOARD_VERSION' ) ) {
-			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.2.0' );
+			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.2.1' );
 		}
 
 		$activator = new Activator();
@@ -82,7 +82,7 @@ class ActivatorTest extends TestCase {
 
 		Functions\expect( 'update_option' )
 			->once()
-			->with( 'ops_health_version', '0.2.0' );
+			->with( 'ops_health_version', '0.2.1' );
 
 		Functions\expect( 'add_filter' )
 			->once()
@@ -107,7 +107,7 @@ class ActivatorTest extends TestCase {
 	 */
 	public function test_activate_does_not_overwrite_existing_timestamp() {
 		if ( ! defined( 'OPS_HEALTH_DASHBOARD_VERSION' ) ) {
-			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.2.0' );
+			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.2.1' );
 		}
 
 		$activator = new Activator();
@@ -119,7 +119,7 @@ class ActivatorTest extends TestCase {
 
 		Functions\expect( 'update_option' )
 			->once()
-			->with( 'ops_health_version', '0.2.0' );
+			->with( 'ops_health_version', '0.2.1' );
 
 		Functions\expect( 'add_filter' )
 			->once()
@@ -143,7 +143,7 @@ class ActivatorTest extends TestCase {
 	 */
 	public function test_activate_skips_schedule_if_already_scheduled() {
 		if ( ! defined( 'OPS_HEALTH_DASHBOARD_VERSION' ) ) {
-			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.2.0' );
+			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.2.1' );
 		}
 
 		$activator = new Activator();
@@ -157,7 +157,7 @@ class ActivatorTest extends TestCase {
 			->with( 'ops_health_activated_at', \Mockery::type( 'int' ) );
 
 		Functions\expect( 'update_option' )
-			->with( 'ops_health_version', '0.2.0' );
+			->with( 'ops_health_version', '0.2.1' );
 
 		Functions\expect( 'add_filter' )
 			->once()

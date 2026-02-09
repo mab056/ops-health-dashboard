@@ -7,27 +7,41 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 
 ## Unreleased
 
+## 0.2.1 - 2026-02-09
+
+### Added
+- **Admin Action Buttons** - Bottoni "Run Now" e "Clear Cache" nella pagina Ops Health Dashboard
+  - "Run Now": esegue tutti i check immediatamente via `CheckRunnerInterface::run_all()`
+  - "Clear Cache": cancella i risultati cachati via `CheckRunnerInterface::clear_results()`
+  - Protezione nonce (`ops_health_admin_action`) e capability check (`manage_options`)
+  - Pattern PRG (Post-Redirect-Get) via hook `load-{$page_hook}` per evitare "headers already sent"
+  - Notice di conferma con transient auto-cancellante
+- **CheckRunnerInterface::clear_results()** - Nuovo metodo per cancellare risultati dallo storage
+- Integration test per HealthScreen (render output, no-checks message, capability check, action buttons)
+- Integration test per Menu::render_page() (delega a HealthScreen)
+- Unit test per Scheduler::add_custom_cron_interval() (aggiunta intervallo + no-overwrite)
+- Unit test per priorita' campioni critical vs warning in ErrorLogCheck
+- Unit test per bottoni Run Now/Clear Cache e nonce fields in HealthScreen
+
 ### Fixed
+- **ErrorLogCheck::validate_log_file()** - Distingue "non configurato" (warning) da "configurato ma file non esiste ancora" (ok); prima mostrava erroneamente warning quando `WP_DEBUG_LOG=true` ma `debug.log` non era ancora stato creato
 - **ErrorLogCheck::collect_samples()** - I campioni critical ora hanno priorita' sui warning; prima `array_slice(..., -max)` scartava i critical quando c'erano molti warning
 - **ErrorLogCheck::resolve_log_path()** - Gestisce `WP_DEBUG_LOG === true` (WordPress scrive in `wp-content/debug.log`)
 - **ErrorLogCheck::read_tail()** - Verifica return value di `flock()`; `flock(LOCK_UN)` esplicito prima di `fclose()`
 - **DatabaseCheck::get_name()** - Wrappato con `__()` per i18n (era l'unico check senza traduzione)
+- **install-wp-tests.sh** - `grep -o` restituiva tutte le versioni WordPress dall'API invece della sola ultima; `svn export` riceveva argomenti multipli e falliva in CI. Aggiunto `head -1` per prendere solo la prima (latest). Rimossa riga `grep` morta senza effetto.
 
 ### Changed
+- **HealthScreen::process_actions()** - Metodo ora public, invocato da `load-{$page_hook}` hook (non piu' dentro `render()`)
+- **Menu::add_menu()** - Registra hook `load-{$page_hook}` per processare azioni prima dell'output
 - **build-zip.sh** - Copia condizionale di `languages/` e `assets/` (non fallisce se mancanti)
 - **install-wp-tests.sh** - Endpoint API WordPress usa HTTPS invece di HTTP (hardening anti-MITM)
 
 ### Removed
 - `tests/bootstrap-integration.php` - File orfano non referenziato in phpunit.xml.dist
 
-### Added
-- Integration test per HealthScreen (render output, no-checks message, capability check)
-- Integration test per Menu::render_page() (delega a HealthScreen)
-- Unit test per Scheduler::add_custom_cron_interval() (aggiunta intervallo + no-overwrite)
-- Unit test per priorita' campioni critical vs warning in ErrorLogCheck
-
 ### Development Notes
-- 218 test totali (172 unit + 46 integration), 487 assertions
+- 225 test totali (178 unit + 47 integration), 497 assertions
 - PHPCS 100% clean (0 errori, 0 warning)
 - ActivatorTest integration usa costante `OPS_HEALTH_DASHBOARD_VERSION` invece di stringa hardcoded
 

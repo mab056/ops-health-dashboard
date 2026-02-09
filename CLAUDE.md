@@ -82,7 +82,7 @@ function bootstrap(): Plugin {
 - Container, Plugin (logica pura senza WordPress)
 
 **Caratteristiche:**
-- ⚡ Velocissimi (~0.9s per 169 test)
+- ⚡ Velocissimi (~0.9s per 178 test)
 - 🔒 Isolamento completo
 - 🧬 Mock di funzioni WordPress con Brain\Monkey
 - ❌ NO database, NO filesystem, NO WordPress
@@ -139,7 +139,7 @@ composer test:coverage:unit          # Unit tests con coverage
 - ✅ WordPress completo caricato
 - ✅ Database MySQL reale
 - ✅ WP-Cron, Options API, hooks reali
-- 🐢 Più lenti (~0.2s con 41 test, richiede WP install)
+- 🐢 Più lenti (~0.2s con 47 test, richiede WP install)
 
 **Esempio:**
 ```php
@@ -606,25 +606,26 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 **Milestone M2 - Riepilogo Error Log Sicuro** ✅ COMPLETATO (+ Code Review 15/15)
 
 **Stato Attuale:**
-- ✅ 172 test unitari (Brain\Monkey)
-- ✅ 46 test di integrazione (WP Test Suite)
-- ✅ 218 test totali passing, 487 assertions
+- ✅ 178 test unitari (Brain\Monkey)
+- ✅ 47 test di integrazione (WP Test Suite)
+- ✅ 225 test totali passing, 497 assertions
 - ✅ PHPCS 100% compliance (0 errori, 0 warning)
 - ✅ CI/CD completo con PHP 7.4-8.5
 - ✅ 15 file sorgente, 25 file di test (15 unit + 10 integration)
 - ✅ Pattern enforcement (NO singleton/static/final)
 - ✅ Code review: 15/15 issue risolte + audit fix
 
-**Componenti Implementati (M1+M2):**
+**Componenti Implementati (M1+M2+Post-M2):**
 - StorageInterface, CheckInterface, RedactionInterface, CheckRunnerInterface (contratti DI)
 - Storage (Options API, sentinel pattern in `has()`, autoload=false)
-- CheckRunner (try/catch, type safety, RedactionInterface per redazione eccezioni)
+- CheckRunner (try/catch, type safety, RedactionInterface, clear_results)
 - DatabaseCheck ($wpdb injection, no info disclosure, i18n, RedactionInterface per $wpdb errors)
 - Redaction (11 pattern: credenziali DB, salts, API key, token, password, email, IP, path; IPv4 validazione ottetti)
 - ErrorLogCheck (tail log, aggregazione severità, campioni redatti, anti-symlink, flock LOCK_SH)
 - Scheduler (WP-Cron 15 min, prevenzione duplicati, self-healing admin-only, costanti HOOK_NAME/INTERVAL)
 - Container (DI con rilevazione dipendenze circolari)
-- Menu, HealthScreen (capability check, validazione difensiva, CheckRunnerInterface)
+- Menu (capability check, `load-{$page_hook}` per process_actions PRG)
+- HealthScreen (capability check, bottoni Run Now/Clear Cache con nonce, validazione difensiva, CheckRunnerInterface)
 - Activator (usa costanti Scheduler::HOOK_NAME/INTERVAL)
 
 **Next: M3 - Check Redis**
