@@ -295,6 +295,21 @@ class CheckRunnerTest extends TestCase {
 	}
 
 	/**
+	 * Testa che clear_results() cancella i risultati dallo storage
+	 */
+	public function test_clear_results_deletes_from_storage() {
+		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'delete' )
+			->once()
+			->with( 'latest_results' )
+			->andReturn( true );
+		$redaction = $this->create_redaction_mock();
+
+		$runner = new CheckRunner( $storage, $redaction );
+		$runner->clear_results();
+	}
+
+	/**
 	 * Testa che la classe NON è final
 	 */
 	public function test_class_is_not_final() {

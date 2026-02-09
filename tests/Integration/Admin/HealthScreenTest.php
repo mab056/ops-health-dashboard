@@ -89,6 +89,24 @@ class HealthScreenTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Testa che render() mostra i bottoni d'azione per admin
+	 */
+	public function test_render_shows_action_buttons_for_admin() {
+		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $user_id );
+
+		$health_screen = $this->create_health_screen();
+
+		ob_start();
+		$health_screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'run_now', $output );
+		$this->assertStringContainsString( 'clear_cache', $output );
+		$this->assertStringContainsString( '_ops_health_nonce', $output );
+	}
+
+	/**
 	 * Testa che la classe NON è final
 	 */
 	public function test_class_is_not_final() {

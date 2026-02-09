@@ -66,25 +66,7 @@ class HealthScreenTest extends TestCase {
 				],
 			] );
 
-		Functions\expect( 'current_user_can' )
-			->once()
-			->with( 'manage_options' )
-			->andReturn( true );
-
-		Functions\expect( 'esc_html__' )
-			->andReturnUsing( function ( $text ) {
-				return $text;
-			} );
-
-		Functions\expect( 'esc_html' )
-			->andReturnUsing( function ( $text ) {
-				return $text;
-			} );
-
-		Functions\expect( 'esc_attr' )
-			->andReturnUsing( function ( $text ) {
-				return $text;
-			} );
+		$this->mock_render_functions();
 
 		$screen = new HealthScreen( $runner );
 
@@ -106,15 +88,7 @@ class HealthScreenTest extends TestCase {
 			->once()
 			->andReturn( [] );
 
-		Functions\expect( 'current_user_can' )
-			->once()
-			->with( 'manage_options' )
-			->andReturn( true );
-
-		Functions\expect( 'esc_html__' )
-			->andReturnUsing( function ( $text ) {
-				return $text;
-			} );
+		$this->mock_render_functions();
 
 		$screen = new HealthScreen( $runner );
 
@@ -170,8 +144,25 @@ class HealthScreenTest extends TestCase {
 				],
 			] );
 
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'ops-health-check-unknown', $output );
+		$this->assertStringContainsString( 'Test_check', $output );
+	}
+
+	/**
+	 * Helper: mock comuni per render con bottoni
+	 *
+	 * @return void
+	 */
+	private function mock_render_functions() {
 		Functions\expect( 'current_user_can' )
-			->once()
 			->with( 'manage_options' )
 			->andReturn( true );
 
@@ -190,14 +181,73 @@ class HealthScreenTest extends TestCase {
 				return $text;
 			} );
 
+		Functions\expect( 'wp_nonce_field' )
+			->andReturnUsing( function ( $action, $name ) {
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo '<input type="hidden" name="' . $name . '" value="nonce_token" />';
+			} );
+
+		Functions\expect( 'submit_button' )
+			->andReturnUsing( function ( $text, $type, $name ) {
+				echo '<input type="submit" name="' . $name . '" value="' . $text . '" class="button ' . $type . '" />';
+			} );
+
+		Functions\expect( 'get_transient' )
+			->andReturn( false );
+	}
+
+	/**
+	 * Testa che render() contiene il bottone Run Now
+	 */
+	public function test_render_contains_run_now_button() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [] );
+
+		$this->mock_render_functions();
+
 		$screen = new HealthScreen( $runner );
 
 		ob_start();
 		$screen->render();
 		$output = ob_get_clean();
 
-		$this->assertStringContainsString( 'ops-health-check-unknown', $output );
-		$this->assertStringContainsString( 'Test_check', $output );
+		$this->assertStringContainsString( 'run_now', $output );
+	}
+
+	/**
+	 * Testa che render() contiene il bottone Clear Cache
+	 */
+	public function test_render_contains_clear_cache_button() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [] );
+
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'clear_cache', $output );
+	}
+
+	/**
+	 * Testa che render() contiene i campi nonce per sicurezza
+	 */
+	public function test_render_contains_nonce_fields() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [] );
+
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '_ops_health_nonce', $output );
 	}
 
 	/**

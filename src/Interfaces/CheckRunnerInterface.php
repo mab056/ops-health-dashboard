@@ -38,4 +38,11 @@ interface CheckRunnerInterface {
 	 * @return array Ultimi risultati dei check.
 	 */
 	public function get_latest_results(): array;
+
+	/**
+	 * Cancella i risultati dallo storage
+	 *
+	 * @return void
+	 */
+	public function clear_results(): void;
 }

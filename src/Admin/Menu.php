@@ -47,7 +47,7 @@ class Menu {
 	 * @return void
 	 */
 	public function add_menu(): void {
-		add_menu_page(
+		$hook = add_menu_page(
 			__( 'Ops Health Dashboard', 'ops-health-dashboard' ),
 			__( 'Ops Health', 'ops-health-dashboard' ),
 			'manage_options',
@@ -56,6 +56,10 @@ class Menu {
 			'dashicons-heart',
 			80
 		);
+
+		if ( false !== $hook ) {
+			add_action( 'load-' . $hook, [ $this->health_screen, 'process_actions' ] );
+		}
 	}
 
 	/**

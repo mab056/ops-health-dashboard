@@ -102,6 +102,15 @@ class CheckRunner implements CheckRunnerInterface {
 	}
 
 	/**
+	 * Cancella i risultati dallo storage
+	 *
+	 * @return void
+	 */
+	public function clear_results(): void {
+		$this->storage->delete( 'latest_results' );
+	}
+
+	/**
 	 * Ottiene gli ultimi risultati dallo storage
 	 *
 	 * @return array Ultimi risultati dei check.

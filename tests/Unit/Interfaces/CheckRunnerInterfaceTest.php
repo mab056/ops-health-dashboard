@@ -49,4 +49,12 @@ class CheckRunnerInterfaceTest extends TestCase {
 		$reflection = new \ReflectionClass( CheckRunnerInterface::class );
 		$this->assertTrue( $reflection->hasMethod( 'get_latest_results' ) );
 	}
+
+	/**
+	 * Testa che l'interfaccia ha il metodo clear_results
+	 */
+	public function test_interface_has_clear_results_method() {
+		$reflection = new \ReflectionClass( CheckRunnerInterface::class );
+		$this->assertTrue( $reflection->hasMethod( 'clear_results' ) );
+	}
 }
