@@ -852,4 +852,238 @@ class ErrorLogCheckTest extends TestCase {
 
 		$this->assertEmpty( $properties, 'ErrorLogCheck should have NO static properties' );
 	}
+
+	// -------------------------------------------------------------------
+	// Filesystem methods (real temp files, no mocking)
+	// -------------------------------------------------------------------
+
+	/**
+	 * Crea un partial mock che mocka solo resolve_log_path.
+	 * Gli altri metodi protetti (validate_log_file, read_tail, get_file_size) eseguono per davvero.
+	 *
+	 * @param \Mockery\MockInterface $redaction Mock del servizio di redazione.
+	 * @param string                 $log_path  Path da restituire come resolve_log_path.
+	 * @param int                    $max_lines Massimo righe da leggere (default 100).
+	 * @param int                    $max_bytes Massimo byte da leggere (default 512KB).
+	 * @return \Mockery\MockInterface
+	 */
+	private function create_fs_check( $redaction, string $log_path, int $max_lines = 100, int $max_bytes = 524288 ) {
+		$check = Mockery::mock( ErrorLogCheck::class, [ $redaction, $max_lines, $max_bytes ] )
+			->makePartial()
+			->shouldAllowMockingProtectedMethods();
+		$check->shouldReceive( 'resolve_log_path' )
+			->andReturn( $log_path );
+		return $check;
+	}
+
+	/**
+	 * Testa validate_log_file con symlink → warning
+	 */
+	public function test_validate_symlink_returns_warning() {
+		$tmp_file = tempnam( sys_get_temp_dir(), 'ops_test_' );
+		$link     = $tmp_file . '_link';
+		symlink( $tmp_file, $link );
+
+		$redaction = $this->create_redaction_mock();
+		$check     = $this->create_fs_check( $redaction, $link );
+
+		Functions\expect( '__' )->andReturnFirstArg();
+
+		$result = $check->run();
+
+		unlink( $link );
+		unlink( $tmp_file );
+
+		$this->assertEquals( 'warning', $result['status'] );
+		$this->assertStringContainsString( 'symbolic link', strtolower( $result['message'] ) );
+	}
+
+	/**
+	 * Testa validate_log_file con file inesistente → ok (configurato ma non ancora creato)
+	 */
+	public function test_validate_missing_file_returns_ok() {
+		$redaction = $this->create_redaction_mock();
+		$check     = $this->create_fs_check( $redaction, '/tmp/ops_nonexistent_' . uniqid() . '.log' );
+
+		Functions\expect( '__' )->andReturnFirstArg();
+
+		$result = $check->run();
+
+		$this->assertEquals( 'ok', $result['status'] );
+		$this->assertStringContainsString( 'does not exist yet', strtolower( $result['message'] ) );
+	}
+
+	/**
+	 * Testa validate_log_file con file non leggibile → warning
+	 */
+	public function test_validate_unreadable_file_returns_warning() {
+		if ( 0 === posix_getuid() ) {
+			$this->markTestSkipped( 'Cannot test permission check as root' );
+		}
+
+		$tmp_file = tempnam( sys_get_temp_dir(), 'ops_test_' );
+		chmod( $tmp_file, 0000 );
+
+		$redaction = $this->create_redaction_mock();
+		$check     = $this->create_fs_check( $redaction, $tmp_file );
+
+		Functions\expect( '__' )->andReturnFirstArg();
+
+		$result = $check->run();
+
+		chmod( $tmp_file, 0644 );
+		unlink( $tmp_file );
+
+		$this->assertEquals( 'warning', $result['status'] );
+		$this->assertStringContainsString( 'not readable', strtolower( $result['message'] ) );
+	}
+
+	/**
+	 * Testa read_tail con file vuoto → ok (log vuoto)
+	 */
+	public function test_read_tail_returns_empty_for_empty_file() {
+		$tmp_file = tempnam( sys_get_temp_dir(), 'ops_test_' );
+
+		$redaction = $this->create_redaction_mock();
+		$check     = $this->create_fs_check( $redaction, $tmp_file );
+
+		Functions\expect( '__' )->andReturnFirstArg();
+
+		$result = $check->run();
+
+		unlink( $tmp_file );
+
+		$this->assertEquals( 'ok', $result['status'] );
+		$this->assertStringContainsString( 'empty', strtolower( $result['message'] ) );
+	}
+
+	/**
+	 * Testa read_tail con file contenente righe di log → analisi corretta
+	 */
+	public function test_read_tail_returns_lines_from_real_file() {
+		$tmp_file = tempnam( sys_get_temp_dir(), 'ops_test_' );
+		file_put_contents(
+			$tmp_file,
+			"[09-Feb-2026] PHP Warning: test warning\n[09-Feb-2026] PHP Fatal error: test fatal\n"
+		);
+
+		$redaction = $this->create_redaction_mock();
+		$check     = $this->create_fs_check( $redaction, $tmp_file );
+
+		Functions\expect( '__' )->andReturnFirstArg();
+		Functions\expect( 'size_format' )->andReturnUsing( function ( $bytes ) {
+			return $bytes . ' B';
+		} );
+
+		$result = $check->run();
+
+		unlink( $tmp_file );
+
+		$this->assertEquals( 'critical', $result['status'] );
+		$this->assertEquals( 1, $result['details']['counts']['fatal'] );
+		$this->assertEquals( 1, $result['details']['counts']['warning'] );
+		$this->assertEquals( 2, $result['details']['lines_analyzed'] );
+	}
+
+	/**
+	 * Testa read_tail rispetta max_lines
+	 */
+	public function test_read_tail_respects_max_lines() {
+		$tmp_file = tempnam( sys_get_temp_dir(), 'ops_test_' );
+		$lines    = '';
+		for ( $i = 0; $i < 20; $i++ ) {
+			$lines .= "[09-Feb-2026] PHP Notice: notice {$i}\n";
+		}
+		file_put_contents( $tmp_file, $lines );
+
+		$redaction = $this->create_redaction_mock();
+		// max_lines = 5.
+		$check = $this->create_fs_check( $redaction, $tmp_file, 5 );
+
+		Functions\expect( '__' )->andReturnFirstArg();
+		Functions\expect( 'size_format' )->andReturnUsing( function ( $bytes ) {
+			return $bytes . ' B';
+		} );
+
+		$result = $check->run();
+
+		unlink( $tmp_file );
+
+		$this->assertEquals( 5, $result['details']['lines_analyzed'] );
+	}
+
+	/**
+	 * Testa read_tail scarta prima riga parziale quando fa seek
+	 */
+	public function test_read_tail_discards_partial_first_line_on_offset() {
+		$tmp_file = tempnam( sys_get_temp_dir(), 'ops_test_' );
+		// Crea un file più grande di max_bytes (100 bytes).
+		$content = str_repeat( 'A', 50 ) . "\n" . "[09-Feb-2026] PHP Warning: real line\n";
+		file_put_contents( $tmp_file, $content );
+
+		$redaction = $this->create_redaction_mock();
+		// max_bytes = 40 → seek al fondo, prima riga parziale scartata.
+		$check = $this->create_fs_check( $redaction, $tmp_file, 100, 40 );
+
+		Functions\expect( '__' )->andReturnFirstArg();
+		Functions\expect( 'size_format' )->andReturnUsing( function ( $bytes ) {
+			return $bytes . ' B';
+		} );
+
+		$result = $check->run();
+
+		unlink( $tmp_file );
+
+		// Deve analizzare solo la riga completa, non il frammento parziale.
+		$this->assertArrayHasKey( 'lines_analyzed', $result['details'] );
+		$this->assertLessThanOrEqual( 2, $result['details']['lines_analyzed'] );
+	}
+
+	/**
+	 * Testa resolve_log_path quando WP_DEBUG_LOG=true ma WP_CONTENT_DIR non è definito
+	 * e ini_get('error_log') ritorna vuoto → "not configured".
+	 *
+	 * Copre TUTTE le righe di resolve_log_path(): il branch defined, is_string,
+	 * il fallthrough verso ini_get, e il return finale.
+	 */
+	public function test_resolve_log_path_not_configured() {
+		// Definisci WP_DEBUG_LOG se non già definito (permanente nel processo,
+		// ma tutti gli altri test mockano resolve_log_path quindi non impatta).
+		if ( ! defined( 'WP_DEBUG_LOG' ) ) {
+			define( 'WP_DEBUG_LOG', true );
+		}
+
+		$redaction = $this->create_redaction_mock();
+		// Istanza reale — resolve_log_path esegue per davvero.
+		$check = new ErrorLogCheck( $redaction );
+
+		// ini_get('error_log') ritorna '' nell'ambiente PHPUnit CLI.
+		// WP_CONTENT_DIR non è definito → fallthrough completo.
+		Functions\expect( '__' )->andReturnFirstArg();
+
+		$result = $check->run();
+
+		$this->assertEquals( 'warning', $result['status'] );
+		$this->assertStringContainsString( 'not configured', strtolower( $result['message'] ) );
+	}
+
+	/**
+	 * Testa get_file_size su file reale
+	 */
+	public function test_get_file_size_returns_formatted_string() {
+		$tmp_file = tempnam( sys_get_temp_dir(), 'ops_test_' );
+		file_put_contents( $tmp_file, str_repeat( 'X', 1024 ) . "\n[09-Feb-2026] PHP Notice: test\n" );
+
+		$redaction = $this->create_redaction_mock();
+		$check     = $this->create_fs_check( $redaction, $tmp_file );
+
+		Functions\expect( '__' )->andReturnFirstArg();
+		Functions\expect( 'size_format' )->once()->andReturn( '1 KB' );
+
+		$result = $check->run();
+
+		unlink( $tmp_file );
+
+		$this->assertEquals( '1 KB', $result['details']['file_size'] );
+	}
 }

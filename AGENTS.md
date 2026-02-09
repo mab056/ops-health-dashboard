@@ -61,7 +61,7 @@ Plugin WordPress production-grade per monitoraggio operativo con health checks, 
 
 ## Stato Progetto (Riferimento)
 
-Milestone M1 + M2 + M3 completate (Core Checks + Storage + Cron + Error Log Summary Safe + Redis Check). Milestone corrente: M4 (Alerting System, pianificata). Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
+Milestone M1 + M2 + M3 completate (Core Checks + Storage + Cron + Error Log Summary Safe + Redis Check). 350 test (227 unit + 123 integration), 810 assertions. Coverage: unit 99.50%, integration 100%. Milestone corrente: M4 (Alerting System, pianificata). Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
 
 ## Baseline Corrente (v0.3.1)
 

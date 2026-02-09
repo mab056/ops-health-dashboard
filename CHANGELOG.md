@@ -31,7 +31,9 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 
 ### Development Notes
 - Code review post-M3: 4 fix sorgente, 4 test migliorati, 1 file nuovo, 2 CI/script fix
-- 314 test totali (215 unit + 99 integration), 744 assertions
+- Coverage push: +36 test (+12 unit, +24 integration), 2 nuovi file test integration (ContainerTest, PluginTest)
+- 350 test totali (227 unit + 123 integration), 810 assertions
+- Coverage: unit 99.50% lines, integration 100% lines (12/12 classi, 73/73 metodi, 603/603 linee)
 - PHPCS 100% clean, PHPStan level 6: 0 errori
 
 ## 0.3.0 - 2026-02-09

@@ -800,6 +800,124 @@ class RedisCheckTest extends TestCase {
 		$this->assertContains( $result['status'], [ 'ok', 'warning' ] );
 	}
 
+	// -------------------------------------------------------------------
+	// Exception handling in private cleanup methods
+	// -------------------------------------------------------------------
+
+	/**
+	 * Testa che close_connection() gestisce eccezione senza propagarla
+	 *
+	 * Quando auth fallisce, close_connection viene chiamato.
+	 * Se anche close() lancia, deve essere inghiottita.
+	 */
+	public function test_close_connection_swallows_exception() {
+		$redaction = $this->create_redaction_mock();
+		$check     = $this->create_check_mock( $redaction );
+		$redis     = Mockery::mock( 'Redis' );
+
+		$check->shouldReceive( 'is_extension_loaded' )->andReturn( true );
+		$check->shouldReceive( 'get_redis_config' )
+			->andReturn(
+				[
+					'host'     => '127.0.0.1',
+					'port'     => 6379,
+					'password' => 'secret',
+					'database' => 0,
+				]
+			);
+		$check->shouldReceive( 'create_redis_instance' )->andReturn( $redis );
+
+		$redis->shouldReceive( 'connect' )->andReturn( true );
+		$redis->shouldReceive( 'auth' )
+			->andThrow( new \Exception( 'AUTH failed' ) );
+		// close() lancia eccezione — deve essere inghiottita.
+		$redis->shouldReceive( 'close' )
+			->andThrow( new \Exception( 'Connection already closed' ) );
+
+		$this->mock_i18n();
+
+		$result = $check->run();
+
+		$this->assertEquals( 'warning', $result['status'] );
+		$this->assertStringContainsString( 'auth', strtolower( $result['message'] ) );
+	}
+
+	/**
+	 * Testa che cleanup_and_close() gestisce eccezione su del() senza propagarla
+	 *
+	 * Quando SET ritorna false, cleanup_and_close tenta del() + close().
+	 * Se del() lancia, deve essere inghiottita.
+	 */
+	public function test_cleanup_and_close_swallows_del_exception() {
+		$redaction = $this->create_redaction_mock();
+		$check     = $this->create_check_mock( $redaction );
+		$redis     = Mockery::mock( 'Redis' );
+
+		$check->shouldReceive( 'is_extension_loaded' )->andReturn( true );
+		$check->shouldReceive( 'get_redis_config' )
+			->andReturn(
+				[
+					'host'     => '127.0.0.1',
+					'port'     => 6379,
+					'password' => '',
+					'database' => 0,
+				]
+			);
+		$check->shouldReceive( 'create_redis_instance' )->andReturn( $redis );
+
+		$redis->shouldReceive( 'connect' )->andReturn( true );
+		$redis->shouldReceive( 'set' )->andReturn( false );
+		// del() durante cleanup lancia eccezione — deve essere inghiottita.
+		$redis->shouldReceive( 'del' )
+			->andThrow( new \Exception( 'READONLY cannot del' ) );
+		$redis->shouldReceive( 'close' )->byDefault();
+
+		$this->mock_i18n();
+
+		$result = $check->run();
+
+		$this->assertEquals( 'warning', $result['status'] );
+		$this->assertStringContainsString( 'smoke test', strtolower( $result['message'] ) );
+	}
+
+	/**
+	 * Testa che run() ritorna warning quando lo smoke test lancia eccezione
+	 */
+	public function test_returns_warning_when_smoke_test_throws_exception() {
+		$redaction = $this->create_redaction_mock();
+		$check     = $this->create_check_mock( $redaction );
+		$redis     = $this->create_redis_mock();
+
+		$check->shouldReceive( 'is_extension_loaded' )->andReturn( true );
+		$check->shouldReceive( 'get_redis_config' )
+			->andReturn(
+				[
+					'host'     => '127.0.0.1',
+					'port'     => 6379,
+					'password' => '',
+					'database' => 0,
+				]
+			);
+		$check->shouldReceive( 'create_redis_instance' )->andReturn( $redis );
+
+		$redis->shouldReceive( 'connect' )->andReturn( true );
+		$redis->shouldReceive( 'set' )
+			->andThrow( new \Exception( 'OOM command not allowed' ) );
+		$redis->shouldReceive( 'del' )->byDefault();
+
+		$this->mock_i18n();
+
+		$result = $check->run();
+
+		$this->assertEquals( 'warning', $result['status'] );
+		$this->assertStringContainsString( 'smoke test failed', strtolower( $result['message'] ) );
+		$this->assertArrayHasKey( 'error', $result['details'] );
+	}
+
+	// -------------------------------------------------------------------
+	// Database selection
+	// -------------------------------------------------------------------
+
 	/**
 	 * Testa che restituisce warning quando database selection fallisce
 	 */
