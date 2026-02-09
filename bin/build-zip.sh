@@ -67,8 +67,8 @@ cp "$PLUGIN_DIR/CHANGELOG.md" "$DEST/"
 
 cp -r "$PLUGIN_DIR/src" "$DEST/"
 cp -r "$PLUGIN_DIR/config" "$DEST/"
-cp -r "$PLUGIN_DIR/languages" "$DEST/"
-cp -r "$PLUGIN_DIR/assets" "$DEST/"
+[ -d "$PLUGIN_DIR/languages" ] && cp -r "$PLUGIN_DIR/languages" "$DEST/"
+[ -d "$PLUGIN_DIR/assets" ] && cp -r "$PLUGIN_DIR/assets" "$DEST/"
 
 # Installa dipendenze production-only.
 cp "$PLUGIN_DIR/composer.json" "$DEST/"
