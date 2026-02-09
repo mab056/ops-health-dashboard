@@ -21,6 +21,13 @@ use OpsHealthDashboard\Interfaces\RedactionInterface;
 class DatabaseCheck implements CheckInterface {
 
 	/**
+	 * Soglia per query lenta in secondi
+	 *
+	 * @var float
+	 */
+	const SLOW_QUERY_THRESHOLD = 0.5;
+
+	/**
 	 * Istanza wpdb iniettata
 	 *
 	 * @var \wpdb
@@ -74,9 +81,9 @@ class DatabaseCheck implements CheckInterface {
 			];
 		}
 
-		// Query performance check (warning se > 0.5s).
+		// Query performance check.
 		$status = 'ok';
-		if ( $duration > 0.5 ) {
+		if ( $duration > self::SLOW_QUERY_THRESHOLD ) {
 			$status = 'warning';
 		}
 

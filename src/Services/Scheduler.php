@@ -52,13 +52,14 @@ class Scheduler {
 	/**
 	 * Registra gli hook WordPress
 	 *
+	 * Self-healing: ri-schedula se l'evento cron è assente.
+	 *
 	 * @return void
 	 */
 	public function register_hooks(): void {
 		add_action( self::HOOK_NAME, [ $this, 'run_checks' ], 10 );
 		add_filter( 'cron_schedules', [ $this, 'add_custom_cron_interval' ] );
 
-		// Self-healing: ri-schedula se l'evento cron e' assente (throttled, ogni ora).
 		if ( false === get_transient( 'ops_health_cron_check' ) ) {
 			$this->schedule();
 			set_transient( 'ops_health_cron_check', 1, HOUR_IN_SECONDS );
@@ -88,12 +89,10 @@ class Scheduler {
 	 * @return void
 	 */
 	public function schedule(): void {
-		// Verifica se è già schedulato.
 		if ( $this->is_scheduled() ) {
 			return;
 		}
 
-		// Schedula l'evento ricorrente.
 		wp_schedule_event( time(), self::INTERVAL, self::HOOK_NAME );
 	}
 

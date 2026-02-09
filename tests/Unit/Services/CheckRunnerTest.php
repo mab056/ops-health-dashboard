@@ -259,6 +259,11 @@ class CheckRunnerTest extends TestCase {
 			->with( 'Test exception' )
 			->andReturn( '[REDACTED]' );
 
+		Monkey\Functions\expect( '__' )
+			->once()
+			->with( 'Check exception: %s', 'ops-health-dashboard' )
+			->andReturnFirstArg();
+
 		$check = Mockery::mock( CheckInterface::class );
 		$check->shouldReceive( 'is_enabled' )->andReturn( true );
 		$check->shouldReceive( 'get_id' )->andReturn( 'failing_check' );

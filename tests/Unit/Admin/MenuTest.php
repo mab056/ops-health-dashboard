@@ -119,7 +119,8 @@ class MenuTest extends TestCase {
 		$menu          = new Menu( $health_screen );
 		$menu->add_menu();
 
-		$this->assertTrue( true );
+		// Brain\Monkey verifica expect('add_action')->never() via MockeryPHPUnitIntegration.
+		$this->assertInstanceOf( Menu::class, $menu );
 	}
 
 	/**
@@ -168,7 +169,7 @@ class MenuTest extends TestCase {
 		$menu = new Menu( $health_screen );
 		$menu->render_page();
 
-		// Mockery verifica che render() sia stato chiamato.
-		$this->assertTrue( true );
+		// Mockery verifica shouldReceive('render')->once() via MockeryPHPUnitIntegration.
+		$this->assertInstanceOf( Menu::class, $menu );
 	}
 }

@@ -14,7 +14,6 @@ namespace OpsHealthDashboard\Core;
  * Class Container
  *
  * Container per dependency injection semplice.
- * NO singleton pattern, NO metodi static, NO modificatore final.
  */
 class Container {
 
@@ -26,7 +25,7 @@ class Container {
 	private $bindings = [];
 
 	/**
-	 * Istanze condivise (non singleton - gestite dal container)
+	 * Istanze condivise
 	 *
 	 * @var array
 	 */

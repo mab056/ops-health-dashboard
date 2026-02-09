@@ -9,15 +9,30 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 
 ### Added
 - **SECURITY.md**
+- **.gitattributes** - `export-ignore` per escludere file di sviluppo da `git archive` e GitHub Download ZIP
 
 ### Changed
 - **DatabaseCheckTest** - Timing test usa busy-wait loop (resiste a EINTR da SIGALRM) invece di `usleep()` singolo
 - **test-matrix.sh** - Grep fallback per output PHPUnit con test skipped (`Tests: N, ...` oltre a `OK (N tests, ...)`)
+- **CheckRunner** - Messaggio eccezione wrappato con `__()` per i18n (`sprintf(__('Check exception: %s'), ...)`)
+- **DatabaseCheck** - Soglia slow query estratta in costante `SLOW_QUERY_THRESHOLD = 0.5`
+- **ErrorLogCheck** - Aggiunto null coalesce difensivo `?? 'other'` in `classify_line()`
+- **Activator** - Commento esplicativo sul filtro `cron_schedules` duplicato (necessario durante attivazione)
+- **CI workflow** - Rimosso flag deprecato `--no-suggest` da Composer; aggiunto `permissions: contents: read`
+- **HealthScreenTest** - `$_POST` cleanup centralizzato in `tearDown()` per isolamento test robusto
+- **HealthScreenTest/MenuTest/ActivatorTest** - 7× `assertTrue(true)` sostituiti con `assertInstanceOf()` (asserzioni reali)
+- **CheckRunnerTest** - Verifica `__()` chiamata in test eccezione per i18n
+- **build-zip.sh** - `mkdir -p` per directory output custom
+- **install-wp-tests.sh** - Variabili quotate nelle righe più critiche (path con spazi)
 
 ### Fixed
 - **test-matrix.sh** - Integration test count mostrava "?" quando PHPUnit aveva test skipped (formato output diverso da `OK (N tests, ...)`)
 - **DatabaseCheckTest flaky** - `usleep()` interrotto da SIGALRM (PHPUnit php-invoker) causava test timing intermittentemente fallimentari; sostituito con busy-wait loop resistente a EINTR
 
+### Development Notes
+- Code review post-M3: 4 fix sorgente, 4 test migliorati, 1 file nuovo, 2 CI/script fix
+- 314 test totali (215 unit + 99 integration), 744 assertions
+- PHPCS 100% clean, PHPStan level 6: 0 errori
 
 ## 0.3.0 - 2026-02-09
 

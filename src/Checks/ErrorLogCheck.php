@@ -17,7 +17,6 @@ use OpsHealthDashboard\Interfaces\RedactionInterface;
  * Class ErrorLogCheck
  *
  * Check per il riepilogo sicuro del log degli errori.
- * NO singleton, NO static methods, NO final.
  */
 class ErrorLogCheck implements CheckInterface {
 
@@ -387,7 +386,7 @@ class ErrorLogCheck implements CheckInterface {
 			'strict standards' => 'strict',
 		];
 
-		return $map[ strtolower( $matches[1] ) ];
+		return $map[ strtolower( $matches[1] ) ] ?? 'other';
 	}
 
 	/**

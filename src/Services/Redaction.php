@@ -16,7 +16,6 @@ use OpsHealthDashboard\Interfaces\RedactionInterface;
  * Class Redaction
  *
  * Servizio di redazione dati sensibili.
- * NO singleton, NO static methods, NO final.
  */
 class Redaction implements RedactionInterface {
 

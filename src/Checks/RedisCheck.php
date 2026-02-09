@@ -18,7 +18,6 @@ use OpsHealthDashboard\Interfaces\RedactionInterface;
  *
  * Check per la salute di Redis con rilevamento estensione,
  * test di connessione e smoke test SET/GET/DEL.
- * NO singleton, NO static methods, NO final.
  */
 class RedisCheck implements CheckInterface {
 

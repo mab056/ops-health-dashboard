@@ -50,6 +50,9 @@ case "$OUTPUT" in
 	*) OUTPUT="$(pwd)/$OUTPUT" ;;
 esac
 
+# Crea la directory di output se necessario.
+mkdir -p "$(dirname "$OUTPUT")"
+
 # Directory temporanea per il build.
 BUILD_DIR=$(mktemp -d)
 trap 'rm -rf "$BUILD_DIR"' EXIT

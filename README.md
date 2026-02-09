@@ -296,8 +296,8 @@ Milestone corrente: **M4 - Alerting System** 🚧
 ### Statistiche
 
 - **16 file sorgente** in `src/`
-- **29 file di test** (16 unit + 12 integration)
-- **314 test totali** (215 unit + 99 integration), 743 assertions
+- **26 file di test** (16 unit + 10 integration)
+- **314 test totali** (215 unit + 99 integration), 744 assertions
 - **PHPCS**: 100% compliance (0 errori, 0 warning)
 - **PHPStan**: level 6, 0 errori
 

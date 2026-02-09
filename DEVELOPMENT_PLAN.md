@@ -305,8 +305,8 @@
 
 **Statistiche Finali**:
 - 16 file sorgente in `src/`
-- 29 file di test (16 unit + 12 integration)
-- 314 test totali (215 unit + 99 integration), 743 assertions
+- 26 file di test (16 unit + 10 integration)
+- 314 test totali (215 unit + 99 integration), 744 assertions
 - PHPCS 100% clean (0 errori, 0 warning)
 - PHPStan level 6: 0 errori
 
@@ -315,6 +315,23 @@
 ---
 
 ## Progress Log
+
+### 2026-02-09 (Code Review 3)
+
+**Code Review 3** - 4 fix sorgente + 4 test migliorati + CI/config:
+- CheckRunner: exception message wrappato con `__()` per i18n
+- DatabaseCheck: soglia 0.5s estratta in costante `SLOW_QUERY_THRESHOLD`
+- ErrorLogCheck: null coalesce difensivo `?? 'other'` in `classify_line()`
+- Activator: commento esplicativo sul filtro `cron_schedules` duplicato
+- HealthScreenTest: `$_POST` cleanup in `tearDown()`, 4× `assertTrue(true)` → `assertInstanceOf()`
+- MenuTest: 2× `assertTrue(true)` → `assertInstanceOf()`
+- ActivatorTest: 1× `assertTrue(true)` → `assertInstanceOf()`
+- CheckRunnerTest: verifica `__()` nel test eccezione
+- CI: rimosso `--no-suggest` deprecato, aggiunto `permissions: contents: read`
+- Nuovo `.gitattributes` con `export-ignore` per file di sviluppo
+- build-zip.sh: `mkdir -p` per directory output custom
+- install-wp-tests.sh: variabili quotate nei path critici
+- Totale: 314 test (215 unit + 99 integration), 744 assertions, PHPCS + PHPStan clean
 
 ### 2026-02-09 (Test Matrix Stabilization)
 

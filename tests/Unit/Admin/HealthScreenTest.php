@@ -36,6 +36,7 @@ class HealthScreenTest extends TestCase {
 	 * Teardown dopo ogni test
 	 */
 	protected function tearDown(): void {
+		unset( $_POST['ops_health_action'], $_POST['_ops_health_nonce'] );
 		\Brain\Monkey\tearDown();
 		parent::tearDown();
 	}
@@ -326,7 +327,8 @@ class HealthScreenTest extends TestCase {
 
 		unset( $_POST['ops_health_action'], $_POST['_ops_health_nonce'] );
 
-		$this->assertTrue( true );
+		// Mockery verifica shouldNotReceive automaticamente via MockeryPHPUnitIntegration.
+		$this->assertInstanceOf( HealthScreen::class, $screen );
 	}
 
 	/**
@@ -354,9 +356,8 @@ class HealthScreenTest extends TestCase {
 		$screen = new HealthScreen( $runner );
 		$screen->process_actions();
 
-		unset( $_POST['ops_health_action'], $_POST['_ops_health_nonce'] );
-
-		$this->assertTrue( true );
+		// Mockery verifica shouldNotReceive automaticamente via MockeryPHPUnitIntegration.
+		$this->assertInstanceOf( HealthScreen::class, $screen );
 	}
 
 	/**
@@ -397,9 +398,8 @@ class HealthScreenTest extends TestCase {
 		$screen = $this->create_testable_screen( $runner );
 		$screen->process_actions();
 
-		unset( $_POST['ops_health_action'], $_POST['_ops_health_nonce'] );
-
-		$this->assertTrue( true );
+		// Mockery/Brain\Monkey verificano expectations via MockeryPHPUnitIntegration.
+		$this->assertInstanceOf( HealthScreen::class, $screen );
 	}
 
 	/**
@@ -438,9 +438,8 @@ class HealthScreenTest extends TestCase {
 		$screen = $this->create_testable_screen( $runner );
 		$screen->process_actions();
 
-		unset( $_POST['ops_health_action'], $_POST['_ops_health_nonce'] );
-
-		$this->assertTrue( true );
+		// Mockery/Brain\Monkey verificano expectations via MockeryPHPUnitIntegration.
+		$this->assertInstanceOf( HealthScreen::class, $screen );
 	}
 
 	/**

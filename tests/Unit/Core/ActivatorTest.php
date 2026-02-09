@@ -298,7 +298,7 @@ class ActivatorTest extends TestCase {
 		$activator = new Activator();
 		$activator->deactivate();
 
-		// deactivate() completes successfully.
-		$this->assertTrue( true );
+		// Brain\Monkey verifica wp_clear_scheduled_hook->once() via MockeryPHPUnitIntegration.
+		$this->assertInstanceOf( Activator::class, $activator );
 	}
 }

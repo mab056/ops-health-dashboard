@@ -87,7 +87,11 @@ class CheckRunner implements CheckRunnerInterface {
 			} catch ( \Throwable $e ) {
 				$results[ $check_id ] = [
 					'status'   => 'critical',
-					'message'  => 'Check exception: ' . $this->redaction->redact( $e->getMessage() ),
+					'message'  => sprintf(
+						/* translators: %s: redacted exception message */
+						__( 'Check exception: %s', 'ops-health-dashboard' ),
+						$this->redaction->redact( $e->getMessage() )
+					),
 					'name'     => $check->get_name(),
 					'details'  => [],
 					'duration' => 0,

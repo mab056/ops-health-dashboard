@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main, dev ]
 
+permissions:
+  contents: read
+
 jobs:
   phpcs:
     name: PHPCS (WordPress Coding Standards)
@@ -34,7 +37,7 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
+        run: composer install --prefer-dist --no-progress
 
       - name: Run PHPCS
         run: composer run-script phpcs
@@ -66,7 +69,7 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
+        run: composer install --prefer-dist --no-progress
 
       - name: Run PHPStan
         run: composer run-script analyse
@@ -121,7 +124,7 @@ jobs:
           restore-keys: ${{ runner.os }}-php-${{ matrix.php }}-composer-
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
+        run: composer install --prefer-dist --no-progress
 
       - name: Install WordPress test suite
         run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 latest true

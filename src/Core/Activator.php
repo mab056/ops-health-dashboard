@@ -13,7 +13,6 @@ use OpsHealthDashboard\Services\Scheduler;
  * Class Activator
  *
  * Gestisce l'attivazione e la disattivazione del plugin.
- * NO singleton, NO metodi static, NO modificatore final.
  */
 class Activator {
 
@@ -34,6 +33,8 @@ class Activator {
 		}
 
 		// Registra l'intervallo custom e schedula il cron.
+		// Nota: filtro duplicato con Scheduler::register_hooks().
+		// Necessario qui perché Scheduler non è ancora bootstrappato durante attivazione.
 		add_filter(
 			'cron_schedules',
 			function ( $schedules ) {
