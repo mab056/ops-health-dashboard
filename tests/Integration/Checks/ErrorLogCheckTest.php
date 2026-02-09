@@ -130,8 +130,9 @@ class ErrorLogCheckTest extends WP_UnitTestCase {
 		$check  = $this->create_check_with_temp_log();
 		$result = $check->run();
 
-		// Non deve crashare, deve tornare warning.
-		$this->assertEquals( 'warning', $result['status'] );
+		// Non deve crashare, deve tornare ok (file configurato ma non ancora creato).
+		$this->assertEquals( 'ok', $result['status'] );
+		$this->assertStringContainsString( 'does not exist yet', strtolower( $result['message'] ) );
 	}
 
 	/**

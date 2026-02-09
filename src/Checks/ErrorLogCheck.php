@@ -83,7 +83,7 @@ class ErrorLogCheck implements CheckInterface {
 		if ( '' === $log_path ) {
 			return $this->build_result(
 				'warning',
-				__( 'Error log file not found or not configured', 'ops-health-dashboard' ),
+				__( 'Error log not configured (set WP_DEBUG_LOG or error_log in php.ini)', 'ops-health-dashboard' ),
 				[ 'log_path_exists' => false ],
 				microtime( true ) - $start
 			);
@@ -225,8 +225,11 @@ class ErrorLogCheck implements CheckInterface {
 		if ( ! is_file( $path ) ) {
 			return [
 				'valid'   => false,
-				'status'  => 'warning',
-				'message' => __( 'Error log file not found or not configured', 'ops-health-dashboard' ),
+				'status'  => 'ok',
+				'message' => __(
+					'Error log configured but file does not exist yet (no errors logged)',
+					'ops-health-dashboard'
+				),
 			];
 		}
 

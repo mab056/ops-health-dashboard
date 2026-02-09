@@ -128,9 +128,9 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna warning quando il log non è trovato
+	 * Testa che run() ritorna warning quando il log non è configurato
 	 */
-	public function test_run_returns_warning_when_log_not_found() {
+	public function test_run_returns_warning_when_log_not_configured() {
 		$redaction = $this->create_redaction_mock();
 		$check     = $this->create_check_mock( $redaction );
 
@@ -146,7 +146,37 @@ class ErrorLogCheckTest extends TestCase {
 		$result = $check->run();
 
 		$this->assertEquals( 'warning', $result['status'] );
-		$this->assertStringContainsString( 'not found', strtolower( $result['message'] ) );
+		$this->assertStringContainsString( 'not configured', strtolower( $result['message'] ) );
+	}
+
+	/**
+	 * Testa che run() ritorna ok quando il log è configurato ma il file non esiste ancora
+	 */
+	public function test_run_returns_ok_when_log_configured_but_file_not_exists() {
+		$redaction = $this->create_redaction_mock();
+		$check     = $this->create_check_mock( $redaction );
+
+		$check->shouldReceive( 'resolve_log_path' )
+			->once()
+			->andReturn( '/var/www/html/wp-content/debug.log' );
+
+		$check->shouldReceive( 'validate_log_file' )
+			->once()
+			->andReturn( [
+				'valid'   => false,
+				'status'  => 'ok',
+				'message' => 'Error log configured but file does not exist yet (no errors logged)',
+			] );
+
+		Functions\expect( '__' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
+
+		$result = $check->run();
+
+		$this->assertEquals( 'ok', $result['status'] );
+		$this->assertStringContainsString( 'does not exist yet', strtolower( $result['message'] ) );
 	}
 
 	/**
