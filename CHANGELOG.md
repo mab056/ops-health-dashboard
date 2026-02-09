@@ -5,22 +5,49 @@ Tutte le modifiche rilevanti a questo progetto saranno documentate in questo fil
 Il formato è basato su [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## 0.2.0 - 2026-02-09
 
 ### Added
-- **bin/build-zip.sh** - Script per generare uno ZIP del plugin pronto per l'upload su WordPress
-  - Usa comando `zip` nativo se disponibile, fallback su PHP `ZipArchive`
-  - Output in `dist/` di default, sovrascrivibile con `--output`
-  - Esclude file di sviluppo (test, CI, IDE, docs dev)
-  - Installa dipendenze production-only con `--no-dev`
-
-### Fixed
-- **Autoloader guard** - Il plugin ora mostra un avviso admin se `vendor/autoload.php` manca, invece di terminare con un fatal PHP
-- **PHPCS doc comments** - Rimossi blank line extra nei doc comment di 4 classi (Storage, Scheduler, DatabaseCheck, Menu)
+- **RedactionInterface** - Contratto per il servizio di redazione dati sensibili
+  - `redact( string $text ): string` - Redige un singolo testo
+  - `redact_lines( array $lines ): array` - Redige un array di righe
+- **Redaction** - Servizio di sanitizzazione dati sensibili con 11 pattern
+  - Credenziali DB (DB_PASSWORD, DB_USER, DB_NAME, DB_HOST) -> `[REDACTED]`
+  - WordPress salts (AUTH_KEY, SECURE_AUTH_KEY, ecc.) -> `[REDACTED]`
+  - API key, secret, token, bearer -> `[REDACTED]`
+  - Password in URL e campi generici -> `[REDACTED]`
+  - Indirizzi email -> `[EMAIL_REDACTED]`
+  - Indirizzi IPv4 e IPv6 -> `[IP_REDACTED]`
+  - Path ABSPATH e WP_CONTENT_DIR -> placeholder
+  - Directory home utenti -> `/home/[USER_REDACTED]`
+  - Constructor injection di path (ABSPATH, WP_CONTENT_DIR) per testabilita'
+  - Ordine chain: WP_CONTENT_DIR prima di ABSPATH (piu' specifico)
+- **ErrorLogCheck** - Check riepilogo sicuro del log errori PHP
+  - Risoluzione path log: WP_DEBUG_LOG (stringa) -> ini_get('error_log')
+  - Validazione file: esistenza, leggibilita', anti-symlink
+  - Lettura tail efficiente: max 512KB, max 100 righe
+  - Aggregazione per severita': fatal, parse, warning, notice, deprecated, strict, other
+  - Campioni redatti: max 5 righe critiche/warning, sanitizzate via Redaction
+  - Status: critical (fatal/parse), warning (warning/deprecated/strict), ok (solo notice/other)
+  - Nessuna esposizione del path raw del file di log
+  - Messaggi internazionalizzati con `__()`
+- **59 nuovi test** (56 unit + 3 integration) per le nuove classi
+- Pattern enforcement tests su RedactionInterface, Redaction, ErrorLogCheck
 
 ### Changed
-- **README badges** - Licenza aggiornata a GPL v3; aggiunti badge Version e PHPCS
-- **dist/ in .gitignore** - Cartella build esclusa dal repository
+- **bootstrap.php** - Aggiunto binding per RedactionInterface e ErrorLogCheck nel container DI
+
+### Security
+- Servizio Redaction impedisce esposizione di credenziali, token, PII nei log
+- ErrorLogCheck non espone path raw del filesystem nei risultati
+- Protezione anti-symlink: file di log symlink vengono rifiutati
+- Limite di lettura a 512KB per prevenire consumo eccessivo di memoria
+
+### Development Notes
+- **M2 Completed**: Riepilogo Error Log Sicuro
+- 204 test totali (163 unit + 41 integration), 455 assertions
+- PHPCS 100% clean (0 errori, 0 warning)
+- TDD rigoroso: RED -> GREEN -> REFACTOR per ogni componente
 
 ## 0.1.0 - 2026-02-08
 

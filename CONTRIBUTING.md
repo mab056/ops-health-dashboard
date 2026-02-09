@@ -50,9 +50,9 @@ composer install-wp-tests
 ### 3. Crea il feature branch
 
 ```bash
-# Aggiorna i branch principali
-git checkout dev
-git pull upstream dev
+# Aggiorna il branch principale
+git checkout main
+git pull upstream main
 
 # Crea il feature branch
 git checkout -b feature/your-feature-name
@@ -342,6 +342,28 @@ if (!wp_verify_nonce($_POST['ops_health_nonce'], 'ops_health_action')) {
 }
 ```
 
+### Redazione Dati Sensibili
+
+Usa il servizio `Redaction` per sanitizzare qualsiasi output che potrebbe contenere dati sensibili (log, messaggi di errore, dettagli diagnostici):
+
+```php
+// Inietta RedactionInterface (NON istanziare direttamente)
+class MyCheck implements CheckInterface {
+	private $redaction;
+
+	public function __construct(RedactionInterface $redaction) {
+		$this->redaction = $redaction;
+	}
+
+	public function run(): array {
+		$samples = $this->redaction->redact_lines($raw_lines);
+		// $samples ora ha path, credenziali, email, IP redatti
+	}
+}
+```
+
+Vedi `src/Services/Redaction.php` e `src/Checks/ErrorLogCheck.php` come implementazioni di riferimento.
+
 ### Anti-SSRF per Webhooks
 
 ```php
@@ -479,7 +501,7 @@ Tests: 3 new tests
   - Perché (link all'issue se applicabile)
   - Come testare
   - Screenshot (se ci sono modifiche UI)
-- **Branch di base**: `dev` (non `main`)
+- **Branch di base**: `main`
 
 ### 4. Checklist della PR
 
@@ -498,7 +520,7 @@ Tests: 3 new tests
 
 - I maintainer effettueranno la review entro 3-5 giorni lavorativi
 - Rispondi al feedback con nuovi commit
-- Una volta approvato, squash e merge su `dev`
+- Una volta approvato, squash e merge su `main`
 
 ## 🐛 Segnalazione Bug
 

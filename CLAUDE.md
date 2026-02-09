@@ -603,27 +603,28 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 
 ## 🎯 Current Status
 
-**Milestone M1 - Core Checks + Storage + Cron** ✅ COMPLETATO
+**Milestone M2 - Riepilogo Error Log Sicuro** ✅ COMPLETATO
 
 **Stato Attuale:**
-- ✅ 104 test unitari (Brain\Monkey)
-- ✅ 33 test di integrazione (WP Test Suite)
-- ✅ 137 test totali passing, 275 assertions
+- ✅ 163 test unitari (Brain\Monkey)
+- ✅ 41 test di integrazione (WP Test Suite)
+- ✅ 204 test totali passing, 455 assertions
 - ✅ PHPCS 100% compliance (0 errori, 0 warning)
 - ✅ CI/CD completo con PHP 7.4-8.5
-- ✅ 11 file sorgente, 18 file di test
+- ✅ 14 file sorgente, 23 file di test
 - ✅ Pattern enforcement (NO singleton/static/final)
-- ✅ Code review: 21/22 issue risolte
 
-**Componenti Implementati (M1):**
-- StorageInterface, CheckInterface (contratti DI)
+**Componenti Implementati (M1+M2):**
+- StorageInterface, CheckInterface, RedactionInterface (contratti DI)
 - Storage (Options API, sentinel pattern in `has()`)
 - CheckRunner (try/catch, type safety)
 - DatabaseCheck ($wpdb injection, no info disclosure, i18n)
+- Redaction (11 pattern: credenziali DB, salts, API key, token, password, email, IP, path)
+- ErrorLogCheck (tail log, aggregazione severità, campioni redatti, anti-symlink)
 - Scheduler (WP-Cron 15 min, prevenzione duplicati, self-healing in register_hooks)
 - Menu, HealthScreen (capability check, validazione difensiva)
 
-**Next: M2 - Riepilogo Error Log Sicuro**
+**Next: M3 - Check Redis**
 
 ## 📞 Per Aiuto
 
