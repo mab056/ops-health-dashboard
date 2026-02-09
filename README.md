@@ -4,7 +4,7 @@
 [![PHP Version](https://img.shields.io/badge/PHP-7.4%2B-blue)](https://www.php.net/)
 [![WordPress](https://img.shields.io/badge/WordPress-5.8%2B-blue)](https://wordpress.org/)
 [![License](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.3.0-green)](https://github.com/mab056/ops-health-dashboard/releases)
+[![Version](https://img.shields.io/badge/Version-0.3.1-green)](https://github.com/mab056/ops-health-dashboard/releases)
 [![PHPCS](https://img.shields.io/badge/PHPCS-WordPress%20Standards-green)](https://github.com/WordPress/WordPress-Coding-Standards)
 
 Plugin WordPress di monitoraggio operativo production-grade con controlli automatici e roadmap di alerting configurabile.
