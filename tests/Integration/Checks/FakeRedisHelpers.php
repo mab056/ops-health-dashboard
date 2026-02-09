@@ -357,7 +357,7 @@ class FakeRedisSlowResponse extends \Redis {
 	}
 
 	/**
-	 * Simula SET lento (150ms)
+	 * Simula SET lento (300ms, soglia 100ms, margine 3x)
 	 *
 	 * @param string $key     Chiave.
 	 * @param mixed  $value   Valore.
@@ -365,7 +365,7 @@ class FakeRedisSlowResponse extends \Redis {
 	 * @return \Redis|string|bool True.
 	 */
 	public function set( $key, $value, $options = null ): \Redis|string|bool {
-		usleep( 150000 );
+		usleep( 300000 );
 		return true;
 	}
 

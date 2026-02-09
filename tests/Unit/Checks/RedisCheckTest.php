@@ -596,8 +596,8 @@ class RedisCheckTest extends TestCase {
 		$redis->shouldReceive( 'connect' )->andReturn( true );
 		$redis->shouldReceive( 'set' )->andReturnUsing(
 			function () {
-				// Simula 150ms di latenza.
-				usleep( 150000 );
+				// Simula 300ms di latenza (soglia 100ms, margine 3x).
+				usleep( 300000 );
 				return true;
 			}
 		);

@@ -100,6 +100,8 @@ class RedisCheckTest extends WP_UnitTestCase {
 
 	/**
 	 * Testa graceful degradation quando l'autenticazione fallisce
+	 *
+	 * @requires extension redis
 	 */
 	public function test_redis_check_graceful_on_auth_failure() {
 		$redaction = new Redaction( ABSPATH, WP_CONTENT_DIR );
@@ -112,6 +114,8 @@ class RedisCheckTest extends WP_UnitTestCase {
 
 	/**
 	 * Testa graceful degradation quando lo smoke test lancia eccezione
+	 *
+	 * @requires extension redis
 	 */
 	public function test_redis_check_graceful_on_smoke_test_exception() {
 		$redaction = new Redaction( ABSPATH, WP_CONTENT_DIR );
@@ -124,6 +128,8 @@ class RedisCheckTest extends WP_UnitTestCase {
 
 	/**
 	 * Testa graceful degradation quando GET restituisce valore diverso
+	 *
+	 * @requires extension redis
 	 */
 	public function test_redis_check_graceful_on_get_mismatch() {
 		$redaction = new Redaction( ABSPATH, WP_CONTENT_DIR );
@@ -151,11 +157,9 @@ class RedisCheckTest extends WP_UnitTestCase {
 	 * Testa il successo completo quando Redis è disponibile
 	 *
 	 * @group redis
+	 * @requires extension redis
 	 */
 	public function test_redis_check_successful_when_redis_available() {
-		if ( ! extension_loaded( 'redis' ) ) {
-			$this->markTestSkipped( 'Redis extension not available.' );
-		}
 
 		$redis = new \Redis();
 		try {
@@ -176,6 +180,8 @@ class RedisCheckTest extends WP_UnitTestCase {
 
 	/**
 	 * Testa graceful degradation quando la selezione database fallisce
+	 *
+	 * @requires extension redis
 	 */
 	public function test_redis_check_graceful_on_db_select_failure() {
 		$redaction = new Redaction( ABSPATH, WP_CONTENT_DIR );
@@ -188,6 +194,8 @@ class RedisCheckTest extends WP_UnitTestCase {
 
 	/**
 	 * Testa graceful degradation quando SET restituisce false
+	 *
+	 * @requires extension redis
 	 */
 	public function test_redis_check_graceful_on_set_returns_false() {
 		$redaction = new Redaction( ABSPATH, WP_CONTENT_DIR );
@@ -200,6 +208,8 @@ class RedisCheckTest extends WP_UnitTestCase {
 
 	/**
 	 * Testa che Redis restituisce warning per risposta lenta (> 100ms)
+	 *
+	 * @requires extension redis
 	 */
 	public function test_redis_check_warning_on_slow_response() {
 		$redaction = new Redaction( ABSPATH, WP_CONTENT_DIR );
@@ -215,6 +225,8 @@ class RedisCheckTest extends WP_UnitTestCase {
 	 * Testa che close_connection ignora eccezione da close()
 	 *
 	 * Copre la riga 282 di close_connection().
+	 *
+	 * @requires extension redis
 	 */
 	public function test_redis_check_close_connection_ignores_exception() {
 		$redaction = new Redaction( ABSPATH, WP_CONTENT_DIR );
@@ -230,6 +242,8 @@ class RedisCheckTest extends WP_UnitTestCase {
 	 * Testa che cleanup_and_close ignora eccezione da del()
 	 *
 	 * Copre la riga 297 di cleanup_and_close().
+	 *
+	 * @requires extension redis
 	 */
 	public function test_redis_check_cleanup_and_close_ignores_exception() {
 		$redaction = new Redaction( ABSPATH, WP_CONTENT_DIR );
@@ -304,11 +318,14 @@ class TestableRedisCheck extends RedisCheck {
 }
 
 // Carica helper FakeRedis con firme compatibili con la versione PHP corrente.
+// Le classi FakeRedis* estendono \Redis, quindi richiedono ext-redis.
 // PHP 8.0+ phpredis dichiara union return types; PHP 7.4 no.
-if ( PHP_VERSION_ID >= 80000 ) {
-	require_once __DIR__ . '/FakeRedisHelpers.php';
-} else {
-	require_once __DIR__ . '/FakeRedisHelpersLegacy.php';
+if ( extension_loaded( 'redis' ) ) {
+	if ( PHP_VERSION_ID >= 80000 ) {
+		require_once __DIR__ . '/FakeRedisHelpers.php';
+	} else {
+		require_once __DIR__ . '/FakeRedisHelpersLegacy.php';
+	}
 }
 
 /**

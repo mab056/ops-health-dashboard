@@ -365,7 +365,7 @@ class FakeRedisSlowResponse extends \Redis {
 	 * @return bool True.
 	 */
 	public function set( $key, $value, $options = null ) {
-		usleep( 150000 );
+		usleep( 300000 );
 		return true;
 	}
 

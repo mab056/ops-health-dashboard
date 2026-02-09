@@ -61,7 +61,7 @@ Plugin WordPress production-grade per monitoraggio operativo con health checks, 
 
 ## Stato Progetto (Riferimento)
 
-Milestone M1 + M2 + M3 completate (Core Checks + Storage + Cron + Error Log Summary Safe + Redis Check). M4 next (Alerting). Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
+Milestone M1 + M2 + M3 completate (Core Checks + Storage + Cron + Error Log Summary Safe + Redis Check). Milestone corrente: M4 (Alerting System, pianificata). Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
 
 ## Baseline Corrente (v0.3.0)
 
@@ -75,7 +75,9 @@ Punti architetturali da preservare nella codebase attuale:
 7. Flusso azioni admin in `src/Admin/HealthScreen.php`: `process_actions()` con nonce + capability check e redirect PRG; uscita isolata in `do_exit()` per testabilita'.
 8. Redazione dati sensibili centralizzata in `src/Services/Redaction.php`, iniettata in `CheckRunner`, `DatabaseCheck`, `ErrorLogCheck` e `RedisCheck`.
 9. `RedisCheck` usa chiave smoke test univoca per run (`ops_health_smoke_test_<uniqid>`) per evitare race condition tra run concorrenti.
-10. Tooling quality gate: `composer test`, `composer phpcs`, `composer analyse` (PHPStan livello 6 con `phpstan.neon`).
+10. Contratto `CheckRunnerInterface` con `clear_results()` usato dal flusso admin (`Run Now` / `Clear Cache`) in `HealthScreen::process_actions()`.
+11. Tooling quality gate locale: `composer test`, `composer phpcs`, `composer analyse` (PHPStan livello 6 con `phpstan.neon`).
+12. CI separata in `.github/workflows/ci.yml`: job dedicati PHPCS, PHPStan e PHPUnit matrix (PHP 7.4-8.5, coverage su 8.3).
 
 Nota operativa:
 1. Evitare sezioni datate o checklist "one-shot" in questo file.
