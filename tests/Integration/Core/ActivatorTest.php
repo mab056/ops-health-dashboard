@@ -58,7 +58,7 @@ class ActivatorTest extends WP_UnitTestCase {
 	 */
 	public function test_activate_sets_timestamp() {
 		if ( ! defined( 'OPS_HEALTH_DASHBOARD_VERSION' ) ) {
-			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.1.0' );
+			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.2.0' );
 		}
 
 		$activator = new Activator();
@@ -78,7 +78,7 @@ class ActivatorTest extends WP_UnitTestCase {
 	 */
 	public function test_activate_sets_version() {
 		if ( ! defined( 'OPS_HEALTH_DASHBOARD_VERSION' ) ) {
-			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.1.0' );
+			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.2.0' );
 		}
 
 		$activator = new Activator();
@@ -89,7 +89,7 @@ class ActivatorTest extends WP_UnitTestCase {
 
 		$version = get_option( 'ops_health_version' );
 		$this->assertNotFalse( $version, 'Versione dovrebbe essere creata' );
-		$this->assertEquals( '0.1.0', $version, 'Versione dovrebbe matchare la costante' );
+		$this->assertEquals( '0.2.0', $version, 'Versione dovrebbe matchare la costante' );
 	}
 
 	/**
@@ -97,7 +97,7 @@ class ActivatorTest extends WP_UnitTestCase {
 	 */
 	public function test_activate_schedules_cron_event() {
 		if ( ! defined( 'OPS_HEALTH_DASHBOARD_VERSION' ) ) {
-			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.1.0' );
+			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.2.0' );
 		}
 
 		wp_clear_scheduled_hook( 'ops_health_run_checks' );

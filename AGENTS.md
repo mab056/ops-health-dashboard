@@ -60,9 +60,9 @@ Plugin WordPress production-grade per monitoraggio operativo con health checks, 
 
 ## Stato Progetto (Riferimento)
 
-Milestone M1 completata (Core Checks + Storage + Cron). M2 in corso (Error Log Summary Safe). Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
+Milestone M1 + M2 completate (Core Checks + Storage + Cron + Error Log Summary Safe + Code Review 15/15). M3 next (Redis Check). Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
 
-## Baseline Corrente (v0.1.0)
+## Baseline Corrente (v0.2.0)
 
 Punti architetturali da preservare nella codebase attuale:
 1. Bootstrap plugin in `ops-health-dashboard.php` con autoloader fail-safe (admin notice se `vendor/autoload.php` manca).
