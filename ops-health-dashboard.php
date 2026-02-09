@@ -2,8 +2,8 @@
 /**
  * Plugin Name: Ops Health Dashboard
  * Plugin URI: https://github.com/mab056/ops-health-dashboard
- * Description: Monitoraggio salute WordPress production-grade con controlli automatici e alert configurabili
- * Version: 0.2.1
+ * Description: Production-grade WordPress health monitoring with automated checks and configurable alerts.
+ * Version: 0.3.0
  * Requires at least: 5.8
  * Requires PHP: 7.4
  * Author: Mattia Bondrano
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.2.1' );
+define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.3.0' );
 define( 'OPS_HEALTH_DASHBOARD_FILE', __FILE__ );
 define( 'OPS_HEALTH_DASHBOARD_PATH', plugin_dir_path( __FILE__ ) );
 define( 'OPS_HEALTH_DASHBOARD_URL', plugin_dir_url( __FILE__ ) );

@@ -5,7 +5,7 @@ Tutte le modifiche rilevanti a questo progetto saranno documentate in questo fil
 Il formato è basato su [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## 0.3.0 - 2026-02-09
 
 ### Added
 - **RedisCheck** - Health check per Redis con graceful degradation (M3)
@@ -19,29 +19,25 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
   - Host e errori redatti via `RedactionInterface`
 - 25 unit test + 6 integration test per RedisCheck
 - Registrazione RedisCheck in `config/bootstrap.php`
-
-### Changed (Code Review Post-M3)
-- **Activator** - Usa `MINUTE_IN_SECONDS` e `__()` i18n per intervallo cron (allineato con Scheduler)
-- **ErrorLogCheck::classify_line()** - Ottimizzato da 6 regex sequenziali a singola regex con alternazione + mappa di lookup
-- **HealthScreen** - Estratto `exit` in metodo protetto `do_exit()` per testabilità con Mockery
-- **RedisCheck** - Rimosso anti-pattern `unset($e)` nei catch block, sostituito con `phpcs:ignore`
-- **.gitignore** - Rimosso `composer.lock` (deve essere committato per build riproducibili)
-
-### Changed (Code Review 2)
-- **Scheduler** - Self-healing usa transient throttle (ogni ora) invece di `is_admin()` guard; funziona anche su frontend
-- **RedisCheck** - Smoke test usa chiave unica per run (`uniqid()`) per evitare race condition tra cron e run manuale
-- **cleanup_and_close()** - Accetta `$smoke_key` come parametro per cleanup preciso
-
-### Fixed (Code Review 2)
-- **Integration HealthScreenTest** - Corretta option key da `ops_health_results` a `ops_health_latest_results` (allineata con Storage prefix `ops_health_` + CheckRunner key `latest_results`)
-
-### Tests Added (Code Review Post-M3)
 - **HealthScreenTest** - +7 test: `process_actions()` early returns (3), `run_now` action, `clear_cache` action, notice transient display; helper `create_testable_screen()` e `mock_process_functions()`
 - **DatabaseCheckTest** - +2 test: warning su query lenta (>0.5s), fallback `Unknown error` con `last_error` vuoto
 - **MenuTest** - +1 test: skip `load-hook` quando `add_menu_page` ritorna false; aggiornato test esistente con asserzione `add_action` per `load-{$page_hook}`
 - **SchedulerTest** - Aggiornati 3 test `register_hooks` con `get_transient`/`set_transient` mocks (sostituito `is_admin`)
 - **ActivatorTest** - Aggiornati 3 test con definizione `MINUTE_IN_SECONDS` e mock `__()`
 - **RedisCheckTest** - Aggiornato `test_returns_ok_when_smoke_test_passes` con `Mockery::on()` pattern matcher per chiave dinamica
+
+### Changed
+- **Activator** - Usa `MINUTE_IN_SECONDS` e `__()` i18n per intervallo cron (allineato con Scheduler)
+- **ErrorLogCheck::classify_line()** - Ottimizzato da 6 regex sequenziali a singola regex con alternazione + mappa di lookup
+- **HealthScreen** - Estratto `exit` in metodo protetto `do_exit()` per testabilità con Mockery
+- **RedisCheck** - Rimosso anti-pattern `unset($e)` nei catch block, sostituito con `phpcs:ignore`
+- **.gitignore** - Rimosso `composer.lock` (deve essere committato per build riproducibili)
+- **Scheduler** - Self-healing usa transient throttle (ogni ora) invece di `is_admin()` guard; funziona anche su frontend
+- **RedisCheck** - Smoke test usa chiave unica per run (`uniqid()`) per evitare race condition tra cron e run manuale
+- **cleanup_and_close()** - Accetta `$smoke_key` come parametro per cleanup preciso
+
+### Fixed
+- **Integration HealthScreenTest** - Corretta option key da `ops_health_results` a `ops_health_latest_results` (allineata con Storage prefix `ops_health_` + CheckRunner key `latest_results`)
 
 ### Development Notes
 - 265 test totali (212 unit + 53 integration), 620 assertions

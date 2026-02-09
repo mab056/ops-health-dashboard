@@ -180,13 +180,16 @@ class ErrorLogCheck implements CheckInterface {
 	protected function resolve_log_path(): string {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
 		if ( defined( 'WP_DEBUG_LOG' ) ) {
+			/** @var string|bool $debug_log WP_DEBUG_LOG can be string path or bool. */
+			$debug_log = WP_DEBUG_LOG;
+
 			// Stringa = path custom.
-			if ( is_string( WP_DEBUG_LOG ) && '' !== WP_DEBUG_LOG ) {
-				return WP_DEBUG_LOG;
+			if ( is_string( $debug_log ) && '' !== $debug_log ) {
+				return $debug_log;
 			}
 
 			// true = WordPress scrive in wp-content/debug.log.
-			if ( true === WP_DEBUG_LOG && defined( 'WP_CONTENT_DIR' ) ) {
+			if ( true === $debug_log && defined( 'WP_CONTENT_DIR' ) ) {
 				return WP_CONTENT_DIR . '/debug.log';
 			}
 		}
