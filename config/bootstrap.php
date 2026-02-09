@@ -34,6 +34,18 @@ function bootstrap(): Plugin {
 		}
 	);
 
+	// Servizio di redazione dati sensibili.
+	$container->share(
+		Interfaces\RedactionInterface::class,
+		// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
+		function ( $c ) {
+			return new Services\Redaction(
+				defined( 'ABSPATH' ) ? ABSPATH : '',
+				defined( 'WP_CONTENT_DIR' ) ? WP_CONTENT_DIR : ''
+			);
+		}
+	);
+
 	$container->share(
 		Services\CheckRunner::class,
 		function ( $c ) {
@@ -43,6 +55,11 @@ function bootstrap(): Plugin {
 			// Registra i check disponibili.
 			global $wpdb;
 			$runner->add_check( new Checks\DatabaseCheck( $wpdb ) );
+			$runner->add_check(
+				new Checks\ErrorLogCheck(
+					$c->make( Interfaces\RedactionInterface::class )
+				)
+			);
 			return $runner;
 		}
 	);

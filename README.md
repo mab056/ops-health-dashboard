@@ -244,8 +244,8 @@ public function test_database_check_runs_successfully() {
 
 ### Matrice Test
 
-- **Unit Tests**: Brain\Monkey - 104 test, tutte le versioni PHP
-- **Integration Tests**: WP Test Suite - 33 test, tutte le versioni PHP
+- **Unit Tests**: Brain\Monkey - 163 test, tutte le versioni PHP
+- **Integration Tests**: WP Test Suite - 41 test, tutte le versioni PHP
 - **Versioni PHP**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
 - **Target Coverage**: ≥85% su PHP 8.3
 - **Test E2E**: Viewport Mobile, Tablet, Desktop (futuro)
@@ -279,20 +279,20 @@ public function test_database_check_runs_successfully() {
 
 ## 📊 Stato Sviluppo
 
-Milestone corrente: **M2 - Riepilogo Error Log Sicuro** 🚧
+Milestone corrente: **M3 - Check Redis** 🚧
 
 ### Statistiche
 
-- **11 file sorgente** in `src/`
-- **18 file di test** (11 unit + 7 integration)
-- **137 test totali** (104 unit + 33 integration), 275 assertions
+- **14 file sorgente** in `src/`
+- **23 file di test** (14 unit + 9 integration)
+- **204 test totali** (163 unit + 41 integration), 455 assertions
 - **PHPCS**: 100% compliance (0 errori, 0 warning)
 
 ### Roadmap
 
 - [x] **M0**: Setup & Infrastruttura (TDD, CI/CD, classi core)
 - [x] **M1**: Core Checks + Storage + Cron
-- [ ] **M2**: Riepilogo Error Log Sicuro
+- [x] **M2**: Riepilogo Error Log Sicuro
 - [ ] **M3**: Check Redis
 - [ ] **M4**: Sistema Alerting
 - [ ] **M5**: Testing E2E (Playwright)

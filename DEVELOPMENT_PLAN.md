@@ -1,6 +1,6 @@
 # Development Plan - Ops Health Dashboard
 
-**Current Milestone**: M2 - Riepilogo Error Log Sicuro
+**Current Milestone**: M3 - Check Redis
 **Started**: 2026-02-08
 **Status**: 🚧 In Progress
 
@@ -76,6 +76,53 @@
 - PHPCS 100% clean (0 errori, 0 warning)
 
 **Deliverable**: Dashboard mostra Database check con auto-refresh WP-Cron ✅
+
+---
+
+## Milestone 2: Riepilogo Error Log Sicuro ✅ 6/6
+
+**Obiettivo**: Check error log con redazione automatica dei dati sensibili
+
+### Tasks
+
+- [x] **M2.1** - RedactionInterface (contratto DI per redazione)
+- [x] **M2.2** - Redaction service (11 pattern: credenziali, token, PII, path)
+- [x] **M2.3** - ErrorLogCheck con TDD (tail log, aggregazione, campioni redatti)
+- [x] **M2.4** - DI wiring in bootstrap.php (RedactionInterface + ErrorLogCheck)
+- [x] **M2.5** - Unit tests completi (56 nuovi test, Brain\Monkey + Mockery partial mock)
+- [x] **M2.6** - Integration tests completi (8 nuovi test, WP Test Suite + file temp)
+
+### Dettagli Implementazione
+
+**Redaction Service** - 11 pattern di redazione in catena ordinata:
+1. Path WP_CONTENT_DIR -> `[WP_CONTENT]` (str_replace, piu' specifico prima)
+2. Path ABSPATH -> `[ABSPATH]/` (str_replace)
+3. Credenziali DB (DB_PASSWORD, DB_USER, DB_NAME, DB_HOST) -> `[REDACTED]`
+4. WordPress salts (AUTH_KEY, SECURE_AUTH_KEY, ecc.) -> `[REDACTED]`
+5. API key, secret, token -> `[REDACTED]`
+6. Bearer token -> `[REDACTED]`
+7. Password in URL e campi generici -> `[REDACTED]`
+8. Email -> `[EMAIL_REDACTED]`
+9. IPv4 -> `[IP_REDACTED]`
+10. IPv6 (min 5 gruppi per evitare falsi positivi su timestamp) -> `[IP_REDACTED]`
+11. Home directory `/home/user` -> `/home/[USER_REDACTED]`
+
+**ErrorLogCheck** - Riepilogo sicuro del log errori:
+- Risoluzione path: `WP_DEBUG_LOG` (stringa) -> `ini_get('error_log')`
+- Validazione: esistenza, leggibilita', anti-symlink
+- Tail efficiente: max 512KB, max 100 righe
+- Classificazione: fatal, parse, warning, notice, deprecated, strict, other
+- Status: critical (fatal/parse > 0), warning (warning/deprecated/strict > 0), ok
+- Max 5 campioni critici/warning, redatti prima dell'inclusione
+- Protected methods per testabilita' con Mockery partial mock
+
+**Statistiche Finali**:
+- 14 file sorgente in `src/`
+- 23 file di test (14 unit + 9 integration)
+- 204 test totali, 455 assertions
+- PHPCS 100% clean (0 errori, 0 warning)
+
+**Deliverable**: Dashboard mostra Database + Error Log check con redazione automatica ✅
 
 ---
 
