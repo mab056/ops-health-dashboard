@@ -20,7 +20,7 @@ Questo plugin fornisce una dashboard operativa in wp-admin con controlli automat
 ### Controlli di Salute
 - **Database** - Connettivita' e performance delle query *(implementato)*
 - **Log Errori** - Aggregazione sicura con redaction automatica *(implementato)*
-- **Redis** - Rilevamento + smoke test (opzionale) *(pianificato M3)*
+- **Redis** - Rilevamento estensione + connessione + smoke test con graceful degradation *(implementato)*
 - **Spazio Disco** - Libero/totale con soglie configurabili *(pianificato)*
 - **Versioni** - WordPress, PHP, temi, plugin + notifiche aggiornamenti *(pianificato)*
 
@@ -254,8 +254,8 @@ public function test_database_check_runs_successfully() {
 
 ### Matrice Test
 
-- **Unit Tests**: Brain\Monkey - 178 test, tutte le versioni PHP
-- **Integration Tests**: WP Test Suite - 47 test, tutte le versioni PHP
+- **Unit Tests**: Brain\Monkey - 203 test, tutte le versioni PHP
+- **Integration Tests**: WP Test Suite - 53 test, tutte le versioni PHP
 - **Versioni PHP**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
 - **Target Coverage**: ≥85% su PHP 8.3
 - **Test E2E**: Viewport Mobile, Tablet, Desktop (futuro)
@@ -289,13 +289,13 @@ public function test_database_check_runs_successfully() {
 
 ## 📊 Stato Sviluppo
 
-Milestone corrente: **M3 - Check Redis** 🚧
+Milestone corrente: **M4 - Alerting System** 🚧
 
 ### Statistiche
 
-- **15 file sorgente** in `src/`
-- **25 file di test** (15 unit + 10 integration)
-- **225 test totali** (178 unit + 47 integration), 497 assertions
+- **16 file sorgente** in `src/`
+- **27 file di test** (16 unit + 11 integration)
+- **256 test totali** (203 unit + 53 integration), 572 assertions
 - **PHPCS**: 100% compliance (0 errori, 0 warning)
 
 ### Roadmap
@@ -303,7 +303,7 @@ Milestone corrente: **M3 - Check Redis** 🚧
 - [x] **M0**: Setup & Infrastruttura (TDD, CI/CD, classi core)
 - [x] **M1**: Core Checks + Storage + Cron
 - [x] **M2**: Riepilogo Error Log Sicuro
-- [ ] **M3**: Check Redis
+- [x] **M3**: Check Redis
 - [ ] **M4**: Sistema Alerting
 - [ ] **M5**: Testing E2E (Playwright)
 - [ ] **M6**: Readiness WordPress.org

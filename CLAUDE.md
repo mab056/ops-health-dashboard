@@ -603,32 +603,32 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 
 ## 🎯 Current Status
 
-**Milestone M2 - Riepilogo Error Log Sicuro** ✅ COMPLETATO (+ Code Review 15/15)
+**Milestone M3 - Check Redis** ✅ COMPLETATO
 
 **Stato Attuale:**
-- ✅ 178 test unitari (Brain\Monkey)
-- ✅ 47 test di integrazione (WP Test Suite)
-- ✅ 225 test totali passing, 497 assertions
+- ✅ 203 test unitari (Brain\Monkey)
+- ✅ 53 test di integrazione (WP Test Suite)
+- ✅ 256 test totali passing, 572 assertions
 - ✅ PHPCS 100% compliance (0 errori, 0 warning)
 - ✅ CI/CD completo con PHP 7.4-8.5
-- ✅ 15 file sorgente, 25 file di test (15 unit + 10 integration)
+- ✅ 16 file sorgente, 27 file di test (16 unit + 11 integration)
 - ✅ Pattern enforcement (NO singleton/static/final)
-- ✅ Code review: 15/15 issue risolte + audit fix
 
-**Componenti Implementati (M1+M2+Post-M2):**
+**Componenti Implementati (M1+M2+M3):**
 - StorageInterface, CheckInterface, RedactionInterface, CheckRunnerInterface (contratti DI)
 - Storage (Options API, sentinel pattern in `has()`, autoload=false)
 - CheckRunner (try/catch, type safety, RedactionInterface, clear_results)
 - DatabaseCheck ($wpdb injection, no info disclosure, i18n, RedactionInterface per $wpdb errors)
 - Redaction (11 pattern: credenziali DB, salts, API key, token, password, email, IP, path; IPv4 validazione ottetti)
 - ErrorLogCheck (tail log, aggregazione severità, campioni redatti, anti-symlink, flock LOCK_SH)
+- RedisCheck (graceful degradation, estensione+connessione+auth+smoke test, response time, RedactionInterface)
 - Scheduler (WP-Cron 15 min, prevenzione duplicati, self-healing admin-only, costanti HOOK_NAME/INTERVAL)
 - Container (DI con rilevazione dipendenze circolari)
 - Menu (capability check, `load-{$page_hook}` per process_actions PRG)
 - HealthScreen (capability check, bottoni Run Now/Clear Cache con nonce, validazione difensiva, CheckRunnerInterface)
 - Activator (usa costanti Scheduler::HOOK_NAME/INTERVAL)
 
-**Next: M3 - Check Redis**
+**Next: M4 - Alerting System**
 
 ## 📞 Per Aiuto
 

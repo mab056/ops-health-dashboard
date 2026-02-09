@@ -1,7 +1,7 @@
 # Development Plan - Ops Health Dashboard
 
-**Current Milestone**: M3 - Check Redis
-**Status**: Planned (not yet started)
+**Current Milestone**: M4 - Alerting System
+**Status**: M3 completed, M4 planned
 
 ---
 
@@ -145,6 +145,19 @@
 
 ## Progress Log
 
+### 2026-02-09 (M3)
+
+**M3 - Redis Check** completata:
+- Implementato `RedisCheck` con graceful degradation (Redis opzionale, tutti i fallimenti sono `warning`)
+- Rilevamento estensione PHP Redis, connessione, autenticazione, selezione database, smoke test SET/GET/DEL
+- Misurazione tempo di risposta (>100ms = warning)
+- Host e errori redatti via `RedactionInterface`
+- Protected methods (`is_extension_loaded`, `create_redis_instance`, `get_redis_config`) per testabilità
+- `TestableRedisCheck` subclass per integration test (pattern da `TestableErrorLogCheck`)
+- Registrato in `config/bootstrap.php` via `$runner->add_check()`
+- 25 unit test + 6 integration test
+- Totale: 256 test (203 unit + 53 integration), 572 assertions, PHPCS clean
+
 ### 2026-02-09 (CI Fix)
 
 **install-wp-tests.sh version resolution fix**:
@@ -233,9 +246,26 @@
 - **Action buttons inline style**: i bottoni usano `style="display:inline"` inline; migrarli a foglio CSS dedicato in M4+.
 - **uninstall.php**: pianificato per M6.
 
+## Milestone 3: Check Redis ✅ 1/1
+
+**Obiettivo**: Check Redis opzionale con graceful degradation
+
+### Tasks
+
+- [x] **M3.1** - RedisCheck con TDD (rilevamento estensione, connessione, auth, smoke test, response time)
+
+**Statistiche Finali**:
+- 16 file sorgente in `src/`
+- 27 file di test (16 unit + 11 integration)
+- 256 test totali (203 unit + 53 integration), 572 assertions
+- PHPCS 100% clean (0 errori, 0 warning)
+
+**Deliverable**: Dashboard mostra Database + Error Log + Redis check con graceful degradation ✅
+
+---
+
 ## Next Milestones
 
-- **M3**: Redis Check (opzionale, graceful degradation)
 - **M4**: Alerting System (Email, Webhook, Slack, Telegram, WhatsApp + anti-SSRF)
 - **M5**: E2E Testing (Playwright multi-viewport)
 - **M6**: WordPress.org Readiness (uninstall.php, readme.txt, Plugin Check)

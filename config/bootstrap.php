@@ -69,6 +69,11 @@ function bootstrap(): Plugin {
 					$c->make( Interfaces\RedactionInterface::class )
 				)
 			);
+			$runner->add_check(
+				new Checks\RedisCheck(
+					$c->make( Interfaces\RedactionInterface::class )
+				)
+			);
 			return $runner;
 		}
 	);

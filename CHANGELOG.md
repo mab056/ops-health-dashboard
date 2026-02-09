@@ -7,6 +7,24 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 
 ## Unreleased
 
+### Added
+- **RedisCheck** - Health check per Redis con graceful degradation (M3)
+  - Rilevamento estensione PHP Redis (`extension_loaded`)
+  - Test di connessione con costanti WordPress (`WP_REDIS_HOST`, `WP_REDIS_PORT`)
+  - Autenticazione opzionale (`WP_REDIS_PASSWORD`)
+  - Selezione database (`WP_REDIS_DATABASE`)
+  - Smoke test SET/GET/DEL con misurazione tempo di risposta
+  - Soglia slow response (>100ms = warning)
+  - Tutti i fallimenti sono `warning` (Redis è opzionale, mai `critical`)
+  - Host e errori redatti via `RedactionInterface`
+- 25 unit test + 6 integration test per RedisCheck
+- Registrazione RedisCheck in `config/bootstrap.php`
+
+### Development Notes
+- 256 test totali (203 unit + 53 integration), 572 assertions
+- PHPCS 100% clean (0 errori, 0 warning)
+- 16 file sorgente, 27 file di test (16 unit + 11 integration)
+
 ## 0.2.1 - 2026-02-09
 
 ### Added
