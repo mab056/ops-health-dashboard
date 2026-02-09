@@ -159,13 +159,14 @@ run_tests_for_version() {
 	(cd "$PROJECT_DIR" && "$binary" vendor/bin/phpunit --testsuite=unit 2>&1) > "$tmpfile" || exit_code=$?
 
 	if [ $exit_code -eq 0 ]; then
-		unit_count=$(grep -oP 'OK \(\K[0-9]+' "$tmpfile" || echo "?")
+		# Handles both "OK (N tests, ...)" and "Tests: N, ..." (when skipped/incomplete).
+		unit_count=$(grep -oP 'OK \(\K[0-9]+' "$tmpfile" || grep -oP 'Tests: \K[0-9]+' "$tmpfile" || echo "?")
 
 		# Integration tests
 		(cd "$PROJECT_DIR" && "$binary" vendor/bin/phpunit --testsuite=integration 2>&1) > "$tmpfile" || exit_code=$?
 
 		if [ $exit_code -eq 0 ]; then
-			integ_count=$(grep -oP 'OK \(\K[0-9]+' "$tmpfile" || echo "?")
+			integ_count=$(grep -oP 'OK \(\K[0-9]+' "$tmpfile" || grep -oP 'Tests: \K[0-9]+' "$tmpfile" || echo "?")
 		fi
 	fi
 

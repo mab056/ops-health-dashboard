@@ -30,6 +30,8 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 - **SchedulerTest** - Aggiornati 3 test `register_hooks` con `get_transient`/`set_transient` mocks (sostituito `is_admin`)
 - **ActivatorTest** - Aggiornati 3 test con definizione `MINUTE_IN_SECONDS` e mock `__()`
 - **RedisCheckTest** - Aggiornato `test_returns_ok_when_smoke_test_passes` con `Mockery::on()` pattern matcher per chiave dinamica
+- **Copertura test migliorata** - 49 nuovi test (215 unit + 99 integration), 743 assertions
+- **Documentazione post-mortem** - `docs/postmortem-redis-test-matrix.md` per analisi fix test matrix Redis
 
 ### Changed
 - **Activator** - Usa `MINUTE_IN_SECONDS` e `__()` i18n per intervallo cron (allineato con Scheduler)
@@ -42,17 +44,24 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 - **cleanup_and_close()** - Accetta `$smoke_key` come parametro per cleanup preciso
 - **ErrorLogCheck::resolve_log_path()** - `WP_DEBUG_LOG` assegnato a variabile locale con `@phpstan-ignore` per compatibilità PHPStan (stubs WordPress tipano `bool`, ma WordPress accetta anche stringhe)
 - **.phpcs.xml.dist** - Aggiunto exclude per `.phpstan-cache`
+- **RedisCheckTest integration** - `@requires extension redis` su test individuali (non `return;` a livello file); `extension_loaded('redis')` guard su `require_once FakeRedisHelpers.php`
+- **DatabaseCheckTest** - Timing test usa busy-wait loop (resiste a EINTR da SIGALRM) invece di `usleep()` singolo
+- **test-matrix.sh** - Grep fallback per output PHPUnit con test skipped (`Tests: N, ...` oltre a `OK (N tests, ...)`)
 
 ### Fixed
 - **Integration HealthScreenTest** - Corretta option key da `ops_health_results` a `ops_health_latest_results` (allineata con Storage prefix `ops_health_` + CheckRunner key `latest_results`)
+- **test-matrix.sh** - Integration test count mostrava "?" quando PHPUnit aveva test skipped (formato output diverso da `OK (N tests, ...)`)
+- **DatabaseCheckTest flaky** - `usleep()` interrotto da SIGALRM (PHPUnit php-invoker) causava test timing intermittentemente fallimentari; sostituito con busy-wait loop resistente a EINTR
+- **RedisCheckTest fatale senza ext-redis** - `extends \Redis` nelle classi helper causava fatal error su PHP senza ext-redis; risolto con guard `extension_loaded('redis')` e `@requires extension redis`
 
 ### Development Notes
-- 265 test totali (212 unit + 53 integration), 620 assertions
+- 314 test totali (215 unit + 99 integration), 743 assertions
 - PHPCS 100% clean (0 errori, 0 warning)
 - PHPStan level 6: 0 errori
-- 16 file sorgente, 27 file di test (16 unit + 11 integration)
+- 16 file sorgente, 26 file di test (16 unit + 10 integration)
 - Code review post-M3: 5 fix sorgente + 9 nuovi test + 6 test aggiornati
 - Code review 2: 3 fix sorgente + 4 test aggiornati
+- Test matrix stabilization: fix EINTR, fix grep, fix ext-redis guard
 
 ## 0.2.1 - 2026-02-09
 

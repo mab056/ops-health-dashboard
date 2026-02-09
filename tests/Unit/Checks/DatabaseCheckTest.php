@@ -219,8 +219,13 @@ class DatabaseCheckTest extends TestCase {
 			->once()
 			->with( 'SELECT 1' )
 			->andReturnUsing( function () {
-				// Simula query lenta con usleep (600ms).
-				usleep( 600000 );
+				// Busy-wait per 1s (soglia 0.5s, margine 2x).
+				// Loop resiste a interruzioni EINTR su usleep singoli.
+				$target = 1.0;
+				$start  = microtime( true );
+				while ( ( microtime( true ) - $start ) < $target ) {
+					usleep( 50000 );
+				}
 				return 1;
 			} );
 

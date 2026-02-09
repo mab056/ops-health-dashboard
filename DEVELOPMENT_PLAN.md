@@ -305,12 +305,33 @@
 
 **Statistiche Finali**:
 - 16 file sorgente in `src/`
-- 27 file di test (16 unit + 11 integration)
-- 265 test totali (212 unit + 53 integration), 620 assertions
+- 26 file di test (16 unit + 10 integration)
+- 314 test totali (215 unit + 99 integration), 743 assertions
 - PHPCS 100% clean (0 errori, 0 warning)
 - PHPStan level 6: 0 errori
 
 **Deliverable**: Dashboard mostra Database + Error Log + Redis check con graceful degradation ✅
+
+---
+
+## Progress Log
+
+### 2026-02-09 (Test Matrix Stabilization)
+
+**Test Matrix Fix** - 3 problemi risolti per stabilità test su PHP 7.4-8.5:
+
+1. **RedisCheckTest fatale senza ext-redis**: `extends \Redis` nelle classi FakeRedis* helper causava `Class 'Redis' not found` su PHP senza ext-redis. Fix: guard `extension_loaded('redis')` su `require_once` + `@requires extension redis` sui metodi test che usano FakeRedis subclasses. Il `return;` a livello file non funzionava perché PHPUnit bypassa il guard durante la discovery dei test.
+
+2. **DatabaseCheckTest flaky (EINTR)**: `usleep()` singolo veniva interrotto da SIGALRM (PHPUnit php-invoker) causando duration < 0.5s nonostante usleep di 1.5-3s. Fix: busy-wait loop con `usleep(50000)` in incrementi che riprende dopo ogni interruzione.
+
+3. **test-matrix.sh count "?"**: il grep `'OK \(\K[0-9]+'` non matchava l'output PHPUnit quando ci sono test skipped (`Tests: N, Assertions: M, Skipped: S.` invece di `OK (N tests, M assertions)`). Fix: grep fallback con `Tests: \K[0-9]+`.
+
+**Copertura test migliorata**: 265 → 314 test (+49), 620 → 743 assertions (+123)
+- Documentazione post-mortem: `docs/postmortem-redis-test-matrix.md`
+- **Lesson**: `usleep()` può essere interrotto da SIGALRM (EINTR); usare busy-wait loop per timing tests
+- **Lesson**: PHPUnit cambia formato output con test skipped; grep patterns devono gestire entrambi i formati
+- **Lesson**: `@requires extension redis` su metodi individuali è il modo corretto per skip senza ext-redis
+- **Lesson**: `extends \Redis` è eager (parent deve esistere a definizione classe), ma `: \Redis` return type è lazy
 
 ---
 

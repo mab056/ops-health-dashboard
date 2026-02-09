@@ -607,13 +607,13 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 **Milestone M4 - Alerting System** 🚧 IN CORSO
 
 **Stato Attuale:**
-- ✅ **212 test unitari** (Brain\Monkey)
-- ✅ **53 test di integrazione** (WP Test Suite)
-- ✅ **265 test totali passing**, 620 assertions
+- ✅ **215 test unitari** (Brain\Monkey)
+- ✅ **99 test di integrazione** (WP Test Suite)
+- ✅ **314 test totali passing**, 743 assertions
 - ✅ PHPCS 100% compliance (0 errori, 0 warning)
 - ✅ PHPStan level 6: 0 errori (szepeviktor/phpstan-wordpress)
 - ✅ CI/CD completo con PHP 7.4-8.5
-- ✅ 16 file sorgente, 27 file di test (16 unit + 11 integration)
+- ✅ 16 file sorgente, 26 file di test (16 unit + 10 integration)
 - ✅ Pattern enforcement (NO singleton/static/final)
 
 **Componenti Implementati (M1+M2+M3):**

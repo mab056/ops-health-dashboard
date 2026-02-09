@@ -211,7 +211,13 @@ class SlowWpdb extends \wpdb {
 	 */
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 	public function query( $query ) {
-		usleep( 600000 );
+		// Busy-wait per 1s (soglia 0.5s, margine 2x).
+		// Usa loop invece di usleep singolo per resistere a interruzioni EINTR.
+		$target = 1.0;
+		$start  = microtime( true );
+		while ( ( microtime( true ) - $start ) < $target ) {
+			usleep( 50000 ); // 50ms incrementi.
+		}
 		$this->last_error = '';
 		return 1;
 	}

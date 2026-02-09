@@ -151,12 +151,12 @@ Questo progetto segue **TDD rigoroso** (Test-Driven Development) con un **approc
 
 **Unit Tests (Brain\Monkey)** - Veloce, isolato
 - Logica business pura, NO WordPress
-- 212 test, ~3-4 s
+- 215 test, ~3 s
 - Perfetto per TDD rapido
 
 **Integration Tests (WP Test Suite)** - WordPress reale
 - Test con WordPress completo, database, WP-Cron
-- 53 test, ~1 s
+- 99 test, ~3 s
 - Verifica integrazione reale con WordPress
 
 ### Comandi Test
@@ -255,8 +255,8 @@ public function test_database_check_runs_successfully() {
 
 ### Matrice Test
 
-- **Unit Tests**: Brain\Monkey - 212 test, tutte le versioni PHP
-- **Integration Tests**: WP Test Suite - 53 test, tutte le versioni PHP
+- **Unit Tests**: Brain\Monkey - 215 test, tutte le versioni PHP
+- **Integration Tests**: WP Test Suite - 99 test, tutte le versioni PHP
 - **PHPStan**: Level 6 con szepeviktor/phpstan-wordpress, 0 errori
 - **Versioni PHP**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
 - **Target Coverage**: ≥85% su PHP 8.3
@@ -296,8 +296,8 @@ Milestone corrente: **M4 - Alerting System** 🚧
 ### Statistiche
 
 - **16 file sorgente** in `src/`
-- **27 file di test** (16 unit + 11 integration)
-- **265 test totali** (212 unit + 53 integration), 620 assertions
+- **26 file di test** (16 unit + 10 integration)
+- **314 test totali** (215 unit + 99 integration), 743 assertions
 - **PHPCS**: 100% compliance (0 errori, 0 warning)
 - **PHPStan**: level 6, 0 errori
 
