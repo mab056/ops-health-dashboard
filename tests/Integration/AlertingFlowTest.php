@@ -554,6 +554,57 @@ class AlertingFlowTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Testa che dispatch_to_channels cattura Throwable da un canale che lancia eccezione
+	 */
+	public function test_dispatch_catches_throwable_from_channel() {
+		$this->storage->set( 'alert_settings', [
+			'email' => [
+				'enabled'    => true,
+				'recipients' => 'admin@example.com',
+			],
+		] );
+
+		$alert_manager = new AlertManager( $this->storage, $this->redaction );
+		$alert_manager->add_channel( new ThrowingChannel() );
+		$alert_manager->add_channel( new EmailChannel( $this->storage ) );
+
+		// Intercetta wp_mail per evitare invio reale.
+		$captured_mail = null;
+		add_filter(
+			'pre_wp_mail',
+			function ( $null, $atts ) use ( &$captured_mail ) {
+				$captured_mail = $atts;
+				return true;
+			},
+			10,
+			2
+		);
+
+		$results = $alert_manager->process(
+			[ 'database' => [ 'status' => 'critical', 'message' => 'Fail', 'name' => 'DB' ] ],
+			[ 'database' => [ 'status' => 'ok', 'message' => 'OK', 'name' => 'DB' ] ]
+		);
+
+		// ThrowingChannel deve risultare fallito con il messaggio dell'eccezione.
+		$this->assertArrayHasKey( 'database', $results );
+		$this->assertArrayHasKey( 'throwing', $results['database'] );
+		$this->assertFalse( $results['database']['throwing']['success'] );
+		$this->assertEquals( 'Simulated channel failure', $results['database']['throwing']['error'] );
+
+		// EmailChannel deve comunque funzionare (isolamento per-canale).
+		$this->assertArrayHasKey( 'email', $results['database'] );
+		$this->assertTrue( $results['database']['email']['success'] );
+
+		// Il log deve contenere entrambi i canali.
+		$log = $this->storage->get( 'alert_log', [] );
+		$this->assertNotEmpty( $log );
+		$this->assertContains( 'throwing', $log[0]['channels'] );
+		$this->assertContains( 'email', $log[0]['channels'] );
+
+		remove_all_filters( 'pre_wp_mail' );
+	}
+
+	/**
 	 * Testa che nessun cambiamento di stato non genera alert
 	 */
 	public function test_same_status_does_not_trigger_alert() {
@@ -578,5 +629,49 @@ class AlertingFlowTest extends WP_UnitTestCase {
 		$results = $alert_manager->process( $same, $same );
 
 		$this->assertEmpty( $results );
+	}
+}
+
+/**
+ * Canale di alert che lancia eccezione per testare isolamento per-canale.
+ */
+class ThrowingChannel implements \OpsHealthDashboard\Interfaces\AlertChannelInterface {
+
+	/**
+	 * Ottiene l'identificatore del canale
+	 *
+	 * @return string
+	 */
+	public function get_id(): string {
+		return 'throwing';
+	}
+
+	/**
+	 * Ottiene il nome del canale
+	 *
+	 * @return string
+	 */
+	public function get_name(): string {
+		return 'Throwing';
+	}
+
+	/**
+	 * Sempre abilitato per scopo di test
+	 *
+	 * @return bool
+	 */
+	public function is_enabled(): bool {
+		return true;
+	}
+
+	/**
+	 * Lancia sempre eccezione
+	 *
+	 * @param array $payload Dati dell'alert.
+	 * @return array Mai raggiunto.
+	 * @throws \RuntimeException Sempre.
+	 */
+	public function send( array $payload ): array {
+		throw new \RuntimeException( 'Simulated channel failure' );
 	}
 }

@@ -346,6 +346,29 @@ class EmailChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Testa che send ritorna errore quando tutti i recipients sono invalidi
+	 *
+	 * @return void
+	 */
+	public function test_send_returns_error_when_all_recipients_invalid() {
+		$this->storage->set(
+			'alert_settings',
+			[
+				'email' => [
+					'enabled'    => true,
+					'recipients' => 'not-an-email, also-not-valid, @invalid',
+				],
+			]
+		);
+
+		$channel = new EmailChannel( $this->storage );
+		$result  = $channel->send( $this->create_test_payload() );
+
+		$this->assertFalse( $result['success'] );
+		$this->assertStringContainsString( 'No valid email recipients', $result['error'] );
+	}
+
+	/**
 	 * Testa che send filtra email non valide con is_email() reale
 	 *
 	 * @return void

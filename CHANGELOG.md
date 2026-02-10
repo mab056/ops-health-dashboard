@@ -24,12 +24,19 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 - **Scheduler resilience** - `catch (\Throwable)` attorno ad AlertManager (il cron sopravvive a qualsiasi tipo di errore)
 - **Secret non-prefill** - Password inputs rendono `value=""` + `placeholder="********"` (credenziali mai presenti nel sorgente DOM)
 
+### Tests
+- +1 unit test AlertSettings (corrupted existing settings → `!is_array` branch)
+- +2 integration test AlertSettings (preserve existing secrets + corrupted existing settings)
+- +1 integration test EmailChannel (send con tutti i recipients invalidi → guard `empty($recipients)`)
+- +1 integration test AlertingFlowTest (ThrowingChannel → `catch \Throwable` in `dispatch_to_channels()` + isolamento per-canale)
+- ThrowingChannel: implementa `AlertChannelInterface`, lancia `\RuntimeException` in `send()` — testa isolamento per-canale
+
 ### Development Notes
 - Code review 2 post-M4: 5 rilievi risolti (1 High, 2 Medium, 2 Low) — TDD rigoroso RED → GREEN → REFACTOR
-- +8 unit test, aggiornati 9 test AlertSettings + 1 test integrazione
-- 693 test totali (437 unit + 256 integration), 1529 assertions
-- Unit coverage: 99.92% lines (1280/1281), 99.26% methods (135/136)
-- Integration coverage: 98.98% lines (1267/1280), 97.79% methods (133/136)
+- Coverage push: da 99.92%/98.98% a **100%/100%** (unit e integration indipendentemente)
+- 698 test totali (438 unit + 260 integration), 1548 assertions
+- Unit coverage: **100%** lines (1281/1281), **100%** methods (136/136), 20/20 classes
+- Integration coverage: **100%** lines (1280/1280), **100%** methods (136/136), 20/20 classes
 - PHPCS 100% clean (0 errori, 0 warning)
 - PHPStan level 6: 0 errori
 

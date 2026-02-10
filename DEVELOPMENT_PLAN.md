@@ -424,12 +424,12 @@
 **Statistiche Finali**:
 - 27 file sorgente in `src/` (+11 da M3)
 - 47 file di test (27 unit + 20 integration) (+21 da M3)
-- 693 test totali (437 unit + 256 integration), 1529 assertions
-- Unit coverage: 99.92% (1280/1281 lines, 135/136 methods)
-- Integration coverage: 98.98% (1267/1280 lines, 133/136 methods)
+- 698 test totali (438 unit + 260 integration), 1548 assertions
+- Unit coverage: **100%** (1281/1281 lines, 136/136 methods, 20/20 classes)
+- Integration coverage: **100%** (1280/1280 lines, 136/136 methods, 20/20 classes)
 - PHPCS 100% clean (0 errori, 0 warning)
 - PHPStan level 6: 0 errori
-- +196 nuovi test per M4 + 10 test aggiunti in code review 1 + 120 test integrazione aggiunti in coverage push + 8 test aggiunti in code review 2
+- +196 nuovi test per M4 + 10 test aggiunti in code review 1 + 120 test integrazione aggiunti in coverage push + 8 test aggiunti in code review 2 + 5 test aggiunti in coverage 100% push
 
 **Deliverable**: Alerting multi-canale con anti-SSRF, DNS pinning, cooldown intelligente, UI admin configurazione ✅
 
@@ -455,6 +455,26 @@
 Totale: 693 test (437 unit + 256 integration), 1529 assertions, PHPCS + PHPStan clean
 - **Lesson**: `CURLOPT_RESOLVE` via `http_api_curl` WordPress hook è la soluzione standard per DNS pinning senza rompere HTTPS/SNI
 - **Lesson**: password fields devono usare `value=""` (mai il valore reale) + preserve-on-empty per non perdere il secret al salvataggio
+
+### 2026-02-10 (Coverage 100% Push)
+
+**Coverage push: 99.92%/98.98% → 100%/100%** — 5 nuovi test per chiudere le ultime linee non coperte:
+
+**Gap identificati tramite Clover XML parsing:**
+- AlertSettings `build_settings_from_post()` linea 327: `$existing = []` dentro `if (!is_array($existing))` — storage corrotto
+- AlertSettings linee 336/340/344: preserve existing secrets quando campo POST vuoto — non esercitato in integrazione
+- EmailChannel `send()` linee 86-89: guard `empty($recipients)` — tutti i recipients invalidi dopo `parse_recipients()`
+- AlertManager `dispatch_to_channels()` linee 281-285: `catch (\Throwable)` — nessun canale lanciava eccezione in integrazione
+
+**Test aggiunti:**
+- Unit AlertSettingsTest: `test_process_actions_handles_corrupted_existing_settings` (storage returns non-array)
+- Integration AlertSettingsTest: `test_process_actions_preserves_existing_secrets_when_empty` + `test_process_actions_handles_corrupted_existing_settings`
+- Integration EmailChannelTest: `test_send_returns_error_when_all_recipients_invalid`
+- Integration AlertingFlowTest: `test_dispatch_catches_throwable_from_channel` (ThrowingChannel + per-channel isolation)
+
+Totale: 698 test (438 unit + 260 integration), 1548 assertions
+Coverage: **100%** sia per unit che per integration, indipendentemente (1281/1281 + 1280/1280 lines)
+PHPCS + PHPStan clean
 
 ### 2026-02-10 (Code Review Post-M4)
 

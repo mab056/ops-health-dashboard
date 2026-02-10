@@ -658,6 +658,39 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
+	 * Testa che build_settings_from_post gestisce existing settings corrotti (non array)
+	 */
+	public function test_process_actions_handles_corrupted_existing_settings() {
+		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'get' )
+			->with( 'alert_settings', [] )
+			->andReturn( 'corrupted-string' );
+
+		$_POST['ops_health_alert_action'] = 'save';
+		$_POST['_ops_health_alert_nonce'] = 'valid';
+		$_POST['email_enabled']           = '1';
+		$_POST['email_recipients']        = 'admin@example.com';
+
+		$this->mock_save_functions();
+
+		$storage->shouldReceive( 'set' )
+			->once()
+			->with(
+				'alert_settings',
+				Mockery::on( function ( $data ) {
+					return isset( $data['email']['enabled'] )
+						&& true === $data['email']['enabled']
+						&& 'admin@example.com' === $data['email']['recipients'];
+				} )
+			);
+
+		$screen = $this->create_testable_settings( $storage );
+		$screen->process_actions();
+
+		$this->assertInstanceOf( AlertSettings::class, $screen );
+	}
+
+	/**
 	 * Testa che campo password vuoto preserva il segreto esistente
 	 */
 	public function test_process_actions_preserves_existing_secret_when_post_empty() {

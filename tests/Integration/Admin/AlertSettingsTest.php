@@ -438,6 +438,97 @@ class AlertSettingsTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Testa che process_actions preserva secret esistenti quando campi password vuoti
+	 *
+	 * @return void
+	 */
+	public function test_process_actions_preserves_existing_secrets_when_empty() {
+		$this->set_admin_user();
+
+		// Salva impostazioni con secret esistenti.
+		$this->storage->set(
+			'alert_settings',
+			[
+				'webhook'  => [
+					'enabled' => true,
+					'url'     => 'https://hooks.example.com/webhook',
+					'secret'  => 'existing-webhook-secret',
+				],
+				'telegram' => [
+					'enabled'   => true,
+					'bot_token' => 'existing-bot-token',
+					'chat_id'   => '-100123',
+				],
+				'whatsapp' => [
+					'enabled'      => true,
+					'webhook_url'  => 'https://api.twilio.com/whatsapp',
+					'phone_number' => '+391234567890',
+					'api_token'    => 'existing-wa-token',
+				],
+			]
+		);
+
+		// Invia POST con campi password vuoti (simula submit senza cambiare password).
+		$this->set_valid_post(
+			[
+				'webhook_enabled'       => '1',
+				'webhook_url'           => 'https://hooks.example.com/webhook',
+				'webhook_secret'        => '',
+				'telegram_enabled'      => '1',
+				'telegram_bot_token'    => '',
+				'telegram_chat_id'      => '-100123',
+				'whatsapp_enabled'      => '1',
+				'whatsapp_webhook_url'  => 'https://api.twilio.com/whatsapp',
+				'whatsapp_phone_number' => '+391234567890',
+				'whatsapp_api_token'    => '',
+			]
+		);
+
+		add_filter( 'wp_redirect', '__return_false' );
+
+		$screen = $this->create_screen();
+		$screen->process_actions();
+
+		$saved = $this->storage->get( 'alert_settings', [] );
+
+		// I secret esistenti devono essere preservati.
+		$this->assertEquals( 'existing-webhook-secret', $saved['webhook']['secret'] );
+		$this->assertEquals( 'existing-bot-token', $saved['telegram']['bot_token'] );
+		$this->assertEquals( 'existing-wa-token', $saved['whatsapp']['api_token'] );
+	}
+
+	/**
+	 * Testa che build_settings_from_post gestisce settings corrotti (non array)
+	 *
+	 * @return void
+	 */
+	public function test_process_actions_handles_corrupted_existing_settings() {
+		$this->set_admin_user();
+
+		// Corrompi le impostazioni esistenti con un valore non-array.
+		$this->storage->set( 'alert_settings', 'corrupted-string' );
+
+		$this->set_valid_post(
+			[
+				'email_enabled'    => '1',
+				'email_recipients' => 'admin@example.com',
+			]
+		);
+
+		add_filter( 'wp_redirect', '__return_false' );
+
+		$screen = $this->create_screen();
+		$screen->process_actions();
+
+		$saved = $this->storage->get( 'alert_settings', [] );
+
+		// Deve salvare correttamente nonostante dati precedenti corrotti.
+		$this->assertIsArray( $saved );
+		$this->assertTrue( $saved['email']['enabled'] );
+		$this->assertEquals( 'admin@example.com', $saved['email']['recipients'] );
+	}
+
+	/**
 	 * Testa che render gestisce settings corrotti (non array)
 	 *
 	 * @return void

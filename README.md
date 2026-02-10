@@ -162,12 +162,12 @@ Questo progetto segue Test-Driven Development con un **approccio misto**:
 
 **Unit Tests (Brain\Monkey)** - Veloce, isolato
 - Logica business pura, NO WordPress
-- 437 test, ~4 s
+- 438 test, ~4 s
 - Perfetto per TDD rapido
 
 **Integration Tests (WP Test Suite)** - WordPress reale
 - Test con WordPress completo, database, WP-Cron
-- 256 test, ~4 s
+- 260 test, ~4 s
 - Verifica integrazione reale con WordPress
 
 ### Comandi Test
@@ -266,8 +266,8 @@ public function test_database_check_runs_successfully() {
 
 ### Matrice Test
 
-- **Unit Tests**: Brain\Monkey - 437 test, tutte le versioni PHP - 99.92% coverage (1280/1281 lines)
-- **Integration Tests**: WP Test Suite - 256 test, tutte le versioni PHP - 98.98% coverage (1267/1280 lines)
+- **Unit Tests**: Brain\Monkey - 438 test, tutte le versioni PHP - **100%** coverage (1281/1281 lines, 136/136 methods)
+- **Integration Tests**: WP Test Suite - 260 test, tutte le versioni PHP - **100%** coverage (1280/1280 lines, 136/136 methods)
 - **PHPStan**: Level 6 con szepeviktor/phpstan-wordpress, 0 errori
 - **Versioni PHP**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
 - **Target Coverage**: 95% progetto, 90% patch (Codecov)
@@ -321,9 +321,9 @@ Milestone corrente: **M5 - E2E Testing** 🚧
 
 - **27 file sorgente** in `src/`
 - **47 file di test** (27 unit + 20 integration)
-- **693 test totali** (437 unit + 256 integration), 1529 assertions
-- **Coverage unit**: 99.92% lines (1280/1281), 99.26% methods (135/136)
-- **Coverage integration**: 98.98% lines (1267/1280), 97.79% methods (133/136)
+- **698 test totali** (438 unit + 260 integration), 1548 assertions
+- **Coverage unit**: **100%** lines (1281/1281), methods (136/136), classes (20/20)
+- **Coverage integration**: **100%** lines (1280/1280), methods (136/136), classes (20/20)
 - **PHPCS**: 100% compliance (0 errori, 0 warning)
 - **PHPStan**: level 6, 0 errori
 
