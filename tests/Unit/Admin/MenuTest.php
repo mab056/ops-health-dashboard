@@ -11,6 +11,7 @@ namespace OpsHealthDashboard\Tests\Unit\Admin;
 
 use Brain\Monkey\Functions;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
+use OpsHealthDashboard\Admin\AlertSettings;
 use OpsHealthDashboard\Admin\Menu;
 use PHPUnit\Framework\TestCase;
 
@@ -120,6 +121,143 @@ class MenuTest extends TestCase {
 		$menu->add_menu();
 
 		// Brain\Monkey verifica expect('add_action')->never() via MockeryPHPUnitIntegration.
+		$this->assertInstanceOf( Menu::class, $menu );
+	}
+
+	/**
+	 * Testa che Menu può essere istanziato con AlertSettings
+	 */
+	public function test_menu_can_be_instantiated_with_alert_settings() {
+		$health_screen  = \Mockery::mock( \OpsHealthDashboard\Admin\HealthScreen::class );
+		$alert_settings = \Mockery::mock( AlertSettings::class );
+		$menu           = new Menu( $health_screen, $alert_settings );
+		$this->assertInstanceOf( Menu::class, $menu );
+	}
+
+	/**
+	 * Testa che add_menu() registra submenu Alert Settings quando presente
+	 */
+	public function test_add_menu_registers_alert_settings_submenu() {
+		Functions\expect( '__' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
+
+		Functions\expect( 'add_menu_page' )
+			->once()
+			->andReturn( 'ops-health-page' );
+
+		Functions\expect( 'add_submenu_page' )
+			->once()
+			->with(
+				'ops-health-dashboard',
+				'Alert Settings',
+				'Alert Settings',
+				'manage_options',
+				'ops-health-alert-settings',
+				\Mockery::type( 'array' )
+			)
+			->andReturn( 'ops-health-alerts-page' );
+
+		// add_action: load-ops-health-page + load-ops-health-alerts-page.
+		Functions\expect( 'add_action' )
+			->twice()
+			->with( \Mockery::type( 'string' ), \Mockery::type( 'array' ) );
+
+		$health_screen  = \Mockery::mock( \OpsHealthDashboard\Admin\HealthScreen::class );
+		$alert_settings = \Mockery::mock( AlertSettings::class );
+		$menu           = new Menu( $health_screen, $alert_settings );
+		$menu->add_menu();
+
+		$this->assertInstanceOf( Menu::class, $menu );
+	}
+
+	/**
+	 * Testa che add_menu() non registra submenu senza AlertSettings
+	 */
+	public function test_add_menu_skips_submenu_without_alert_settings() {
+		Functions\expect( '__' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
+
+		Functions\expect( 'add_menu_page' )
+			->once()
+			->andReturn( 'ops-health-page' );
+
+		Functions\expect( 'add_submenu_page' )->never();
+
+		Functions\expect( 'add_action' )
+			->once()
+			->with(
+				'load-ops-health-page',
+				\Mockery::type( 'array' )
+			);
+
+		$health_screen = \Mockery::mock( \OpsHealthDashboard\Admin\HealthScreen::class );
+		$menu          = new Menu( $health_screen );
+		$menu->add_menu();
+
+		$this->assertInstanceOf( Menu::class, $menu );
+	}
+
+	/**
+	 * Testa che render_alert_settings() chiama AlertSettings::render()
+	 */
+	public function test_render_alert_settings_calls_alert_settings_render() {
+		$health_screen  = \Mockery::mock( \OpsHealthDashboard\Admin\HealthScreen::class );
+		$alert_settings = \Mockery::mock( AlertSettings::class );
+		$alert_settings->shouldReceive( 'render' )->once();
+
+		$menu = new Menu( $health_screen, $alert_settings );
+		$menu->render_alert_settings();
+
+		$this->assertInstanceOf( Menu::class, $menu );
+	}
+
+	/**
+	 * Testa che render_alert_settings() non fa nulla senza AlertSettings
+	 */
+	public function test_render_alert_settings_noop_without_alert_settings() {
+		$health_screen = \Mockery::mock( \OpsHealthDashboard\Admin\HealthScreen::class );
+
+		$menu = new Menu( $health_screen );
+		$menu->render_alert_settings();
+
+		// Nessuna eccezione, nessun rendering.
+		$this->assertInstanceOf( Menu::class, $menu );
+	}
+
+	/**
+	 * Testa submenu non registra load-hook se add_submenu_page ritorna false
+	 */
+	public function test_submenu_skips_load_hook_when_returns_false() {
+		Functions\expect( '__' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
+
+		Functions\expect( 'add_menu_page' )
+			->once()
+			->andReturn( 'ops-health-page' );
+
+		Functions\expect( 'add_submenu_page' )
+			->once()
+			->andReturn( false );
+
+		// Solo il load-hook del menu principale.
+		Functions\expect( 'add_action' )
+			->once()
+			->with(
+				'load-ops-health-page',
+				\Mockery::type( 'array' )
+			);
+
+		$health_screen  = \Mockery::mock( \OpsHealthDashboard\Admin\HealthScreen::class );
+		$alert_settings = \Mockery::mock( AlertSettings::class );
+		$menu           = new Menu( $health_screen, $alert_settings );
+		$menu->add_menu();
+
 		$this->assertInstanceOf( Menu::class, $menu );
 	}
 

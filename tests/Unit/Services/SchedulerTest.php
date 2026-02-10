@@ -12,6 +12,7 @@ namespace OpsHealthDashboard\Tests\Unit\Services;
 use Brain\Monkey\Functions;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
+use OpsHealthDashboard\Interfaces\AlertManagerInterface;
 use OpsHealthDashboard\Interfaces\CheckRunnerInterface;
 use OpsHealthDashboard\Services\Scheduler;
 use PHPUnit\Framework\TestCase;
@@ -380,6 +381,141 @@ class SchedulerTest extends TestCase {
 		$schedules = $scheduler->add_custom_cron_interval( $existing );
 
 		$this->assertEquals( 999, $schedules['every_15_minutes']['interval'] );
+	}
+
+	/**
+	 * Testa che Scheduler può essere istanziato con AlertManager opzionale
+	 */
+	public function test_scheduler_can_be_instantiated_with_alert_manager() {
+		$runner        = Mockery::mock( CheckRunnerInterface::class );
+		$alert_manager = Mockery::mock( AlertManagerInterface::class );
+		$scheduler     = new Scheduler( $runner, $alert_manager );
+
+		$this->assertInstanceOf( Scheduler::class, $scheduler );
+	}
+
+	/**
+	 * Testa che run_checks() chiama alert_manager->process() con risultati corretti
+	 */
+	public function test_run_checks_calls_alert_manager_process() {
+		$previous = [
+			'database' => [
+				'status'  => 'ok',
+				'message' => 'OK',
+			],
+		];
+
+		$current = [
+			'database' => [
+				'status'  => 'critical',
+				'message' => 'Slow query',
+			],
+		];
+
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )
+			->once()
+			->andReturn( $previous );
+		$runner->shouldReceive( 'run_all' )
+			->once()
+			->andReturn( $current );
+
+		$alert_manager = Mockery::mock( AlertManagerInterface::class );
+		$alert_manager->shouldReceive( 'process' )
+			->once()
+			->with( $current, $previous )
+			->andReturn( [] );
+
+		$scheduler = new Scheduler( $runner, $alert_manager );
+		$scheduler->run_checks();
+
+		// Mockery verifica automaticamente.
+		$this->assertInstanceOf( Scheduler::class, $scheduler );
+	}
+
+	/**
+	 * Testa che run_checks() senza alert manager funziona normalmente
+	 */
+	public function test_run_checks_without_alert_manager_does_not_call_process() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'run_all' )
+			->once()
+			->andReturn( [
+				'database' => [
+					'status'  => 'ok',
+					'message' => 'OK',
+				],
+			] );
+
+		// Senza alert manager, non deve chiamare get_latest_results.
+		$runner->shouldNotReceive( 'get_latest_results' );
+
+		$scheduler = new Scheduler( $runner );
+		$scheduler->run_checks();
+
+		$this->assertInstanceOf( Scheduler::class, $scheduler );
+	}
+
+	/**
+	 * Testa che run_checks() passa array vuoto come previous al primo avvio
+	 */
+	public function test_run_checks_passes_empty_previous_on_first_run() {
+		$current = [
+			'database' => [
+				'status'  => 'ok',
+				'message' => 'OK',
+			],
+		];
+
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )
+			->once()
+			->andReturn( [] );
+		$runner->shouldReceive( 'run_all' )
+			->once()
+			->andReturn( $current );
+
+		$alert_manager = Mockery::mock( AlertManagerInterface::class );
+		$alert_manager->shouldReceive( 'process' )
+			->once()
+			->with( $current, [] )
+			->andReturn( [] );
+
+		$scheduler = new Scheduler( $runner, $alert_manager );
+		$scheduler->run_checks();
+
+		$this->assertInstanceOf( Scheduler::class, $scheduler );
+	}
+
+	/**
+	 * Testa che run_checks() legge previous PRIMA di run_all()
+	 */
+	public function test_run_checks_reads_previous_before_run_all() {
+		$call_order = [];
+
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )
+			->once()
+			->andReturnUsing( function () use ( &$call_order ) {
+				$call_order[] = 'get_latest_results';
+				return [];
+			} );
+		$runner->shouldReceive( 'run_all' )
+			->once()
+			->andReturnUsing( function () use ( &$call_order ) {
+				$call_order[] = 'run_all';
+				return [ 'db' => [ 'status' => 'ok' ] ];
+			} );
+
+		$alert_manager = Mockery::mock( AlertManagerInterface::class );
+		$alert_manager->shouldReceive( 'process' )
+			->once()
+			->andReturn( [] );
+
+		$scheduler = new Scheduler( $runner, $alert_manager );
+		$scheduler->run_checks();
+
+		$this->assertSame( [ 'get_latest_results', 'run_all' ], $call_order );
 	}
 
 	/**

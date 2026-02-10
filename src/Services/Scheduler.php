@@ -10,6 +10,7 @@
 
 namespace OpsHealthDashboard\Services;
 
+use OpsHealthDashboard\Interfaces\AlertManagerInterface;
 use OpsHealthDashboard\Interfaces\CheckRunnerInterface;
 
 /**
@@ -41,12 +42,21 @@ class Scheduler {
 	private $runner;
 
 	/**
+	 * Alert manager per notifiche su cambiamenti di stato
+	 *
+	 * @var AlertManagerInterface|null
+	 */
+	private $alert_manager;
+
+	/**
 	 * Constructor
 	 *
-	 * @param CheckRunnerInterface $runner CheckRunner per eseguire i check.
+	 * @param CheckRunnerInterface       $runner        CheckRunner per eseguire i check.
+	 * @param AlertManagerInterface|null $alert_manager Alert manager opzionale.
 	 */
-	public function __construct( CheckRunnerInterface $runner ) {
-		$this->runner = $runner;
+	public function __construct( CheckRunnerInterface $runner, AlertManagerInterface $alert_manager = null ) {
+		$this->runner        = $runner;
+		$this->alert_manager = $alert_manager;
 	}
 
 	/**
@@ -119,11 +129,24 @@ class Scheduler {
 	}
 
 	/**
-	 * Esegue i check (chiamato dal cron hook)
+	 * Esegue i check e processa alert (chiamato dal cron hook)
+	 *
+	 * Quando alert_manager è presente, legge i risultati precedenti PRIMA
+	 * di eseguire run_all(), poi chiama process() per rilevare cambiamenti.
 	 *
 	 * @return void
 	 */
 	public function run_checks(): void {
-		$this->runner->run_all();
+		$previous = [];
+
+		if ( null !== $this->alert_manager ) {
+			$previous = $this->runner->get_latest_results();
+		}
+
+		$current = $this->runner->run_all();
+
+		if ( null !== $this->alert_manager ) {
+			$this->alert_manager->process( $current, $previous );
+		}
 	}
 }

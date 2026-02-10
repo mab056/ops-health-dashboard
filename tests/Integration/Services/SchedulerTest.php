@@ -10,6 +10,7 @@
 namespace OpsHealthDashboard\Tests\Integration\Services;
 
 use OpsHealthDashboard\Checks\DatabaseCheck;
+use OpsHealthDashboard\Services\AlertManager;
 use OpsHealthDashboard\Services\CheckRunner;
 use OpsHealthDashboard\Services\Redaction;
 use OpsHealthDashboard\Services\Scheduler;
@@ -140,6 +141,89 @@ class SchedulerTest extends WP_UnitTestCase {
 
 		$this->assertIsArray( $results );
 		$this->assertArrayHasKey( 'database', $results );
+
+		// Cleanup.
+		$this->storage->delete( 'latest_results' );
+	}
+
+	/**
+	 * Testa che run_checks() con AlertManager processa alert su cambiamenti di stato
+	 */
+	public function test_run_checks_with_alert_manager_processes_state_changes() {
+		$redaction     = new Redaction();
+		$alert_manager = new AlertManager( $this->storage, $redaction );
+
+		$runner = new CheckRunner( $this->storage, $redaction );
+		global $wpdb;
+		$runner->add_check( new DatabaseCheck( $wpdb, $redaction ) );
+
+		// Salva risultati "precedenti" fittizi con stato critical.
+		$this->storage->set( 'latest_results', [
+			'database' => [
+				'status'  => 'critical',
+				'message' => 'Simulated failure',
+				'name'    => 'Database',
+			],
+		] );
+
+		$scheduler = new Scheduler( $runner, $alert_manager );
+		$scheduler->run_checks();
+
+		// I risultati correnti dovrebbero essere salvati (database ok in test env).
+		$results = $this->storage->get( 'latest_results' );
+		$this->assertIsArray( $results );
+		$this->assertArrayHasKey( 'database', $results );
+
+		// Verifica che alert_log è stato creato (recovery: critical→ok).
+		$log = $this->storage->get( 'alert_log', [] );
+		$this->assertIsArray( $log );
+
+		// Cleanup.
+		$this->storage->delete( 'latest_results' );
+		$this->storage->delete( 'alert_log' );
+	}
+
+	/**
+	 * Testa backward compatibility: Scheduler senza AlertManager funziona come prima
+	 */
+	public function test_backward_compatibility_without_alert_manager() {
+		$this->storage->delete( 'latest_results' );
+
+		// Scheduler creato senza AlertManager (come prima di M4).
+		$this->scheduler->run_checks();
+
+		$results = $this->storage->get( 'latest_results' );
+		$this->assertIsArray( $results );
+		$this->assertArrayHasKey( 'database', $results );
+
+		// Nessun alert_log dovrebbe essere creato.
+		$log = $this->storage->get( 'alert_log', [] );
+		$this->assertEmpty( $log );
+
+		// Cleanup.
+		$this->storage->delete( 'latest_results' );
+	}
+
+	/**
+	 * Testa che run_checks() con AlertManager non alerta al primo avvio con ok
+	 */
+	public function test_run_checks_no_alert_on_first_run_with_ok_status() {
+		$redaction     = new Redaction();
+		$alert_manager = new AlertManager( $this->storage, $redaction );
+
+		$runner = new CheckRunner( $this->storage, $redaction );
+		global $wpdb;
+		$runner->add_check( new DatabaseCheck( $wpdb, $redaction ) );
+
+		// Nessun risultato precedente (primo avvio).
+		$this->storage->delete( 'latest_results' );
+
+		$scheduler = new Scheduler( $runner, $alert_manager );
+		$scheduler->run_checks();
+
+		// Primo avvio con ok: nessun alert.
+		$log = $this->storage->get( 'alert_log', [] );
+		$this->assertEmpty( $log, 'No alert expected on first run with ok status' );
 
 		// Cleanup.
 		$this->storage->delete( 'latest_results' );

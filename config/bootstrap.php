@@ -50,6 +50,16 @@ function bootstrap(): Plugin {
 		}
 	);
 
+	// Client HTTP con protezione anti-SSRF.
+	$container->share(
+		Interfaces\HttpClientInterface::class,
+		function ( $c ) {
+			return new Services\HttpClient(
+				$c->make( Interfaces\RedactionInterface::class )
+			);
+		}
+	);
+
 	$container->share(
 		Interfaces\CheckRunnerInterface::class,
 		function ( $c ) {
@@ -78,11 +88,41 @@ function bootstrap(): Plugin {
 		}
 	);
 
+	// Alert Manager con canali di notifica.
+	$container->share(
+		Interfaces\AlertManagerInterface::class,
+		function ( $c ) {
+			$storage   = $c->make( Interfaces\StorageInterface::class );
+			$redaction = $c->make( Interfaces\RedactionInterface::class );
+			$http      = $c->make( Interfaces\HttpClientInterface::class );
+
+			$manager = new Services\AlertManager( $storage, $redaction );
+
+			$manager->add_channel( new Channels\EmailChannel( $storage ) );
+			$manager->add_channel(
+				new Channels\WebhookChannel( $storage, $http )
+			);
+			$manager->add_channel(
+				new Channels\SlackChannel( $storage, $http )
+			);
+			$manager->add_channel(
+				new Channels\TelegramChannel( $storage, $http )
+			);
+			$manager->add_channel(
+				new Channels\WhatsAppChannel( $storage, $http )
+			);
+
+			return $manager;
+		}
+	);
+
+	// Scheduler con AlertManager integrato.
 	$container->share(
 		Services\Scheduler::class,
 		function ( $c ) {
 			return new Services\Scheduler(
-				$c->make( Interfaces\CheckRunnerInterface::class )
+				$c->make( Interfaces\CheckRunnerInterface::class ),
+				$c->make( Interfaces\AlertManagerInterface::class )
 			);
 		}
 	);
@@ -97,11 +137,23 @@ function bootstrap(): Plugin {
 		}
 	);
 
+	// Pagina alert settings.
+	$container->share(
+		Admin\AlertSettings::class,
+		function ( $c ) {
+			return new Admin\AlertSettings(
+				$c->make( Interfaces\StorageInterface::class )
+			);
+		}
+	);
+
+	// Menu admin con AlertSettings submenu.
 	$container->share(
 		Admin\Menu::class,
 		function ( $c ) {
 			return new Admin\Menu(
-				$c->make( Admin\HealthScreen::class )
+				$c->make( Admin\HealthScreen::class ),
+				$c->make( Admin\AlertSettings::class )
 			);
 		}
 	);
