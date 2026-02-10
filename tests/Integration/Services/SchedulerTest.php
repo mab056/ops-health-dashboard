@@ -10,6 +10,8 @@
 namespace OpsHealthDashboard\Tests\Integration\Services;
 
 use OpsHealthDashboard\Checks\DatabaseCheck;
+use OpsHealthDashboard\Interfaces\AlertChannelInterface;
+use OpsHealthDashboard\Interfaces\AlertManagerInterface;
 use OpsHealthDashboard\Services\AlertManager;
 use OpsHealthDashboard\Services\CheckRunner;
 use OpsHealthDashboard\Services\Redaction;
@@ -205,6 +207,42 @@ class SchedulerTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Testa che run_checks() continua se AlertManager lancia eccezione
+	 */
+	public function test_run_checks_continues_when_alert_manager_throws() {
+		$throwing_manager = new ThrowingAlertManager();
+
+		$redaction = new Redaction();
+		$runner    = new CheckRunner( $this->storage, $redaction );
+		global $wpdb;
+		$runner->add_check( new DatabaseCheck( $wpdb, $redaction ) );
+
+		// Salva risultati precedenti per triggerare un cambiamento di stato.
+		$this->storage->set(
+			'latest_results',
+			[
+				'database' => [
+					'status'  => 'critical',
+					'message' => 'Simulated failure',
+					'name'    => 'Database',
+				],
+			]
+		);
+
+		$scheduler = new Scheduler( $runner, $throwing_manager );
+		$scheduler->run_checks();
+
+		// I risultati correnti DEVONO essere salvati nonostante l'eccezione.
+		$results = $this->storage->get( 'latest_results' );
+		$this->assertIsArray( $results );
+		$this->assertArrayHasKey( 'database', $results );
+		$this->assertEquals( 'ok', $results['database']['status'] );
+
+		// Cleanup.
+		$this->storage->delete( 'latest_results' );
+	}
+
+	/**
 	 * Testa che run_checks() con AlertManager non alerta al primo avvio con ok
 	 */
 	public function test_run_checks_no_alert_on_first_run_with_ok_status() {
@@ -227,5 +265,32 @@ class SchedulerTest extends WP_UnitTestCase {
 
 		// Cleanup.
 		$this->storage->delete( 'latest_results' );
+	}
+}
+
+/**
+ * AlertManager che lancia eccezione per testare resilienza del cron.
+ */
+class ThrowingAlertManager implements AlertManagerInterface {
+
+	/**
+	 * Non usato in questo test.
+	 *
+	 * @param AlertChannelInterface $channel Canale da aggiungere.
+	 * @return void
+	 */
+	public function add_channel( AlertChannelInterface $channel ): void {
+	}
+
+	/**
+	 * Lancia sempre eccezione.
+	 *
+	 * @param array $current_results  Risultati correnti.
+	 * @param array $previous_results Risultati precedenti.
+	 * @return array Mai raggiunto.
+	 * @throws \RuntimeException Sempre.
+	 */
+	public function process( array $current_results, array $previous_results ): array {
+		throw new \RuntimeException( 'Simulated alert failure' );
 	}
 }

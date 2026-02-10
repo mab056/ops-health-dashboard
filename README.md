@@ -1,16 +1,16 @@
 # Ops Health Dashboard
 
-[![CI](https://github.com/mab056/ops-health-dashboard/workflows/CI/badge.svg)](https://github.com/mab056/ops-health-dashboard/actions)
+[![CI](https://github.com/mab056/ops-health-dashboard/workflows/CI/badge.svg)](https://github.com/mab056/ops-health-dashboard/actions/workflows/ci.yml)
 [![CI (dev)](https://github.com/mab056/ops-health-dashboard/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/mab056/ops-health-dashboard/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/mab056/ops-health-dashboard/graph/badge.svg?token=OO2F0VMGQO)](https://codecov.io/gh/mab056/ops-health-dashboard)
-[![Last Commit](https://img.shields.io/github/last-commit/mab056/ops-health-dashboard)](https://github.com/mab056/ops-health-dashboard/commits)
-[![PHP Version](https://img.shields.io/badge/PHP-7.4%2B-blue)](https://www.php.net/)
-[![WordPress](https://img.shields.io/badge/WordPress-5.8%2B-blue)](https://wordpress.org/)
-[![License](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.4.0-green)](https://github.com/mab056/ops-health-dashboard/releases)
-[![Security Policy](https://img.shields.io/badge/Security-Policy-blue)](SECURITY.md)
 [![PHPCS](https://img.shields.io/badge/PHPCS-WordPress%20Standards-green)](https://github.com/WordPress/WordPress-Coding-Standards)
 [![PHPStan](https://img.shields.io/badge/PHPStan-level%206-brightgreen)](phpstan.neon)
+[![License](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)
+[![Security Policy](https://img.shields.io/badge/Security-Policy-blue)](SECURITY.md)
+[![PHP Version](https://img.shields.io/badge/PHP-7.4%2B-blue)](https://www.php.net/)
+[![WordPress](https://img.shields.io/badge/WordPress-5.8%2B-blue)](https://wordpress.org/)
+[![Version](https://img.shields.io/badge/Version-0.4.0-green)](https://github.com/mab056/ops-health-dashboard/releases)
+
 
 Plugin WordPress di monitoraggio operativo production-grade con controlli automatici e alerting multi-canale configurabile.
 
@@ -157,18 +157,18 @@ composer analyse
 
 ## 🧪 Testing
 
-Questo progetto segue **TDD rigoroso** (Test-Driven Development) con un **approccio misto**:
+Questo progetto segue Test-Driven Development con un **approccio misto**:
 
 ### Approccio Test Misto
 
 **Unit Tests (Brain\Monkey)** - Veloce, isolato
 - Logica business pura, NO WordPress
-- 420 test, ~4 s
+- 429 test, ~4 s
 - Perfetto per TDD rapido
 
 **Integration Tests (WP Test Suite)** - WordPress reale
 - Test con WordPress completo, database, WP-Cron
-- 136 test, ~4 s
+- 256 test, ~4 s
 - Verifica integrazione reale con WordPress
 
 ### Comandi Test
@@ -203,7 +203,7 @@ bin/build-zip.sh --output /tmp/p.zip  # Output path custom
 
 ### Test Matrix Locale
 
-Esegui l'intera matrice CI in locale (richiede PHP 7.4-8.5 via PPA sury):
+Esegui l'intera matrice CI in locale (richiede PHP 7.4-8.5):
 
 ```bash
 composer test:matrix                   # Matrice completa (PHPCS + PHPStan + 7 versioni PHP)
@@ -267,11 +267,11 @@ public function test_database_check_runs_successfully() {
 
 ### Matrice Test
 
-- **Unit Tests**: Brain\Monkey - 420 test, tutte le versioni PHP
-- **Integration Tests**: WP Test Suite - 136 test, tutte le versioni PHP
+- **Unit Tests**: Brain\Monkey - 429 test, tutte le versioni PHP - 100% coverage
+- **Integration Tests**: WP Test Suite - 256 test, tutte le versioni PHP - 100% coverage
 - **PHPStan**: Level 6 con szepeviktor/phpstan-wordpress, 0 errori
 - **Versioni PHP**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
-- **Target Coverage**: ≥85% su PHP 8.3
+- **Target Coverage**: 95% progetto, 90% patch (Codecov)
 - **Test E2E**: Viewport Mobile, Tablet, Desktop (futuro M5)
 
 ## 🔒 Sicurezza
@@ -280,7 +280,7 @@ public function test_database_check_runs_successfully() {
 
 - **Solo Admin**: Tutte le funzionalità richiedono capability `manage_options`
 - **Nonces**: Protezione CSRF su tutti i form e AJAX
-- **Anti-SSRF**: Protezione attiva su tutte le richieste HTTP outbound *(implementato M4)*
+- **Anti-SSRF**: Protezione attiva su tutte le richieste HTTP outbound
   - Validazione schema (solo http/https)
   - Blocco IP privati e riservati (RFC 1918, loopback, link-local)
   - Validazione DNS resolution (prevenzione DNS rebinding)
@@ -318,8 +318,9 @@ Milestone corrente: **M5 - E2E Testing** 🚧
 ### Statistiche
 
 - **27 file sorgente** in `src/`
-- **42 file di test** (27 unit + 15 integration)
-- **556 test totali** (420 unit + 136 integration), 1285 assertions
+- **47 file di test** (27 unit + 20 integration)
+- **685 test totali** (429 unit + 256 integration), 1497 assertions
+- **Coverage**: 100% classes, 100% methods, 100% lines (sia unit che integration indipendentemente)
 - **PHPCS**: 100% compliance (0 errori, 0 warning)
 - **PHPStan**: level 6, 0 errori
 
@@ -422,7 +423,3 @@ Sviluppato con il supporto di Claude Code (Opus 4.5, 4.6, Sonnet 4.5) e Codex (C
 - **Documentazione**: Vedi [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)
 - **Contribuire**: Vedi [CONTRIBUTING.md](CONTRIBUTING.md)
 - **AI Assistant**: Vedi [CLAUDE.md](CLAUDE.md) per istruzioni Claude Code, [AGENTS.md](AGENTS.md) per istruzioni Codex
-
----
-
-**Costruito con ❤️ e TDD rigoroso**

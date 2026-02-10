@@ -61,10 +61,19 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 
 ### Development Notes
 - Code review post-M4: 13 finding risolti (4 Critical, 3 High, 3 Medium, 3 Low)
-- 556 test totali (420 unit + 136 integration), 1285 assertions
+- Integration test coverage push: da 63.87% a 100% (1240/1240 lines, 134/134 methods, 20/20 classes)
+  - 7 nuovi file integration test: HttpClientTest, AlertSettingsTest, SlackChannelTest, TelegramChannelTest, WebhookChannelTest, WhatsAppChannelTest, EmailChannelTest
+  - 3 file integration test potenziati: MenuTest (+4 test), SchedulerTest (+1 test), AlertingFlowTest (+6 test)
+  - TestableHttpClient subclass con `resolve_host()` override per test anti-SSRF senza DNS
+  - TestableAlertSettings subclass con `do_exit()` override per test PRG senza `exit()`
+  - ThrowingAlertManager per test resilienza Scheduler `try/catch`
+  - Test con HttpClient reale su IP diretti (127.0.0.1, 172.16.0.1, 192.168.1.1) per copertura Xdebug completa
+- 685 test totali (429 unit + 256 integration), 1497 assertions
+- Unit coverage: 100% (1241/1241 lines, 134/134 methods, 20/20 classes)
+- Integration coverage: 100% (1240/1240 lines, 134/134 methods, 20/20 classes)
 - PHPCS 100% clean (0 errori, 0 warning)
 - PHPStan level 6: 0 errori
-- 27 file sorgente in `src/`, 42 file di test (27 unit + 15 integration)
+- 27 file sorgente in `src/`, 47 file di test (27 unit + 20 integration)
 - Pattern enforcement (NO singleton/static/final) su tutte le 11 nuove classi
 - TDD rigoroso per ogni componente: RED → GREEN → REFACTOR
 

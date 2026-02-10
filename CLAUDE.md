@@ -602,20 +602,21 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 - PHPCS: 100% compliance
 - PHPStan: level 6, 0 errors
 - Tests: 100% passing
-- Coverage: ≥85% (target)
+- Coverage: 95% progetto, 90% patch (Codecov)
 
 ## 🎯 Current Status
 
-**Milestone M4 - Alerting System** ✅ COMPLETATA
+**Milestone M4 - Alerting System** ✅ COMPLETATA (con coverage 100%)
 
 **Stato Attuale:**
-- ✅ **420 test unitari** (Brain\Monkey)
-- ✅ **136 test di integrazione** (WP Test Suite)
-- ✅ **556 test totali passing**, 1285 assertions
+- ✅ **429 test unitari** (Brain\Monkey) — coverage **100%** (1241/1241 lines)
+- ✅ **256 test di integrazione** (WP Test Suite) — coverage **100%** (1240/1240 lines)
+- ✅ **685 test totali passing**, 1497 assertions
+- ✅ **Coverage 100%** sia unit che integration indipendentemente (20/20 classes, 134/134 methods)
 - ✅ PHPCS 100% compliance (0 errori, 0 warning)
 - ✅ PHPStan level 6: 0 errori (szepeviktor/phpstan-wordpress)
 - ✅ CI/CD completo con PHP 7.4-8.5
-- ✅ 27 file sorgente, 42 file di test (27 unit + 15 integration)
+- ✅ 27 file sorgente, 47 file di test (27 unit + 20 integration)
 - ✅ Pattern enforcement (NO singleton/static/final)
 - ✅ Code review post-M4: 13 finding risolti (4 Critical, 3 High, 3 Medium, 3 Low)
 

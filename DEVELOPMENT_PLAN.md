@@ -421,11 +421,13 @@
 
 **Statistiche Finali**:
 - 27 file sorgente in `src/` (+11 da M3)
-- 42 file di test (27 unit + 15 integration) (+16 da M3)
-- 556 test totali (420 unit + 136 integration), 1285 assertions
+- 47 file di test (27 unit + 20 integration) (+21 da M3)
+- 685 test totali (429 unit + 256 integration), 1497 assertions
+- Unit coverage: **100%** (1241/1241 lines, 134/134 methods, 20/20 classes)
+- Integration coverage: **100%** (1240/1240 lines, 134/134 methods, 20/20 classes)
 - PHPCS 100% clean (0 errori, 0 warning)
 - PHPStan level 6: 0 errori
-- +196 nuovi test per M4 + 10 test aggiunti in code review
+- +196 nuovi test per M4 + 10 test aggiunti in code review + 120 test integrazione aggiunti in coverage push
 
 **Deliverable**: Alerting multi-canale con anti-SSRF, cooldown intelligente, UI admin configurazione ✅
 
@@ -459,6 +461,37 @@
 - WhatsAppChannel: validazione E.164 phone (`is_valid_phone`) in `is_enabled()`
 
 Totale: 556 test (420 unit + 136 integration), 1285 assertions, PHPCS + PHPStan clean
+
+### 2026-02-10 (Integration Test Coverage Push)
+
+**Integration test coverage: 63.87% → 100%** — 120 nuovi test di integrazione:
+
+**7 nuovi file integration test:**
+- `HttpClientTest` (~25 test): TestableHttpClient subclass, anti-SSRF validation, `pre_http_request` interception, test con HttpClient reale su IP diretti
+- `AlertSettingsTest` (~16 test): TestableAlertSettings subclass, PRG pattern, nonce/capability security, render con settings reali
+- `SlackChannelTest` (~12 test): Block Kit payload, color-coded attachments, recovery title, corrupted settings
+- `TelegramChannelTest` (~10 test): Bot API URL, HTML parse mode, chat_id, corrupted settings
+- `WebhookChannelTest` (~12 test): HMAC signature verification, no-secret header check
+- `WhatsAppChannelTest` (~13 test): E.164 phone validation, Bearer auth header
+- `EmailChannelTest` (~12 test): `pre_wp_mail` interception, `is_email()` validation, wp_mail failure
+
+**3 file integration test potenziati:**
+- `MenuTest` (+4 test): submenu registration, render delegation, null AlertSettings, load hook
+- `SchedulerTest` (+1 test): ThrowingAlertManager resilience (try/catch around process())
+- `AlertingFlowTest` (+6 test): real home_url/bloginfo, DEFAULT_COOLDOWN, missing status key, corrupted log, disabled channels, error redaction
+
+**Tecniche chiave:**
+- TestableHttpClient: override `resolve_host()` per IP controllato senza DNS
+- TestableAlertSettings: override `do_exit()` per prevenire exit() nei test
+- ThrowingAlertManager: implementa AlertManagerInterface, lancia in process() per test resilienza
+- HttpClient reale con IP diretti (127.0.0.1, 172.16.0.1, 192.168.1.1): `gethostbyname()` su IP restituisce l'IP stesso, risolve limitazione attributzione coverage Xdebug su subclass
+- `pre_http_request` filter (2nd arg=$args, 3rd=$url) per intercettare `wp_remote_post()`
+- `pre_wp_mail` filter: return true=intercetta, return false=simula fallimento
+- Admin user context: `self::factory()->user->create(['role'=>'administrator'])` per `$submenu` global
+
+Totale: 685 test (429 unit + 256 integration), 1497 assertions
+Coverage: **100%** sia unit che integration indipendentemente
+PHPCS + PHPStan clean
 
 ### 2026-02-10 (M4 Implementation)
 

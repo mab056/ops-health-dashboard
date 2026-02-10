@@ -372,6 +372,188 @@ class AlertingFlowTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Testa che build_payload usa home_url() e bloginfo reali di WordPress
+	 */
+	public function test_build_payload_uses_real_home_url_and_bloginfo() {
+		$this->storage->set( 'alert_settings', [
+			'email' => [
+				'enabled'    => true,
+				'recipients' => 'admin@example.com',
+			],
+		] );
+
+		$captured_mail = null;
+		add_filter(
+			'pre_wp_mail',
+			function ( $null, $atts ) use ( &$captured_mail ) {
+				$captured_mail = $atts;
+				return true;
+			},
+			10,
+			2
+		);
+
+		$alert_manager = new AlertManager( $this->storage, $this->redaction );
+		$alert_manager->add_channel( new EmailChannel( $this->storage ) );
+
+		$alert_manager->process(
+			[ 'database' => [ 'status' => 'critical', 'message' => 'Fail', 'name' => 'DB' ] ],
+			[ 'database' => [ 'status' => 'ok', 'message' => 'OK', 'name' => 'DB' ] ]
+		);
+
+		// Il body dell'email dovrebbe contenere home_url() e bloginfo('name').
+		$this->assertNotNull( $captured_mail );
+		$this->assertStringContainsString( home_url(), $captured_mail['message'] );
+
+		$site_name = get_bloginfo( 'name' );
+		if ( ! empty( $site_name ) ) {
+			$this->assertStringContainsString( $site_name, $captured_mail['message'] );
+		}
+
+		remove_all_filters( 'pre_wp_mail' );
+	}
+
+	/**
+	 * Testa che cooldown usa DEFAULT_COOLDOWN quando minutes è zero
+	 */
+	public function test_cooldown_uses_default_when_minutes_zero() {
+		$this->storage->set( 'alert_settings', [
+			'email'            => [
+				'enabled'    => true,
+				'recipients' => 'admin@example.com',
+			],
+			'cooldown_minutes' => 0,
+		] );
+
+		$alert_manager = new AlertManager( $this->storage, $this->redaction );
+		$alert_manager->add_channel( new EmailChannel( $this->storage ) );
+
+		// Primo alert: ok → critical.
+		$alert_manager->process(
+			[ 'database' => [ 'status' => 'critical', 'message' => 'Fail', 'name' => 'DB' ] ],
+			[ 'database' => [ 'status' => 'ok', 'message' => 'OK', 'name' => 'DB' ] ]
+		);
+
+		// Secondo alert: stessa transizione → bloccato da cooldown (DEFAULT_COOLDOWN).
+		$results2 = $alert_manager->process(
+			[ 'database' => [ 'status' => 'critical', 'message' => 'Fail', 'name' => 'DB' ] ],
+			[ 'database' => [ 'status' => 'ok', 'message' => 'OK', 'name' => 'DB' ] ]
+		);
+
+		$this->assertEmpty( $results2, 'Cooldown with 0 minutes should use DEFAULT_COOLDOWN' );
+	}
+
+	/**
+	 * Testa detect_state_changes con risultato precedente senza chiave status
+	 */
+	public function test_state_change_with_missing_previous_status_key() {
+		$this->storage->set( 'alert_settings', [
+			'email' => [
+				'enabled'    => true,
+				'recipients' => 'admin@example.com',
+			],
+		] );
+
+		$alert_manager = new AlertManager( $this->storage, $this->redaction );
+		$alert_manager->add_channel( new EmailChannel( $this->storage ) );
+
+		// Risultato precedente senza chiave 'status' → prev_status = 'unknown'.
+		$results = $alert_manager->process(
+			[ 'database' => [ 'status' => 'critical', 'message' => 'Fail', 'name' => 'DB' ] ],
+			[ 'database' => [ 'message' => 'No status key', 'name' => 'DB' ] ]
+		);
+
+		// Cambio unknown → critical: dovrebbe triggerare alert.
+		$this->assertArrayHasKey( 'database', $results );
+	}
+
+	/**
+	 * Testa log_alert con alert_log corrotto (non array)
+	 */
+	public function test_alert_log_handles_corrupted_storage() {
+		$this->storage->set( 'alert_settings', [
+			'email' => [
+				'enabled'    => true,
+				'recipients' => 'admin@example.com',
+			],
+		] );
+
+		// Corrompi il log impostando un valore non-array.
+		$this->storage->set( 'alert_log', 'corrupted-string' );
+
+		$alert_manager = new AlertManager( $this->storage, $this->redaction );
+		$alert_manager->add_channel( new EmailChannel( $this->storage ) );
+
+		$alert_manager->process(
+			[ 'database' => [ 'status' => 'critical', 'message' => 'Fail', 'name' => 'DB' ] ],
+			[ 'database' => [ 'status' => 'ok', 'message' => 'OK', 'name' => 'DB' ] ]
+		);
+
+		// Il log dovrebbe essere stato riscritto come array valido.
+		$log = $this->storage->get( 'alert_log', [] );
+		$this->assertIsArray( $log );
+		$this->assertNotEmpty( $log );
+	}
+
+	/**
+	 * Testa che dispatch skippa canali disabilitati
+	 */
+	public function test_dispatch_skips_disabled_channels() {
+		// Email disabilitato, ma canale registrato.
+		$this->storage->set( 'alert_settings', [
+			'email' => [
+				'enabled'    => false,
+				'recipients' => 'admin@example.com',
+			],
+		] );
+
+		$alert_manager = new AlertManager( $this->storage, $this->redaction );
+		$alert_manager->add_channel( new EmailChannel( $this->storage ) );
+
+		$results = $alert_manager->process(
+			[ 'database' => [ 'status' => 'critical', 'message' => 'Fail', 'name' => 'DB' ] ],
+			[ 'database' => [ 'status' => 'ok', 'message' => 'OK', 'name' => 'DB' ] ]
+		);
+
+		// Nessun canale abilitato → nessun risultato di dispatch.
+		$this->assertEmpty( $results );
+	}
+
+	/**
+	 * Testa che log_alert redige errori dai canali falliti
+	 */
+	public function test_alert_log_redacts_channel_errors() {
+		$this->storage->set( 'alert_settings', [
+			'email' => [
+				'enabled'    => true,
+				'recipients' => 'admin@example.com',
+			],
+		] );
+
+		// Forza wp_mail a fallire.
+		add_filter(
+			'pre_wp_mail',
+			function () {
+				return false;
+			}
+		);
+
+		$alert_manager = new AlertManager( $this->storage, $this->redaction );
+		$alert_manager->add_channel( new EmailChannel( $this->storage ) );
+
+		$alert_manager->process(
+			[ 'database' => [ 'status' => 'critical', 'message' => 'Fail', 'name' => 'DB' ] ],
+			[ 'database' => [ 'status' => 'ok', 'message' => 'OK', 'name' => 'DB' ] ]
+		);
+
+		$log = $this->storage->get( 'alert_log', [] );
+		$this->assertNotEmpty( $log );
+		$this->assertArrayHasKey( 'errors', $log[0] );
+
+		remove_all_filters( 'pre_wp_mail' );
+	}
+
+	/**
 	 * Testa che nessun cambiamento di stato non genera alert
 	 */
 	public function test_same_status_does_not_trigger_alert() {

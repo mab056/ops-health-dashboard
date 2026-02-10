@@ -61,7 +61,7 @@ Plugin WordPress production-grade per monitoraggio operativo con health checks, 
 
 ## Stato Progetto (Riferimento)
 
-Milestone M1 + M2 + M3 + M4 completate (Core Checks + Storage + Cron + Error Log Summary Safe + Redis Check + Alerting System). Code review post-M4: 13 finding risolti. 556 test (420 unit + 136 integration), 1285 assertions. PHPCS 100% clean, PHPStan level 6: 0 errori. Milestone corrente: M5 (E2E Testing, pianificata). Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
+Milestone M1 + M2 + M3 + M4 completate (Core Checks + Storage + Cron + Error Log Summary Safe + Redis Check + Alerting System). Code review post-M4: 13 finding risolti. Integration test coverage push: 63.87% → 100%. 685 test (429 unit + 256 integration), 1497 assertions. Coverage: 100% sia unit che integration indipendentemente (20/20 classes, 134/134 methods, 1240-1241 lines). PHPCS 100% clean, PHPStan level 6: 0 errori. 27 src files, 47 test files (27 unit + 20 integration). Milestone corrente: M5 (E2E Testing, pianificata). Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
 
 ## Baseline Corrente (v0.4.0)
 
