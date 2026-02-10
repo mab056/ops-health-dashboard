@@ -140,7 +140,7 @@ composer test:coverage:unit          # Unit tests con coverage
 - ✅ WordPress completo caricato
 - ✅ Database MySQL reale
 - ✅ WP-Cron, Options API, hooks reali
-- 🐢 Più lenti dei test unitari (richiedono WP test suite + DB)
+- 🐢 Più lenti dei test unitari (richiedono WP Test Suite + DB)
 - 📊 Coverage: verificare sempre l'output corrente di PHPUnit
 
 **Esempio:**
@@ -657,7 +657,7 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 2. **NO SINGLETON** - Usa Container->share()
 3. **NO STATIC** - Usa dependency injection
 4. **NO FINAL** - Assicura testabilità
-5. **SECURITY FIRST** - Input sanitized, output escaped, capabilities checked
+5. **SECURITY FIRST** - Input sanitizzati, output con escaping, capability verificate
 6. **WPCS COMPLIANCE** - composer phpcs deve passare
 
 ---

@@ -462,7 +462,7 @@ Totale: 693 test (437 unit + 256 integration), 1529 assertions, PHPCS + PHPStan 
 
 **Critical:**
 - HttpClient.post(): restituisce `success: false` per risposte HTTP non-2xx
-- AlertManager: cooldown impostato PRIMA del dispatch (previene alert spam su failure canali)
+- AlertManager: cooldown impostato PRIMA del dispatch (previene alert spam in caso di errori dei canali)
 - TelegramChannel: `htmlspecialchars()` su tutte le variabili interpolate in messaggi HTML
 - Scheduler: `try/catch` attorno a `alert_manager->process()` (cron resilience)
 

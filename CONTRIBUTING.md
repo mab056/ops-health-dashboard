@@ -514,7 +514,7 @@ Tests: 3 new tests
 - [ ] NON è stato usato il singleton pattern
 - [ ] NON sono stati usati static methods
 - [ ] NON ci sono classi/metodi final
-- [ ] Sicurezza: input sanitizzati, output escaped
+- [ ] Sicurezza: input sanitizzati, output con escaping
 - [ ] Documentazione aggiornata (se necessario)
 - [ ] CHANGELOG.md aggiornato
 - [ ] Formato conventional commit

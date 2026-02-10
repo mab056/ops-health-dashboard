@@ -90,7 +90,7 @@ Il sistema di alerting utilizza `HttpClient` con protezioni anti-SSRF complete p
 - **WhatsAppChannel**: validazione E.164 sul numero di telefono (regex `/^\+[1-9]\d{6,14}$/`)
 - **WebhookChannel**: firma HMAC SHA-256 opzionale via header `X-OpsHealth-Signature`
 - **AlertSettings**: token e secret con `type="password"` + `autocomplete="off"`, `value=""` + `placeholder="********"` (credenziali mai presenti nel sorgente DOM)
-- **AlertManager**: cooldown impostato PRIMA del dispatch (prevenzione alert spam su failure canali)
+- **AlertManager**: cooldown impostato PRIMA del dispatch (prevenzione alert spam in caso di errori dei canali)
 - **AlertManager**: isolamento per-canale con `try/catch \Throwable` in `dispatch_to_channels()` (un canale che fallisce non blocca gli altri)
 - **Scheduler**: `catch (\Throwable)` attorno a `alert_manager->process()` (il cron sopravvive a qualsiasi tipo di errore, inclusi TypeError e ValueError)
 

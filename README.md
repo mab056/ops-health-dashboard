@@ -289,13 +289,13 @@ public function test_database_check_runs_successfully() {
   - Validazione HTTP status (solo 2xx = successo)
   - No redirect following
   - Timeout 5 secondi
-- **Channel Security**: Protezione injection su tutti i canali
+- **Channel Security**: Protezione da injection su tutti i canali
   - TelegramChannel: escape HTML (`htmlspecialchars`)
   - SlackChannel: escape mrkdwn (formattazione)
   - EmailChannel: validazione `is_email()` destinatari
   - WhatsAppChannel: validazione E.164 phone number
   - Token/secret mascherati (`type="password"`, credenziali mai nel DOM)
-- **Cooldown pre-dispatch**: Previene alert spam anche su failure canali
+- **Cooldown pre-dispatch**: Previene alert spam anche in caso di errori dei canali
 - **Channel isolation**: `try/catch \Throwable` per-canale (un canale che fallisce non blocca gli altri)
 - **Scheduler resilience**: `catch (\Throwable)` su AlertManager (cron sopravvive a qualsiasi errore)
 - **Redaction Dati**: Sanitizzazione automatica di:
@@ -304,7 +304,7 @@ public function test_database_check_runs_successfully() {
   - Credenziali database
   - Dati utente (email, IP)
 - **Sanitizzazione Input**: Tutti gli input utente sanitizzati
-- **Escaping Output**: Tutti gli output escaped
+- **Escaping Output**: Tutti gli output sono sottoposti a escaping
 
 ### WordPress.org Ready *(pianificato M6)*
 
