@@ -121,8 +121,16 @@ class EmailChannel implements AlertChannelInterface {
 	 * @return array Array di indirizzi email.
 	 */
 	private function parse_recipients( string $recipients ): array {
-		$list = explode( ',', $recipients );
-		return array_filter( array_map( 'trim', $list ) );
+		$list    = explode( ',', $recipients );
+		$trimmed = array_map( 'trim', $list );
+		return array_values(
+			array_filter(
+				$trimmed,
+				function ( $email ) {
+					return '' !== $email && is_email( $email );
+				}
+			)
+		);
 	}
 
 	/**

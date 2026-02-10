@@ -20,37 +20,58 @@ use PHPUnit\Framework\TestCase;
 class CheckInterfaceTest extends TestCase {
 
 	/**
-	 * Testa che l'interfaccia esiste
+	 * Testa che l'interfaccia esiste ed è un'interfaccia
 	 */
-	public function test_interface_exists() {
-		$this->assertTrue( interface_exists( CheckInterface::class ) );
+	public function test_is_interface() {
+		$reflection = new \ReflectionClass( CheckInterface::class );
+		$this->assertTrue( $reflection->isInterface(), 'CheckInterface should be an interface' );
 	}
 
 	/**
-	 * Testa che l'interfaccia ha il metodo run()
+	 * Testa che l'interfaccia ha il metodo run() pubblico con 0 parametri
 	 */
 	public function test_has_run_method() {
-		$this->assertTrue( method_exists( CheckInterface::class, 'run' ) );
+		$reflection = new \ReflectionClass( CheckInterface::class );
+		$this->assertTrue( $reflection->hasMethod( 'run' ) );
+
+		$method = $reflection->getMethod( 'run' );
+		$this->assertTrue( $method->isPublic() );
+		$this->assertCount( 0, $method->getParameters() );
 	}
 
 	/**
-	 * Testa che l'interfaccia ha il metodo get_id()
+	 * Testa che l'interfaccia ha il metodo get_id() pubblico con 0 parametri
 	 */
 	public function test_has_get_id_method() {
-		$this->assertTrue( method_exists( CheckInterface::class, 'get_id' ) );
+		$reflection = new \ReflectionClass( CheckInterface::class );
+		$this->assertTrue( $reflection->hasMethod( 'get_id' ) );
+
+		$method = $reflection->getMethod( 'get_id' );
+		$this->assertTrue( $method->isPublic() );
+		$this->assertCount( 0, $method->getParameters() );
 	}
 
 	/**
-	 * Testa che l'interfaccia ha il metodo get_name()
+	 * Testa che l'interfaccia ha il metodo get_name() pubblico con 0 parametri
 	 */
 	public function test_has_get_name_method() {
-		$this->assertTrue( method_exists( CheckInterface::class, 'get_name' ) );
+		$reflection = new \ReflectionClass( CheckInterface::class );
+		$this->assertTrue( $reflection->hasMethod( 'get_name' ) );
+
+		$method = $reflection->getMethod( 'get_name' );
+		$this->assertTrue( $method->isPublic() );
+		$this->assertCount( 0, $method->getParameters() );
 	}
 
 	/**
-	 * Testa che l'interfaccia ha il metodo is_enabled()
+	 * Testa che l'interfaccia ha il metodo is_enabled() pubblico con 0 parametri
 	 */
 	public function test_has_is_enabled_method() {
-		$this->assertTrue( method_exists( CheckInterface::class, 'is_enabled' ) );
+		$reflection = new \ReflectionClass( CheckInterface::class );
+		$this->assertTrue( $reflection->hasMethod( 'is_enabled' ) );
+
+		$method = $reflection->getMethod( 'is_enabled' );
+		$this->assertTrue( $method->isPublic() );
+		$this->assertCount( 0, $method->getParameters() );
 	}
 }

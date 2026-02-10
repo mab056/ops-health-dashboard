@@ -475,4 +475,64 @@ class TelegramChannelTest extends TestCase
 		$this->assertStringContainsString( 'Connection timeout', $message );
 		$this->assertStringContainsString( 'Test Site', $message );
 	}
+
+	/**
+	 * Testa che caratteri HTML nel payload sono escapati (prevenzione injection)
+	 *
+	 * @return void
+	 */
+	public function test_send_escapes_html_in_payload_fields()
+	{
+		$settings = [
+			'telegram' => [
+				'enabled'   => true,
+				'bot_token' => '123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11',
+				'chat_id'   => '-1001234567890',
+			],
+		];
+
+		$captured_body = null;
+
+		$http_client = $this->create_http_client_mock();
+		$http_client->shouldReceive( 'post' )
+			->once()
+			->with(
+				Mockery::any(),
+				Mockery::on(
+					function ( $body ) use ( &$captured_body ) {
+						$captured_body = $body;
+						return true;
+					}
+				)
+			)
+			->andReturn(
+				[
+					'success' => true,
+					'code'    => 200,
+					'body'    => '{"ok":true}',
+					'error'   => null,
+				]
+			);
+
+		$channel = new TelegramChannel(
+			$this->create_storage_mock( $settings ),
+			$http_client
+		);
+
+		$payload = $this->create_test_payload(
+			[
+				'check_name' => '<script>alert("xss")</script>',
+				'site_name'  => 'Site & "Stuff"',
+			]
+		);
+		$channel->send( $payload );
+
+		$this->assertNotNull( $captured_body );
+		$message = $captured_body['text'];
+
+		// Raw HTML must be escaped.
+		$this->assertStringNotContainsString( '<script>', $message );
+		$this->assertStringContainsString( '&lt;script&gt;', $message );
+		$this->assertStringContainsString( 'Site &amp; &quot;Stuff&quot;', $message );
+	}
 }

@@ -44,6 +44,34 @@ class AlertManager implements AlertManagerInterface {
 	const COOLDOWN_TRANSIENT_PREFIX = 'ops_health_alert_cooldown_';
 
 	/**
+	 * Status: check ok
+	 *
+	 * @var string
+	 */
+	const STATUS_OK = 'ok';
+
+	/**
+	 * Status: check warning
+	 *
+	 * @var string
+	 */
+	const STATUS_WARNING = 'warning';
+
+	/**
+	 * Status: check critical
+	 *
+	 * @var string
+	 */
+	const STATUS_CRITICAL = 'critical';
+
+	/**
+	 * Status: sconosciuto
+	 *
+	 * @var string
+	 */
+	const STATUS_UNKNOWN = 'unknown';
+
+	/**
 	 * Storage per leggere/salvare stato e log
 	 *
 	 * @var StorageInterface
@@ -98,7 +126,7 @@ class AlertManager implements AlertManagerInterface {
 		$cooldown_secs = $this->get_cooldown_seconds();
 
 		foreach ( $changes as $check_id => $change ) {
-			$is_recovery = 'ok' === $change['current_status'];
+			$is_recovery = self::STATUS_OK === $change['current_status'];
 
 			// Recovery bypassa il cooldown.
 			if ( ! $is_recovery && $this->is_in_cooldown( $check_id ) ) {
@@ -107,15 +135,16 @@ class AlertManager implements AlertManagerInterface {
 
 			$payload = $this->build_payload( $check_id, $change );
 
+			// Imposta cooldown PRIMA del dispatch per prevenire alert spam
+			// anche se tutti i canali falliscono.
+			if ( ! $is_recovery ) {
+				$this->set_cooldown( $check_id, $cooldown_secs );
+			}
+
 			$send_results = $this->dispatch_to_channels( $payload );
 
 			if ( ! empty( $send_results ) ) {
 				$all_results[ $check_id ] = $send_results;
-
-				// Imposta cooldown solo per alert non-recovery.
-				if ( ! $is_recovery ) {
-					$this->set_cooldown( $check_id, $cooldown_secs );
-				}
 
 				$this->log_alert( $payload, $send_results );
 			}
@@ -135,12 +164,12 @@ class AlertManager implements AlertManagerInterface {
 		$changes = [];
 
 		foreach ( $current as $check_id => $result ) {
-			$current_status = isset( $result['status'] ) ? $result['status'] : 'unknown';
+			$current_status = isset( $result['status'] ) ? $result['status'] : self::STATUS_UNKNOWN;
 
 			if ( isset( $previous[ $check_id ] ) ) {
 				$prev_status = isset( $previous[ $check_id ]['status'] )
 					? $previous[ $check_id ]['status']
-					: 'unknown';
+					: self::STATUS_UNKNOWN;
 			} else {
 				// Primo avvio: alerta solo se non ok.
 				$prev_status = null;
@@ -152,7 +181,7 @@ class AlertManager implements AlertManagerInterface {
 			}
 
 			// Primo avvio con ok: nessun alert.
-			if ( null === $prev_status && 'ok' === $current_status ) {
+			if ( null === $prev_status && self::STATUS_OK === $current_status ) {
 				continue;
 			}
 
@@ -229,7 +258,7 @@ class AlertManager implements AlertManagerInterface {
 			'timestamp'       => time(),
 			'site_url'        => home_url(),
 			'site_name'       => get_bloginfo( 'name' ),
-			'is_recovery'     => 'ok' === $current_status,
+			'is_recovery'     => self::STATUS_OK === $current_status,
 		];
 	}
 

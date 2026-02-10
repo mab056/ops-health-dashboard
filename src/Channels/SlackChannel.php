@@ -112,6 +112,22 @@ class SlackChannel implements AlertChannelInterface {
 	}
 
 	/**
+	 * Escapa i caratteri speciali di mrkdwn per Slack
+	 *
+	 * Previene iniezione di formattazione mrkdwn in valori utente.
+	 *
+	 * @param string $text Testo da escapare.
+	 * @return string Testo escapato.
+	 */
+	private function escape_mrkdwn( string $text ): string {
+		return str_replace(
+			[ '&', '<', '>', '*', '_', '~', '`' ],
+			[ '&amp;', '&lt;', '&gt;', '\*', '\_', '\~', '\`' ],
+			$text
+		);
+	}
+
+	/**
 	 * Formatta il payload per Slack Block Kit
 	 *
 	 * @param array $payload Dati dell'alert.
@@ -135,13 +151,13 @@ class SlackChannel implements AlertChannelInterface {
 
 		$text_parts = [];
 		if ( '' !== $message ) {
-			$text_parts[] = "*Message:* {$message}";
+			$text_parts[] = '*Message:* ' . $this->escape_mrkdwn( $message );
 		}
 		if ( '' !== $site_name ) {
-			$text_parts[] = "*Site:* {$site_name}";
+			$text_parts[] = '*Site:* ' . $this->escape_mrkdwn( $site_name );
 		}
 		if ( '' !== $site_url ) {
-			$text_parts[] = "*URL:* {$site_url}";
+			$text_parts[] = '*URL:* ' . $this->escape_mrkdwn( $site_url );
 		}
 
 		return [

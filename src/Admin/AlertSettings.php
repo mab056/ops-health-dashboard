@@ -193,8 +193,9 @@ class AlertSettings {
 					<tr>
 						<th><?php echo esc_html__( 'Secret (HMAC)', 'ops-health-dashboard' ); ?></th>
 						<td>
-							<input type="text" name="webhook_secret" class="regular-text"
-								value="<?php echo esc_attr( $webhook_secret ); ?>" />
+							<input type="password" name="webhook_secret" class="regular-text"
+								value="<?php echo esc_attr( $webhook_secret ); ?>"
+								autocomplete="off" />
 						</td>
 					</tr>
 				</table>
@@ -229,8 +230,9 @@ class AlertSettings {
 					<tr>
 						<th><?php echo esc_html__( 'Bot Token', 'ops-health-dashboard' ); ?></th>
 						<td>
-							<input type="text" name="telegram_bot_token" class="regular-text"
-								value="<?php echo esc_attr( $tg_bot_token ); ?>" />
+							<input type="password" name="telegram_bot_token" class="regular-text"
+								value="<?php echo esc_attr( $tg_bot_token ); ?>"
+								autocomplete="off" />
 						</td>
 					</tr>
 					<tr>
@@ -268,8 +270,9 @@ class AlertSettings {
 					<tr>
 						<th><?php echo esc_html__( 'API Token', 'ops-health-dashboard' ); ?></th>
 						<td>
-							<input type="text" name="whatsapp_api_token" class="regular-text"
-								value="<?php echo esc_attr( $wa_token ); ?>" />
+							<input type="password" name="whatsapp_api_token" class="regular-text"
+								value="<?php echo esc_attr( $wa_token ); ?>"
+								autocomplete="off" />
 						</td>
 					</tr>
 				</table>

@@ -446,6 +446,20 @@ class HttpClientTest extends TestCase {
 		$this->assertFalse( $client->is_safe_url( 'https://nonexistent.example.invalid/webhook' ) );
 	}
 
+	/**
+	 * Testa che IPv6 è rifiutato (safe-fail, solo IPv4 supportato)
+	 *
+	 * @return void
+	 */
+	public function test_is_safe_url_rejects_ipv6_address() {
+		$client = $this->create_client_with_resolved_ip(
+			$this->create_redaction_mock(),
+			'::1' // IPv6 loopback.
+		);
+
+		$this->assertFalse( $client->is_safe_url( 'https://ipv6host.example.com/webhook' ) );
+	}
+
 	// ---------------------------------------------------
 	// post() - Successo
 	// ---------------------------------------------------
@@ -603,11 +617,11 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa POST con risposta non-2xx
+	 * Testa POST con risposta non-2xx ritorna success:false
 	 *
 	 * @return void
 	 */
-	public function test_post_handles_non_200_response() {
+	public function test_post_returns_failure_for_non_2xx_response() {
 		$client = $this->create_client_with_resolved_ip(
 			$this->create_redaction_mock(),
 			'93.184.216.34'
@@ -626,14 +640,85 @@ class HttpClientTest extends TestCase {
 		Functions\expect( 'wp_remote_retrieve_response_code' )->once()->andReturn( 500 );
 		Functions\expect( 'wp_remote_retrieve_body' )->once()->andReturn( 'Internal Server Error' );
 
+		$this->mock_i18n();
+
+		$result = $client->post(
+			'https://api.example.com/webhook',
+			[ 'key' => 'value' ]
+		);
+
+		$this->assertFalse( $result['success'] );
+		$this->assertEquals( 500, $result['code'] );
+		$this->assertEquals( 'Internal Server Error', $result['body'] );
+		$this->assertNotNull( $result['error'] );
+	}
+
+	/**
+	 * Testa POST con risposta 4xx ritorna success:false
+	 *
+	 * @return void
+	 */
+	public function test_post_returns_failure_for_4xx_response() {
+		$client = $this->create_client_with_resolved_ip(
+			$this->create_redaction_mock(),
+			'93.184.216.34'
+		);
+
+		Functions\expect( 'wp_remote_post' )
+			->once()
+			->andReturn(
+				[
+					'response' => [ 'code' => 403 ],
+					'body'     => 'Forbidden',
+				]
+			);
+
+		Functions\expect( 'is_wp_error' )->once()->andReturn( false );
+		Functions\expect( 'wp_remote_retrieve_response_code' )->once()->andReturn( 403 );
+		Functions\expect( 'wp_remote_retrieve_body' )->once()->andReturn( 'Forbidden' );
+
+		$this->mock_i18n();
+
+		$result = $client->post(
+			'https://api.example.com/webhook',
+			[ 'key' => 'value' ]
+		);
+
+		$this->assertFalse( $result['success'] );
+		$this->assertEquals( 403, $result['code'] );
+	}
+
+	/**
+	 * Testa POST con risposta 201 ritorna success:true
+	 *
+	 * @return void
+	 */
+	public function test_post_returns_success_for_201_response() {
+		$client = $this->create_client_with_resolved_ip(
+			$this->create_redaction_mock(),
+			'93.184.216.34'
+		);
+
+		Functions\expect( 'wp_remote_post' )
+			->once()
+			->andReturn(
+				[
+					'response' => [ 'code' => 201 ],
+					'body'     => '{"created":true}',
+				]
+			);
+
+		Functions\expect( 'is_wp_error' )->once()->andReturn( false );
+		Functions\expect( 'wp_remote_retrieve_response_code' )->once()->andReturn( 201 );
+		Functions\expect( 'wp_remote_retrieve_body' )->once()->andReturn( '{"created":true}' );
+
 		$result = $client->post(
 			'https://api.example.com/webhook',
 			[ 'key' => 'value' ]
 		);
 
 		$this->assertTrue( $result['success'] );
-		$this->assertEquals( 500, $result['code'] );
-		$this->assertEquals( 'Internal Server Error', $result['body'] );
+		$this->assertEquals( 201, $result['code'] );
 	}
 
 	/**

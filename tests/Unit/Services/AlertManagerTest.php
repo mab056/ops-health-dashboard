@@ -654,6 +654,43 @@ class AlertManagerTest extends TestCase {
 		$this->assertNotEmpty( $result );
 	}
 
+	/**
+	 * Testa che cooldown è impostato anche quando tutti i canali falliscono
+	 *
+	 * Previene alert spam su failure ripetuti.
+	 *
+	 * @return void
+	 */
+	public function test_process_sets_cooldown_even_on_all_channels_failure() {
+		$storage = $this->create_storage_mock();
+
+		$manager = new AlertManager( $storage, $this->create_redaction_mock() );
+
+		$failing_channel = $this->create_channel_mock( true, false );
+		$failing_channel->shouldReceive( 'get_id' )->andReturn( 'email' );
+		$failing_channel->shouldReceive( 'send' )->once()->andReturn(
+			[ 'success' => false, 'error' => 'SMTP error' ]
+		);
+		$manager->add_channel( $failing_channel );
+
+		Functions\expect( 'get_transient' )->andReturn( false );
+		Functions\expect( 'set_transient' )
+			->once()
+			->with(
+				Mockery::type( 'string' ),
+				Mockery::any(),
+				3600
+			)
+			->andReturn( true );
+
+		$this->mock_i18n_and_utils();
+
+		$current  = [ 'database' => $this->create_check_result( 'critical' ) ];
+		$previous = [ 'database' => $this->create_check_result( 'ok' ) ];
+
+		$manager->process( $current, $previous );
+	}
+
 	// ---------------------------------------------------
 	// process() - Payload
 	// ---------------------------------------------------

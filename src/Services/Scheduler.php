@@ -146,7 +146,11 @@ class Scheduler {
 		$current = $this->runner->run_all();
 
 		if ( null !== $this->alert_manager ) {
-			$this->alert_manager->process( $current, $previous );
+			try {
+				$this->alert_manager->process( $current, $previous );
+				// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			} catch ( \Exception $e ) { // Alert failure must not break cron.
+			}
 		}
 	}
 }

@@ -294,6 +294,111 @@ class WhatsAppChannelTest extends TestCase
 	}
 
 	/**
+	 * Testa is_enabled false con phone_number non E.164
+	 *
+	 * @return void
+	 */
+	public function test_is_enabled_returns_false_with_invalid_phone_format()
+	{
+		$settings = [
+			'whatsapp' => [
+				'enabled'      => true,
+				'webhook_url'  => 'https://api.twilio.com/whatsapp/send',
+				'phone_number' => '1234567890',
+			],
+		];
+		$channel  = new WhatsAppChannel(
+			$this->create_storage_mock( $settings ),
+			$this->create_http_client_mock()
+		);
+		$this->assertFalse( $channel->is_enabled() );
+	}
+
+	/**
+	 * Testa is_enabled false con phone_number troppo corto
+	 *
+	 * @return void
+	 */
+	public function test_is_enabled_returns_false_with_short_phone()
+	{
+		$settings = [
+			'whatsapp' => [
+				'enabled'      => true,
+				'webhook_url'  => 'https://api.twilio.com/whatsapp/send',
+				'phone_number' => '+12345',
+			],
+		];
+		$channel  = new WhatsAppChannel(
+			$this->create_storage_mock( $settings ),
+			$this->create_http_client_mock()
+		);
+		$this->assertFalse( $channel->is_enabled() );
+	}
+
+	/**
+	 * Testa is_enabled false con phone_number che inizia con +0
+	 *
+	 * @return void
+	 */
+	public function test_is_enabled_returns_false_with_zero_country_code()
+	{
+		$settings = [
+			'whatsapp' => [
+				'enabled'      => true,
+				'webhook_url'  => 'https://api.twilio.com/whatsapp/send',
+				'phone_number' => '+0123456789',
+			],
+		];
+		$channel  = new WhatsAppChannel(
+			$this->create_storage_mock( $settings ),
+			$this->create_http_client_mock()
+		);
+		$this->assertFalse( $channel->is_enabled() );
+	}
+
+	/**
+	 * Testa is_enabled true con phone_number E.164 lungo (15 cifre)
+	 *
+	 * @return void
+	 */
+	public function test_is_enabled_returns_true_with_max_length_phone()
+	{
+		$settings = [
+			'whatsapp' => [
+				'enabled'      => true,
+				'webhook_url'  => 'https://api.twilio.com/whatsapp/send',
+				'phone_number' => '+123456789012345',
+			],
+		];
+		$channel  = new WhatsAppChannel(
+			$this->create_storage_mock( $settings ),
+			$this->create_http_client_mock()
+		);
+		$this->assertTrue( $channel->is_enabled() );
+	}
+
+	/**
+	 * Testa is_enabled false con phone_number troppo lungo (16 cifre)
+	 *
+	 * @return void
+	 */
+	public function test_is_enabled_returns_false_with_too_long_phone()
+	{
+		$settings = [
+			'whatsapp' => [
+				'enabled'      => true,
+				'webhook_url'  => 'https://api.twilio.com/whatsapp/send',
+				'phone_number' => '+1234567890123456',
+			],
+		];
+		$channel  = new WhatsAppChannel(
+			$this->create_storage_mock( $settings ),
+			$this->create_http_client_mock()
+		);
+		$this->assertFalse( $channel->is_enabled() );
+	}
+
+	/**
 	 * Testa is_enabled false senza impostazioni
 	 *
 	 * @return void

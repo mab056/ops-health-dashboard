@@ -68,8 +68,15 @@ class AlertingFlowTest extends WP_UnitTestCase {
 	 * Testa che AlertManager rileva cambiamento di stato e logga alert
 	 */
 	public function test_state_change_triggers_alert_log_entry() {
+		$this->storage->set( 'alert_settings', [
+			'email' => [
+				'enabled'    => true,
+				'recipients' => 'admin@example.com',
+			],
+		] );
+
 		$alert_manager = new AlertManager( $this->storage, $this->redaction );
-		// Nessun canale abilitato, ma il log verifica state detection.
+		$alert_manager->add_channel( new EmailChannel( $this->storage ) );
 
 		$previous = [
 			'database' => [
@@ -89,8 +96,13 @@ class AlertingFlowTest extends WP_UnitTestCase {
 
 		$results = $alert_manager->process( $current, $previous );
 
-		// Nessun canale abilitato → nessun dispatch → nessun log.
-		$this->assertEmpty( $results );
+		// EmailChannel tentato → dispatch e log creato.
+		$this->assertArrayHasKey( 'database', $results );
+
+		$log = $this->storage->get( 'alert_log', [] );
+		$this->assertNotEmpty( $log );
+		$this->assertEquals( 'database', $log[0]['check_id'] );
+		$this->assertEquals( 'critical', $log[0]['status'] );
 	}
 
 	/**

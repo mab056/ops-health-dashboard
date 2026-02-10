@@ -66,7 +66,7 @@ La sicurezza di Ops Health Dashboard è considerata una priorità. Se hai trovat
 - **Limite lettura**: max 512KB per prevenire consumo eccessivo di memoria
 - **Lock condiviso**: `flock(LOCK_SH)` per accesso concorrente sicuro ai log
 
-### Anti-SSRF (implementato M4)
+### Anti-SSRF
 
 Il sistema di alerting utilizza `HttpClient` con protezioni anti-SSRF complete per tutte le richieste HTTP outbound (Webhook, Slack, Telegram, WhatsApp):
 

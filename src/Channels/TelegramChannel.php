@@ -143,19 +143,24 @@ class TelegramChannel implements AlertChannelInterface {
 		$emoji = $this->get_status_emoji( $status );
 		$label = $is_recovery ? 'Recovered' : 'Alert';
 
+		$safe_check_name  = htmlspecialchars( $check_name, ENT_QUOTES, 'UTF-8' );
+		$safe_status      = htmlspecialchars( strtoupper( $status ), ENT_QUOTES, 'UTF-8' );
+		$safe_prev_status = htmlspecialchars( strtoupper( $prev_status ), ENT_QUOTES, 'UTF-8' );
+
 		$lines   = [];
-		$lines[] = "<b>[{$label}] {$check_name}</b>";
+		$lines[] = "<b>[{$label}] {$safe_check_name}</b>";
 		$lines[] = '';
-		$lines[] = "{$emoji} <b>Status:</b> " . strtoupper( $status );
-		$lines[] = '<b>Previous:</b> ' . strtoupper( $prev_status );
+		$lines[] = "{$emoji} <b>Status:</b> {$safe_status}";
+		$lines[] = "<b>Previous:</b> {$safe_prev_status}";
 
 		if ( '' !== $message ) {
 			$lines[] = '<b>Message:</b> ' . htmlspecialchars( $message, ENT_QUOTES, 'UTF-8' );
 		}
 
 		if ( '' !== $site_name ) {
-			$lines[] = '';
-			$lines[] = "<b>Site:</b> {$site_name}";
+			$safe_site_name = htmlspecialchars( $site_name, ENT_QUOTES, 'UTF-8' );
+			$lines[]        = '';
+			$lines[]        = "<b>Site:</b> {$safe_site_name}";
 		}
 
 		return implode( "\n", $lines );

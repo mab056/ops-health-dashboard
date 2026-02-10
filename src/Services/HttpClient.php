@@ -152,10 +152,26 @@ class HttpClient implements HttpClientInterface {
 			];
 		}
 
+		$code = (int) wp_remote_retrieve_response_code( $response );
+		$body = wp_remote_retrieve_body( $response );
+
+		if ( $code < 200 || $code >= 300 ) {
+			return [
+				'success' => false,
+				'code'    => $code,
+				'body'    => $body,
+				'error'   => sprintf(
+					/* translators: %d: HTTP status code */
+					__( 'HTTP request returned status %d', 'ops-health-dashboard' ),
+					$code
+				),
+			];
+		}
+
 		return [
 			'success' => true,
-			'code'    => (int) wp_remote_retrieve_response_code( $response ),
-			'body'    => wp_remote_retrieve_body( $response ),
+			'code'    => $code,
+			'body'    => $body,
 			'error'   => null,
 		];
 	}
@@ -178,12 +194,16 @@ class HttpClient implements HttpClientInterface {
 	 * Blocca: loopback (127.0.0.0/8), private (10/8, 172.16/12, 192.168/16),
 	 * link-local (169.254/16), e 0.0.0.0.
 	 *
+	 * Nota: IPv6 e IP non validi sono trattati come non sicuri (safe-fail).
+	 * gethostbyname() di PHP restituisce solo IPv4, quindi IPv6 puro viene
+	 * rifiutato dal controllo FILTER_FLAG_IPV4 come misura precauzionale.
+	 *
 	 * @param string $ip Indirizzo IP da verificare.
-	 * @return bool True se l'IP è privato/riservato.
+	 * @return bool True se l'IP è privato/riservato o non IPv4.
 	 */
 	private function is_private_ip( string $ip ): bool {
 		if ( ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
-			return true; // IP non valido, tratta come non sicuro.
+			return true; // Non-IPv4 (incluso IPv6): tratta come non sicuro (safe-fail).
 		}
 
 		if ( '0.0.0.0' === $ip ) {

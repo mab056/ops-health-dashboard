@@ -504,4 +504,66 @@ class SlackChannelTest extends TestCase
 		$this->assertStringContainsString( '[Recovered]', $header_text );
 		$this->assertStringContainsString( 'OK', $header_text );
 	}
+
+	/**
+	 * Testa che i caratteri speciali mrkdwn sono escapati nel messaggio
+	 *
+	 * @return void
+	 */
+	public function test_send_escapes_mrkdwn_special_chars()
+	{
+		$settings = [
+			'slack' => [
+				'enabled'     => true,
+				'webhook_url' => 'https://hooks.slack.com/services/T00/B00/xxx',
+			],
+		];
+
+		$captured_body = null;
+
+		$http_client = $this->create_http_client_mock();
+		$http_client->shouldReceive( 'post' )
+			->once()
+			->with(
+				Mockery::any(),
+				Mockery::on(
+					function ( $body ) use ( &$captured_body ) {
+						$captured_body = $body;
+						return true;
+					}
+				)
+			)
+			->andReturn(
+				[
+					'success' => true,
+					'code'    => 200,
+					'body'    => 'ok',
+					'error'   => null,
+				]
+			);
+
+		$channel = new SlackChannel(
+			$this->create_storage_mock( $settings ),
+			$http_client
+		);
+		$payload = $this->create_test_payload(
+			[
+				'message'   => '*bold* _italic_ ~strike~ `code`',
+				'site_name' => 'Site <&> Test',
+			]
+		);
+		$channel->send( $payload );
+
+		$this->assertNotNull( $captured_body );
+		$section_text = $captured_body['blocks'][1]['text']['text'];
+
+		// Verify mrkdwn chars are escaped.
+		$this->assertStringContainsString( '\*bold\*', $section_text );
+		$this->assertStringContainsString( '\_italic\_', $section_text );
+		$this->assertStringContainsString( '\~strike\~', $section_text );
+		$this->assertStringContainsString( '\`code\`', $section_text );
+		$this->assertStringContainsString( '&amp;', $section_text );
+		$this->assertStringContainsString( '&lt;', $section_text );
+		$this->assertStringContainsString( '&gt;', $section_text );
+	}
 }

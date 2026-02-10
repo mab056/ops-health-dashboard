@@ -95,6 +95,19 @@ class EmailChannelTest extends TestCase {
 		Functions\when( 'esc_html__' )->returnArg( 1 );
 	}
 
+	/**
+	 * Configura mock is_email che valida formato email
+	 *
+	 * @return void
+	 */
+	private function mock_is_email() {
+		Functions\when( 'is_email' )->alias(
+			function ( $email ) {
+				return (bool) filter_var( $email, FILTER_VALIDATE_EMAIL );
+			}
+		);
+	}
+
 	// ---------------------------------------------------
 	// Pattern enforcement
 	// ---------------------------------------------------
@@ -272,6 +285,7 @@ class EmailChannelTest extends TestCase {
 		$payload = $this->create_test_payload();
 
 		$this->mock_i18n();
+		$this->mock_is_email();
 
 		Functions\expect( 'wp_mail' )
 			->once()
@@ -310,6 +324,7 @@ class EmailChannelTest extends TestCase {
 		$payload = $this->create_test_payload();
 
 		$this->mock_i18n();
+		$this->mock_is_email();
 
 		Functions\expect( 'wp_mail' )
 			->once()
@@ -338,6 +353,7 @@ class EmailChannelTest extends TestCase {
 		$payload = $this->create_test_payload();
 
 		$this->mock_i18n();
+		$this->mock_is_email();
 
 		$captured_subject = null;
 
@@ -378,6 +394,7 @@ class EmailChannelTest extends TestCase {
 		$payload = $this->create_test_payload();
 
 		$this->mock_i18n();
+		$this->mock_is_email();
 
 		$captured_body = null;
 
@@ -427,6 +444,7 @@ class EmailChannelTest extends TestCase {
 		);
 
 		$this->mock_i18n();
+		$this->mock_is_email();
 
 		$captured_subject = null;
 
@@ -466,6 +484,7 @@ class EmailChannelTest extends TestCase {
 		$payload = $this->create_test_payload();
 
 		$this->mock_i18n();
+		$this->mock_is_email();
 
 		$captured_to = null;
 
@@ -489,5 +508,49 @@ class EmailChannelTest extends TestCase {
 		$this->assertCount( 2, $captured_to );
 		$this->assertContains( 'admin@example.com', $captured_to );
 		$this->assertContains( 'ops@example.com', $captured_to );
+	}
+
+	/**
+	 * Testa che indirizzi email non validi sono filtrati da parse_recipients
+	 *
+	 * @return void
+	 */
+	public function test_send_filters_invalid_email_addresses() {
+		$settings = [
+			'email' => [
+				'enabled'    => true,
+				'recipients' => 'valid@example.com, not-an-email, also@example.com',
+			],
+		];
+
+		$channel = new EmailChannel( $this->create_storage_mock( $settings ) );
+		$payload = $this->create_test_payload();
+
+		$this->mock_i18n();
+		$this->mock_is_email();
+
+		$captured_to = null;
+
+		Functions\expect( 'wp_mail' )
+			->once()
+			->with(
+				Mockery::on(
+					function ( $to ) use ( &$captured_to ) {
+						$captured_to = $to;
+						return true;
+					}
+				),
+				Mockery::any(),
+				Mockery::any()
+			)
+			->andReturn( true );
+
+		$channel->send( $payload );
+
+		$this->assertIsArray( $captured_to );
+		$this->assertCount( 2, $captured_to );
+		$this->assertContains( 'valid@example.com', $captured_to );
+		$this->assertContains( 'also@example.com', $captured_to );
+		$this->assertNotContains( 'not-an-email', $captured_to );
 	}
 }

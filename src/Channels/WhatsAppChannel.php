@@ -73,7 +73,20 @@ class WhatsAppChannel implements AlertChannelInterface {
 		$settings = $this->get_channel_settings();
 		return ! empty( $settings['enabled'] )
 			&& ! empty( $settings['webhook_url'] )
-			&& ! empty( $settings['phone_number'] );
+			&& ! empty( $settings['phone_number'] )
+			&& $this->is_valid_phone( $settings['phone_number'] );
+	}
+
+	/**
+	 * Valida un numero di telefono in formato E.164
+	 *
+	 * Formato accettato: + seguito da 7 a 15 cifre (es. +391234567890).
+	 *
+	 * @param string $phone Numero di telefono da validare.
+	 * @return bool True se valido.
+	 */
+	private function is_valid_phone( string $phone ): bool {
+		return 1 === preg_match( '/^\+[1-9]\d{6,14}$/', $phone );
 	}
 
 	/**

@@ -20,15 +20,6 @@ use PHPUnit\Framework\TestCase;
 class AlertChannelInterfaceTest extends TestCase {
 
 	/**
-	 * Verifica che l'interfaccia esiste
-	 *
-	 * @return void
-	 */
-	public function test_interface_exists() {
-		$this->assertTrue( interface_exists( AlertChannelInterface::class ) );
-	}
-
-	/**
 	 * Verifica che l'interfaccia è un'interfaccia
 	 *
 	 * @return void
@@ -46,6 +37,10 @@ class AlertChannelInterfaceTest extends TestCase {
 	public function test_interface_declares_get_id() {
 		$reflection = new \ReflectionClass( AlertChannelInterface::class );
 		$this->assertTrue( $reflection->hasMethod( 'get_id' ) );
+
+		$method = $reflection->getMethod( 'get_id' );
+		$this->assertTrue( $method->isPublic() );
+		$this->assertCount( 0, $method->getParameters() );
 	}
 
 	/**
@@ -56,6 +51,10 @@ class AlertChannelInterfaceTest extends TestCase {
 	public function test_interface_declares_get_name() {
 		$reflection = new \ReflectionClass( AlertChannelInterface::class );
 		$this->assertTrue( $reflection->hasMethod( 'get_name' ) );
+
+		$method = $reflection->getMethod( 'get_name' );
+		$this->assertTrue( $method->isPublic() );
+		$this->assertCount( 0, $method->getParameters() );
 	}
 
 	/**
@@ -66,6 +65,10 @@ class AlertChannelInterfaceTest extends TestCase {
 	public function test_interface_declares_is_enabled() {
 		$reflection = new \ReflectionClass( AlertChannelInterface::class );
 		$this->assertTrue( $reflection->hasMethod( 'is_enabled' ) );
+
+		$method = $reflection->getMethod( 'is_enabled' );
+		$this->assertTrue( $method->isPublic() );
+		$this->assertCount( 0, $method->getParameters() );
 	}
 
 	/**

@@ -20,15 +20,6 @@ use PHPUnit\Framework\TestCase;
 class AlertManagerInterfaceTest extends TestCase {
 
 	/**
-	 * Verifica che l'interfaccia esiste
-	 *
-	 * @return void
-	 */
-	public function test_interface_exists() {
-		$this->assertTrue( interface_exists( AlertManagerInterface::class ) );
-	}
-
-	/**
 	 * Verifica che l'interfaccia è un'interfaccia
 	 *
 	 * @return void

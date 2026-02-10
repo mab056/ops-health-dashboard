@@ -20,15 +20,6 @@ use PHPUnit\Framework\TestCase;
 class HttpClientInterfaceTest extends TestCase {
 
 	/**
-	 * Verifica che l'interfaccia esiste
-	 *
-	 * @return void
-	 */
-	public function test_interface_exists() {
-		$this->assertTrue( interface_exists( HttpClientInterface::class ) );
-	}
-
-	/**
 	 * Verifica che l'interfaccia dichiara is_safe_url
 	 *
 	 * @return void

@@ -77,6 +77,11 @@ class WebhookChannel implements AlertChannelInterface {
 	/**
 	 * Invia un alert via webhook
 	 *
+	 * Quando un secret HMAC è configurato, aggiunge un header custom
+	 * `X-OpsHealth-Signature` contenente la firma SHA-256 del body JSON.
+	 * I consumer possono verificare l'autenticità ricalcolando:
+	 * `hash_hmac('sha256', $raw_body, $secret)`.
+	 *
 	 * @param array $payload Dati dell'alert.
 	 * @return array Risultato con chiavi success e error.
 	 */

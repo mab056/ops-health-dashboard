@@ -519,6 +519,31 @@ class SchedulerTest extends TestCase {
 	}
 
 	/**
+	 * Testa che eccezione in alert_manager->process() non blocca il cron
+	 */
+	public function test_run_checks_catches_alert_manager_exception() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )
+			->once()
+			->andReturn( [] );
+		$runner->shouldReceive( 'run_all' )
+			->once()
+			->andReturn( [ 'db' => [ 'status' => 'ok' ] ] );
+
+		$alert_manager = Mockery::mock( AlertManagerInterface::class );
+		$alert_manager->shouldReceive( 'process' )
+			->once()
+			->andThrow( new \RuntimeException( 'Channel exploded' ) );
+
+		$scheduler = new Scheduler( $runner, $alert_manager );
+
+		// Deve NON lanciare eccezione.
+		$scheduler->run_checks();
+
+		$this->assertInstanceOf( Scheduler::class, $scheduler );
+	}
+
+	/**
 	 * Testa che la classe NON è final
 	 */
 	public function test_class_is_not_final() {
