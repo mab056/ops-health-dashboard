@@ -609,14 +609,15 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 **Milestone M4 - Alerting System** ✅ COMPLETATA
 
 **Stato Attuale:**
-- ✅ **410 test unitari** (Brain\Monkey)
+- ✅ **420 test unitari** (Brain\Monkey)
 - ✅ **136 test di integrazione** (WP Test Suite)
-- ✅ **546 test totali passing**, ~1206 assertions
+- ✅ **556 test totali passing**, 1285 assertions
 - ✅ PHPCS 100% compliance (0 errori, 0 warning)
 - ✅ PHPStan level 6: 0 errori (szepeviktor/phpstan-wordpress)
 - ✅ CI/CD completo con PHP 7.4-8.5
 - ✅ 27 file sorgente, 42 file di test (27 unit + 15 integration)
 - ✅ Pattern enforcement (NO singleton/static/final)
+- ✅ Code review post-M4: 13 finding risolti (4 Critical, 3 High, 3 Medium, 3 Low)
 
 **Componenti Implementati (M1+M2+M3+M4):**
 - StorageInterface, CheckInterface, RedactionInterface, CheckRunnerInterface (contratti DI)
@@ -627,13 +628,13 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 - Redaction (11 pattern: credenziali DB, salts, API key, token, password, email, IP, path; IPv4 validazione ottetti)
 - ErrorLogCheck (tail log, aggregazione severità, campioni redatti, anti-symlink, flock LOCK_SH)
 - RedisCheck (graceful degradation, estensione+connessione+auth+smoke test, response time, RedactionInterface)
-- HttpClient (anti-SSRF: blocco IP privati, validazione DNS, restrizione schema/porta, no redirect)
-- AlertManager (state change detection, cooldown per-check via transient, dispatch multi-canale, alert log capped a 50)
-- EmailChannel (wp_mail, recipients configurabili)
-- WebhookChannel (JSON POST, firma HMAC opzionale)
-- SlackChannel (Block Kit, color attachments)
-- TelegramChannel (Bot API, HTML parse mode)
-- WhatsAppChannel (webhook generico, Bearer auth, phone number)
+- HttpClient (anti-SSRF: blocco IP privati, validazione DNS, restrizione schema/porta, no redirect, rifiuto IPv6, validazione HTTP 2xx)
+- AlertManager (state change detection, cooldown pre-dispatch via transient, dispatch multi-canale, alert log capped a 50, costanti STATUS_OK/WARNING/CRITICAL/UNKNOWN)
+- EmailChannel (wp_mail, recipients configurabili con validazione is_email)
+- WebhookChannel (JSON POST, firma HMAC opzionale con header X-OpsHealth-Signature documentato)
+- SlackChannel (Block Kit, color attachments, escape mrkdwn)
+- TelegramChannel (Bot API, HTML parse mode con htmlspecialchars)
+- WhatsAppChannel (webhook generico, Bearer auth, phone number con validazione E.164)
 - Scheduler (WP-Cron 15 min, prevenzione duplicati, self-healing throttled, AlertManager integration opzionale)
 - Container (DI con rilevazione dipendenze circolari)
 - Menu (capability check, `load-{$page_hook}` per process_actions PRG, submenu Alert Settings)

@@ -422,16 +422,43 @@
 **Statistiche Finali**:
 - 27 file sorgente in `src/` (+11 da M3)
 - 42 file di test (27 unit + 15 integration) (+16 da M3)
-- 546 test totali (410 unit + 136 integration), ~1206 assertions
+- 556 test totali (420 unit + 136 integration), 1285 assertions
 - PHPCS 100% clean (0 errori, 0 warning)
 - PHPStan level 6: 0 errori
-- +196 nuovi test (+183 unit, +13 integration)
+- +196 nuovi test per M4 + 10 test aggiunti in code review
 
 **Deliverable**: Alerting multi-canale con anti-SSRF, cooldown intelligente, UI admin configurazione ✅
 
 ---
 
 ## Progress Log (M4)
+
+### 2026-02-10 (Code Review Post-M4)
+
+**Code Review Post-M4** - 13 finding risolti (4 Critical, 3 High, 3 Medium, 3 Low):
+
+**Critical:**
+- HttpClient.post(): restituisce `success: false` per risposte HTTP non-2xx
+- AlertManager: cooldown impostato PRIMA del dispatch (previene alert spam su failure canali)
+- TelegramChannel: `htmlspecialchars()` su tutte le variabili interpolate in messaggi HTML
+- Scheduler: `try/catch` attorno a `alert_manager->process()` (cron resilience)
+
+**High:**
+- SlackChannel: `escape_mrkdwn()` per `*`, `_`, `~`, `` ` ``, `&`, `<`, `>`
+- EmailChannel: `is_email()` in `parse_recipients()` filtra email non valide
+- AlertSettings: `type="password"` + `autocomplete="off"` per token/secret
+
+**Medium:**
+- AlertingFlowTest: rafforzato con EmailChannel + asserzioni meaningful
+- HttpClient: IPv6 rejection documentato in `is_private_ip()` PHPDoc
+- AlertManager: costanti `STATUS_OK/WARNING/CRITICAL/UNKNOWN` sostituiscono stringhe hardcoded
+
+**Low:**
+- Interface tests: `assertTrue(interface_exists/method_exists)` → Reflection-based assertions
+- WebhookChannel: `X-OpsHealth-Signature` header documentato con istruzioni verifica
+- WhatsAppChannel: validazione E.164 phone (`is_valid_phone`) in `is_enabled()`
+
+Totale: 556 test (420 unit + 136 integration), 1285 assertions, PHPCS + PHPStan clean
 
 ### 2026-02-10 (M4 Implementation)
 
@@ -440,7 +467,6 @@
 - M4.8: Scheduler modification with optional AlertManager injection
 - M4.9: AlertSettings admin page + Menu submenu (+22 unit, +6 menu tests)
 - M4.10: Bootstrap wiring + AlertingFlowTest (10 E2E integration tests)
-- Code review identified 7 Critical+High findings (pending fix)
 
 ---
 

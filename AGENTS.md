@@ -61,7 +61,7 @@ Plugin WordPress production-grade per monitoraggio operativo con health checks, 
 
 ## Stato Progetto (Riferimento)
 
-Milestone M1 + M2 + M3 + M4 completate (Core Checks + Storage + Cron + Error Log Summary Safe + Redis Check + Alerting System). 546 test (410 unit + 136 integration), ~1206 assertions. PHPCS 100% clean, PHPStan level 6: 0 errori. Milestone corrente: M5 (E2E Testing, pianificata). Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
+Milestone M1 + M2 + M3 + M4 completate (Core Checks + Storage + Cron + Error Log Summary Safe + Redis Check + Alerting System). Code review post-M4: 13 finding risolti. 556 test (420 unit + 136 integration), 1285 assertions. PHPCS 100% clean, PHPStan level 6: 0 errori. Milestone corrente: M5 (E2E Testing, pianificata). Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
 
 ## Baseline Corrente (v0.4.0)
 
@@ -77,10 +77,12 @@ Punti architetturali da preservare nella codebase attuale:
 9. `RedisCheck` usa chiave smoke test univoca per run (`ops_health_smoke_test_<uniqid>`) per evitare race condition tra run concorrenti.
 10. Contratto `CheckRunnerInterface` con `clear_results()` usato dal flusso admin (`Run Now` / `Clear Cache`) in `HealthScreen::process_actions()`.
 11. **Alerting**: `AlertManager` rileva cambiamenti stato check, dispatcha a canali abilitati (Email, Webhook, Slack, Telegram, WhatsApp), cooldown per-check via transient, alert log capped a 50. Integrato in `Scheduler::run_checks()`.
-12. **Anti-SSRF**: `HttpClient` blocca IP privati (RFC 1918, loopback, link-local), valida DNS resolution, restringe schema (http/https) e porte (80/443), no redirect, timeout 5s.
-13. **Alert Settings**: pagina admin `Ops → Alert Settings` con PRG pattern, nonce `ops_health_alert_settings`, per-channel enable/disable + credentials, cooldown globale.
-14. Tooling quality gate locale: `composer test`, `composer phpcs`, `composer analyse` (PHPStan livello 6 con `phpstan.neon`).
-15. CI separata in `.github/workflows/ci.yml`: job dedicati PHPCS, PHPStan e PHPUnit matrix (PHP 7.4-8.5, coverage su 8.3). Codecov con flag separati `unit`/`integration` (`codecov.yml`, `CODECOV_TOKEN` secret).
+12. **Anti-SSRF**: `HttpClient` blocca IP privati (RFC 1918, loopback, link-local), valida DNS resolution, restringe schema (http/https) e porte (80/443), no redirect, timeout 5s, rifiuto IPv6 (safe-fail), validazione HTTP 2xx.
+13. **Alert Settings**: pagina admin `Ops → Alert Settings` con PRG pattern, nonce `ops_health_alert_settings`, per-channel enable/disable + credentials (`type="password"` per token/secret), cooldown globale.
+14. **Channel security**: TelegramChannel escape HTML (`htmlspecialchars`), SlackChannel escape mrkdwn, EmailChannel validazione `is_email()`, WhatsAppChannel validazione E.164 phone.
+15. **AlertManager resilience**: cooldown transient impostato PRIMA del dispatch (anti-spam), costanti `STATUS_OK/WARNING/CRITICAL/UNKNOWN`, Scheduler `try/catch` attorno a `process()`.
+16. Tooling quality gate locale: `composer test`, `composer phpcs`, `composer analyse` (PHPStan livello 6 con `phpstan.neon`).
+17. CI separata in `.github/workflows/ci.yml`: job dedicati PHPCS, PHPStan e PHPUnit matrix (PHP 7.4-8.5, coverage su 8.3). Codecov con flag separati `unit`/`integration` (`codecov.yml`, `CODECOV_TOKEN` secret).
 
 Nota operativa:
 1. Evitare sezioni datate o checklist "one-shot" in questo file.

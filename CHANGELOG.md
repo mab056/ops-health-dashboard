@@ -12,33 +12,37 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 - **HttpClientInterface + HttpClient** - Anti-SSRF HTTP client for outbound requests
   - Scheme validation (http/https only)
   - Private IP blocking (RFC 1918, loopback, link-local, 0.0.0.0)
+  - IPv6 rejection (safe-fail, `gethostbyname()` returns only IPv4)
   - Port restriction (80/443 only)
-  - DNS resolution validation via `gethostbyname()`
+  - DNS resolution validation via `gethostbyname()` (DNS rebinding prevention)
+  - HTTP status validation (only 2xx = success)
   - No redirect following, 5s timeout
   - `is_safe_url()` + `post()` API with RedactionInterface integration
 - **AlertChannelInterface** - Contract for notification channels: `get_id()`, `get_name()`, `is_enabled()`, `send()`
 - **AlertManagerInterface + AlertManager** - State change detection and channel dispatch
   - Alert on status transitions: ok→warning, ok→critical, warning→critical, critical→warning, *→ok (recovery)
   - Per-check cooldown via WordPress transients (default 60 min)
+  - Cooldown set BEFORE dispatch (prevents alert spam on channel failures)
   - Recovery alerts bypass cooldown
   - First run: alert only if status ≠ ok
   - Alert log capped at 50 entries via Storage
-  - Constants: `DEFAULT_COOLDOWN = 3600`, `MAX_LOG_ENTRIES = 50`
-- **EmailChannel** - Email alerts via `wp_mail()` with configurable recipients
+  - Constants: `STATUS_OK`, `STATUS_WARNING`, `STATUS_CRITICAL`, `STATUS_UNKNOWN`, `DEFAULT_COOLDOWN = 3600`, `MAX_LOG_ENTRIES = 50`
+- **EmailChannel** - Email alerts via `wp_mail()` with configurable recipients, `is_email()` validation
 - **WebhookChannel** - Generic JSON POST with optional HMAC signature (`X-OpsHealth-Signature` via `hash_hmac('sha256', ...)`)
-- **SlackChannel** - Slack Block Kit payload with color-coded attachments (red/orange/green by status)
-- **TelegramChannel** - Telegram Bot API `sendMessage` with HTML parse mode
-- **WhatsAppChannel** - Generic webhook with phone number field + optional Bearer auth header
+- **SlackChannel** - Slack Block Kit payload with color-coded attachments (red/orange/green by status), mrkdwn escape
+- **TelegramChannel** - Telegram Bot API `sendMessage` with HTML parse mode, `htmlspecialchars()` on interpolated variables
+- **WhatsAppChannel** - Generic webhook with phone number field + optional Bearer auth header, E.164 phone validation
 - **AlertSettings admin page** - Alert channel configuration UI under `Ops → Alert Settings`
   - PRG pattern with nonce `ops_health_alert_settings` and capability check `manage_options`
   - Per-channel enable/disable + credentials (email recipients, webhook URL/secret, Slack webhook, Telegram bot token/chat ID, WhatsApp webhook/phone/token)
+  - `type="password"` + `autocomplete="off"` for token/secret inputs
   - Global cooldown minutes setting
   - `protected do_exit()` for testability
 - **Menu submenu** - Alert Settings as submenu under Ops Health Dashboard
 - **Scheduler AlertManager integration** - Optional `AlertManagerInterface` injection (backward compatible)
   - Reads previous results before `run_all()`, then calls `alert_manager->process()`
+  - `try/catch` around `alert_manager->process()` (cron resilience)
 - **AlertingFlowTest** - End-to-end integration tests: state change → dispatch → cooldown → recovery
-- 196 new tests (183 unit + 13 integration) for M4 components
 
 ### Changed
 - **Scheduler** - Accepts optional `AlertManagerInterface $alert_manager` parameter; triggers alert processing after check runs
@@ -46,14 +50,18 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 - **config/bootstrap.php** - Wires all M4 bindings: HttpClient, AlertManager with 5 channels, AlertSettings, updated Scheduler + Menu
 
 ### Security
-- **Anti-SSRF implemented** - HttpClient blocks private IPs, validates DNS, restricts schemes/ports
+- **Anti-SSRF implemented** - HttpClient blocks private IPs, validates DNS, restricts schemes/ports, rejects IPv6, validates HTTP 2xx
+- **Channel security** - TelegramChannel HTML escape, SlackChannel mrkdwn escape, EmailChannel `is_email()` validation, WhatsAppChannel E.164 phone validation
+- **Cooldown pre-dispatch** - Transient set BEFORE channel dispatch (prevents alert spam on failure)
 - **Capability checks** on AlertSettings admin page (`manage_options`)
 - **Nonce protection** on AlertSettings form (`ops_health_alert_settings`)
 - **Input sanitization** - `sanitize_text_field()`, `sanitize_email()`, `esc_url_raw()`, `absint()` on all alert settings
 - **Output escaping** - `esc_html()`, `esc_attr()`, `esc_url()` on all rendered settings
+- **Input masking** - `type="password"` + `autocomplete="off"` for token/secret fields
 
 ### Development Notes
-- 546 test totali (410 unit + 136 integration), ~1206 assertions
+- Code review post-M4: 13 finding risolti (4 Critical, 3 High, 3 Medium, 3 Low)
+- 556 test totali (420 unit + 136 integration), 1285 assertions
 - PHPCS 100% clean (0 errori, 0 warning)
 - PHPStan level 6: 0 errori
 - 27 file sorgente in `src/`, 42 file di test (27 unit + 15 integration)

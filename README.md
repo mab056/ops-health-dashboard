@@ -19,32 +19,32 @@ Questo plugin fornisce una dashboard operativa in wp-admin con controlli automat
 ## ✨ Funzionalità (MVP)
 
 ### Controlli di Salute
-- **Database** - Connettività e performance delle query *(implementato)*
-- **Log Errori** - Aggregazione sicura con redaction automatica *(implementato)*
-- **Redis** - Rilevamento estensione + connessione + smoke test con graceful degradation *(implementato)*
+- **Database** - Connettività e performance delle query
+- **Log Errori** - Aggregazione sicura con redaction automatica
+- **Redis** - Rilevamento estensione + connessione + smoke test con graceful degradation
 - **Spazio Disco** - Libero/totale con soglie configurabili *(pianificato)*
 - **Versioni** - WordPress, PHP, temi, plugin + notifiche aggiornamenti *(pianificato)*
 
 ### Dashboard
-- Pagina admin: `Ops → Health Dashboard` *(implementato)*
-- Bottoni manuali "Run Now" e "Clear Cache" con protezione nonce *(implementato)*
+- Pagina admin: `Ops → Health Dashboard`
+- Bottoni manuali "Run Now" e "Clear Cache" con protezione nonce
 - Widget dashboard con stato globale *(pianificato M5+)*
 
 ### Alerting *(implementato M4)*
-- **Email** via `wp_mail()` con destinatari configurabili *(implementato)*
-- **Webhook** generico POST JSON con firma HMAC opzionale *(implementato)*
-- **Slack** via Incoming Webhook con Block Kit payload *(implementato)*
-- **Telegram** via Bot API con parse mode HTML *(implementato)*
-- **WhatsApp** via webhook generico con auth Bearer *(implementato)*
-- Cooldown intelligente per-check via transient (default 60 min) *(implementato)*
-- Recovery alert bypassano il cooldown *(implementato)*
-- Pagina admin configurazione: `Ops → Alert Settings` *(implementato)*
-- Anti-SSRF su tutte le richieste HTTP outbound *(implementato)*
+- **Email** via `wp_mail()` con destinatari configurabili
+- **Webhook** generico POST JSON con firma HMAC opzionale
+- **Slack** via Incoming Webhook con Block Kit payload
+- **Telegram** via Bot API con parse mode HTML
+- **WhatsApp** via webhook generico con auth Bearer
+- Cooldown intelligente per-check via transient (default 60 min)
+- Recovery alert bypassano il cooldown
+- Pagina admin configurazione: `Ops → Alert Settings`
+- Anti-SSRF su tutte le richieste HTTP outbound
 
 ### Scheduling
-- WP-Cron (default: ogni 15 minuti) *(implementato)*
-- Trigger manuale dei check via bottone "Run Now" *(implementato)*
-- Alert automatici solo su cambiamenti di stato *(implementato)*
+- WP-Cron (default: ogni 15 minuti)
+- Trigger manuale dei check via bottone "Run Now"
+- Alert automatici solo su cambiamenti di stato
 
 ## 🏗️ Architettura
 
@@ -159,7 +159,7 @@ Questo progetto segue **TDD rigoroso** (Test-Driven Development) con un **approc
 
 **Unit Tests (Brain\Monkey)** - Veloce, isolato
 - Logica business pura, NO WordPress
-- 410 test, ~4 s
+- 420 test, ~4 s
 - Perfetto per TDD rapido
 
 **Integration Tests (WP Test Suite)** - WordPress reale
@@ -263,7 +263,7 @@ public function test_database_check_runs_successfully() {
 
 ### Matrice Test
 
-- **Unit Tests**: Brain\Monkey - 410 test, tutte le versioni PHP
+- **Unit Tests**: Brain\Monkey - 420 test, tutte le versioni PHP
 - **Integration Tests**: WP Test Suite - 136 test, tutte le versioni PHP
 - **PHPStan**: Level 6 con szepeviktor/phpstan-wordpress, 0 errori
 - **Versioni PHP**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
@@ -281,8 +281,17 @@ public function test_database_check_runs_successfully() {
   - Blocco IP privati e riservati (RFC 1918, loopback, link-local)
   - Validazione DNS resolution (prevenzione DNS rebinding)
   - Restrizione porte (solo 80/443)
+  - Rifiuto IPv6 (safe-fail)
+  - Validazione HTTP status (solo 2xx = successo)
   - No redirect following
   - Timeout 5 secondi
+- **Channel Security**: Protezione injection su tutti i canali
+  - TelegramChannel: escape HTML (`htmlspecialchars`)
+  - SlackChannel: escape mrkdwn (formattazione)
+  - EmailChannel: validazione `is_email()` destinatari
+  - WhatsAppChannel: validazione E.164 phone number
+  - Token/secret mascherati (`type="password"`)
+- **Cooldown pre-dispatch**: Previene alert spam anche su failure canali
 - **Redaction Dati**: Sanitizzazione automatica di:
   - Credenziali (password, API key, token)
   - Path file (ABSPATH, WP_CONTENT_DIR)
@@ -306,7 +315,7 @@ Milestone corrente: **M5 - E2E Testing** 🚧
 
 - **27 file sorgente** in `src/`
 - **42 file di test** (27 unit + 15 integration)
-- **546 test totali** (410 unit + 136 integration), ~1206 assertions
+- **556 test totali** (420 unit + 136 integration), 1285 assertions
 - **PHPCS**: 100% compliance (0 errori, 0 warning)
 - **PHPStan**: level 6, 0 errori
 

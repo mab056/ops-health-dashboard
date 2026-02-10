@@ -72,12 +72,24 @@ Il sistema di alerting utilizza `HttpClient` con protezioni anti-SSRF complete p
 
 - **Validazione schema**: solo http/https accettati
 - **Blocco IP privati e riservati**: RFC 1918 (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16), loopback (127.0.0.0/8), link-local (169.254.0.0/16), unspecified (0.0.0.0)
+- **Rifiuto IPv6**: trattato come non sicuro (safe-fail) perché `gethostbyname()` restituisce solo IPv4
 - **Validazione DNS**: risoluzione hostname e verifica che l'IP risolto non sia privato (prevenzione DNS rebinding)
 - **Restrizione porte**: solo porta 80 e 443 consentite
 - **No redirect following**: `redirection => 0` su `wp_remote_post()`
+- **Validazione HTTP status**: solo risposte 2xx trattate come successo
 - **Timeout**: 5 secondi massimo
 - **Protected `resolve_host()`**: wrappa `gethostbyname()` per testabilità con partial mock
 - Implementato in `src/Services/HttpClient.php` con interfaccia `HttpClientInterface`
+
+### Protezione canali di notifica
+
+- **TelegramChannel**: `htmlspecialchars()` su tutte le variabili interpolate nei messaggi HTML (prevenzione HTML injection)
+- **SlackChannel**: escape mrkdwn (`*`, `_`, `~`, `` ` ``, `&`, `<`, `>`) nei valori utente (prevenzione injection formattazione)
+- **EmailChannel**: validazione `is_email()` sui destinatari (prevenzione header injection)
+- **WhatsAppChannel**: validazione E.164 sul numero di telefono (regex `/^\+[1-9]\d{6,14}$/`)
+- **WebhookChannel**: firma HMAC SHA-256 opzionale via header `X-OpsHealth-Signature`
+- **AlertSettings**: token e secret mostrati come `type="password"` + `autocomplete="off"` (prevenzione esposizione credenziali)
+- **AlertManager**: cooldown impostato PRIMA del dispatch (prevenzione alert spam su failure canali)
 
 ### Dependency Injection
 
