@@ -4,6 +4,7 @@
 
 | Versione | Supportata |
 |----------|------------|
+| 0.4.x    | :white_check_mark: |
 | 0.3.x    | :white_check_mark: |
 | < 0.3    | :x: |
 
@@ -37,8 +38,8 @@ La sicurezza di Ops Health Dashboard è considerata una priorità. Se hai trovat
 ### Controllo accessi
 
 - **Capability check**: tutte le pagine admin richiedono `manage_options`
-- **Nonce CSRF**: protezione su tutti i form e azioni POST (`ops_health_admin_action`)
-- **Pattern PRG**: Post-Redirect-Get per prevenire doppie sottomissioni
+- **Nonce CSRF**: protezione su tutti i form e azioni POST (`ops_health_admin_action`, `ops_health_alert_settings`)
+- **Pattern PRG**: Post-Redirect-Get per prevenire doppie sottomissioni (HealthScreen + AlertSettings)
 
 ### Sanitizzazione e Escaping
 
@@ -65,15 +66,18 @@ La sicurezza di Ops Health Dashboard è considerata una priorità. Se hai trovat
 - **Limite lettura**: max 512KB per prevenire consumo eccessivo di memoria
 - **Lock condiviso**: `flock(LOCK_SH)` per accesso concorrente sicuro ai log
 
-### Anti-SSRF (pianificato M4)
+### Anti-SSRF (implementato M4)
 
-Il sistema di alerting (M4) includerà protezioni anti-SSRF per webhook:
+Il sistema di alerting utilizza `HttpClient` con protezioni anti-SSRF complete per tutte le richieste HTTP outbound (Webhook, Slack, Telegram, WhatsApp):
 
-- Validazione schema (solo http/https)
-- Blocco IP privati e riservati (RFC 1918, loopback, link-local)
-- Prevenzione DNS rebinding
-- No redirect following
-- Timeout 5 secondi
+- **Validazione schema**: solo http/https accettati
+- **Blocco IP privati e riservati**: RFC 1918 (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16), loopback (127.0.0.0/8), link-local (169.254.0.0/16), unspecified (0.0.0.0)
+- **Validazione DNS**: risoluzione hostname e verifica che l'IP risolto non sia privato (prevenzione DNS rebinding)
+- **Restrizione porte**: solo porta 80 e 443 consentite
+- **No redirect following**: `redirection => 0` su `wp_remote_post()`
+- **Timeout**: 5 secondi massimo
+- **Protected `resolve_host()`**: wrappa `gethostbyname()` per testabilità con partial mock
+- Implementato in `src/Services/HttpClient.php` con interfaccia `HttpClientInterface`
 
 ### Dependency Injection
 

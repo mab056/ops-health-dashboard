@@ -5,10 +5,10 @@
 [![PHP Version](https://img.shields.io/badge/PHP-7.4%2B-blue)](https://www.php.net/)
 [![WordPress](https://img.shields.io/badge/WordPress-5.8%2B-blue)](https://wordpress.org/)
 [![License](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.3.1-green)](https://github.com/mab056/ops-health-dashboard/releases)
+[![Version](https://img.shields.io/badge/Version-0.4.0-green)](https://github.com/mab056/ops-health-dashboard/releases)
 [![PHPCS](https://img.shields.io/badge/PHPCS-WordPress%20Standards-green)](https://github.com/WordPress/WordPress-Coding-Standards)
 
-Plugin WordPress di monitoraggio operativo production-grade con controlli automatici e roadmap di alerting configurabile.
+Plugin WordPress di monitoraggio operativo production-grade con controlli automatici e alerting multi-canale configurabile.
 
 ## 🎯 Problema
 
@@ -28,20 +28,23 @@ Questo plugin fornisce una dashboard operativa in wp-admin con controlli automat
 ### Dashboard
 - Pagina admin: `Ops → Health Dashboard` *(implementato)*
 - Bottoni manuali "Run Now" e "Clear Cache" con protezione nonce *(implementato)*
-- Widget dashboard con stato globale *(pianificato M4+)*
+- Widget dashboard con stato globale *(pianificato M5+)*
 
-### Alerting *(pianificato M4)*
-- Email via `wp_mail()`
-- Webhook generico (POST JSON)
-- Slack (opt-in con Incoming Webhook)
-- Telegram (opt-in con Bot API)
-- WhatsApp (via webhook generico)
-- Cooldown intelligente per prevenire spam di alert
+### Alerting *(implementato M4)*
+- **Email** via `wp_mail()` con destinatari configurabili *(implementato)*
+- **Webhook** generico POST JSON con firma HMAC opzionale *(implementato)*
+- **Slack** via Incoming Webhook con Block Kit payload *(implementato)*
+- **Telegram** via Bot API con parse mode HTML *(implementato)*
+- **WhatsApp** via webhook generico con auth Bearer *(implementato)*
+- Cooldown intelligente per-check via transient (default 60 min) *(implementato)*
+- Recovery alert bypassano il cooldown *(implementato)*
+- Pagina admin configurazione: `Ops → Alert Settings` *(implementato)*
+- Anti-SSRF su tutte le richieste HTTP outbound *(implementato)*
 
 ### Scheduling
 - WP-Cron (default: ogni 15 minuti) *(implementato)*
 - Trigger manuale dei check via bottone "Run Now" *(implementato)*
-- Alert solo su cambiamenti di stato *(pianificato M4)*
+- Alert automatici solo su cambiamenti di stato *(implementato)*
 
 ## 🏗️ Architettura
 
@@ -81,10 +84,11 @@ class Plugin {
 ops-health-dashboard/
 ├── src/
 │   ├── Core/           # Container, Plugin, Activator
-│   ├── Interfaces/     # Contratti (CheckInterface, CheckRunnerInterface, ecc.)
-│   ├── Checks/         # Implementazioni controlli salute
-│   ├── Services/       # Logica business (Storage, Scheduler, Redaction, CheckRunner)
-│   └── Admin/          # UI wp-admin
+│   ├── Interfaces/     # Contratti DI (Check, CheckRunner, Storage, Redaction, HttpClient, AlertManager, AlertChannel)
+│   ├── Checks/         # Implementazioni controlli salute (Database, ErrorLog, Redis)
+│   ├── Services/       # Logica business (Storage, Scheduler, Redaction, CheckRunner, AlertManager, HttpClient)
+│   ├── Channels/       # Canali di notifica (Email, Webhook, Slack, Telegram, WhatsApp)
+│   └── Admin/          # UI wp-admin (Menu, HealthScreen, AlertSettings)
 ├── tests/
 │   ├── Unit/           # Test unitari (Brain\Monkey)
 │   └── Integration/    # Test integrazione (WordPress Test Suite)
@@ -100,7 +104,10 @@ ops-health-dashboard/
 - **CheckRunner** - Orchestra i controlli di salute, redige messaggi eccezione via RedactionInterface
 - **Storage** - Wrapper WordPress Options API con `autoload=false`
 - **Redaction** - Sanitizzazione dati sensibili (11 pattern, IPv4 con validazione ottetti)
-- **Scheduler** - Scheduling WP-Cron ogni 15 minuti + self-healing throttled
+- **Scheduler** - Scheduling WP-Cron ogni 15 minuti + self-healing throttled + AlertManager integration
+- **AlertManager** - Rilevamento cambiamenti stato, dispatch multi-canale, cooldown per-check, alert log
+- **HttpClient** - Client HTTP anti-SSRF (blocco IP privati, validazione DNS, restrizione schema/porta)
+- **5 Channels** - EmailChannel, WebhookChannel, SlackChannel, TelegramChannel, WhatsAppChannel
 
 ## 📋 Requisiti
 
@@ -152,12 +159,12 @@ Questo progetto segue **TDD rigoroso** (Test-Driven Development) con un **approc
 
 **Unit Tests (Brain\Monkey)** - Veloce, isolato
 - Logica business pura, NO WordPress
-- 227 test, ~3 s, coverage 99.50%
+- 410 test, ~4 s
 - Perfetto per TDD rapido
 
 **Integration Tests (WP Test Suite)** - WordPress reale
 - Test con WordPress completo, database, WP-Cron
-- 123 test, ~3 s, coverage 100%
+- 136 test, ~4 s
 - Verifica integrazione reale con WordPress
 
 ### Comandi Test
@@ -256,12 +263,12 @@ public function test_database_check_runs_successfully() {
 
 ### Matrice Test
 
-- **Unit Tests**: Brain\Monkey - 227 test, tutte le versioni PHP
-- **Integration Tests**: WP Test Suite - 123 test, tutte le versioni PHP
+- **Unit Tests**: Brain\Monkey - 410 test, tutte le versioni PHP
+- **Integration Tests**: WP Test Suite - 136 test, tutte le versioni PHP
 - **PHPStan**: Level 6 con szepeviktor/phpstan-wordpress, 0 errori
 - **Versioni PHP**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
 - **Target Coverage**: ≥85% su PHP 8.3
-- **Test E2E**: Viewport Mobile, Tablet, Desktop (futuro)
+- **Test E2E**: Viewport Mobile, Tablet, Desktop (futuro M5)
 
 ## 🔒 Sicurezza
 
@@ -269,10 +276,11 @@ public function test_database_check_runs_successfully() {
 
 - **Solo Admin**: Tutte le funzionalità richiedono capability `manage_options`
 - **Nonces**: Protezione CSRF su tutti i form e AJAX
-- **Anti-SSRF**: Requisito di progetto per webhook *(pianificato M4)*
+- **Anti-SSRF**: Protezione attiva su tutte le richieste HTTP outbound *(implementato M4)*
   - Validazione schema (solo http/https)
-  - Prevenzione DNS rebinding
-  - Blocco IP privati
+  - Blocco IP privati e riservati (RFC 1918, loopback, link-local)
+  - Validazione DNS resolution (prevenzione DNS rebinding)
+  - Restrizione porte (solo 80/443)
   - No redirect following
   - Timeout 5 secondi
 - **Redaction Dati**: Sanitizzazione automatica di:
@@ -292,14 +300,13 @@ public function test_database_check_runs_successfully() {
 
 ## 📊 Stato Sviluppo
 
-Milestone corrente: **M4 - Alerting System** 🚧
+Milestone corrente: **M5 - E2E Testing** 🚧
 
 ### Statistiche
 
-- **16 file sorgente** in `src/`
-- **28 file di test** (16 unit + 12 integration)
-- **350 test totali** (227 unit + 123 integration), 810 assertions
-- **Coverage**: Unit 99.50%, Integration 100%
+- **27 file sorgente** in `src/`
+- **42 file di test** (27 unit + 15 integration)
+- **546 test totali** (410 unit + 136 integration), ~1206 assertions
 - **PHPCS**: 100% compliance (0 errori, 0 warning)
 - **PHPStan**: level 6, 0 errori
 
@@ -309,7 +316,7 @@ Milestone corrente: **M4 - Alerting System** 🚧
 - [x] **M1**: Core Checks + Storage + Cron
 - [x] **M2**: Riepilogo Error Log Sicuro
 - [x] **M3**: Check Redis
-- [ ] **M4**: Sistema Alerting
+- [x] **M4**: Sistema Alerting (Email, Webhook, Slack, Telegram, WhatsApp + anti-SSRF)
 - [ ] **M5**: Testing E2E (Playwright)
 - [ ] **M6**: Readiness WordPress.org
 

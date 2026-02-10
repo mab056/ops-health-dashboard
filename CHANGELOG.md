@@ -5,6 +5,61 @@ Tutte le modifiche rilevanti a questo progetto saranno documentate in questo fil
 Il formato è basato su [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.4.0 - 2026-02-10
+
+### Added
+- **M4 — Alerting System** - Multi-channel alert notifications on check status changes
+- **HttpClientInterface + HttpClient** - Anti-SSRF HTTP client for outbound requests
+  - Scheme validation (http/https only)
+  - Private IP blocking (RFC 1918, loopback, link-local, 0.0.0.0)
+  - Port restriction (80/443 only)
+  - DNS resolution validation via `gethostbyname()`
+  - No redirect following, 5s timeout
+  - `is_safe_url()` + `post()` API with RedactionInterface integration
+- **AlertChannelInterface** - Contract for notification channels: `get_id()`, `get_name()`, `is_enabled()`, `send()`
+- **AlertManagerInterface + AlertManager** - State change detection and channel dispatch
+  - Alert on status transitions: ok→warning, ok→critical, warning→critical, critical→warning, *→ok (recovery)
+  - Per-check cooldown via WordPress transients (default 60 min)
+  - Recovery alerts bypass cooldown
+  - First run: alert only if status ≠ ok
+  - Alert log capped at 50 entries via Storage
+  - Constants: `DEFAULT_COOLDOWN = 3600`, `MAX_LOG_ENTRIES = 50`
+- **EmailChannel** - Email alerts via `wp_mail()` with configurable recipients
+- **WebhookChannel** - Generic JSON POST with optional HMAC signature (`X-OpsHealth-Signature` via `hash_hmac('sha256', ...)`)
+- **SlackChannel** - Slack Block Kit payload with color-coded attachments (red/orange/green by status)
+- **TelegramChannel** - Telegram Bot API `sendMessage` with HTML parse mode
+- **WhatsAppChannel** - Generic webhook with phone number field + optional Bearer auth header
+- **AlertSettings admin page** - Alert channel configuration UI under `Ops → Alert Settings`
+  - PRG pattern with nonce `ops_health_alert_settings` and capability check `manage_options`
+  - Per-channel enable/disable + credentials (email recipients, webhook URL/secret, Slack webhook, Telegram bot token/chat ID, WhatsApp webhook/phone/token)
+  - Global cooldown minutes setting
+  - `protected do_exit()` for testability
+- **Menu submenu** - Alert Settings as submenu under Ops Health Dashboard
+- **Scheduler AlertManager integration** - Optional `AlertManagerInterface` injection (backward compatible)
+  - Reads previous results before `run_all()`, then calls `alert_manager->process()`
+- **AlertingFlowTest** - End-to-end integration tests: state change → dispatch → cooldown → recovery
+- 196 new tests (183 unit + 13 integration) for M4 components
+
+### Changed
+- **Scheduler** - Accepts optional `AlertManagerInterface $alert_manager` parameter; triggers alert processing after check runs
+- **Menu** - Accepts optional `AlertSettings $alert_settings` parameter; registers submenu when present
+- **config/bootstrap.php** - Wires all M4 bindings: HttpClient, AlertManager with 5 channels, AlertSettings, updated Scheduler + Menu
+
+### Security
+- **Anti-SSRF implemented** - HttpClient blocks private IPs, validates DNS, restricts schemes/ports
+- **Capability checks** on AlertSettings admin page (`manage_options`)
+- **Nonce protection** on AlertSettings form (`ops_health_alert_settings`)
+- **Input sanitization** - `sanitize_text_field()`, `sanitize_email()`, `esc_url_raw()`, `absint()` on all alert settings
+- **Output escaping** - `esc_html()`, `esc_attr()`, `esc_url()` on all rendered settings
+
+### Development Notes
+- 546 test totali (410 unit + 136 integration), ~1206 assertions
+- PHPCS 100% clean (0 errori, 0 warning)
+- PHPStan level 6: 0 errori
+- 27 file sorgente in `src/`, 42 file di test (27 unit + 15 integration)
+- Pattern enforcement (NO singleton/static/final) su tutte le 11 nuove classi
+- TDD rigoroso per ogni componente: RED → GREEN → REFACTOR
+
 ## 0.3.1 - 2026-02-09
 
 ### Added

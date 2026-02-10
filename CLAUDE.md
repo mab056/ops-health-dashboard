@@ -403,10 +403,11 @@ bin/build-zip.sh --output /tmp/p.zip  # Output path custom
 ops-health-dashboard/
 ├── src/
 │   ├── Core/              # Container, Plugin, Activator (NO singleton/static/final)
-│   ├── Interfaces/        # Interface contracts (CheckInterface, CheckRunnerInterface, ecc.)
-│   ├── Services/          # Business logic (Storage, Scheduler, Redaction, CheckRunner)
+│   ├── Interfaces/        # Interface contracts (Check, CheckRunner, Storage, Redaction, HttpClient, AlertManager, AlertChannel)
+│   ├── Services/          # Business logic (Storage, Scheduler, Redaction, CheckRunner, AlertManager, HttpClient)
 │   ├── Checks/            # Health checks (DatabaseCheck, ErrorLogCheck, RedisCheck)
-│   └── Admin/             # UI wp-admin (Menu, HealthScreen)
+│   ├── Channels/          # Notification channels (EmailChannel, WebhookChannel, SlackChannel, TelegramChannel, WhatsAppChannel)
+│   └── Admin/             # UI wp-admin (Menu, HealthScreen, AlertSettings)
 ├── tests/
 │   ├── Unit/              # Brain\Monkey tests (veloce, isolato)
 │   └── Integration/       # WP Test Suite tests (WordPress reale)
@@ -605,33 +606,42 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 
 ## 🎯 Current Status
 
-**Milestone M4 - Alerting System** 🚧 IN CORSO
+**Milestone M4 - Alerting System** ✅ COMPLETATA
 
 **Stato Attuale:**
-- ✅ **227 test unitari** (Brain\Monkey) — coverage **99.50%**
-- ✅ **123 test di integrazione** (WP Test Suite) — coverage **100%**
-- ✅ **350 test totali passing**, 810 assertions
+- ✅ **410 test unitari** (Brain\Monkey)
+- ✅ **136 test di integrazione** (WP Test Suite)
+- ✅ **546 test totali passing**, ~1206 assertions
 - ✅ PHPCS 100% compliance (0 errori, 0 warning)
 - ✅ PHPStan level 6: 0 errori (szepeviktor/phpstan-wordpress)
 - ✅ CI/CD completo con PHP 7.4-8.5
-- ✅ 16 file sorgente, 28 file di test (16 unit + 12 integration)
+- ✅ 27 file sorgente, 42 file di test (27 unit + 15 integration)
 - ✅ Pattern enforcement (NO singleton/static/final)
 
-**Componenti Implementati (M1+M2+M3):**
+**Componenti Implementati (M1+M2+M3+M4):**
 - StorageInterface, CheckInterface, RedactionInterface, CheckRunnerInterface (contratti DI)
+- HttpClientInterface, AlertManagerInterface, AlertChannelInterface (contratti M4)
 - Storage (Options API, sentinel pattern in `has()`, autoload=false)
 - CheckRunner (try/catch, type safety, RedactionInterface, clear_results)
 - DatabaseCheck ($wpdb injection, no info disclosure, i18n, RedactionInterface per $wpdb errors)
 - Redaction (11 pattern: credenziali DB, salts, API key, token, password, email, IP, path; IPv4 validazione ottetti)
 - ErrorLogCheck (tail log, aggregazione severità, campioni redatti, anti-symlink, flock LOCK_SH)
 - RedisCheck (graceful degradation, estensione+connessione+auth+smoke test, response time, RedactionInterface)
-- Scheduler (WP-Cron 15 min, prevenzione duplicati, self-healing throttled con transient anche su frontend, costanti HOOK_NAME/INTERVAL)
+- HttpClient (anti-SSRF: blocco IP privati, validazione DNS, restrizione schema/porta, no redirect)
+- AlertManager (state change detection, cooldown per-check via transient, dispatch multi-canale, alert log capped a 50)
+- EmailChannel (wp_mail, recipients configurabili)
+- WebhookChannel (JSON POST, firma HMAC opzionale)
+- SlackChannel (Block Kit, color attachments)
+- TelegramChannel (Bot API, HTML parse mode)
+- WhatsAppChannel (webhook generico, Bearer auth, phone number)
+- Scheduler (WP-Cron 15 min, prevenzione duplicati, self-healing throttled, AlertManager integration opzionale)
 - Container (DI con rilevazione dipendenze circolari)
-- Menu (capability check, `load-{$page_hook}` per process_actions PRG)
+- Menu (capability check, `load-{$page_hook}` per process_actions PRG, submenu Alert Settings)
 - HealthScreen (capability check, bottoni Run Now/Clear Cache con nonce, validazione difensiva, CheckRunnerInterface)
+- AlertSettings (pagina admin configurazione alert, PRG, nonce, per-channel enable/disable + credentials, cooldown)
 - Activator (usa costanti Scheduler::HOOK_NAME/INTERVAL)
 
-**Next: M4 - Alerting System**
+**Next: M5 - E2E Testing (Playwright)**
 
 ## 📞 Per Aiuto
 

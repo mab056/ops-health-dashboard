@@ -1,7 +1,7 @@
 # Development Plan - Ops Health Dashboard
 
-**Current Milestone**: M4 - Alerting System
-**Status**: M3 completata, M4 pianificata
+**Current Milestone**: M5 - E2E Testing
+**Status**: M4 completata, M5 pianificata
 
 ---
 
@@ -352,8 +352,99 @@
 
 ---
 
+## Milestone 4: Alerting System ✅ 10/10
+
+**Obiettivo**: Multi-channel alerting on check status changes with anti-SSRF protection
+
+### Tasks
+
+- [x] **M4.1** - HttpClientInterface + HttpClient (anti-SSRF: scheme/port/IP validation, DNS resolution, no redirects)
+- [x] **M4.2** - AlertChannelInterface + EmailChannel (`wp_mail()`, configurable recipients)
+- [x] **M4.3** - AlertManagerInterface + AlertManager (state change detection, cooldown, dispatch, alert log)
+- [x] **M4.4** - WebhookChannel (generic JSON POST, optional HMAC `X-OpsHealth-Signature`)
+- [x] **M4.5** - SlackChannel (Block Kit payload, color-coded attachments)
+- [x] **M4.6** - TelegramChannel (Bot API `sendMessage`, HTML parse mode)
+- [x] **M4.7** - WhatsAppChannel (generic webhook, phone number, Bearer auth)
+- [x] **M4.8** - Scheduler modification (optional `AlertManagerInterface`, backward compatible)
+- [x] **M4.9** - AlertSettings admin page + Menu submenu (PRG, nonce, capability check)
+- [x] **M4.10** - Bootstrap wiring + AlertingFlowTest (end-to-end integration)
+
+### Dettagli Implementazione
+
+**HttpClient (Anti-SSRF):**
+- `is_safe_url()`: scheme http/https only, ports 80/443 only, block private IPs (10/172.16/192.168/127/169.254/0.0.0.0)
+- `post()`: `wp_remote_post()` with `redirection => 0`, timeout 5s
+- Protected `resolve_host()` wraps `gethostbyname()` for testability (partial mock pattern)
+- Deps: `RedactionInterface`
+
+**AlertManager (State Change Detection):**
+- Alert triggers: ok→warning, ok→critical, warning→critical, critical→warning, *→ok (recovery)
+- No alert: same status (ok→ok, critical→critical, etc.)
+- First run (empty previous): alert only if status ≠ ok
+- Per-check cooldown via transient `ops_health_alert_cooldown_{check_id}` (default 60 min / `DEFAULT_COOLDOWN = 3600`)
+- Recovery alerts (*→ok) bypass cooldown
+- Alert log capped at `MAX_LOG_ENTRIES = 50` entries
+- Storage keys: `alert_settings`, `alert_log`
+- Deps: `StorageInterface`, `RedactionInterface`
+
+**Notification Channels:**
+| Channel | Transport | Auth | Key Features |
+|---------|-----------|------|--------------|
+| Email | `wp_mail()` | N/A | Comma-separated recipients |
+| Webhook | HTTP POST JSON | HMAC SHA-256 | `X-OpsHealth-Signature` header |
+| Slack | HTTP POST JSON | Webhook URL | Block Kit, color attachments |
+| Telegram | Bot API | Bot token | HTML parse mode |
+| WhatsApp | HTTP POST JSON | Bearer token | Phone number field |
+
+**AlertSettings Admin Page:**
+- PRG pattern with nonce `ops_health_alert_settings`, capability `manage_options`
+- Per-channel enable/disable + credentials
+- Global cooldown minutes setting (absint)
+- `protected do_exit()` for testability
+
+**Scheduler Integration:**
+- Optional `AlertManagerInterface $alert_manager = null` (backward compatible)
+- Flow: read previous results → `run_all()` → `alert_manager->process($current, $previous)`
+- "Run Now" button does NOT trigger alerts (alerts only on cron)
+
+**Settings Structure** (stored as `alert_settings` via Storage):
+```php
+[
+  'email'    => ['enabled' => bool, 'recipients' => string],
+  'webhook'  => ['enabled' => bool, 'url' => string, 'secret' => string],
+  'slack'    => ['enabled' => bool, 'webhook_url' => string],
+  'telegram' => ['enabled' => bool, 'bot_token' => string, 'chat_id' => string],
+  'whatsapp' => ['enabled' => bool, 'webhook_url' => string, 'phone_number' => string, 'api_token' => string],
+  'cooldown_minutes' => int,
+]
+```
+
+**Statistiche Finali**:
+- 27 file sorgente in `src/` (+11 da M3)
+- 42 file di test (27 unit + 15 integration) (+16 da M3)
+- 546 test totali (410 unit + 136 integration), ~1206 assertions
+- PHPCS 100% clean (0 errori, 0 warning)
+- PHPStan level 6: 0 errori
+- +196 nuovi test (+183 unit, +13 integration)
+
+**Deliverable**: Alerting multi-canale con anti-SSRF, cooldown intelligente, UI admin configurazione ✅
+
+---
+
+## Progress Log (M4)
+
+### 2026-02-10 (M4 Implementation)
+
+**M4 - Alerting System** completata in 10 sub-task:
+- M4.1-M4.7: HttpClient + 5 channels + AlertManager (TDD, ~170 unit tests)
+- M4.8: Scheduler modification with optional AlertManager injection
+- M4.9: AlertSettings admin page + Menu submenu (+22 unit, +6 menu tests)
+- M4.10: Bootstrap wiring + AlertingFlowTest (10 E2E integration tests)
+- Code review identified 7 Critical+High findings (pending fix)
+
+---
+
 ## Next Milestones
 
-- **M4**: Alerting System (Email, Webhook, Slack, Telegram, WhatsApp + anti-SSRF)
 - **M5**: E2E Testing (Playwright multi-viewport)
 - **M6**: WordPress.org Readiness (uninstall.php, readme.txt, Plugin Check)
