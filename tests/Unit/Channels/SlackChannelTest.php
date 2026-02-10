@@ -566,4 +566,52 @@ class SlackChannelTest extends TestCase
 		$this->assertStringContainsString( '&lt;', $section_text );
 		$this->assertStringContainsString( '&gt;', $section_text );
 	}
+
+	/**
+	 * Testa che uno status non mappato usa colore grigio di fallback
+	 *
+	 * @return void
+	 */
+	public function test_send_formats_unknown_status_with_gray_fallback_color()
+	{
+		$settings = [
+			'slack' => [
+				'enabled'     => true,
+				'webhook_url' => 'https://hooks.slack.com/services/T00/B00/xxx',
+			],
+		];
+
+		$captured_body = null;
+
+		$http_client = $this->create_http_client_mock();
+		$http_client->shouldReceive( 'post' )
+			->once()
+			->with(
+				Mockery::any(),
+				Mockery::on(
+					function ( $body ) use ( &$captured_body ) {
+						$captured_body = $body;
+						return true;
+					}
+				)
+			)
+			->andReturn(
+				[
+					'success' => true,
+					'code'    => 200,
+					'body'    => 'ok',
+					'error'   => null,
+				]
+			);
+
+		$channel = new SlackChannel(
+			$this->create_storage_mock( $settings ),
+			$http_client
+		);
+		$payload = $this->create_test_payload( [ 'current_status' => 'unknown' ] );
+		$channel->send( $payload );
+
+		$this->assertNotNull( $captured_body );
+		$this->assertEquals( '#808080', $captured_body['attachments'][0]['color'] );
+	}
 }

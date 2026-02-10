@@ -944,4 +944,113 @@ class AlertManagerTest extends TestCase {
 		$result = $manager->process( $current, $previous );
 		$this->assertNotEmpty( $result );
 	}
+
+	/**
+	 * Testa che previous result senza chiave 'status' usa STATUS_UNKNOWN
+	 *
+	 * Copre la riga 172: fallback a STATUS_UNKNOWN in detect_state_changes().
+	 *
+	 * @return void
+	 */
+	public function test_process_uses_unknown_when_previous_has_no_status_key() {
+		$storage = $this->create_storage_mock();
+		$manager = new AlertManager( $storage, $this->create_redaction_mock() );
+
+		$channel = $this->create_channel_mock( true, true );
+		$channel->shouldReceive( 'send' )->once()->andReturn(
+			[ 'success' => true, 'error' => null ]
+		);
+		$manager->add_channel( $channel );
+
+		$this->mock_cooldown( false );
+		$this->mock_i18n_and_utils();
+
+		// Result precedente senza chiave 'status'.
+		$current  = [ 'database' => $this->create_check_result( 'critical' ) ];
+		$previous = [ 'database' => [ 'message' => 'old result without status' ] ];
+
+		$result = $manager->process( $current, $previous );
+		$this->assertArrayHasKey( 'database', $result );
+	}
+
+	/**
+	 * Testa che cooldown_minutes = 0 usa DEFAULT_COOLDOWN
+	 *
+	 * Copre la riga 236: fallback a DEFAULT_COOLDOWN in get_cooldown_seconds().
+	 *
+	 * @return void
+	 */
+	public function test_process_uses_default_cooldown_when_minutes_zero() {
+		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'get' )
+			->with( 'alert_settings', Mockery::any() )
+			->andReturn( [ 'cooldown_minutes' => 0 ] );
+		$storage->shouldReceive( 'get' )
+			->with( 'alert_log', Mockery::any() )
+			->andReturn( [] );
+		$storage->shouldReceive( 'set' )->andReturn( true );
+
+		$manager = new AlertManager( $storage, $this->create_redaction_mock() );
+
+		$channel = $this->create_channel_mock( true, true );
+		$channel->shouldReceive( 'send' )->once()->andReturn(
+			[ 'success' => true, 'error' => null ]
+		);
+		$manager->add_channel( $channel );
+
+		Functions\expect( 'get_transient' )->andReturn( false );
+		Functions\expect( 'set_transient' )
+			->once()
+			->with( Mockery::type( 'string' ), Mockery::type( 'int' ), AlertManager::DEFAULT_COOLDOWN )
+			->andReturn( true );
+
+		$this->mock_i18n_and_utils();
+
+		$current  = [ 'database' => $this->create_check_result( 'critical' ) ];
+		$previous = [ 'database' => $this->create_check_result( 'ok' ) ];
+
+		$result = $manager->process( $current, $previous );
+		$this->assertNotEmpty( $result );
+	}
+
+	/**
+	 * Testa che log non array viene resettato a array vuoto
+	 *
+	 * Copre la riga 296: reset di $log quando non è un array.
+	 *
+	 * @return void
+	 */
+	public function test_log_alert_resets_non_array_log() {
+		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'get' )
+			->with( 'alert_settings', Mockery::any() )
+			->andReturn( [ 'cooldown_minutes' => 60 ] );
+		// alert_log ritorna una stringa (non array).
+		$storage->shouldReceive( 'get' )
+			->with( 'alert_log', Mockery::any() )
+			->andReturn( 'not-an-array' );
+		$storage->shouldReceive( 'set' )
+			->once()
+			->with( 'alert_log', Mockery::on( function ( $log ) {
+				return is_array( $log ) && count( $log ) === 1;
+			} ) )
+			->andReturn( true );
+
+		$manager = new AlertManager( $storage, $this->create_redaction_mock() );
+
+		$channel = $this->create_channel_mock( true, true );
+		$channel->shouldReceive( 'send' )->once()->andReturn(
+			[ 'success' => true, 'error' => null ]
+		);
+		$manager->add_channel( $channel );
+
+		$this->mock_cooldown( false );
+		$this->mock_i18n_and_utils();
+
+		$current  = [ 'database' => $this->create_check_result( 'critical' ) ];
+		$previous = [ 'database' => $this->create_check_result( 'ok' ) ];
+
+		$result = $manager->process( $current, $previous );
+		$this->assertNotEmpty( $result );
+	}
 }

@@ -951,4 +951,38 @@ class RedisCheckTest extends TestCase {
 		$this->assertEquals( 'warning', $result['status'] );
 		$this->assertStringContainsString( 'database selection failed', $result['message'] );
 	}
+
+	/**
+	 * Testa che is_extension_loaded ritorna un booleano
+	 *
+	 * Copre la riga 237: `extension_loaded('redis')`.
+	 */
+	public function test_is_extension_loaded_returns_bool() {
+		$redaction = $this->create_redaction_mock();
+		$check     = new RedisCheck( $redaction );
+
+		$method = new \ReflectionMethod( RedisCheck::class, 'is_extension_loaded' );
+		$method->setAccessible( true );
+
+		$result = $method->invoke( $check );
+		$this->assertIsBool( $result );
+	}
+
+	/**
+	 * Testa che create_redis_instance ritorna un'istanza Redis
+	 *
+	 * Copre la riga 246: `new \Redis()`.
+	 *
+	 * @requires extension redis
+	 */
+	public function test_create_redis_instance_returns_redis_object() {
+		$redaction = $this->create_redaction_mock();
+		$check     = new RedisCheck( $redaction );
+
+		$method = new \ReflectionMethod( RedisCheck::class, 'create_redis_instance' );
+		$method->setAccessible( true );
+
+		$result = $method->invoke( $check );
+		$this->assertInstanceOf( \Redis::class, $result );
+	}
 }

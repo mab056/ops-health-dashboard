@@ -766,4 +766,36 @@ class HttpClientTest extends TestCase {
 		Functions\when( '__' )->returnArg( 1 );
 		Functions\when( 'esc_html__' )->returnArg( 1 );
 	}
+
+	/**
+	 * Testa che URL con schema valido ma senza host è rifiutato
+	 *
+	 * Copre la riga 86: branch `!isset($parts['host']) || '' === $parts['host']`.
+	 *
+	 * @return void
+	 */
+	public function test_is_safe_url_rejects_url_without_host() {
+		$client = new HttpClient( $this->create_redaction_mock() );
+
+		// 'http:path' ha schema 'http' ma nessun host.
+		$this->assertFalse( $client->is_safe_url( 'http:path' ) );
+	}
+
+	/**
+	 * Testa che resolve_host chiama gethostbyname
+	 *
+	 * Copre la riga 188: `return gethostbyname($hostname)`.
+	 *
+	 * @return void
+	 */
+	public function test_resolve_host_returns_resolved_ip() {
+		$client = new HttpClient( $this->create_redaction_mock() );
+
+		$method = new \ReflectionMethod( HttpClient::class, 'resolve_host' );
+		$method->setAccessible( true );
+
+		$result = $method->invoke( $client, 'localhost' );
+		$this->assertIsString( $result );
+		$this->assertEquals( '127.0.0.1', $result );
+	}
 }

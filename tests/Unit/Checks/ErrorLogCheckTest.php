@@ -1086,4 +1086,38 @@ class ErrorLogCheckTest extends TestCase {
 
 		$this->assertEquals( '1 KB', $result['details']['file_size'] );
 	}
+
+	/**
+	 * Testa che collect_samples usa solo critical quando riempie tutti gli slot
+	 *
+	 * Copre la riga 460: branch `$remaining <= 0` in collect_samples().
+	 */
+	public function test_run_collects_only_critical_samples_when_slots_full() {
+		$redaction = $this->create_redaction_mock();
+
+		// max_samples = 2 per forzare la situazione.
+		$check = Mockery::mock( ErrorLogCheck::class, [ $redaction, 100, 524288, 2 ] )
+			->makePartial()
+			->shouldAllowMockingProtectedMethods();
+
+		// 3 righe fatal (più di max_samples=2), nessuna warning.
+		$lines = [
+			'[10-Feb-2026] PHP Fatal error: Out of memory in /var/www/file.php on line 1',
+			'[10-Feb-2026] PHP Fatal error: Out of memory in /var/www/file.php on line 2',
+			'[10-Feb-2026] PHP Fatal error: Out of memory in /var/www/file.php on line 3',
+		];
+
+		$check->shouldReceive( 'resolve_log_path' )->once()->andReturn( '/tmp/test.log' );
+		$check->shouldReceive( 'validate_log_file' )->once()->andReturn( [ 'valid' => true ] );
+		$check->shouldReceive( 'read_tail' )->once()->andReturn( $lines );
+		$check->shouldReceive( 'get_file_size' )->once()->andReturn( '512 B' );
+
+		Functions\expect( '__' )->andReturnFirstArg();
+
+		$result = $check->run();
+
+		$this->assertEquals( 'critical', $result['status'] );
+		// Solo 2 campioni (max_samples), tutti critical, nessun warning.
+		$this->assertCount( 2, $result['details']['recent_samples'] );
+	}
 }

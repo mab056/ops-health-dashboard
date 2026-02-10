@@ -212,9 +212,13 @@ class HttpClient implements HttpClientInterface {
 
 		$long = ip2long( $ip );
 
+		// Defensive: ip2long never fails after FILTER_VALIDATE_IP.
+		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
+		// @codeCoverageIgnoreStart
 		if ( false === $long ) {
 			return true;
 		}
+		// @codeCoverageIgnoreEnd
 
 		// Loopback 127.0.0.0/8.
 		if ( ( $long & 0xFF000000 ) === 0x7F000000 ) {
