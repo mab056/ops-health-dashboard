@@ -296,7 +296,7 @@
 - ✅ **ErrorLogCheck classify_line()**: ottimizzato da 6 regex sequenziali a singola regex con alternazione + mappa di lookup
 - ✅ **HealthScreen do_exit()**: estratto `exit` in metodo protetto per testabilità con Mockery partial mock
 - ✅ **RedisCheck unset($e)**: rimosso anti-pattern, sostituito con `phpcs:ignore`
-- ✅ **.gitignore composer.lock**: rimosso entry (deve essere committato per build riproducibili)
+- ✅ **.gitignore composer.lock**: rimossa voce (deve essere committato per build riproducibili)
 - ✅ **HealthScreenTest +7 test**: copertura completa di `process_actions()` (early returns, run_now, clear_cache, notice)
 - ✅ **DatabaseCheckTest +2 test**: warning su query lenta, fallback `Unknown error`
 - ✅ **MenuTest +1 test**: skip `load-hook` quando `add_menu_page` ritorna false
@@ -373,7 +373,9 @@
 
 **HttpClient (Anti-SSRF):**
 - `is_safe_url()`: scheme http/https only, ports 80/443 only, block private IPs (10/172.16/192.168/127/169.254/0.0.0.0)
-- `post()`: `wp_remote_post()` with `redirection => 0`, timeout 5s
+- `post()`: `wp_remote_post()` with `redirection => 0`, timeout 5s, DNS pinning via `CURLOPT_RESOLVE`
+- Private `validate_and_resolve()`: validates URL + resolves DNS → returns `[host, ip, port]`
+- Protected `create_dns_pin()`: returns closure for `http_api_curl` action (anti-TOCTOU)
 - Protected `resolve_host()` wraps `gethostbyname()` for testability (partial mock pattern)
 - Deps: `RedactionInterface`
 
@@ -422,22 +424,41 @@
 **Statistiche Finali**:
 - 27 file sorgente in `src/` (+11 da M3)
 - 47 file di test (27 unit + 20 integration) (+21 da M3)
-- 685 test totali (429 unit + 256 integration), 1497 assertions
-- Unit coverage: **100%** (1241/1241 lines, 134/134 methods, 20/20 classes)
-- Integration coverage: **100%** (1240/1240 lines, 134/134 methods, 20/20 classes)
+- 693 test totali (437 unit + 256 integration), 1529 assertions
+- Unit coverage: 99.92% (1280/1281 lines, 135/136 methods)
+- Integration coverage: 98.98% (1267/1280 lines, 133/136 methods)
 - PHPCS 100% clean (0 errori, 0 warning)
 - PHPStan level 6: 0 errori
-- +196 nuovi test per M4 + 10 test aggiunti in code review + 120 test integrazione aggiunti in coverage push
+- +196 nuovi test per M4 + 10 test aggiunti in code review 1 + 120 test integrazione aggiunti in coverage push + 8 test aggiunti in code review 2
 
-**Deliverable**: Alerting multi-canale con anti-SSRF, cooldown intelligente, UI admin configurazione ✅
+**Deliverable**: Alerting multi-canale con anti-SSRF, DNS pinning, cooldown intelligente, UI admin configurazione ✅
 
 ---
 
 ## Progress Log (M4)
 
+### 2026-02-10 (Code Review 2 Post-M4)
+
+**Code Review 2 Post-M4** - 5 rilievi risolti con TDD rigoroso (RED → GREEN → REFACTOR):
+
+**High:**
+- HttpClient: DNS pinning via `CURLOPT_RESOLVE` + `http_api_curl` action (previene TOCTOU/DNS rebinding tra validazione e richiesta HTTP). Estratti `validate_and_resolve()` private + `create_dns_pin()` protected.
+
+**Medium:**
+- Scheduler: `catch (\Exception)` → `catch (\Throwable)` in `run_checks()` (cattura TypeError, ValueError, non solo Exception)
+- AlertManager: try/catch `\Throwable` per-canale in `dispatch_to_channels()` (isolamento canali: un canale che fallisce non blocca gli altri)
+
+**Low:**
+- AlertSettings: password fields rendono `value=""` + `placeholder="********"` (credenziali mai presenti nel sorgente HTML/DOM). `build_settings_from_post()` preserva secret esistenti quando il campo POST è vuoto.
+- EmailChannel: guard `empty($recipients)` dopo `parse_recipients()` in `send()` (previene chiamata `wp_mail()` senza destinatari)
+
+Totale: 693 test (437 unit + 256 integration), 1529 assertions, PHPCS + PHPStan clean
+- **Lesson**: `CURLOPT_RESOLVE` via `http_api_curl` WordPress hook è la soluzione standard per DNS pinning senza rompere HTTPS/SNI
+- **Lesson**: password fields devono usare `value=""` (mai il valore reale) + preserve-on-empty per non perdere il secret al salvataggio
+
 ### 2026-02-10 (Code Review Post-M4)
 
-**Code Review Post-M4** - 13 finding risolti (4 Critical, 3 High, 3 Medium, 3 Low):
+**Code Review Post-M4** - 13 rilievi risolti (4 Critical, 3 High, 3 Medium, 3 Low):
 
 **Critical:**
 - HttpClient.post(): restituisce `success: false` per risposte HTTP non-2xx
@@ -484,13 +505,13 @@ Totale: 556 test (420 unit + 136 integration), 1285 assertions, PHPCS + PHPStan 
 - TestableHttpClient: override `resolve_host()` per IP controllato senza DNS
 - TestableAlertSettings: override `do_exit()` per prevenire exit() nei test
 - ThrowingAlertManager: implementa AlertManagerInterface, lancia in process() per test resilienza
-- HttpClient reale con IP diretti (127.0.0.1, 172.16.0.1, 192.168.1.1): `gethostbyname()` su IP restituisce l'IP stesso, risolve limitazione attributzione coverage Xdebug su subclass
+- HttpClient reale con IP diretti (127.0.0.1, 172.16.0.1, 192.168.1.1): `gethostbyname()` su IP restituisce l'IP stesso, risolve limitazione di attribuzione della coverage Xdebug su subclass
 - `pre_http_request` filter (2nd arg=$args, 3rd=$url) per intercettare `wp_remote_post()`
 - `pre_wp_mail` filter: return true=intercetta, return false=simula fallimento
 - Admin user context: `self::factory()->user->create(['role'=>'administrator'])` per `$submenu` global
 
 Totale: 685 test (429 unit + 256 integration), 1497 assertions
-Coverage: **100%** sia unit che integration indipendentemente
+Coverage: **100%** sia per unit test sia per integration test, considerati separatamente
 PHPCS + PHPStan clean
 
 ### 2026-02-10 (M4 Implementation)

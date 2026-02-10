@@ -798,4 +798,88 @@ class HttpClientTest extends TestCase {
 		$this->assertIsString( $result );
 		$this->assertEquals( '127.0.0.1', $result );
 	}
+
+	// ---------------------------------------------------
+	// DNS pinning (anti-TOCTOU)
+	// ---------------------------------------------------
+
+	/**
+	 * Testa che post() registra http_api_curl action per DNS pinning
+	 *
+	 * Previene DNS rebinding (TOCTOU) tra validazione e richiesta.
+	 *
+	 * @return void
+	 */
+	public function test_post_registers_dns_pin_action() {
+		$client = $this->create_client_with_resolved_ip(
+			$this->create_redaction_mock(),
+			'93.184.216.34'
+		);
+
+		Monkey\Actions\expectAdded( 'http_api_curl' )
+			->once();
+
+		Functions\expect( 'wp_remote_post' )
+			->once()
+			->andReturn(
+				[
+					'response' => [ 'code' => 200 ],
+					'body'     => 'ok',
+				]
+			);
+
+		Functions\expect( 'is_wp_error' )->once()->andReturn( false );
+		Functions\expect( 'wp_remote_retrieve_response_code' )->once()->andReturn( 200 );
+		Functions\expect( 'wp_remote_retrieve_body' )->once()->andReturn( 'ok' );
+
+		$result = $client->post(
+			'https://api.example.com/webhook',
+			[ 'key' => 'value' ]
+		);
+
+		$this->assertTrue( $result['success'] );
+	}
+
+	/**
+	 * Testa che create_dns_pin() ritorna Closure valida
+	 *
+	 * @return void
+	 */
+	public function test_create_dns_pin_returns_closure() {
+		$client = new HttpClient( $this->create_redaction_mock() );
+
+		$method = new \ReflectionMethod( HttpClient::class, 'create_dns_pin' );
+		$method->setAccessible( true );
+
+		$pin = $method->invoke( $client, 'example.com', '93.184.216.34', 443 );
+
+		$this->assertInstanceOf( \Closure::class, $pin );
+	}
+
+	/**
+	 * Testa che post() non registra DNS pin per URL non sicuri
+	 *
+	 * @return void
+	 */
+	public function test_post_does_not_pin_dns_for_unsafe_url() {
+		$client = $this->create_client_with_resolved_ip(
+			$this->create_redaction_mock(),
+			'127.0.0.1'
+		);
+
+		$this->mock_i18n();
+
+		// http_api_curl action should NOT be added.
+		Monkey\Actions\expectAdded( 'http_api_curl' )->never();
+
+		// wp_remote_post should NOT be called.
+		Functions\expect( 'wp_remote_post' )->never();
+
+		$result = $client->post(
+			'https://localhost/internal',
+			[ 'key' => 'value' ]
+		);
+
+		$this->assertFalse( $result['success'] );
+	}
 }

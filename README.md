@@ -11,7 +11,6 @@
 [![WordPress](https://img.shields.io/badge/WordPress-5.8%2B-blue)](https://wordpress.org/)
 [![Version](https://img.shields.io/badge/Version-0.4.0-green)](https://github.com/mab056/ops-health-dashboard/releases)
 
-
 Plugin WordPress di monitoraggio operativo production-grade con controlli automatici e alerting multi-canale configurabile.
 
 ## 🎯 Problema
@@ -163,7 +162,7 @@ Questo progetto segue Test-Driven Development con un **approccio misto**:
 
 **Unit Tests (Brain\Monkey)** - Veloce, isolato
 - Logica business pura, NO WordPress
-- 429 test, ~4 s
+- 437 test, ~4 s
 - Perfetto per TDD rapido
 
 **Integration Tests (WP Test Suite)** - WordPress reale
@@ -198,7 +197,7 @@ composer phpcbf
 
 # Build ZIP per la produzione
 bin/build-zip.sh                      # Genera dist/ops-health-dashboard-VERSION.zip
-bin/build-zip.sh --output /tmp/p.zip  # Output path custom
+bin/build-zip.sh --output /tmp/p.zip  # Percorso output personalizzato
 ```
 
 ### Test Matrix Locale
@@ -267,8 +266,8 @@ public function test_database_check_runs_successfully() {
 
 ### Matrice Test
 
-- **Unit Tests**: Brain\Monkey - 429 test, tutte le versioni PHP - 100% coverage
-- **Integration Tests**: WP Test Suite - 256 test, tutte le versioni PHP - 100% coverage
+- **Unit Tests**: Brain\Monkey - 437 test, tutte le versioni PHP - 99.92% coverage (1280/1281 lines)
+- **Integration Tests**: WP Test Suite - 256 test, tutte le versioni PHP - 98.98% coverage (1267/1280 lines)
 - **PHPStan**: Level 6 con szepeviktor/phpstan-wordpress, 0 errori
 - **Versioni PHP**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
 - **Target Coverage**: 95% progetto, 90% patch (Codecov)
@@ -284,6 +283,7 @@ public function test_database_check_runs_successfully() {
   - Validazione schema (solo http/https)
   - Blocco IP privati e riservati (RFC 1918, loopback, link-local)
   - Validazione DNS resolution (prevenzione DNS rebinding)
+  - DNS pinning via `CURLOPT_RESOLVE` (prevenzione TOCTOU/DNS rebinding)
   - Restrizione porte (solo 80/443)
   - Rifiuto IPv6 (safe-fail)
   - Validazione HTTP status (solo 2xx = successo)
@@ -294,8 +294,10 @@ public function test_database_check_runs_successfully() {
   - SlackChannel: escape mrkdwn (formattazione)
   - EmailChannel: validazione `is_email()` destinatari
   - WhatsAppChannel: validazione E.164 phone number
-  - Token/secret mascherati (`type="password"`)
+  - Token/secret mascherati (`type="password"`, credenziali mai nel DOM)
 - **Cooldown pre-dispatch**: Previene alert spam anche su failure canali
+- **Channel isolation**: `try/catch \Throwable` per-canale (un canale che fallisce non blocca gli altri)
+- **Scheduler resilience**: `catch (\Throwable)` su AlertManager (cron sopravvive a qualsiasi errore)
 - **Redaction Dati**: Sanitizzazione automatica di:
   - Credenziali (password, API key, token)
   - Path file (ABSPATH, WP_CONTENT_DIR)
@@ -319,8 +321,9 @@ Milestone corrente: **M5 - E2E Testing** 🚧
 
 - **27 file sorgente** in `src/`
 - **47 file di test** (27 unit + 20 integration)
-- **685 test totali** (429 unit + 256 integration), 1497 assertions
-- **Coverage**: 100% classes, 100% methods, 100% lines (sia unit che integration indipendentemente)
+- **693 test totali** (437 unit + 256 integration), 1529 assertions
+- **Coverage unit**: 99.92% lines (1280/1281), 99.26% methods (135/136)
+- **Coverage integration**: 98.98% lines (1267/1280), 97.79% methods (133/136)
 - **PHPCS**: 100% compliance (0 errori, 0 warning)
 - **PHPStan**: level 6, 0 errori
 

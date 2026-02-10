@@ -39,7 +39,7 @@ La sicurezza di Ops Health Dashboard è considerata una priorità. Se hai trovat
 
 - **Capability check**: tutte le pagine admin richiedono `manage_options`
 - **Nonce CSRF**: protezione su tutti i form e azioni POST (`ops_health_admin_action`, `ops_health_alert_settings`)
-- **Pattern PRG**: Post-Redirect-Get per prevenire doppie sottomissioni (HealthScreen + AlertSettings)
+- **Pattern PRG**: Post-Redirect-Get per prevenire invii duplicati (HealthScreen + AlertSettings)
 
 ### Sanitizzazione e Escaping
 
@@ -74,6 +74,7 @@ Il sistema di alerting utilizza `HttpClient` con protezioni anti-SSRF complete p
 - **Blocco IP privati e riservati**: RFC 1918 (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16), loopback (127.0.0.0/8), link-local (169.254.0.0/16), unspecified (0.0.0.0)
 - **Rifiuto IPv6**: trattato come non sicuro (safe-fail) perché `gethostbyname()` restituisce solo IPv4
 - **Validazione DNS**: risoluzione hostname e verifica che l'IP risolto non sia privato (prevenzione DNS rebinding)
+- **DNS pinning**: `CURLOPT_RESOLVE` via `http_api_curl` action forza cURL a usare l'IP già validato, prevenendo attacchi TOCTOU/DNS rebinding tra validazione e richiesta effettiva
 - **Restrizione porte**: solo porta 80 e 443 consentite
 - **No redirect following**: `redirection => 0` su `wp_remote_post()`
 - **Validazione HTTP status**: solo risposte 2xx trattate come successo
@@ -88,8 +89,10 @@ Il sistema di alerting utilizza `HttpClient` con protezioni anti-SSRF complete p
 - **EmailChannel**: validazione `is_email()` sui destinatari (prevenzione header injection)
 - **WhatsAppChannel**: validazione E.164 sul numero di telefono (regex `/^\+[1-9]\d{6,14}$/`)
 - **WebhookChannel**: firma HMAC SHA-256 opzionale via header `X-OpsHealth-Signature`
-- **AlertSettings**: token e secret mostrati come `type="password"` + `autocomplete="off"` (prevenzione esposizione credenziali)
+- **AlertSettings**: token e secret con `type="password"` + `autocomplete="off"`, `value=""` + `placeholder="********"` (credenziali mai presenti nel sorgente DOM)
 - **AlertManager**: cooldown impostato PRIMA del dispatch (prevenzione alert spam su failure canali)
+- **AlertManager**: isolamento per-canale con `try/catch \Throwable` in `dispatch_to_channels()` (un canale che fallisce non blocca gli altri)
+- **Scheduler**: `catch (\Throwable)` attorno a `alert_manager->process()` (il cron sopravvive a qualsiasi tipo di errore, inclusi TypeError e ValueError)
 
 ### Dependency Injection
 

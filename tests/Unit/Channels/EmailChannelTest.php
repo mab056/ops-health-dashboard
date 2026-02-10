@@ -511,6 +511,34 @@ class EmailChannelTest extends TestCase {
 	}
 
 	/**
+	 * Testa che send() ritorna errore quando tutti i destinatari sono invalidi
+	 *
+	 * @return void
+	 */
+	public function test_send_returns_error_when_all_recipients_invalid() {
+		$settings = [
+			'email' => [
+				'enabled'    => true,
+				'recipients' => 'not-an-email, also-not-valid',
+			],
+		];
+
+		$channel = new EmailChannel( $this->create_storage_mock( $settings ) );
+		$payload = $this->create_test_payload();
+
+		$this->mock_i18n();
+		$this->mock_is_email();
+
+		// wp_mail should NOT be called with empty recipients.
+		Functions\expect( 'wp_mail' )->never();
+
+		$result = $channel->send( $payload );
+
+		$this->assertFalse( $result['success'] );
+		$this->assertNotNull( $result['error'] );
+	}
+
+	/**
 	 * Testa che indirizzi email non validi sono filtrati da parse_recipients
 	 *
 	 * @return void

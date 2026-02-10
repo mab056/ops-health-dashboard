@@ -149,7 +149,7 @@ class Scheduler {
 			try {
 				$this->alert_manager->process( $current, $previous );
 				// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-			} catch ( \Exception $e ) { // Alert failure must not break cron.
+			} catch ( \Throwable $e ) { // Alert failure must not break cron.
 			}
 		}
 	}

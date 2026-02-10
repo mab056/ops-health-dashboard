@@ -278,7 +278,7 @@ if (!$client->is_safe_url($url)) {
     throw new \Exception('Unsafe URL detected');
 }
 
-$response = $client->request($url, ['method' => 'POST']);
+$response = $client->post($url, ['example' => 'payload']);
 ```
 
 ## 📝 Coding Standards
@@ -358,7 +358,7 @@ composer install-wp-tests           # Installa WP test suite (una tantum)
 
 # Build (produzione)
 bin/build-zip.sh                    # Genera dist/ops-health-dashboard-VERSION.zip
-bin/build-zip.sh --output /tmp/p.zip  # Output path custom
+bin/build-zip.sh --output /tmp/p.zip  # Percorso output personalizzato
 ```
 
 ### Creare una Nuova Feature
@@ -609,16 +609,16 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 **Milestone M4 - Alerting System** ✅ COMPLETATA (con coverage 100%)
 
 **Stato Attuale:**
-- ✅ **429 test unitari** (Brain\Monkey) — coverage **100%** (1241/1241 lines)
-- ✅ **256 test di integrazione** (WP Test Suite) — coverage **100%** (1240/1240 lines)
-- ✅ **685 test totali passing**, 1497 assertions
-- ✅ **Coverage 100%** sia unit che integration indipendentemente (20/20 classes, 134/134 methods)
+- ✅ **437 test unitari** (Brain\Monkey) — coverage **99.92%** (1280/1281 lines, 135/136 methods)
+- ✅ **256 test di integrazione** (WP Test Suite) — coverage **98.98%** (1267/1280 lines, 133/136 methods)
+- ✅ **693 test totali passing**, 1529 assertions
 - ✅ PHPCS 100% compliance (0 errori, 0 warning)
 - ✅ PHPStan level 6: 0 errori (szepeviktor/phpstan-wordpress)
 - ✅ CI/CD completo con PHP 7.4-8.5
 - ✅ 27 file sorgente, 47 file di test (27 unit + 20 integration)
 - ✅ Pattern enforcement (NO singleton/static/final)
-- ✅ Code review post-M4: 13 finding risolti (4 Critical, 3 High, 3 Medium, 3 Low)
+- ✅ Code review post-M4: 13 rilievi risolti (4 Critical, 3 High, 3 Medium, 3 Low)
+- ✅ Code review 2 post-M4: 5 rilievi risolti (1 High, 2 Medium, 2 Low) — DNS pinning, \Throwable, channel isolation, secret non-prefill
 
 **Componenti Implementati (M1+M2+M3+M4):**
 - StorageInterface, CheckInterface, RedactionInterface, CheckRunnerInterface (contratti DI)
@@ -629,18 +629,18 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 - Redaction (11 pattern: credenziali DB, salts, API key, token, password, email, IP, path; IPv4 validazione ottetti)
 - ErrorLogCheck (tail log, aggregazione severità, campioni redatti, anti-symlink, flock LOCK_SH)
 - RedisCheck (graceful degradation, estensione+connessione+auth+smoke test, response time, RedactionInterface)
-- HttpClient (anti-SSRF: blocco IP privati, validazione DNS, restrizione schema/porta, no redirect, rifiuto IPv6, validazione HTTP 2xx)
-- AlertManager (state change detection, cooldown pre-dispatch via transient, dispatch multi-canale, alert log capped a 50, costanti STATUS_OK/WARNING/CRITICAL/UNKNOWN)
+- HttpClient (anti-SSRF: blocco IP privati, validazione DNS, DNS pinning CURLOPT_RESOLVE anti-TOCTOU, restrizione schema/porta, no redirect, rifiuto IPv6, validazione HTTP 2xx)
+- AlertManager (state change detection, cooldown pre-dispatch via transient, dispatch multi-canale con isolamento per-canale try/catch \Throwable, alert log limitato a 50 voci, costanti STATUS_OK/WARNING/CRITICAL/UNKNOWN)
 - EmailChannel (wp_mail, recipients configurabili con validazione is_email)
 - WebhookChannel (JSON POST, firma HMAC opzionale con header X-OpsHealth-Signature documentato)
 - SlackChannel (Block Kit, color attachments, escape mrkdwn)
 - TelegramChannel (Bot API, HTML parse mode con htmlspecialchars)
 - WhatsAppChannel (webhook generico, Bearer auth, phone number con validazione E.164)
-- Scheduler (WP-Cron 15 min, prevenzione duplicati, self-healing throttled, AlertManager integration opzionale)
+- Scheduler (WP-Cron 15 min, prevenzione duplicati, self-healing throttled, AlertManager integration opzionale, catch \Throwable)
 - Container (DI con rilevazione dipendenze circolari)
 - Menu (capability check, `load-{$page_hook}` per process_actions PRG, submenu Alert Settings)
 - HealthScreen (capability check, bottoni Run Now/Clear Cache con nonce, validazione difensiva, CheckRunnerInterface)
-- AlertSettings (pagina admin configurazione alert, PRG, nonce, per-channel enable/disable + credentials, cooldown)
+- AlertSettings (pagina admin configurazione alert, PRG, nonce, per-channel enable/disable + credentials con secret non-prefill + preserve-on-empty, cooldown)
 - Activator (usa costanti Scheduler::HOOK_NAME/INTERVAL)
 
 **Next: M5 - E2E Testing (Playwright)**

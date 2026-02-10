@@ -655,6 +655,51 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
+	 * Testa che eccezione in un canale non blocca gli altri canali
+	 *
+	 * @return void
+	 */
+	public function test_process_isolates_channel_exception() {
+		$manager = new AlertManager(
+			$this->create_storage_mock(),
+			$this->create_redaction_mock()
+		);
+
+		$throwing_channel = Mockery::mock( AlertChannelInterface::class );
+		$throwing_channel->shouldReceive( 'get_id' )->andReturn( 'broken' );
+		$throwing_channel->shouldReceive( 'get_name' )->andReturn( 'Broken' );
+		$throwing_channel->shouldReceive( 'is_enabled' )->andReturn( true );
+		$throwing_channel->shouldReceive( 'send' )
+			->once()
+			->andThrow( new \RuntimeException( 'Channel exploded' ) );
+
+		$working_channel = $this->create_channel_mock( true, true );
+		$working_channel->shouldReceive( 'get_id' )->andReturn( 'email' );
+		$working_channel->shouldReceive( 'send' )->once()->andReturn(
+			[ 'success' => true, 'error' => null ]
+		);
+
+		$manager->add_channel( $throwing_channel );
+		$manager->add_channel( $working_channel );
+
+		$this->mock_cooldown( false );
+		$this->mock_i18n_and_utils();
+
+		$current  = [ 'database' => $this->create_check_result( 'critical' ) ];
+		$previous = [ 'database' => $this->create_check_result( 'ok' ) ];
+
+		$result = $manager->process( $current, $previous );
+
+		// Both channels should appear in results.
+		$this->assertArrayHasKey( 'database', $result );
+		$db_results = $result['database'];
+		$this->assertArrayHasKey( 'broken', $db_results );
+		$this->assertFalse( $db_results['broken']['success'] );
+		$this->assertArrayHasKey( 'email', $db_results );
+		$this->assertTrue( $db_results['email']['success'] );
+	}
+
+	/**
 	 * Testa che cooldown è impostato anche quando tutti i canali falliscono
 	 *
 	 * Previene alert spam su failure ripetuti.

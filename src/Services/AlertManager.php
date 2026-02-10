@@ -276,7 +276,14 @@ class AlertManager implements AlertManagerInterface {
 				continue;
 			}
 
-			$results[ $channel->get_id() ] = $channel->send( $payload );
+			try {
+				$results[ $channel->get_id() ] = $channel->send( $payload );
+			} catch ( \Throwable $e ) {
+				$results[ $channel->get_id() ] = [
+					'success' => false,
+					'error'   => $e->getMessage(),
+				];
+			}
 		}
 
 		return $results;

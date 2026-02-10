@@ -15,6 +15,7 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
   - IPv6 rejection (safe-fail, `gethostbyname()` returns only IPv4)
   - Port restriction (80/443 only)
   - DNS resolution validation via `gethostbyname()` (DNS rebinding prevention)
+  - DNS pinning via `CURLOPT_RESOLVE` + `http_api_curl` action (prevents TOCTOU/DNS rebinding)
   - HTTP status validation (only 2xx = success)
   - No redirect following, 5s timeout
   - `is_safe_url()` + `post()` API with RedactionInterface integration
@@ -51,8 +52,12 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 
 ### Security
 - **Anti-SSRF implemented** - HttpClient blocks private IPs, validates DNS, restricts schemes/ports, rejects IPv6, validates HTTP 2xx
+- **DNS pinning** - `CURLOPT_RESOLVE` via `http_api_curl` action prevents TOCTOU/DNS rebinding between validation and HTTP request
 - **Channel security** - TelegramChannel HTML escape, SlackChannel mrkdwn escape, EmailChannel `is_email()` validation, WhatsAppChannel E.164 phone validation
+- **Channel isolation** - Per-channel `try/catch \Throwable` in AlertManager (one failing channel doesn't affect others)
 - **Cooldown pre-dispatch** - Transient set BEFORE channel dispatch (prevents alert spam on failure)
+- **Scheduler resilience** - `catch (\Throwable)` around AlertManager (cron survives any error type)
+- **Secret non-prefill** - Password inputs render `value=""` + `placeholder="********"` (credentials never in DOM source)
 - **Capability checks** on AlertSettings admin page (`manage_options`)
 - **Nonce protection** on AlertSettings form (`ops_health_alert_settings`)
 - **Input sanitization** - `sanitize_text_field()`, `sanitize_email()`, `esc_url_raw()`, `absint()` on all alert settings
@@ -60,7 +65,14 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 - **Input masking** - `type="password"` + `autocomplete="off"` for token/secret fields
 
 ### Development Notes
-- Code review post-M4: 13 finding risolti (4 Critical, 3 High, 3 Medium, 3 Low)
+- Code review post-M4: 13 rilievi risolti (4 Critical, 3 High, 3 Medium, 3 Low)
+- Code review 2 post-M4: 5 rilievi risolti (1 High, 2 Medium, 2 Low) — TDD rigoroso RED → GREEN → REFACTOR
+  - **HIGH** - HttpClient DNS pinning: `validate_and_resolve()` + `create_dns_pin()` con `CURLOPT_RESOLVE` (previene TOCTOU/DNS rebinding)
+  - **MEDIUM** - Scheduler: `catch (\Exception)` → `catch (\Throwable)` (cattura TypeError, ValueError)
+  - **MEDIUM** - AlertManager: try/catch `\Throwable` per-canale in `dispatch_to_channels()` (isolamento canali)
+  - **LOW** - AlertSettings: password fields `value=""` + `placeholder="********"` (no secret prefill nel DOM) + preserve-on-empty-POST
+  - **LOW** - EmailChannel: guard `empty($recipients)` dopo `parse_recipients()` in `send()`
+  - +8 unit test, aggiornati 9 test AlertSettings + 1 test integrazione
 - Integration test coverage push: da 63.87% a 100% (1240/1240 lines, 134/134 methods, 20/20 classes)
   - 7 nuovi file integration test: HttpClientTest, AlertSettingsTest, SlackChannelTest, TelegramChannelTest, WebhookChannelTest, WhatsAppChannelTest, EmailChannelTest
   - 3 file integration test potenziati: MenuTest (+4 test), SchedulerTest (+1 test), AlertingFlowTest (+6 test)
@@ -68,9 +80,9 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
   - TestableAlertSettings subclass con `do_exit()` override per test PRG senza `exit()`
   - ThrowingAlertManager per test resilienza Scheduler `try/catch`
   - Test con HttpClient reale su IP diretti (127.0.0.1, 172.16.0.1, 192.168.1.1) per copertura Xdebug completa
-- 685 test totali (429 unit + 256 integration), 1497 assertions
-- Unit coverage: 100% (1241/1241 lines, 134/134 methods, 20/20 classes)
-- Integration coverage: 100% (1240/1240 lines, 134/134 methods, 20/20 classes)
+- 693 test totali (437 unit + 256 integration), 1529 assertions
+- Unit coverage: 99.92% lines (1280/1281), 99.26% methods (135/136)
+- Integration coverage: 98.98% lines (1267/1280), 97.79% methods (133/136)
 - PHPCS 100% clean (0 errori, 0 warning)
 - PHPStan level 6: 0 errori
 - 27 file sorgente in `src/`, 47 file di test (27 unit + 20 integration)

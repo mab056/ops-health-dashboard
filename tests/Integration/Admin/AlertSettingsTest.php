@@ -393,7 +393,9 @@ class AlertSettingsTest extends WP_UnitTestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( 'test@example.com', $output );
-		$this->assertStringContainsString( 'token123', $output );
+		// Secret (bot_token) must NOT appear in DOM — only placeholder.
+		$this->assertStringNotContainsString( 'token123', $output );
+		$this->assertStringContainsString( '********', $output );
 		$this->assertStringContainsString( '-999', $output );
 	}
 

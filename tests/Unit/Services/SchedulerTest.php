@@ -544,6 +544,31 @@ class SchedulerTest extends TestCase {
 	}
 
 	/**
+	 * Testa che \Error (non-Exception Throwable) in alert_manager non blocca il cron
+	 */
+	public function test_run_checks_catches_throwable_error() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )
+			->once()
+			->andReturn( [] );
+		$runner->shouldReceive( 'run_all' )
+			->once()
+			->andReturn( [ 'db' => [ 'status' => 'ok' ] ] );
+
+		$alert_manager = Mockery::mock( AlertManagerInterface::class );
+		$alert_manager->shouldReceive( 'process' )
+			->once()
+			->andThrow( new \TypeError( 'Unexpected type in alerting' ) );
+
+		$scheduler = new Scheduler( $runner, $alert_manager );
+
+		// Must NOT throw — \TypeError must be caught.
+		$scheduler->run_checks();
+
+		$this->assertInstanceOf( Scheduler::class, $scheduler );
+	}
+
+	/**
 	 * Testa che la classe NON è final
 	 */
 	public function test_class_is_not_final() {

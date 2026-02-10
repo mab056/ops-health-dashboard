@@ -81,8 +81,16 @@ class EmailChannel implements AlertChannelInterface {
 	public function send( array $payload ): array {
 		$settings   = $this->get_channel_settings();
 		$recipients = $this->parse_recipients( $settings['recipients'] ?? '' );
-		$subject    = $this->format_subject( $payload );
-		$body       = $this->format_body( $payload );
+
+		if ( empty( $recipients ) ) {
+			return [
+				'success' => false,
+				'error'   => __( 'No valid email recipients configured', 'ops-health-dashboard' ),
+			];
+		}
+
+		$subject = $this->format_subject( $payload );
+		$body    = $this->format_body( $payload );
 
 		$sent = wp_mail( $recipients, $subject, $body );
 

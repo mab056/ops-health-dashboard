@@ -138,6 +138,7 @@ class AlertSettingsTest extends TestCase {
 	 */
 	public function test_process_actions_saves_email_settings() {
 		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'get' )->with( 'alert_settings', [] )->andReturn( [] );
 
 		$_POST['ops_health_alert_action'] = 'save';
 		$_POST['_ops_health_alert_nonce'] = 'valid';
@@ -168,6 +169,7 @@ class AlertSettingsTest extends TestCase {
 	 */
 	public function test_process_actions_saves_webhook_settings() {
 		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'get' )->with( 'alert_settings', [] )->andReturn( [] );
 
 		$_POST['ops_health_alert_action'] = 'save';
 		$_POST['_ops_health_alert_nonce'] = 'valid';
@@ -200,6 +202,7 @@ class AlertSettingsTest extends TestCase {
 	 */
 	public function test_process_actions_saves_slack_settings() {
 		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'get' )->with( 'alert_settings', [] )->andReturn( [] );
 
 		$_POST['ops_health_alert_action'] = 'save';
 		$_POST['_ops_health_alert_nonce'] = 'valid';
@@ -230,6 +233,7 @@ class AlertSettingsTest extends TestCase {
 	 */
 	public function test_process_actions_saves_telegram_settings() {
 		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'get' )->with( 'alert_settings', [] )->andReturn( [] );
 
 		$_POST['ops_health_alert_action'] = 'save';
 		$_POST['_ops_health_alert_nonce'] = 'valid';
@@ -262,6 +266,7 @@ class AlertSettingsTest extends TestCase {
 	 */
 	public function test_process_actions_saves_whatsapp_settings() {
 		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'get' )->with( 'alert_settings', [] )->andReturn( [] );
 
 		$_POST['ops_health_alert_action']  = 'save';
 		$_POST['_ops_health_alert_nonce']  = 'valid';
@@ -296,6 +301,7 @@ class AlertSettingsTest extends TestCase {
 	 */
 	public function test_process_actions_saves_cooldown_minutes() {
 		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'get' )->with( 'alert_settings', [] )->andReturn( [] );
 
 		$_POST['ops_health_alert_action'] = 'save';
 		$_POST['_ops_health_alert_nonce'] = 'valid';
@@ -324,6 +330,7 @@ class AlertSettingsTest extends TestCase {
 	 */
 	public function test_process_actions_absint_negative_cooldown() {
 		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'get' )->with( 'alert_settings', [] )->andReturn( [] );
 
 		$_POST['ops_health_alert_action'] = 'save';
 		$_POST['_ops_health_alert_nonce'] = 'valid';
@@ -353,6 +360,7 @@ class AlertSettingsTest extends TestCase {
 	 */
 	public function test_process_actions_disabled_channel_has_false_enabled() {
 		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'get' )->with( 'alert_settings', [] )->andReturn( [] );
 
 		$_POST['ops_health_alert_action'] = 'save';
 		$_POST['_ops_health_alert_nonce'] = 'valid';
@@ -381,6 +389,7 @@ class AlertSettingsTest extends TestCase {
 	 */
 	public function test_process_actions_redirects_after_save() {
 		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'get' )->with( 'alert_settings', [] )->andReturn( [] );
 		$storage->shouldReceive( 'set' )->once();
 
 		$_POST['ops_health_alert_action'] = 'save';
@@ -602,6 +611,108 @@ class AlertSettingsTest extends TestCase {
 
 		// Deve comunque renderizzare senza errori.
 		$this->assertStringContainsString( 'Alert Settings', $output );
+	}
+
+	/**
+	 * Testa che render() NON inserisce segreti nel DOM (value="")
+	 */
+	public function test_render_does_not_prefill_password_fields() {
+		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'get' )
+			->with( 'alert_settings', [] )
+			->andReturn( [
+				'webhook'  => [
+					'enabled' => true,
+					'url'     => 'https://hooks.example.com',
+					'secret'  => 'super-secret-key',
+				],
+				'telegram' => [
+					'enabled'   => true,
+					'bot_token' => '123456:ABC-DEF-TOKEN',
+					'chat_id'   => '-100123',
+				],
+				'whatsapp' => [
+					'enabled'      => true,
+					'webhook_url'  => 'https://wa.example.com',
+					'phone_number' => '+391234567890',
+					'api_token'    => 'wa-secret-token',
+				],
+			] );
+
+		$this->mock_render_functions();
+
+		$settings = new AlertSettings( $storage );
+
+		ob_start();
+		$settings->render();
+		$output = ob_get_clean();
+
+		// Actual secret values must NOT appear in output.
+		$this->assertStringNotContainsString( 'super-secret-key', $output );
+		$this->assertStringNotContainsString( '123456:ABC-DEF-TOKEN', $output );
+		$this->assertStringNotContainsString( 'wa-secret-token', $output );
+
+		// Non-secret values should still be present.
+		$this->assertStringContainsString( 'https://hooks.example.com', $output );
+		$this->assertStringContainsString( '-100123', $output );
+	}
+
+	/**
+	 * Testa che campo password vuoto preserva il segreto esistente
+	 */
+	public function test_process_actions_preserves_existing_secret_when_post_empty() {
+		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'get' )
+			->with( 'alert_settings', [] )
+			->andReturn( [
+				'webhook'  => [
+					'enabled' => true,
+					'url'     => 'https://hooks.example.com',
+					'secret'  => 'existing-secret',
+				],
+				'telegram' => [
+					'enabled'   => true,
+					'bot_token' => 'existing-bot-token',
+					'chat_id'   => '-100',
+				],
+				'whatsapp' => [
+					'enabled'      => true,
+					'webhook_url'  => 'https://wa.example.com',
+					'phone_number' => '+391234567890',
+					'api_token'    => 'existing-wa-token',
+				],
+			] );
+
+		$_POST['ops_health_alert_action']  = 'save';
+		$_POST['_ops_health_alert_nonce']  = 'valid';
+		$_POST['webhook_enabled']          = '1';
+		$_POST['webhook_url']              = 'https://hooks.example.com';
+		$_POST['webhook_secret']           = '';
+		$_POST['telegram_enabled']         = '1';
+		$_POST['telegram_bot_token']       = '';
+		$_POST['telegram_chat_id']         = '-100';
+		$_POST['whatsapp_enabled']         = '1';
+		$_POST['whatsapp_webhook_url']     = 'https://wa.example.com';
+		$_POST['whatsapp_phone_number']    = '+391234567890';
+		$_POST['whatsapp_api_token']       = '';
+
+		$this->mock_save_functions();
+
+		$storage->shouldReceive( 'set' )
+			->once()
+			->with(
+				'alert_settings',
+				Mockery::on( function ( $data ) {
+					return 'existing-secret' === $data['webhook']['secret']
+						&& 'existing-bot-token' === $data['telegram']['bot_token']
+						&& 'existing-wa-token' === $data['whatsapp']['api_token'];
+				} )
+			);
+
+		$screen = $this->create_testable_settings( $storage );
+		$screen->process_actions();
+
+		$this->assertInstanceOf( AlertSettings::class, $screen );
 	}
 
 	/**

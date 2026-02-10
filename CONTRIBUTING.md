@@ -375,7 +375,7 @@ if (!$client->is_safe_url($url)) {
 	throw new \Exception('Unsafe URL detected');
 }
 
-$response = $client->request($url, ['method' => 'POST']);
+$response = $client->post($url, ['example' => 'payload']);
 ```
 
 ## 📝 Standard di Codifica
@@ -500,7 +500,7 @@ Tests: 3 new tests
 - **Titolo**: Uguale all'oggetto del messaggio di commit
 - **Descrizione**:
   - Quali modifiche sono state fatte
-  - Perché (link all'issue se applicabile)
+  - Perché (link all'issue, se applicabile)
   - Come testare
   - Screenshot (se ci sono modifiche UI)
 - **Branch di base**: `dev`

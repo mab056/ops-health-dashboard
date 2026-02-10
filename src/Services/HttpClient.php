@@ -64,51 +64,14 @@ class HttpClient implements HttpClientInterface {
 	 * @return bool True se l'URL è sicuro.
 	 */
 	public function is_safe_url( string $url ): bool {
-		if ( '' === $url ) {
-			return false;
-		}
-
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- Usa parse_url nativa per evitare dipendenza WP in is_safe_url.
-		$parts = parse_url( $url );
-
-		if ( false === $parts || ! is_array( $parts ) ) {
-			return false;
-		}
-
-		// Verifica schema.
-		$scheme = isset( $parts['scheme'] ) ? strtolower( $parts['scheme'] ) : '';
-		if ( ! in_array( $scheme, self::ALLOWED_SCHEMES, true ) ) {
-			return false;
-		}
-
-		// Verifica host presente.
-		if ( ! isset( $parts['host'] ) || '' === $parts['host'] ) {
-			return false;
-		}
-
-		// Verifica porta (se specificata).
-		if ( isset( $parts['port'] ) && ! in_array( (int) $parts['port'], self::ALLOWED_PORTS, true ) ) {
-			return false;
-		}
-
-		// Risolvi hostname e verifica IP.
-		$ip = $this->resolve_host( $parts['host'] );
-
-		// gethostbyname ritorna l'hostname se non riesce a risolvere.
-		if ( $ip === $parts['host'] && ! filter_var( $ip, FILTER_VALIDATE_IP ) ) {
-			return false;
-		}
-
-		// Verifica che l'IP non sia privato.
-		if ( $this->is_private_ip( $ip ) ) {
-			return false;
-		}
-
-		return true;
+		return null !== $this->validate_and_resolve( $url );
 	}
 
 	/**
 	 * Invia una richiesta HTTP POST
+	 *
+	 * Usa DNS pinning via CURLOPT_RESOLVE per prevenire attacchi
+	 * TOCTOU/DNS rebinding tra validazione e richiesta effettiva.
 	 *
 	 * @param string $url     URL di destinazione.
 	 * @param array  $body    Dati del corpo della richiesta.
@@ -116,7 +79,9 @@ class HttpClient implements HttpClientInterface {
 	 * @return array Risultato con chiavi success, code, body, error.
 	 */
 	public function post( string $url, array $body, array $headers = [] ): array {
-		if ( ! $this->is_safe_url( $url ) ) {
+		$resolved = $this->validate_and_resolve( $url );
+
+		if ( null === $resolved ) {
 			return [
 				'success' => false,
 				'code'    => 0,
@@ -124,6 +89,14 @@ class HttpClient implements HttpClientInterface {
 				'error'   => __( 'Unsafe URL detected', 'ops-health-dashboard' ),
 			];
 		}
+
+		// Pin DNS to prevent TOCTOU/DNS rebinding.
+		$pin = $this->create_dns_pin(
+			$resolved['host'],
+			$resolved['ip'],
+			$resolved['port']
+		);
+		add_action( 'http_api_curl', $pin );
 
 		$args = [
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- wp_json_encode non disponibile in unit test.
@@ -138,6 +111,8 @@ class HttpClient implements HttpClientInterface {
 		];
 
 		$response = wp_remote_post( $url, $args );
+
+		remove_action( 'http_api_curl', $pin );
 
 		if ( is_wp_error( $response ) ) {
 			return [
@@ -174,6 +149,88 @@ class HttpClient implements HttpClientInterface {
 			'body'    => $body,
 			'error'   => null,
 		];
+	}
+
+	/**
+	 * Valida URL e risolve DNS, ritorna dati di connessione
+	 *
+	 * Esegue tutte le verifiche anti-SSRF (schema, host, porta, DNS, IP privato)
+	 * e ritorna i dati necessari per il DNS pinning.
+	 *
+	 * @param string $url URL da validare.
+	 * @return array|null Array con host, ip, port se valido, null altrimenti.
+	 */
+	private function validate_and_resolve( string $url ) {
+		if ( '' === $url ) {
+			return null;
+		}
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- Usa parse_url nativa per evitare dipendenza WP.
+		$parts = parse_url( $url );
+
+		if ( false === $parts || ! is_array( $parts ) ) {
+			return null;
+		}
+
+		// Verifica schema.
+		$scheme = isset( $parts['scheme'] ) ? strtolower( $parts['scheme'] ) : '';
+		if ( ! in_array( $scheme, self::ALLOWED_SCHEMES, true ) ) {
+			return null;
+		}
+
+		// Verifica host presente.
+		if ( ! isset( $parts['host'] ) || '' === $parts['host'] ) {
+			return null;
+		}
+
+		// Determina porta (default basato su schema).
+		$port = isset( $parts['port'] )
+			? (int) $parts['port']
+			: ( 'https' === $scheme ? 443 : 80 );
+
+		if ( ! in_array( $port, self::ALLOWED_PORTS, true ) ) {
+			return null;
+		}
+
+		// Risolvi hostname e verifica IP.
+		$ip = $this->resolve_host( $parts['host'] );
+
+		// gethostbyname ritorna l'hostname se non riesce a risolvere.
+		if ( $ip === $parts['host'] && ! filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+			return null;
+		}
+
+		// Verifica che l'IP non sia privato.
+		if ( $this->is_private_ip( $ip ) ) {
+			return null;
+		}
+
+		return [
+			'host' => $parts['host'],
+			'ip'   => $ip,
+			'port' => $port,
+		];
+	}
+
+	/**
+	 * Crea una closure per il DNS pinning via CURLOPT_RESOLVE
+	 *
+	 * Forza cURL a usare l'IP già validato, prevenendo DNS rebinding.
+	 * Estratto in metodo protetto per testabilità (Reflection pattern).
+	 *
+	 * @param string $host Hostname da pinnare.
+	 * @param string $ip   IP risolto e validato.
+	 * @param int    $port Porta di destinazione.
+	 * @return \Closure Closure da passare a add_action('http_api_curl').
+	 */
+	protected function create_dns_pin( string $host, string $ip, int $port ): \Closure {
+		return function ( $handle ) use ( $host, $ip, $port ) {
+			// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
+			// @codeCoverageIgnoreStart
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Necessario per DNS pinning anti-TOCTOU.
+			curl_setopt( $handle, CURLOPT_RESOLVE, [ "{$host}:{$port}:{$ip}" ] );
+			// @codeCoverageIgnoreEnd
+		};
 	}
 
 	/**

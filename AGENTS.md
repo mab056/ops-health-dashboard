@@ -61,7 +61,7 @@ Plugin WordPress production-grade per monitoraggio operativo con health checks, 
 
 ## Stato Progetto (Riferimento)
 
-Milestone M1 + M2 + M3 + M4 completate (Core Checks + Storage + Cron + Error Log Summary Safe + Redis Check + Alerting System). Code review post-M4: 13 finding risolti. Integration test coverage push: 63.87% → 100%. 685 test (429 unit + 256 integration), 1497 assertions. Coverage: 100% sia unit che integration indipendentemente (20/20 classes, 134/134 methods, 1240-1241 lines). PHPCS 100% clean, PHPStan level 6: 0 errori. 27 src files, 47 test files (27 unit + 20 integration). Milestone corrente: M5 (E2E Testing, pianificata). Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
+Milestone M1 + M2 + M3 + M4 completate (Core Checks + Storage + Cron + Error Log Summary Safe + Redis Check + Alerting System). Code review post-M4: 13 rilievi risolti. Code review 2 post-M4: 5 rilievi risolti (DNS pinning, \Throwable, channel isolation, secret non-prefill, recipients guard). 693 test (437 unit + 256 integration), 1529 assertions. Unit coverage: 99.92% lines (1280/1281), 99.26% methods (135/136). Integration coverage: 98.98% lines (1267/1280). PHPCS 100% clean, PHPStan level 6: 0 errori. 27 file sorgente, 47 file di test (27 unit + 20 integration). Milestone corrente: M5 (E2E Testing, pianificata). Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
 
 ## Baseline Corrente (v0.4.0)
 
@@ -76,11 +76,11 @@ Punti architetturali da preservare nella codebase attuale:
 8. Redazione dati sensibili centralizzata in `src/Services/Redaction.php`, iniettata in `CheckRunner`, `DatabaseCheck`, `ErrorLogCheck` e `RedisCheck`.
 9. `RedisCheck` usa chiave smoke test univoca per run (`ops_health_smoke_test_<uniqid>`) per evitare race condition tra run concorrenti.
 10. Contratto `CheckRunnerInterface` con `clear_results()` usato dal flusso admin (`Run Now` / `Clear Cache`) in `HealthScreen::process_actions()`.
-11. **Alerting**: `AlertManager` rileva cambiamenti stato check, dispatcha a canali abilitati (Email, Webhook, Slack, Telegram, WhatsApp), cooldown per-check via transient, alert log capped a 50. Integrato in `Scheduler::run_checks()`.
-12. **Anti-SSRF**: `HttpClient` blocca IP privati (RFC 1918, loopback, link-local), valida DNS resolution, restringe schema (http/https) e porte (80/443), no redirect, timeout 5s, rifiuto IPv6 (safe-fail), validazione HTTP 2xx.
-13. **Alert Settings**: pagina admin `Ops → Alert Settings` con PRG pattern, nonce `ops_health_alert_settings`, per-channel enable/disable + credentials (`type="password"` per token/secret), cooldown globale.
+11. **Alerting**: `AlertManager` rileva cambiamenti stato check, dispatcha a canali abilitati (Email, Webhook, Slack, Telegram, WhatsApp), cooldown per-check via transient, alert log limitato a 50 voci. Integrato in `Scheduler::run_checks()`.
+12. **Anti-SSRF**: `HttpClient` blocca IP privati (RFC 1918, loopback, link-local), valida DNS resolution, DNS pinning via `CURLOPT_RESOLVE` (anti-TOCTOU/DNS rebinding), restringe schema (http/https) e porte (80/443), no redirect, timeout 5s, rifiuto IPv6 (safe-fail), validazione HTTP 2xx.
+13. **Alert Settings**: pagina admin `Ops → Alert Settings` con PRG pattern, nonce `ops_health_alert_settings`, per-channel enable/disable + credentials (`type="password"` + `value=""` + `placeholder="********"` per token/secret — credenziali mai nel DOM), cooldown globale.
 14. **Channel security**: TelegramChannel escape HTML (`htmlspecialchars`), SlackChannel escape mrkdwn, EmailChannel validazione `is_email()`, WhatsAppChannel validazione E.164 phone.
-15. **AlertManager resilience**: cooldown transient impostato PRIMA del dispatch (anti-spam), costanti `STATUS_OK/WARNING/CRITICAL/UNKNOWN`, Scheduler `try/catch` attorno a `process()`.
+15. **AlertManager resilience**: cooldown transient impostato PRIMA del dispatch (anti-spam), costanti `STATUS_OK/WARNING/CRITICAL/UNKNOWN`, isolamento per-canale `try/catch \Throwable` in `dispatch_to_channels()`, Scheduler `catch (\Throwable)` attorno a `process()` (cron resiliente a qualsiasi errore).
 16. Tooling quality gate locale: `composer test`, `composer phpcs`, `composer analyse` (PHPStan livello 6 con `phpstan.neon`).
 17. CI separata in `.github/workflows/ci.yml`: job dedicati PHPCS, PHPStan e PHPUnit matrix (PHP 7.4-8.5, coverage su 8.3). Codecov con flag separati `unit`/`integration` (`codecov.yml`, `CODECOV_TOKEN` secret).
 

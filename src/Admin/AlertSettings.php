@@ -129,15 +129,15 @@ class AlertSettings {
 			? (int) $settings['cooldown_minutes'] : 60;
 
 		// Extract values for template output.
-		$email_recipients = isset( $email['recipients'] ) ? $email['recipients'] : '';
-		$webhook_url      = isset( $webhook['url'] ) ? $webhook['url'] : '';
-		$webhook_secret   = isset( $webhook['secret'] ) ? $webhook['secret'] : '';
-		$slack_url        = isset( $slack['webhook_url'] ) ? $slack['webhook_url'] : '';
-		$tg_bot_token     = isset( $telegram['bot_token'] ) ? $telegram['bot_token'] : '';
-		$tg_chat_id       = isset( $telegram['chat_id'] ) ? $telegram['chat_id'] : '';
-		$wa_webhook_url   = isset( $whatsapp['webhook_url'] ) ? $whatsapp['webhook_url'] : '';
-		$wa_phone         = isset( $whatsapp['phone_number'] ) ? $whatsapp['phone_number'] : '';
-		$wa_token         = isset( $whatsapp['api_token'] ) ? $whatsapp['api_token'] : '';
+		$email_recipients   = isset( $email['recipients'] ) ? $email['recipients'] : '';
+		$webhook_url        = isset( $webhook['url'] ) ? $webhook['url'] : '';
+		$has_webhook_secret = isset( $webhook['secret'] ) && '' !== $webhook['secret'];
+		$slack_url          = isset( $slack['webhook_url'] ) ? $slack['webhook_url'] : '';
+		$has_tg_bot_token   = isset( $telegram['bot_token'] ) && '' !== $telegram['bot_token'];
+		$tg_chat_id         = isset( $telegram['chat_id'] ) ? $telegram['chat_id'] : '';
+		$wa_webhook_url     = isset( $whatsapp['webhook_url'] ) ? $whatsapp['webhook_url'] : '';
+		$wa_phone           = isset( $whatsapp['phone_number'] ) ? $whatsapp['phone_number'] : '';
+		$has_wa_token       = isset( $whatsapp['api_token'] ) && '' !== $whatsapp['api_token'];
 
 		?>
 		<div class="wrap">
@@ -194,7 +194,8 @@ class AlertSettings {
 						<th><?php echo esc_html__( 'Secret (HMAC)', 'ops-health-dashboard' ); ?></th>
 						<td>
 							<input type="password" name="webhook_secret" class="regular-text"
-								value="<?php echo esc_attr( $webhook_secret ); ?>"
+								value=""
+								placeholder="<?php echo $has_webhook_secret ? esc_attr( '********' ) : ''; ?>"
 								autocomplete="off" />
 						</td>
 					</tr>
@@ -231,7 +232,8 @@ class AlertSettings {
 						<th><?php echo esc_html__( 'Bot Token', 'ops-health-dashboard' ); ?></th>
 						<td>
 							<input type="password" name="telegram_bot_token" class="regular-text"
-								value="<?php echo esc_attr( $tg_bot_token ); ?>"
+								value=""
+								placeholder="<?php echo $has_tg_bot_token ? esc_attr( '********' ) : ''; ?>"
 								autocomplete="off" />
 						</td>
 					</tr>
@@ -271,7 +273,8 @@ class AlertSettings {
 						<th><?php echo esc_html__( 'API Token', 'ops-health-dashboard' ); ?></th>
 						<td>
 							<input type="password" name="whatsapp_api_token" class="regular-text"
-								value="<?php echo esc_attr( $wa_token ); ?>"
+								value=""
+								placeholder="<?php echo $has_wa_token ? esc_attr( '********' ) : ''; ?>"
 								autocomplete="off" />
 						</td>
 					</tr>
@@ -318,6 +321,29 @@ class AlertSettings {
 	 */
 	private function build_settings_from_post(): array {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verified in process_actions().
+		$existing = $this->storage->get( 'alert_settings', [] );
+
+		if ( ! is_array( $existing ) ) {
+			$existing = [];
+		}
+
+		$webhook_secret = sanitize_text_field( wp_unslash( $_POST['webhook_secret'] ?? '' ) );
+		$tg_bot_token   = sanitize_text_field( wp_unslash( $_POST['telegram_bot_token'] ?? '' ) );
+		$wa_api_token   = sanitize_text_field( wp_unslash( $_POST['whatsapp_api_token'] ?? '' ) );
+
+		// Preserve existing secrets when password field submitted empty.
+		if ( '' === $webhook_secret && isset( $existing['webhook']['secret'] ) ) {
+			$webhook_secret = $existing['webhook']['secret'];
+		}
+
+		if ( '' === $tg_bot_token && isset( $existing['telegram']['bot_token'] ) ) {
+			$tg_bot_token = $existing['telegram']['bot_token'];
+		}
+
+		if ( '' === $wa_api_token && isset( $existing['whatsapp']['api_token'] ) ) {
+			$wa_api_token = $existing['whatsapp']['api_token'];
+		}
+
 		return [
 			'email'            => [
 				'enabled'    => ! empty( $_POST['email_enabled'] ),
@@ -326,7 +352,7 @@ class AlertSettings {
 			'webhook'          => [
 				'enabled' => ! empty( $_POST['webhook_enabled'] ),
 				'url'     => esc_url_raw( wp_unslash( $_POST['webhook_url'] ?? '' ) ),
-				'secret'  => sanitize_text_field( wp_unslash( $_POST['webhook_secret'] ?? '' ) ),
+				'secret'  => $webhook_secret,
 			],
 			'slack'            => [
 				'enabled'     => ! empty( $_POST['slack_enabled'] ),
@@ -334,14 +360,14 @@ class AlertSettings {
 			],
 			'telegram'         => [
 				'enabled'   => ! empty( $_POST['telegram_enabled'] ),
-				'bot_token' => sanitize_text_field( wp_unslash( $_POST['telegram_bot_token'] ?? '' ) ),
+				'bot_token' => $tg_bot_token,
 				'chat_id'   => sanitize_text_field( wp_unslash( $_POST['telegram_chat_id'] ?? '' ) ),
 			],
 			'whatsapp'         => [
 				'enabled'      => ! empty( $_POST['whatsapp_enabled'] ),
 				'webhook_url'  => esc_url_raw( wp_unslash( $_POST['whatsapp_webhook_url'] ?? '' ) ),
 				'phone_number' => sanitize_text_field( wp_unslash( $_POST['whatsapp_phone_number'] ?? '' ) ),
-				'api_token'    => sanitize_text_field( wp_unslash( $_POST['whatsapp_api_token'] ?? '' ) ),
+				'api_token'    => $wa_api_token,
 			],
 			'cooldown_minutes' => absint( $_POST['cooldown_minutes'] ?? 60 ),
 		];
