@@ -204,11 +204,13 @@ jobs:
           for i in $(seq 1 30); do
             if curl -sf http://localhost:8888/wp-login.php > /dev/null 2>&1; then
               echo "WordPress is ready (attempt $i)"
-              break
+              exit 0
             fi
             echo "Waiting for WordPress... (attempt $i)"
             sleep 2
           done
+          echo "WordPress failed to start within 60 seconds"
+          exit 1
 
       - name: Create E2E test users
         run: bash bin/e2e-setup.sh

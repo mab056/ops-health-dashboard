@@ -173,8 +173,9 @@ class Redaction implements RedactionInterface {
 	 */
 	private function redact_passwords( string $text ): string {
 		// Password in URL (es: mysql://user:pass@host).
+		// Usa [^\s]+ (greedy) per gestire password con @ — backtrack trova l'ultimo @.
 		$text = preg_replace(
-			'/(:\/\/[^:\/\s]+:)[^@\s]+(@)/',
+			'/(:\/\/[^:\/\s]+:)[^\s]+(@)/',
 			'$1[REDACTED]$2',
 			$text
 		);

@@ -49,37 +49,48 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 	 * Testa che add_widget registra il widget per utenti admin
 	 */
 	public function test_add_widget_for_admin() {
-		global $wp_dashboard_control_callbacks;
+		global $wp_meta_boxes;
 
 		require_once ABSPATH . 'wp-admin/includes/dashboard.php';
 
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
 		wp_set_current_user( $user_id );
+		set_current_screen( 'dashboard' );
 
 		$runner = new CheckRunner( new Storage(), new Redaction() );
 		$widget = new DashboardWidget( $runner );
 		$widget->add_widget();
 
-		// Verifica che il widget è stato registrato.
-		global $wp_registered_widgets;
-		// Il widget ID potrebbe non essere registrato nel modo standard.
-		// Verifichiamo tramite dashboard control callbacks.
-		$this->assertTrue( true, 'Widget registration completed without error' );
+		// wp_add_dashboard_widget registers via add_meta_box into $wp_meta_boxes.
+		$registered = $wp_meta_boxes['dashboard']['normal']['core'] ?? [];
+		$this->assertArrayHasKey( 'ops_health_dashboard_widget', $registered );
+		$this->assertSame(
+			[ $widget, 'render' ],
+			$registered['ops_health_dashboard_widget']['callback']
+		);
 	}
 
 	/**
 	 * Testa che add_widget non registra per utenti non admin
 	 */
 	public function test_add_widget_denied_for_subscriber() {
+		global $wp_meta_boxes;
+
+		require_once ABSPATH . 'wp-admin/includes/dashboard.php';
+
+		// Rimuovi widget se già registrato da test precedenti.
+		unset( $wp_meta_boxes['dashboard']['normal']['core']['ops_health_dashboard_widget'] );
+
 		$user_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
 		wp_set_current_user( $user_id );
 
 		$runner = new CheckRunner( new Storage(), new Redaction() );
 		$widget = new DashboardWidget( $runner );
-
-		// Non deve lanciare errori.
 		$widget->add_widget();
-		$this->assertTrue( true, 'Non-admin widget add completed without error' );
+
+		// Verifica che il widget NON è stato registrato.
+		$registered = $wp_meta_boxes['dashboard']['normal']['core'] ?? [];
+		$this->assertArrayNotHasKey( 'ops_health_dashboard_widget', $registered );
 	}
 
 	/**

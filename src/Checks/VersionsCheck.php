@@ -38,8 +38,11 @@ class VersionsCheck implements CheckInterface {
 		$wp_version  = $this->get_wp_version();
 		$php_version = $this->get_php_version();
 
-		$updates_available = [];
-		$has_core_update   = false;
+		$updates_available   = [];
+		$has_core_update     = false;
+		$plugin_updates      = [];
+		$theme_updates       = [];
+		$update_check_failed = false;
 
 		try {
 			$this->load_update_functions();
@@ -78,9 +81,34 @@ class VersionsCheck implements CheckInterface {
 					$count
 				);
 			}
-		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+		} catch ( \Throwable $e ) {
 			// Graceful degradation: update functions not available.
-			// Continue with version info only.
+			$update_check_failed = true;
+		}
+
+		if ( $update_check_failed ) {
+			$status  = 'warning';
+			$message = __( 'Unable to check for updates', 'ops-health-dashboard' );
+
+			if ( version_compare( $php_version, self::RECOMMENDED_PHP_VERSION, '<' ) ) {
+				$message .= '; ' . sprintf(
+					/* translators: %s: recommended PHP version */
+					__( 'PHP %s+ recommended', 'ops-health-dashboard' ),
+					self::RECOMMENDED_PHP_VERSION
+				);
+			}
+
+			return $this->build_result(
+				$status,
+				$message,
+				[
+					'wp_version'        => $wp_version,
+					'php_version'       => $php_version,
+					'php_recommended'   => self::RECOMMENDED_PHP_VERSION,
+					'updates_available' => $updates_available,
+				],
+				microtime( true ) - $start
+			);
 		}
 
 		$status = $this->determine_status(

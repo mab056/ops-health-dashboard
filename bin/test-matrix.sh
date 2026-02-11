@@ -324,7 +324,8 @@ echo -e "${BOLD}+----------------------------------------------+${NC}"
 echo ""
 
 # Verify PHP binaries (skip if only running E2E)
-if [ "$RUN_PHPCS" = true ] || [ "$RUN_TESTS" = true ]; then
+if [ "$RUN_TESTS" = true ]; then
+	# PHPUnit matrix needs all selected versions.
 	MISSING=false
 	for version in "${SELECTED_VERSIONS[@]}"; do
 		if ! check_php_binary "$version"; then
@@ -334,6 +335,13 @@ if [ "$RUN_PHPCS" = true ] || [ "$RUN_TESTS" = true ]; then
 	if [ "$MISSING" = true ]; then
 		echo ""
 		echo -e "${RED}Some PHP versions are missing. Aborting.${NC}"
+		exit 1
+	fi
+elif [ "$RUN_PHPCS" = true ]; then
+	# PHPCS/PHPStan only needs the PHPCS PHP version.
+	if ! check_php_binary "$PHPCS_PHP"; then
+		echo ""
+		echo -e "${RED}PHP ${PHPCS_PHP} required for PHPCS/PHPStan. Aborting.${NC}"
 		exit 1
 	fi
 fi

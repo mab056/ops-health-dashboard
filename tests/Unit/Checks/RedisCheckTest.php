@@ -985,4 +985,100 @@ class RedisCheckTest extends TestCase {
 		$result = $method->invoke( $check );
 		$this->assertInstanceOf( \Redis::class, $result );
 	}
+
+	/**
+	 * Testa che TypeError durante connessione viene catturato (catch Throwable)
+	 */
+	public function test_catches_throwable_on_connection() {
+		$redaction = $this->create_redaction_mock();
+		$check     = $this->create_check_mock( $redaction );
+		$redis     = $this->create_redis_mock();
+
+		$check->shouldReceive( 'is_extension_loaded' )->andReturn( true );
+		$check->shouldReceive( 'get_redis_config' )
+			->andReturn(
+				[
+					'host'     => '127.0.0.1',
+					'port'     => 6379,
+					'password' => '',
+					'database' => 0,
+				]
+			);
+		$check->shouldReceive( 'create_redis_instance' )->andReturn( $redis );
+
+		$redis->shouldReceive( 'connect' )
+			->andThrow( new \TypeError( 'Invalid argument type' ) );
+
+		$this->mock_i18n();
+
+		$result = $check->run();
+
+		$this->assertEquals( 'warning', $result['status'] );
+	}
+
+	/**
+	 * Testa che TypeError durante smoke test viene catturato (catch Throwable)
+	 */
+	public function test_catches_throwable_on_smoke_test() {
+		$redaction = $this->create_redaction_mock();
+		$check     = $this->create_check_mock( $redaction );
+		$redis     = $this->create_redis_mock();
+
+		$check->shouldReceive( 'is_extension_loaded' )->andReturn( true );
+		$check->shouldReceive( 'get_redis_config' )
+			->andReturn(
+				[
+					'host'     => '127.0.0.1',
+					'port'     => 6379,
+					'password' => '',
+					'database' => 0,
+				]
+			);
+		$check->shouldReceive( 'create_redis_instance' )->andReturn( $redis );
+
+		$redis->shouldReceive( 'connect' )->andReturn( true );
+		$redis->shouldReceive( 'set' )
+			->andThrow( new \TypeError( 'Argument must be string' ) );
+		$redis->shouldReceive( 'del' )->byDefault();
+
+		$this->mock_i18n();
+
+		$result = $check->run();
+
+		$this->assertEquals( 'warning', $result['status'] );
+		$this->assertArrayHasKey( 'error', $result['details'] );
+	}
+
+	/**
+	 * Testa che TypeError in close_connection viene inghiottito (catch Throwable)
+	 */
+	public function test_close_connection_swallows_throwable() {
+		$redaction = $this->create_redaction_mock();
+		$check     = $this->create_check_mock( $redaction );
+		$redis     = Mockery::mock( 'Redis' );
+
+		$check->shouldReceive( 'is_extension_loaded' )->andReturn( true );
+		$check->shouldReceive( 'get_redis_config' )
+			->andReturn(
+				[
+					'host'     => '127.0.0.1',
+					'port'     => 6379,
+					'password' => 'secret',
+					'database' => 0,
+				]
+			);
+		$check->shouldReceive( 'create_redis_instance' )->andReturn( $redis );
+
+		$redis->shouldReceive( 'connect' )->andReturn( true );
+		$redis->shouldReceive( 'auth' )
+			->andThrow( new \TypeError( 'AUTH type error' ) );
+		$redis->shouldReceive( 'close' )
+			->andThrow( new \TypeError( 'Close type error' ) );
+
+		$this->mock_i18n();
+
+		$result = $check->run();
+
+		$this->assertEquals( 'warning', $result['status'] );
+	}
 }

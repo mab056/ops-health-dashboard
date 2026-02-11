@@ -90,7 +90,7 @@ class RedisCheck implements CheckInterface {
 		try {
 			$redis = $this->create_redis_instance();
 			$redis->connect( $config['host'], $config['port'], self::CONNECT_TIMEOUT );
-		} catch ( \Exception $e ) {
+		} catch ( \Throwable $e ) {
 			return $this->build_result(
 				'warning',
 				__( 'Redis connection failed', 'ops-health-dashboard' ),
@@ -103,7 +103,7 @@ class RedisCheck implements CheckInterface {
 		if ( '' !== $config['password'] ) {
 			try {
 				$redis->auth( $config['password'] );
-			} catch ( \Exception $e ) {
+			} catch ( \Throwable $e ) {
 				$this->close_connection( $redis );
 				return $this->build_result(
 					'warning',
@@ -118,7 +118,7 @@ class RedisCheck implements CheckInterface {
 		if ( 0 !== $config['database'] ) {
 			try {
 				$redis->select( $config['database'] );
-			} catch ( \Exception $e ) {
+			} catch ( \Throwable $e ) {
 				$this->close_connection( $redis );
 				return $this->build_result(
 					'warning',
@@ -159,7 +159,7 @@ class RedisCheck implements CheckInterface {
 			}
 
 			$redis->del( $smoke_key );
-		} catch ( \Exception $e ) {
+		} catch ( \Throwable $e ) {
 			$this->cleanup_and_close( $redis, $smoke_key );
 			return $this->build_result(
 				'warning',
@@ -278,7 +278,7 @@ class RedisCheck implements CheckInterface {
 		try {
 			$redis->close();
 			// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-		} catch ( \Exception $e ) {
+		} catch ( \Throwable $e ) {
 			// Ignora errori di chiusura.
 		}
 	}
@@ -293,7 +293,7 @@ class RedisCheck implements CheckInterface {
 		try {
 			$redis->del( $smoke_key );
 			// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-		} catch ( \Exception $e ) {
+		} catch ( \Throwable $e ) {
 			// Ignora errori di cleanup.
 		}
 		$this->close_connection( $redis );

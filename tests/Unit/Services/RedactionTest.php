@@ -356,4 +356,31 @@ class RedactionTest extends TestCase {
 		$this->assertStringContainsString( 'Division by zero', $result );
 		$this->assertStringContainsString( 'line 42', $result );
 	}
+
+	/**
+	 * Testa che password con @ in URL vengono completamente redatte
+	 */
+	public function test_redact_password_with_at_sign_in_url() {
+		$redaction = new Redaction();
+		$text      = 'mysql://dbuser:p@ssword123@db.example.com:3306/mydb';
+		$result    = $redaction->redact( $text );
+
+		$this->assertStringNotContainsString( 'p@ssword123', $result );
+		$this->assertStringNotContainsString( 'ssword123', $result );
+		$this->assertStringContainsString( '[REDACTED]', $result );
+		$this->assertStringContainsString( '@db.example.com', $result );
+	}
+
+	/**
+	 * Testa che password con multipli @ in URL vengono completamente redatte
+	 */
+	public function test_redact_password_with_multiple_at_signs_in_url() {
+		$redaction = new Redaction();
+		$text      = 'redis://admin:p@ss@word@cache.example.com:6379';
+		$result    = $redaction->redact( $text );
+
+		$this->assertStringNotContainsString( 'p@ss@word', $result );
+		$this->assertStringContainsString( '[REDACTED]', $result );
+		$this->assertStringContainsString( '@cache.example.com', $result );
+	}
 }

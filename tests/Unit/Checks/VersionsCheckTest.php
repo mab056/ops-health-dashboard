@@ -409,10 +409,30 @@ class VersionsCheckTest extends TestCase {
 
 		$result = $check->run();
 
-		// Non deve crashare, ritorna ok con versioni base.
-		$this->assertContains( $result['status'], [ 'ok', 'warning' ] );
+		// Non deve crashare, ritorna warning perché update check non completato.
+		$this->assertEquals( 'warning', $result['status'] );
+		$this->assertStringContainsString( 'Unable to check', $result['message'] );
 		$this->assertArrayHasKey( 'wp_version', $result['details'] );
 		$this->assertArrayHasKey( 'php_version', $result['details'] );
+	}
+
+	/**
+	 * Testa graceful degradation quando get_core_updates fallisce (dopo load)
+	 */
+	public function test_graceful_when_get_core_updates_throws() {
+		$this->mock_i18n();
+		$check = $this->create_check_mock();
+
+		$check->shouldReceive( 'get_wp_version' )->andReturn( '6.7' );
+		$check->shouldReceive( 'get_php_version' )->andReturn( '8.3.0' );
+		$check->shouldReceive( 'load_update_functions' )->once();
+		$check->shouldReceive( 'get_core_updates' )
+			->andThrow( new \Exception( 'API error' ) );
+
+		$result = $check->run();
+
+		$this->assertEquals( 'warning', $result['status'] );
+		$this->assertStringContainsString( 'Unable to check', $result['message'] );
 	}
 
 	/**
