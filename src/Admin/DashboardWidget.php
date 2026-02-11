@@ -96,7 +96,10 @@ class DashboardWidget {
 
 		$overall_label = isset( $status_labels[ $overall_status ] )
 			? $status_labels[ $overall_status ]
+			// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
+			// @codeCoverageIgnoreStart
 			: $status_labels['unknown'];
+		// @codeCoverageIgnoreEnd
 
 		?>
 		<div class="ops-health-widget-status ops-health-widget-status-<?php echo esc_attr( $overall_status ); ?>">

@@ -447,4 +447,77 @@ class DashboardWidgetTest extends TestCase {
 		// Senza status, trattato come unknown → risultato unknown.
 		$this->assertEquals( 'unknown', $reflection->invoke( $widget, $results ) );
 	}
+
+	// ─── Edge Cases Coverage ────────────────────────────────────────
+
+	/**
+	 * Testa render con risultato che ha status non riconosciuto (fallback unknown)
+	 */
+	public function test_render_with_unrecognized_status() {
+		$this->mock_render_functions();
+		$runner = $this->create_runner_mock();
+		$runner->shouldReceive( 'get_latest_results' )->andReturn(
+			[
+				'custom' => [
+					'status'  => 'weird_status',
+					'message' => 'Something weird',
+					'name'    => 'Custom Check',
+				],
+			]
+		);
+
+		$widget = new DashboardWidget( $runner );
+
+		ob_start();
+		$widget->render();
+		$output = ob_get_clean();
+
+		// Overall status non riconosciuto → label "Unknown".
+		$this->assertStringContainsString( 'Unknown', $output );
+		$this->assertStringContainsString( 'Custom Check', $output );
+	}
+
+	/**
+	 * Testa render con risultato senza campo name (fallback ucfirst check_id)
+	 */
+	public function test_render_with_missing_name_field() {
+		$this->mock_render_functions();
+
+		$runner = $this->create_runner_mock();
+		$runner->shouldReceive( 'get_latest_results' )->andReturn(
+			[
+				'database' => [
+					'status'  => 'ok',
+					'message' => 'OK',
+					// No 'name' key → fallback to ucfirst('database').
+				],
+			]
+		);
+
+		$widget = new DashboardWidget( $runner );
+
+		ob_start();
+		$widget->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Database', $output );
+	}
+
+	/**
+	 * Testa overall status con solo status non riconosciuti e ok
+	 */
+	public function test_overall_status_unrecognized_with_ok() {
+		$runner = $this->create_runner_mock();
+		$widget = new DashboardWidget( $runner );
+
+		$reflection = new \ReflectionMethod( DashboardWidget::class, 'determine_overall_status' );
+		$reflection->setAccessible( true );
+
+		$results = [
+			'a' => [ 'status' => 'unrecognized' ],
+			'b' => [ 'status' => 'ok' ],
+		];
+		// 'ok' ha priority 1, 'unrecognized' ha priority 0 → ok vince.
+		$this->assertEquals( 'ok', $reflection->invoke( $widget, $results ) );
+	}
 }

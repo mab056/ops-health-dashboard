@@ -155,6 +155,63 @@ class VersionsCheckTest extends WP_UnitTestCase {
 
 		$this->assertEquals( 'warning', $result['status'] );
 	}
+
+	/**
+	 * Testa che theme update produce status warning
+	 */
+	public function test_versions_check_warning_on_theme_update() {
+		$check  = new ThemeUpdateVersionsCheck();
+		$result = $check->run();
+
+		$this->assertEquals( 'warning', $result['status'] );
+		$this->assertNotEmpty( $result['details']['updates_available'] );
+
+		$found_theme = false;
+		foreach ( $result['details']['updates_available'] as $msg ) {
+			if ( strpos( $msg, 'theme' ) !== false ) {
+				$found_theme = true;
+				break;
+			}
+		}
+		$this->assertTrue( $found_theme, 'Should contain a theme update message' );
+	}
+
+	/**
+	 * Testa che update failed + old PHP produce messaggio composto
+	 */
+	public function test_versions_check_update_failed_with_old_php() {
+		$check  = new FailingUpdateOldPhpVersionsCheck();
+		$result = $check->run();
+
+		$this->assertEquals( 'warning', $result['status'] );
+		$this->assertStringContainsString( 'Unable to check', $result['message'] );
+		$this->assertStringContainsString( 'PHP', $result['message'] );
+		$this->assertStringContainsString( '8.1', $result['message'] );
+	}
+
+	/**
+	 * Testa che plugin update + old PHP produce messaggio con separatore
+	 */
+	public function test_versions_check_plugin_update_with_old_php() {
+		$check  = new PluginUpdateOldPhpVersionsCheck();
+		$result = $check->run();
+
+		$this->assertEquals( 'warning', $result['status'] );
+		$this->assertStringContainsString( 'plugin', $result['message'] );
+		$this->assertStringContainsString( 'PHP', $result['message'] );
+		$this->assertStringContainsString( '; ', $result['message'] );
+	}
+
+	/**
+	 * Testa che core update senza response viene filtrato
+	 */
+	public function test_versions_check_filters_core_update_without_response() {
+		$check  = new CoreUpdateNoResponseVersionsCheck();
+		$result = $check->run();
+
+		// L'update senza response viene filtrato, quindi nessun core update reale.
+		$this->assertNotEquals( 'critical', $result['status'] );
+	}
 }
 
 /**
@@ -266,6 +323,147 @@ class OldPhpVersionsCheck extends VersionsCheck {
 	 */
 	protected function get_core_updates(): array {
 		return [];
+	}
+
+	/**
+	 * Nessun plugin update
+	 *
+	 * @return array Vuoto.
+	 */
+	protected function get_plugin_updates(): array {
+		return [];
+	}
+
+	/**
+	 * Nessun theme update
+	 *
+	 * @return array Vuoto.
+	 */
+	protected function get_theme_updates(): array {
+		return [];
+	}
+}
+
+/**
+ * VersionsCheck con theme update disponibile
+ */
+class ThemeUpdateVersionsCheck extends VersionsCheck {
+
+	/**
+	 * Nessun core update
+	 *
+	 * @return array Vuoto.
+	 */
+	protected function get_core_updates(): array {
+		return [];
+	}
+
+	/**
+	 * Nessun plugin update
+	 *
+	 * @return array Vuoto.
+	 */
+	protected function get_plugin_updates(): array {
+		return [];
+	}
+
+	/**
+	 * Simula un theme update
+	 *
+	 * @return array Theme updates.
+	 */
+	protected function get_theme_updates(): array {
+		$theme_update         = new \stdClass();
+		$theme_update->update = new \stdClass();
+		return [ 'twentytwentyfive' => $theme_update ];
+	}
+}
+
+/**
+ * VersionsCheck con load_update_functions che lancia + PHP vecchio
+ */
+class FailingUpdateOldPhpVersionsCheck extends VersionsCheck {
+
+	/**
+	 * Simula PHP 7.4
+	 *
+	 * @return string Versione PHP vecchia.
+	 */
+	protected function get_php_version(): string {
+		return '7.4.33';
+	}
+
+	/**
+	 * Simula fallimento nel caricamento funzioni update
+	 *
+	 * @return void
+	 * @throws \Exception Sempre.
+	 */
+	protected function load_update_functions(): void {
+		throw new \Exception( 'Update functions unavailable' );
+	}
+}
+
+/**
+ * VersionsCheck con plugin update + PHP vecchio
+ */
+class PluginUpdateOldPhpVersionsCheck extends VersionsCheck {
+
+	/**
+	 * Simula PHP 7.4
+	 *
+	 * @return string Versione PHP vecchia.
+	 */
+	protected function get_php_version(): string {
+		return '7.4.33';
+	}
+
+	/**
+	 * Nessun core update
+	 *
+	 * @return array Vuoto.
+	 */
+	protected function get_core_updates(): array {
+		return [];
+	}
+
+	/**
+	 * Simula un plugin update
+	 *
+	 * @return array Plugin updates.
+	 */
+	protected function get_plugin_updates(): array {
+		$plugin_update         = new \stdClass();
+		$plugin_update->Name   = 'Test Plugin';
+		$plugin_update->update = new \stdClass();
+		return [ 'test/test.php' => $plugin_update ];
+	}
+
+	/**
+	 * Nessun theme update
+	 *
+	 * @return array Vuoto.
+	 */
+	protected function get_theme_updates(): array {
+		return [];
+	}
+}
+
+/**
+ * VersionsCheck con core update senza response property
+ */
+class CoreUpdateNoResponseVersionsCheck extends VersionsCheck {
+
+	/**
+	 * Simula core update senza response
+	 *
+	 * @return array Core updates senza response.
+	 */
+	protected function get_core_updates(): array {
+		$update          = new \stdClass();
+		$update->version = '99.0';
+		// Nessuna proprietà response → filter_real_updates lo scarta.
+		return [ $update ];
 	}
 
 	/**

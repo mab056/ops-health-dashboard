@@ -553,4 +553,232 @@ class VersionsCheckTest extends TestCase {
 		$reflection = new \ReflectionMethod( VersionsCheck::class, 'get_theme_updates' );
 		$this->assertTrue( $reflection->isProtected() );
 	}
+
+	// ─── Reflection-based Coverage for Protected Methods ────────────
+
+	/**
+	 * Testa che get_php_version ritorna PHP_VERSION
+	 */
+	public function test_get_php_version_returns_current_version() {
+		$check      = new VersionsCheck();
+		$reflection = new \ReflectionMethod( VersionsCheck::class, 'get_php_version' );
+		$reflection->setAccessible( true );
+
+		$this->assertEquals( PHP_VERSION, $reflection->invoke( $check ) );
+	}
+
+	/**
+	 * Testa che get_wp_version ritorna il valore della globale $wp_version
+	 */
+	public function test_get_wp_version_returns_global() {
+		global $wp_version;
+		$wp_version = '6.7.1';
+
+		$check      = new VersionsCheck();
+		$reflection = new \ReflectionMethod( VersionsCheck::class, 'get_wp_version' );
+		$reflection->setAccessible( true );
+
+		$this->assertEquals( '6.7.1', $reflection->invoke( $check ) );
+
+		unset( $wp_version );
+	}
+
+	/**
+	 * Testa che get_wp_version ritorna stringa vuota se globale non definita
+	 */
+	public function test_get_wp_version_returns_empty_when_undefined() {
+		// Assicura che la globale non sia definita.
+		unset( $GLOBALS['wp_version'] );
+
+		$check      = new VersionsCheck();
+		$reflection = new \ReflectionMethod( VersionsCheck::class, 'get_wp_version' );
+		$reflection->setAccessible( true );
+
+		$this->assertEquals( '', $reflection->invoke( $check ) );
+	}
+
+	/**
+	 * Testa che load_update_functions non lancia quando la funzione esiste
+	 */
+	public function test_load_update_functions_when_function_exists() {
+		// Brain\Monkey mock rende get_core_updates visibile a function_exists().
+		Functions\when( 'get_core_updates' )->justReturn( [] );
+
+		$check      = new VersionsCheck();
+		$reflection = new \ReflectionMethod( VersionsCheck::class, 'load_update_functions' );
+		$reflection->setAccessible( true );
+
+		// function_exists('get_core_updates') è true → skip require_once.
+		$reflection->invoke( $check );
+		$this->assertTrue( true );
+	}
+
+	/**
+	 * Testa che get_core_updates invoca la funzione WP e gestisce array
+	 */
+	public function test_get_core_updates_returns_array() {
+		$expected = [ (object) [ 'response' => 'latest' ] ];
+		Functions\when( 'get_core_updates' )->justReturn( $expected );
+
+		$check      = new VersionsCheck();
+		$reflection = new \ReflectionMethod( VersionsCheck::class, 'get_core_updates' );
+		$reflection->setAccessible( true );
+
+		$result = $reflection->invoke( $check );
+		$this->assertIsArray( $result );
+		$this->assertCount( 1, $result );
+	}
+
+	/**
+	 * Testa che get_core_updates gestisce valore non-array (false)
+	 */
+	public function test_get_core_updates_handles_non_array() {
+		Functions\when( 'get_core_updates' )->justReturn( false );
+
+		$check      = new VersionsCheck();
+		$reflection = new \ReflectionMethod( VersionsCheck::class, 'get_core_updates' );
+		$reflection->setAccessible( true );
+
+		$result = $reflection->invoke( $check );
+		$this->assertIsArray( $result );
+		$this->assertEmpty( $result );
+	}
+
+	/**
+	 * Testa che get_plugin_updates invoca la funzione WP
+	 */
+	public function test_get_plugin_updates_returns_array() {
+		Functions\when( 'get_plugin_updates' )->justReturn( [] );
+
+		$check      = new VersionsCheck();
+		$reflection = new \ReflectionMethod( VersionsCheck::class, 'get_plugin_updates' );
+		$reflection->setAccessible( true );
+
+		$result = $reflection->invoke( $check );
+		$this->assertIsArray( $result );
+	}
+
+	/**
+	 * Testa che get_theme_updates invoca la funzione WP
+	 */
+	public function test_get_theme_updates_returns_array() {
+		Functions\when( 'get_theme_updates' )->justReturn( [] );
+
+		$check      = new VersionsCheck();
+		$reflection = new \ReflectionMethod( VersionsCheck::class, 'get_theme_updates' );
+		$reflection->setAccessible( true );
+
+		$result = $reflection->invoke( $check );
+		$this->assertIsArray( $result );
+	}
+
+	// ─── Update Check Failed + Old PHP ─────────────────────────────
+
+	/**
+	 * Testa update_check_failed con PHP obsoleto aggiunge messaggio PHP
+	 */
+	public function test_update_check_failed_with_old_php() {
+		$this->mock_i18n();
+		$check = $this->create_check_mock();
+		$check->shouldReceive( 'get_wp_version' )->andReturn( '6.7' );
+		$check->shouldReceive( 'get_php_version' )->andReturn( '7.4.33' );
+		$check->shouldReceive( 'load_update_functions' )
+			->andThrow( new \Exception( 'Not available' ) );
+
+		$result = $check->run();
+
+		$this->assertEquals( 'warning', $result['status'] );
+		$this->assertStringContainsString( 'Unable to check', $result['message'] );
+		$this->assertStringContainsString( 'PHP', $result['message'] );
+		$this->assertStringContainsString( '8.1', $result['message'] );
+	}
+
+	/**
+	 * Testa warning message con plugin updates + old PHP (doppio messaggio)
+	 */
+	public function test_warning_message_with_plugin_updates_and_old_php() {
+		$this->mock_i18n();
+		$check = $this->create_check_mock();
+
+		$plugin_update         = new \stdClass();
+		$plugin_update->Name   = 'Test';
+		$plugin_update->update = new \stdClass();
+
+		$this->setup_versions(
+			$check,
+			'6.7',
+			'7.4.33',
+			[],
+			[ 'test/test.php' => $plugin_update ],
+			[]
+		);
+
+		$result = $check->run();
+
+		$this->assertEquals( 'warning', $result['status'] );
+		// Message contains both plugin update info and PHP recommendation.
+		$this->assertStringContainsString( 'plugin', $result['message'] );
+		$this->assertStringContainsString( 'PHP', $result['message'] );
+	}
+
+	/**
+	 * Testa che theme updates producono messaggio corretto
+	 */
+	public function test_theme_update_message_content() {
+		$this->mock_i18n();
+		$check = $this->create_check_mock();
+
+		$theme_update         = new \stdClass();
+		$theme_update->update = new \stdClass();
+
+		$this->setup_versions(
+			$check,
+			'6.7',
+			'8.3.0',
+			[],
+			[],
+			[ 'twentytwentyfour' => $theme_update ]
+		);
+
+		$result = $check->run();
+
+		$this->assertEquals( 'warning', $result['status'] );
+		$this->assertStringContainsString( 'theme', $result['message'] );
+	}
+
+	/**
+	 * Testa che core update senza campo version gestisce gracefully
+	 */
+	public function test_core_update_without_version_field() {
+		$this->mock_i18n();
+		$check = $this->create_check_mock();
+
+		$update           = new \stdClass();
+		$update->response = 'upgrade';
+		// Nessun campo version.
+		$this->setup_versions( $check, '6.7', '8.3.0', [ $update ], [], [] );
+
+		$result = $check->run();
+
+		$this->assertEquals( 'critical', $result['status'] );
+		$this->assertNotEmpty( $result['details']['updates_available'] );
+	}
+
+	/**
+	 * Testa filter_real_updates con update senza campo response
+	 */
+	public function test_filter_real_updates_without_response() {
+		$this->mock_i18n();
+
+		$check = $this->create_check_mock();
+
+		$no_response = new \stdClass();
+		// Nessun campo response.
+		$this->setup_versions( $check, '6.7', '8.3.0', [ $no_response ], [], [] );
+
+		$result = $check->run();
+
+		// Update senza response viene filtrato → ok.
+		$this->assertEquals( 'ok', $result['status'] );
+	}
 }
