@@ -281,13 +281,16 @@ run_e2e() {
 	echo -e "  Creating test users..."
 	(cd "$PROJECT_DIR" && bash bin/e2e-setup.sh 2>&1) > "$tmpfile" || true
 
-	# Run Playwright tests
+	# Run Playwright tests (dot reporter for real-time progress)
 	echo -e "  Running Playwright tests..."
 	exit_code=0
-	(cd "$PROJECT_DIR" && npx playwright test 2>&1) > "$tmpfile" || exit_code=$?
+	(cd "$PROJECT_DIR" && npx playwright test --reporter=dot 2>&1) | tee "$tmpfile" || exit_code=$?
+	echo ""
 
-	# Parse test count from Playwright output (e.g. "138 passed")
-	e2e_count=$(grep -oP '[0-9]+ passed' "$tmpfile" | head -1 || echo "")
+	# Strip ANSI codes and parse test count (e.g. "138 passed")
+	local clean_output
+	clean_output=$(sed 's/\x1b\[[0-9;]*m//g' "$tmpfile")
+	e2e_count=$(echo "$clean_output" | grep -oP '[0-9]+ passed' | head -1 || echo "")
 
 	# Stop wp-env
 	echo -e "  Stopping wp-env..."
@@ -306,11 +309,8 @@ run_e2e() {
 		STATUSES["e2e"]="FAIL"
 		HAS_FAILURE=true
 		local failed_count
-		failed_count=$(grep -oP '[0-9]+ failed' "$tmpfile" | head -1 || echo "")
+		failed_count=$(echo "$clean_output" | grep -oP '[0-9]+ failed' | head -1 || echo "")
 		echo -e "  E2E: ${RED}FAIL${NC} - ${e2e_count} ${failed_count} (${duration}s)"
-		echo ""
-		tail -20 "$tmpfile"
-		echo ""
 	fi
 
 	rm -f "$tmpfile"

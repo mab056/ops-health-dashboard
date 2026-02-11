@@ -51,6 +51,8 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 	public function test_add_widget_for_admin() {
 		global $wp_dashboard_control_callbacks;
 
+		require_once ABSPATH . 'wp-admin/includes/dashboard.php';
+
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
 		wp_set_current_user( $user_id );
 
@@ -123,8 +125,8 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 
 		// Salva risultati finti nello storage.
 		$storage = new Storage();
-		$storage->save(
-			'check_results',
+		$storage->set(
+			'latest_results',
 			[
 				'database' => [
 					'status'  => 'ok',
@@ -146,7 +148,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'ops-health-dashboard', $output );
 
 		// Cleanup.
-		$storage->delete( 'check_results' );
+		$storage->delete( 'latest_results' );
 	}
 
 	/**
@@ -174,8 +176,8 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 		wp_set_current_user( $user_id );
 
 		$storage = new Storage();
-		$storage->save(
-			'check_results',
+		$storage->set(
+			'latest_results',
 			[
 				'xss_test' => [
 					'status'  => 'ok',
@@ -193,9 +195,10 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringNotContainsString( '<script>', $output );
-		$this->assertStringNotContainsString( 'onerror', $output );
+		$this->assertStringNotContainsString( '<img', $output );
+		$this->assertStringContainsString( '&lt;img', $output );
 
 		// Cleanup.
-		$storage->delete( 'check_results' );
+		$storage->delete( 'latest_results' );
 	}
 }
