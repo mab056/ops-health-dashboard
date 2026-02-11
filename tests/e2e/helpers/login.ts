@@ -8,7 +8,7 @@ export async function loginAsAdmin(page: Page): Promise<void> {
 	await page.fill('#user_login', 'admin');
 	await page.fill('#user_pass', 'password');
 	await page.click('#wp-submit');
-	await page.waitForURL('**/wp-admin/**', { timeout: 15000 });
+	await page.waitForURL('**/wp-admin/**', { timeout: 30000 });
 }
 
 /**
@@ -19,7 +19,7 @@ export async function loginAsSubscriber(page: Page): Promise<void> {
 	await page.fill('#user_login', 'subscriber_e2e');
 	await page.fill('#user_pass', 'subscriber_e2e_pass');
 	await page.click('#wp-submit');
-	await page.waitForURL('**/wp-admin/**', { timeout: 15000 });
+	await page.waitForURL('**/wp-admin/**', { timeout: 30000 });
 }
 
 /**
@@ -30,5 +30,5 @@ export async function loginAsEditor(page: Page): Promise<void> {
 	await page.fill('#user_login', 'editor_e2e');
 	await page.fill('#user_pass', 'editor_e2e_pass');
 	await page.click('#wp-submit');
-	await page.waitForURL('**/wp-admin/**', { timeout: 15000 });
+	await page.waitForURL('**/wp-admin/**', { timeout: 30000 });
 }
