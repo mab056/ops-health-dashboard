@@ -84,6 +84,11 @@ function bootstrap(): Plugin {
 					$c->make( Interfaces\RedactionInterface::class )
 				)
 			);
+			$runner->add_check(
+				new Checks\DiskCheck(
+					$c->make( Interfaces\RedactionInterface::class )
+				)
+			);
 			return $runner;
 		}
 	);

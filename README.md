@@ -33,7 +33,7 @@ Questo plugin fornisce una dashboard operativa in wp-admin con controlli automat
 - Bottoni manuali "Run Now" e "Clear Cache" con protezione nonce
 - Widget dashboard con stato globale *(pianificato M5+)*
 
-### Alerting *(implementato M4)*
+### Alerting
 - **Email** via `wp_mail()` con destinatari configurabili
 - **Webhook** generico POST JSON con firma HMAC opzionale
 - **Slack** via Incoming Webhook con Block Kit payload
