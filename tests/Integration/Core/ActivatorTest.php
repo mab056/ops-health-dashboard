@@ -58,7 +58,7 @@ class ActivatorTest extends WP_UnitTestCase {
 	 */
 	public function test_activate_sets_timestamp() {
 		if ( ! defined( 'OPS_HEALTH_DASHBOARD_VERSION' ) ) {
-			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.4.1' );
+			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.5.0' );
 		}
 
 		$activator = new Activator();
@@ -78,7 +78,7 @@ class ActivatorTest extends WP_UnitTestCase {
 	 */
 	public function test_activate_sets_version() {
 		if ( ! defined( 'OPS_HEALTH_DASHBOARD_VERSION' ) ) {
-			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.4.1' );
+			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.5.0' );
 		}
 
 		$activator = new Activator();
@@ -97,7 +97,7 @@ class ActivatorTest extends WP_UnitTestCase {
 	 */
 	public function test_activate_schedules_cron_event() {
 		if ( ! defined( 'OPS_HEALTH_DASHBOARD_VERSION' ) ) {
-			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.4.1' );
+			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.5.0' );
 		}
 
 		wp_clear_scheduled_hook( 'ops_health_run_checks' );
@@ -145,7 +145,7 @@ class ActivatorTest extends WP_UnitTestCase {
 	 */
 	public function test_activate_registers_custom_cron_interval() {
 		if ( ! defined( 'OPS_HEALTH_DASHBOARD_VERSION' ) ) {
-			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.4.1' );
+			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.5.0' );
 		}
 
 		// Rimuovi tutti i filtri cron_schedules per assicurarsi che l'intervallo non esista.
@@ -165,7 +165,7 @@ class ActivatorTest extends WP_UnitTestCase {
 	 */
 	public function test_activate_does_not_duplicate_cron_event() {
 		if ( ! defined( 'OPS_HEALTH_DASHBOARD_VERSION' ) ) {
-			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.4.1' );
+			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.5.0' );
 		}
 
 		// Pre-schedula il cron.

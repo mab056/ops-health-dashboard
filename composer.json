@@ -2,7 +2,7 @@
   "name": "ops-health-dashboard/ops-health-dashboard",
   "description": "Production-grade WordPress health monitoring with TDD and strict security",
   "type": "wordpress-plugin",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "license": "GPL-3.0-or-later",
   "authors": [
     {
