@@ -63,7 +63,7 @@ Plugin WordPress production-grade per monitoraggio operativo con health checks, 
 
 Milestone M1 + M2 + M3 + M4 completate (Core Checks + Storage + Cron + Error Log Summary Safe + Redis Check + Alerting System). Code review post-M4: 13 rilievi risolti. Code review 2 post-M4: 5 rilievi risolti (DNS pinning, \Throwable, channel isolation, secret non-prefill, recipients guard). 698 test (438 unit + 260 integration), 1548 assertions. Unit coverage: 100% (1281/1281 lines, 136/136 methods, 20/20 classes). Integration coverage: 100% (1280/1280 lines, 136/136 methods, 20/20 classes). Entrambe le suite indipendentemente al 100%. PHPCS 100% clean, PHPStan level 6: 0 errori. 27 file sorgente, 47 file di test (27 unit + 20 integration). Milestone corrente: M5 (E2E Testing, pianificata). Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
 
-## Baseline Corrente (v0.4.0)
+## Baseline Corrente (v0.4.1)
 
 Punti architetturali da preservare nella codebase attuale:
 1. Bootstrap plugin in `ops-health-dashboard.php` con autoloader fail-safe (admin notice se `vendor/autoload.php` manca).

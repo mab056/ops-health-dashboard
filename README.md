@@ -9,7 +9,7 @@
 [![Security Policy](https://img.shields.io/badge/Security-Policy-blue)](SECURITY.md)
 [![PHP Version](https://img.shields.io/badge/PHP-7.4%2B-blue)](https://www.php.net/)
 [![WordPress](https://img.shields.io/badge/WordPress-5.8%2B-blue)](https://wordpress.org/)
-[![Version](https://img.shields.io/badge/Version-0.4.0-green)](https://github.com/mab056/ops-health-dashboard/releases)
+[![Version](https://img.shields.io/badge/Version-0.4.1-green)](https://github.com/mab056/ops-health-dashboard/releases)
 
 Plugin WordPress di monitoraggio operativo production-grade con controlli automatici e alerting multi-canale configurabile.
 
