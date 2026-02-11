@@ -85,8 +85,8 @@ Punti architetturali da preservare nella codebase attuale:
 17. **DiskCheck**: `src/Checks/DiskCheck.php` con soglie `WARNING_THRESHOLD = 20`, `CRITICAL_THRESHOLD = 10` (percent), protected wrappers, RedactionInterface.
 18. **VersionsCheck**: `src/Checks/VersionsCheck.php` con `RECOMMENDED_PHP_VERSION = '8.1'`, core update → critical, plugin/theme → warning.
 19. Tooling quality gate locale: `composer test`, `composer phpcs`, `composer analyse` (PHPStan livello 6 con `phpstan.neon`).
-20. CI separata in `.github/workflows/ci.yml`: job dedicati PHPCS, PHPStan, PHPUnit matrix (PHP 7.4-8.5, coverage su 8.3), E2E Playwright (Chromium, 3 viewport, wp-env, `timeout-minutes: 15`). Codecov con flag separati `unit`/`integration` (`codecov.yml`, `CODECOV_TOKEN` secret).
-21. **E2E Testing**: Playwright + `@wordpress/env` in Docker. 46 scenari x 3 viewport (desktop/tablet/mobile). CI: 2 workers, timeout 60s, login timeout 30s. Selettori centralizzati in `tests/e2e/helpers/selectors.ts`. Login helpers per admin/subscriber/editor. `bin/e2e-setup.sh` crea utenti test.
+20. CI separata in `.github/workflows/ci.yml`: job dedicati PHPCS, PHPStan, PHPUnit matrix (PHP 7.4-8.5, coverage su 8.3), E2E Playwright (Chromium, 3 viewport, wp-env, `timeout-minutes: 25`). Codecov con flag separati `unit`/`integration` (`codecov.yml`, `CODECOV_TOKEN` secret).
+21. **E2E Testing**: Playwright + `@wordpress/env` in Docker. 46 scenari x 3 viewport (desktop/tablet/mobile). CI: 1 worker (wp-env condiviso, multi-worker causa interferenza), timeout 60s, login timeout 30s, health check wait. Selettori centralizzati in `tests/e2e/helpers/selectors.ts`. Login helpers per admin/subscriber/editor. `bin/e2e-setup.sh` crea utenti test.
 22. **Test Matrix Locale**: `bin/test-matrix.sh` replica CI localmente: PHPCS + PHPStan + PHPUnit (PHP 7.4-8.5) + E2E Playwright. Flag `--e2e-only`, `--no-e2e`, `--tests-only`, `--phpcs-only`, `--parallel`. E2E integrato con lifecycle management (wp-env start/stop, utenti test, prerequisiti npm/docker). `composer.json` `process-timeout: 0` per esecuzioni lunghe.
 
 Nota operativa:

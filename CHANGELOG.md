@@ -46,9 +46,9 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
   - New flags: `--e2e-only`, `--no-e2e`; dot reporter for real-time progress; ANSI stripping for result parsing
   - SKIP (yellow) status for E2E when prerequisites missing
 - **composer.json** - Added `"process-timeout": 0` to prevent timeout on long-running matrix+E2E runs
-- **playwright.config.ts** - CI optimizations: `workers: 2`, `timeout: 60_000` in CI (vs 1 worker, 30s locally)
+- **playwright.config.ts** - CI optimizations: 1 worker (shared wp-env), `timeout: 60_000` in CI (vs 30s locally)
 - **login.ts** - Login timeout increased from 15s to 30s for all three helpers (Docker in CI is slower)
-- **.github/workflows/ci.yml** - Added `e2e` job (Node 20, Chromium, wp-env, Playwright) with `timeout-minutes: 15`
+- **.github/workflows/ci.yml** - Added `e2e` job (Node 20, Chromium, wp-env, Playwright) with `timeout-minutes: 25`, health check wait
 - **.gitignore** - Added `/playwright-report/`, `/test-results/`, `/tests/e2e/.auth/`
 - **.gitattributes** - Added export-ignore for `package.json`, `package-lock.json`, `playwright.config.ts`, `.wp-env.json`, `tsconfig.json`
 
@@ -75,7 +75,7 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 - 30 source files in `src/` (+3 new: DiskCheck, VersionsCheck, DashboardWidget)
 - 46 scenari E2E x 3 viewport = 138 esecuzioni di test, tutti verdi
 - Local test matrix (`bin/test-matrix.sh`) now includes E2E with full lifecycle management
-- CI E2E: 2 workers, 60s timeout, 30s login timeout, 15-minute job timeout
+- CI E2E: 1 worker (shared wp-env), 60s timeout, 30s login timeout, 25-minute job timeout, health check wait
 - PHPCS 100% clean, PHPStan level 6: 0 errori
 - TDD rigoroso per ogni componente: RED → GREEN → REFACTOR
 

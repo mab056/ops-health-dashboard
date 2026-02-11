@@ -587,7 +587,7 @@ PHPCS + PHPStan clean
 - `@wordpress/env` ^10.0.0 for Docker-based WordPress (WP 6.7, PHP 8.3)
 - `@playwright/test` ^1.49.0 with Chromium
 - 3 viewports: desktop (1280x720), tablet (768x1024), mobile (375x812)
-- CI: 2 workers, 60s timeout, login timeout 30s, job timeout 15 min
+- CI: 1 worker (wp-env condiviso), 60s timeout, login timeout 30s, job timeout 25 min, health check wait
 - Locally: 1 worker, 30s timeout, 1 retry
 - `bin/e2e-setup.sh`: creates subscriber_e2e + editor_e2e test users
 - 5 file di spec: navigation (6), health-dashboard (14), alert-settings (14), dashboard-widget (6), security (6)

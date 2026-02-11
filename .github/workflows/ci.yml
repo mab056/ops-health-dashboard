@@ -168,7 +168,7 @@ jobs:
   e2e:
     name: E2E Tests (Playwright)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
 
     steps:
       - name: Checkout code
@@ -188,6 +188,17 @@ jobs:
 
       - name: Start wp-env
         run: npm run env:start
+
+      - name: Wait for WordPress to be ready
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8888/wp-login.php > /dev/null 2>&1; then
+              echo "WordPress is ready (attempt $i)"
+              break
+            fi
+            echo "Waiting for WordPress... (attempt $i)"
+            sleep 2
+          done
 
       - name: Create E2E test users
         run: bash bin/e2e-setup.sh
