@@ -173,7 +173,7 @@ Questo progetto segue Test-Driven Development con un **approccio misto**:
 - Verifica integrazione reale con WordPress
 
 **E2E Tests (Playwright + wp-env)** - Browser reale
-- 46 scenari x 3 viewport (desktop, tablet, mobile) = 138 test run
+- 46 scenari x 3 viewport (desktop, tablet, mobile) = 138 esecuzioni di test
 - WordPress completo in Docker via `@wordpress/env`
 - Copertura: navigazione, dashboard, widget, alert settings, sicurezza
 
@@ -282,7 +282,7 @@ public function test_database_check_runs_successfully() {
 
 - **Unit Tests**: Brain\Monkey - 515 test, tutte le versioni PHP
 - **Integration Tests**: WP Test Suite - ~290 test, tutte le versioni PHP
-- **E2E Tests**: Playwright + wp-env - 46 scenari x 3 viewport = 138 test run
+- **E2E Tests**: Playwright + wp-env - 46 scenari x 3 viewport = 138 esecuzioni di test
 - **PHPStan**: Level 6 con szepeviktor/phpstan-wordpress, 0 errori
 - **Versioni PHP**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
 - **Target Coverage**: 95% progetto, 90% patch (Codecov)
@@ -296,7 +296,7 @@ public function test_database_check_runs_successfully() {
 - **Anti-SSRF**: Protezione attiva su tutte le richieste HTTP outbound
   - Validazione schema (solo http/https)
   - Blocco IP privati e riservati (RFC 1918, loopback, link-local)
-  - Validazione DNS resolution (prevenzione DNS rebinding)
+  - Validazione risoluzione DNS (prevenzione DNS rebinding)
   - DNS pinning via `CURLOPT_RESOLVE` (prevenzione TOCTOU/DNS rebinding)
   - Restrizione porte (solo 80/443)
   - Rifiuto IPv6 (safe-fail)
@@ -337,7 +337,7 @@ Milestone corrente: **M6 - WordPress.org Readiness** 🚧
 - **54 file di test PHP** (30 unit + 24 integration)
 - **515+ unit test**, 1162 assertions (Brain\Monkey)
 - **~290 integration test** (WP Test Suite)
-- **46 E2E scenari** x 3 viewport = 138 test run (Playwright)
+- **46 E2E scenari** x 3 viewport = 138 esecuzioni di test (Playwright)
 - **PHPCS**: 100% compliance (0 errori, 0 warning)
 - **PHPStan**: level 6, 0 errori
 

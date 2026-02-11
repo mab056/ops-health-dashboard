@@ -167,7 +167,7 @@
 - Integration SchedulerTest: `delete_transient` al posto di `set_current_screen`
 - Totale: 265 test (212 unit + 53 integration), 620 assertions, PHPCS clean
 - **Lesson**: `is_admin()` limita self-healing al solo admin; usare transient throttle per copertura frontend
-- **Lesson**: chiavi Redis condivise tra run concorrenti causano race condition; usare `uniqid()` per unicità
+- **Lesson**: chiavi Redis condivise tra esecuzioni concorrenti causano race condition; usare `uniqid()` per unicità
 
 ### 2026-02-09 (Code Review Post-M3)
 
@@ -358,7 +358,7 @@
 
 ### Tasks
 
-- [x] **M4.1** - HttpClientInterface + HttpClient (anti-SSRF: scheme/port/IP validation, DNS resolution, no redirects)
+- [x] **M4.1** - HttpClientInterface + HttpClient (anti-SSRF: scheme/port/IP validation, risoluzione DNS, no redirects)
 - [x] **M4.2** - AlertChannelInterface + EmailChannel (`wp_mail()`, configurable recipients)
 - [x] **M4.3** - AlertManagerInterface + AlertManager (state change detection, cooldown, dispatch, alert log)
 - [x] **M4.4** - WebhookChannel (generic JSON POST, optional HMAC `X-OpsHealth-Signature`)
@@ -556,10 +556,10 @@ PHPCS + PHPStan clean
 - [x] **M5.4** - Registrazione DiskCheck + VersionsCheck + DashboardWidget in bootstrap.php + Plugin.php
 - [x] **M5.5** - E2E infrastruttura (package.json, .wp-env.json, playwright.config.ts, tsconfig.json)
 - [x] **M5.6** - E2E helpers (login.ts, selectors.ts) + bin/e2e-setup.sh
-- [x] **M5.7** - E2E spec files (navigation, health-dashboard, alert-settings, dashboard-widget, security)
+- [x] **M5.7** - File di spec E2E (navigation, health-dashboard, alert-settings, dashboard-widget, security)
 - [x] **M5.8** - CI integration (e2e job in ci.yml, .gitignore, .gitattributes)
 - [x] **M5.9** - Unit + integration tests per DiskCheck, VersionsCheck, DashboardWidget
-- [x] **M5.10** - All quality gates pass + 138 E2E test runs green
+- [x] **M5.10** - Tutti i quality gate passano + 138 esecuzioni E2E verdi
 
 ### Dettagli Implementazione
 
@@ -589,13 +589,13 @@ PHPCS + PHPStan clean
 - 3 viewports: desktop (1280x720), tablet (768x1024), mobile (375x812)
 - Single worker to avoid wp-env overload; 1 retry locally, 2 in CI
 - `bin/e2e-setup.sh`: creates subscriber_e2e + editor_e2e test users
-- 5 spec files: navigation (6), health-dashboard (14), alert-settings (14), dashboard-widget (6), security (6)
+- 5 file di spec: navigation (6), health-dashboard (14), alert-settings (14), dashboard-widget (6), security (6)
 
 **Statistiche Finali**:
 - 30 file sorgente in `src/` (+3 da M4)
 - 54 file di test PHP (30 unit + 24 integration) (+7 da M4)
 - 515 unit test, 1162 assertions
-- 46 E2E scenari x 3 viewport = 138 test run
+- 46 E2E scenari x 3 viewport = 138 esecuzioni di test
 - PHPCS 100% clean, PHPStan level 6: 0 errori
 
 **Deliverable**: Dashboard con 5 check (Database, Error Log, Redis, Disk, Versions) + widget dashboard + E2E testing completo ✅

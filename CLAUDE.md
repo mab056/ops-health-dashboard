@@ -614,11 +614,11 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 **Stato Attuale:**
 - ✅ **515 test unitari** (Brain\Monkey), 1162 assertions
 - ✅ **~290 test di integrazione** (WP Test Suite)
-- ✅ **46 scenari E2E** x 3 viewport = 138 test run (Playwright + wp-env)
+- ✅ **46 scenari E2E** x 3 viewport = 138 esecuzioni di test (Playwright + wp-env)
 - ✅ PHPCS 100% compliance (0 errori, 0 warning)
 - ✅ PHPStan level 6: 0 errori (szepeviktor/phpstan-wordpress)
 - ✅ CI/CD completo con PHP 7.4-8.5 + E2E Playwright
-- ✅ 30 file sorgente, 54 file di test PHP (30 unit + 24 integration), 5 E2E spec files
+- ✅ 30 file sorgente, 54 file di test PHP (30 unit + 24 integration), 5 file di spec E2E
 - ✅ Pattern enforcement (NO singleton/static/final)
 
 **Componenti Implementati (M1+M2+M3+M4+M5):**

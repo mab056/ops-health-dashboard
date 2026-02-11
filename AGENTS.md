@@ -61,7 +61,7 @@ Plugin WordPress production-grade per monitoraggio operativo con health checks, 
 
 ## Stato Progetto (Riferimento)
 
-Milestone M1-M5 completate (Core Checks + Storage + Cron + Error Log + Redis + Alerting + DiskCheck + VersionsCheck + DashboardWidget + E2E Testing). 515 unit test, 1162 assertions. ~290 integration test. 46 E2E scenari x 3 viewport = 138 test run (Playwright + wp-env). PHPCS 100% clean, PHPStan level 6: 0 errori. 30 file sorgente, 54 file test PHP (30 unit + 24 integration), 5 E2E spec files. Milestone corrente: M6 (WordPress.org Readiness, pianificata). Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
+Milestone M1-M5 completate (Core Checks + Storage + Cron + Error Log + Redis + Alerting + DiskCheck + VersionsCheck + DashboardWidget + E2E Testing). 515 unit test, 1162 assertions. ~290 integration test. 46 E2E scenari x 3 viewport = 138 esecuzioni di test (Playwright + wp-env). PHPCS 100% clean, PHPStan level 6: 0 errori. 30 file sorgente, 54 file di test PHP (30 unit + 24 integration), 5 file di spec E2E. Milestone corrente: M6 (WordPress.org Readiness, pianificata). Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
 
 ## Baseline Corrente (v0.5.0)
 
@@ -74,10 +74,10 @@ Punti architetturali da preservare nella codebase attuale:
 6. Check registrati in `config/bootstrap.php`: `DatabaseCheck`, `ErrorLogCheck`, `RedisCheck`, `DiskCheck`, `VersionsCheck`.
 7. Flusso azioni admin in `src/Admin/HealthScreen.php`: `process_actions()` con nonce + capability check e redirect PRG; uscita isolata in `do_exit()` per testabilità.
 8. Redazione dati sensibili centralizzata in `src/Services/Redaction.php`, iniettata in `CheckRunner`, `DatabaseCheck`, `ErrorLogCheck` e `RedisCheck`.
-9. `RedisCheck` usa chiave smoke test univoca per run (`ops_health_smoke_test_<uniqid>`) per evitare race condition tra run concorrenti.
+9. `RedisCheck` usa chiave smoke test univoca per run (`ops_health_smoke_test_<uniqid>`) per evitare race condition tra esecuzioni concorrenti.
 10. Contratto `CheckRunnerInterface` con `clear_results()` usato dal flusso admin (`Run Now` / `Clear Cache`) in `HealthScreen::process_actions()`.
 11. **Alerting**: `AlertManager` rileva cambiamenti stato check, dispatcha a canali abilitati (Email, Webhook, Slack, Telegram, WhatsApp), cooldown per-check via transient, alert log limitato a 50 voci. Integrato in `Scheduler::run_checks()`.
-12. **Anti-SSRF**: `HttpClient` blocca IP privati (RFC 1918, loopback, link-local), valida DNS resolution, DNS pinning via `CURLOPT_RESOLVE` (anti-TOCTOU/DNS rebinding), restringe schema (http/https) e porte (80/443), no redirect, timeout 5s, rifiuto IPv6 (safe-fail), validazione HTTP 2xx.
+12. **Anti-SSRF**: `HttpClient` blocca IP privati (RFC 1918, loopback, link-local), valida la risoluzione DNS, DNS pinning via `CURLOPT_RESOLVE` (anti-TOCTOU/DNS rebinding), restringe schema (http/https) e porte (80/443), no redirect, timeout 5s, rifiuto IPv6 (safe-fail), validazione HTTP 2xx.
 13. **Alert Settings**: pagina admin `Ops → Alert Settings` con PRG pattern, nonce `ops_health_alert_settings`, per-channel enable/disable + credentials (`type="password"` + `value=""` + `placeholder="********"` per token/secret — credenziali mai nel DOM), cooldown globale.
 14. **Channel security**: TelegramChannel escape HTML (`htmlspecialchars`), SlackChannel escape mrkdwn, EmailChannel validazione `is_email()`, WhatsAppChannel validazione E.164 phone.
 15. **AlertManager resilience**: cooldown transient impostato PRIMA del dispatch (anti-spam), costanti `STATUS_OK/WARNING/CRITICAL/UNKNOWN`, isolamento per-canale `try/catch \Throwable` in `dispatch_to_channels()`, Scheduler `catch (\Throwable)` attorno a `process()` (cron resiliente a qualsiasi errore).
