@@ -56,18 +56,25 @@ class PluginTest extends TestCase {
 	/**
 	 * Testa che init() registra hooks per Menu e Scheduler
 	 */
-	public function test_init_registers_menu_and_scheduler_hooks() {
+	public function test_init_registers_menu_widget_and_scheduler_hooks() {
 		$container = Mockery::mock( Container::class );
 		$menu      = Mockery::mock( 'OpsHealthDashboard\Admin\Menu' );
+		$widget    = Mockery::mock( 'OpsHealthDashboard\Admin\DashboardWidget' );
 		$scheduler = Mockery::mock( 'OpsHealthDashboard\Services\Scheduler' );
 
 		$menu->shouldReceive( 'register_hooks' )->once();
+		$widget->shouldReceive( 'register_hooks' )->once();
 		$scheduler->shouldReceive( 'register_hooks' )->once();
 
 		$container->shouldReceive( 'make' )
 			->with( 'OpsHealthDashboard\Admin\Menu' )
 			->once()
 			->andReturn( $menu );
+
+		$container->shouldReceive( 'make' )
+			->with( 'OpsHealthDashboard\Admin\DashboardWidget' )
+			->once()
+			->andReturn( $widget );
 
 		$container->shouldReceive( 'make' )
 			->with( 'OpsHealthDashboard\Services\Scheduler' )
@@ -87,16 +94,23 @@ class PluginTest extends TestCase {
 	public function test_init_is_idempotent() {
 		$container = Mockery::mock( Container::class );
 		$menu      = Mockery::mock( 'OpsHealthDashboard\Admin\Menu' );
+		$widget    = Mockery::mock( 'OpsHealthDashboard\Admin\DashboardWidget' );
 		$scheduler = Mockery::mock( 'OpsHealthDashboard\Services\Scheduler' );
 
 		// Gli hook devono essere registrati SOLO UNA volta (idempotenza).
 		$menu->shouldReceive( 'register_hooks' )->once();
+		$widget->shouldReceive( 'register_hooks' )->once();
 		$scheduler->shouldReceive( 'register_hooks' )->once();
 
 		$container->shouldReceive( 'make' )
 			->with( 'OpsHealthDashboard\Admin\Menu' )
 			->once()
 			->andReturn( $menu );
+
+		$container->shouldReceive( 'make' )
+			->with( 'OpsHealthDashboard\Admin\DashboardWidget' )
+			->once()
+			->andReturn( $widget );
 
 		$container->shouldReceive( 'make' )
 			->with( 'OpsHealthDashboard\Services\Scheduler' )

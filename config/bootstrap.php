@@ -89,6 +89,7 @@ function bootstrap(): Plugin {
 					$c->make( Interfaces\RedactionInterface::class )
 				)
 			);
+			$runner->add_check( new Checks\VersionsCheck() );
 			return $runner;
 		}
 	);
@@ -148,6 +149,16 @@ function bootstrap(): Plugin {
 		function ( $c ) {
 			return new Admin\AlertSettings(
 				$c->make( Interfaces\StorageInterface::class )
+			);
+		}
+	);
+
+	// Dashboard widget per stato globale.
+	$container->share(
+		Admin\DashboardWidget::class,
+		function ( $c ) {
+			return new Admin\DashboardWidget(
+				$c->make( Interfaces\CheckRunnerInterface::class )
 			);
 		}
 	);

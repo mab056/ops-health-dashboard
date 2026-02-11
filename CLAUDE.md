@@ -405,16 +405,18 @@ ops-health-dashboard/
 │   ├── Core/              # Container, Plugin, Activator (NO singleton/static/final)
 │   ├── Interfaces/        # Interface contracts (Check, CheckRunner, Storage, Redaction, HttpClient, AlertManager, AlertChannel)
 │   ├── Services/          # Business logic (Storage, Scheduler, Redaction, CheckRunner, AlertManager, HttpClient)
-│   ├── Checks/            # Health checks (DatabaseCheck, ErrorLogCheck, RedisCheck)
+│   ├── Checks/            # Health checks (DatabaseCheck, ErrorLogCheck, RedisCheck, DiskCheck, VersionsCheck)
 │   ├── Channels/          # Notification channels (EmailChannel, WebhookChannel, SlackChannel, TelegramChannel, WhatsAppChannel)
-│   └── Admin/             # UI wp-admin (Menu, HealthScreen, AlertSettings)
+│   └── Admin/             # UI wp-admin (Menu, HealthScreen, AlertSettings, DashboardWidget)
 ├── tests/
 │   ├── Unit/              # Brain\Monkey tests (veloce, isolato)
-│   └── Integration/       # WP Test Suite tests (WordPress reale)
+│   ├── Integration/       # WP Test Suite tests (WordPress reale)
+│   └── e2e/               # Playwright E2E tests (wp-env Docker)
 ├── config/
 │   └── bootstrap.php      # DI container configuration
 ├── bin/
 │   ├── build-zip.sh       # Genera ZIP produzione per WordPress upload
+│   ├── e2e-setup.sh       # Crea utenti test E2E
 │   ├── install-wp-tests.sh # Setup WP test suite
 │   └── test-matrix.sh     # Matrice locale PHP 7.4-8.5
 ├── dist/                  # Output build ZIP (gitignored)
@@ -591,6 +593,7 @@ GitHub Actions esegue automaticamente:
 - ✅ Coverage report (solo PHP 8.3)
 - ✅ Upload Codecov con flag separati (`unit`, `integration`) via `codecov-action@v5`
 - ✅ `codecov.yml`: soglia progetto 95%, patch 90%, `carryforward: true`
+- ✅ E2E Playwright (Chromium, 3 viewport, wp-env Docker)
 
 **Test Matrix Locale** (replica CI localmente):
 ```bash
@@ -606,22 +609,19 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 
 ## 🎯 Current Status
 
-**Milestone M4 - Alerting System** ✅ COMPLETATA (con coverage 100%)
+**Milestone M5 - New Checks + Dashboard Widget + E2E** ✅ COMPLETATA
 
 **Stato Attuale:**
-- ✅ **438 test unitari** (Brain\Monkey) — coverage **100%** (1281/1281 lines, 136/136 methods, 20/20 classes)
-- ✅ **260 test di integrazione** (WP Test Suite) — coverage **100%** (1280/1280 lines, 136/136 methods, 20/20 classes)
-- ✅ **698 test totali passing**, 1548 assertions
-- ✅ **Coverage 100%** sia unit che integration indipendentemente
+- ✅ **515 test unitari** (Brain\Monkey), 1162 assertions
+- ✅ **~290 test di integrazione** (WP Test Suite)
+- ✅ **46 scenari E2E** x 3 viewport = 138 test run (Playwright + wp-env)
 - ✅ PHPCS 100% compliance (0 errori, 0 warning)
 - ✅ PHPStan level 6: 0 errori (szepeviktor/phpstan-wordpress)
-- ✅ CI/CD completo con PHP 7.4-8.5
-- ✅ 27 file sorgente, 47 file di test (27 unit + 20 integration)
+- ✅ CI/CD completo con PHP 7.4-8.5 + E2E Playwright
+- ✅ 30 file sorgente, 54 file di test PHP (30 unit + 24 integration), 5 E2E spec files
 - ✅ Pattern enforcement (NO singleton/static/final)
-- ✅ Code review post-M4: 13 rilievi risolti (4 Critical, 3 High, 3 Medium, 3 Low)
-- ✅ Code review 2 post-M4: 5 rilievi risolti (1 High, 2 Medium, 2 Low) — DNS pinning, \Throwable, channel isolation, secret non-prefill
 
-**Componenti Implementati (M1+M2+M3+M4):**
+**Componenti Implementati (M1+M2+M3+M4+M5):**
 - StorageInterface, CheckInterface, RedactionInterface, CheckRunnerInterface (contratti DI)
 - HttpClientInterface, AlertManagerInterface, AlertChannelInterface (contratti M4)
 - Storage (Options API, sentinel pattern in `has()`, autoload=false)
@@ -630,6 +630,8 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 - Redaction (11 pattern: credenziali DB, salts, API key, token, password, email, IP, path; IPv4 validazione ottetti)
 - ErrorLogCheck (tail log, aggregazione severità, campioni redatti, anti-symlink, flock LOCK_SH)
 - RedisCheck (graceful degradation, estensione+connessione+auth+smoke test, response time, RedactionInterface)
+- DiskCheck (soglie configurabili WARNING 20%/CRITICAL 10%, protected wrappers, RedactionInterface)
+- VersionsCheck (WP/PHP versions, update notifications, graceful fallback, RECOMMENDED_PHP_VERSION = '8.1')
 - HttpClient (anti-SSRF: blocco IP privati, validazione DNS, DNS pinning CURLOPT_RESOLVE anti-TOCTOU, restrizione schema/porta, no redirect, rifiuto IPv6, validazione HTTP 2xx)
 - AlertManager (state change detection, cooldown pre-dispatch via transient, dispatch multi-canale con isolamento per-canale try/catch \Throwable, alert log limitato a 50 voci, costanti STATUS_OK/WARNING/CRITICAL/UNKNOWN)
 - EmailChannel (wp_mail, recipients configurabili con validazione is_email)
@@ -642,9 +644,10 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 - Menu (capability check, `load-{$page_hook}` per process_actions PRG, submenu Alert Settings)
 - HealthScreen (capability check, bottoni Run Now/Clear Cache con nonce, validazione difensiva, CheckRunnerInterface)
 - AlertSettings (pagina admin configurazione alert, PRG, nonce, per-channel enable/disable + credentials con secret non-prefill + preserve-on-empty, cooldown)
+- DashboardWidget (widget wp-admin dashboard, worst-status, capability check, CheckRunnerInterface)
 - Activator (usa costanti Scheduler::HOOK_NAME/INTERVAL)
 
-**Next: M5 - E2E Testing (Playwright)**
+**Next: M6 - WordPress.org Readiness**
 
 ## 📞 Per Aiuto
 

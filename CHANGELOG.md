@@ -5,6 +5,65 @@ Tutte le modifiche rilevanti a questo progetto saranno documentate in questo fil
 Il formato è basato su [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.5.0 - 2026-02-11
+
+### Added
+- **M5 — New Checks + Dashboard Widget + E2E Testing**
+- **DiskCheck** - Disk space monitoring with configurable thresholds
+  - Constants: `WARNING_THRESHOLD = 20`, `CRITICAL_THRESHOLD = 10` (percent free)
+  - Protected wrappers (`get_disk_path()`, `get_free_space()`, `get_total_space()`) for testability
+  - `is_enabled()` returns false when `disk_free_space`/`disk_total_space` functions are disabled
+  - Path redacted via `RedactionInterface`, bytes formatted via `size_format()`
+  - Edge cases: functions return false → warning, total=0 → division-by-zero guard
+- **VersionsCheck** - WordPress/PHP version monitoring with update notifications
+  - Constant: `RECOMMENDED_PHP_VERSION = '8.1'`
+  - Status logic: core update → critical, plugin/theme updates → warning, old PHP → warning
+  - `filter_real_updates()` keeps only `response === 'upgrade'` (filters 'latest', 'development')
+  - `load_update_functions()` with try/catch \Throwable for graceful fallback
+  - Protected wrappers for all version/update functions for testability
+- **DashboardWidget** - wp-admin Dashboard widget showing global health status
+  - `determine_overall_status()`: worst-status wins (critical > warning > ok), empty = unknown
+  - Per-check status list with CSS classes `ops-health-widget-status-{status}`
+  - Link to full dashboard page
+  - Capability check `manage_options` on both `add_widget()` and `render()`
+  - All output escaped: `esc_html()`, `esc_attr()`, `esc_url()`
+- **E2E Testing** - Playwright + wp-env (Docker-based WordPress environment)
+  - 46 test scenarios x 3 viewports (desktop 1280px, tablet 768px, mobile 375px) = 138 test runs
+  - 5 spec files: navigation, health-dashboard, alert-settings, dashboard-widget, security
+  - Centralized selectors (`tests/e2e/helpers/selectors.ts`) for maintainability
+  - Login helpers for admin, subscriber, editor roles (`tests/e2e/helpers/login.ts`)
+  - `bin/e2e-setup.sh` creates test users via wp-env WP-CLI
+  - CI job: Node 20, Chromium, wp-env, artifact upload on failure
+- **package.json** - `@playwright/test`, `@wordpress/env`, npm scripts for env:start/stop, test:e2e
+- **playwright.config.ts** - 3 Chromium projects, retries in CI, single worker
+- **.wp-env.json** - WP 6.7, PHP 8.3, plugin mapping, WP_DEBUG enabled
+- **tsconfig.json** - Minimal TypeScript config for Playwright
+
+### Changed
+- **config/bootstrap.php** - Registers DiskCheck + VersionsCheck in CheckRunner, adds DashboardWidget share block
+- **Plugin.php** - Calls `DashboardWidget::register_hooks()` in `init()`
+- **.gitignore** - Added `/playwright-report/`, `/test-results/`, `/tests/e2e/.auth/`
+- **.gitattributes** - Added export-ignore for `package.json`, `package-lock.json`, `playwright.config.ts`, `.wp-env.json`, `tsconfig.json`
+- **.github/workflows/ci.yml** - Added `e2e` job (Node 20, Chromium, wp-env, Playwright)
+
+### Tests
+- +27 unit tests DiskCheck (pattern enforcement, interface, thresholds, edge cases, redaction)
+- +32 unit tests VersionsCheck (pattern enforcement, interface, status logic, details, edge cases)
+- +18 unit tests DashboardWidget (pattern enforcement, render, capability, overall status)
+- +12 integration tests DiskCheck (real filesystem, testable subclasses for error scenarios)
+- +11 integration tests VersionsCheck (real WP/PHP versions, testable subclasses for update scenarios)
+- +10 integration tests DashboardWidget (admin/subscriber capability, render with/without results)
+- Updated PluginTest (unit + integration) for DashboardWidget expectations
+- 46 E2E scenarios: navigation (6), health-dashboard (14), alert-settings (14), dashboard-widget (6), security (6)
+
+### Development Notes
+- 515 unit tests (Brain\Monkey), 1162 assertions
+- 54 PHP test files (30 unit + 24 integration)
+- 30 source files in `src/` (+3 new: DiskCheck, VersionsCheck, DashboardWidget)
+- 46 E2E scenarios x 3 viewports = 138 test runs, all green
+- PHPCS 100% clean, PHPStan level 6: 0 errori
+- TDD rigoroso per ogni componente: RED → GREEN → REFACTOR
+
 ## 0.4.1 - 2026-02-10
 
 ### Changed

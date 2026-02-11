@@ -55,6 +55,10 @@ class Plugin {
 		$menu = $this->container->make( \OpsHealthDashboard\Admin\Menu::class );
 		$menu->register_hooks();
 
+		// Registra il dashboard widget.
+		$widget = $this->container->make( \OpsHealthDashboard\Admin\DashboardWidget::class );
+		$widget->register_hooks();
+
 		// Registra lo scheduler WP-Cron.
 		$scheduler = $this->container->make( \OpsHealthDashboard\Services\Scheduler::class );
 		$scheduler->register_hooks();

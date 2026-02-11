@@ -1,0 +1,19 @@
+{
+	"name": "ops-health-dashboard",
+	"version": "0.4.1",
+	"private": true,
+	"description": "WordPress plugin for operational monitoring with health checks and alerting",
+	"scripts": {
+		"env:start": "wp-env start",
+		"env:stop": "wp-env stop",
+		"env:destroy": "wp-env destroy",
+		"env:cli": "wp-env run cli",
+		"test:e2e": "playwright test",
+		"test:e2e:ui": "playwright test --ui",
+		"test:e2e:debug": "playwright test --debug"
+	},
+	"devDependencies": {
+		"@playwright/test": "^1.49.0",
+		"@wordpress/env": "^10.0.0"
+	}
+}

@@ -1,7 +1,7 @@
 # Development Plan - Ops Health Dashboard
 
-**Current Milestone**: M5 - E2E Testing
-**Status**: M4 completata, M5 pianificata
+**Current Milestone**: M6 - WordPress.org Readiness
+**Status**: M5 completata, M6 pianificata
 
 ---
 
@@ -544,7 +544,64 @@ PHPCS + PHPStan clean
 
 ---
 
+## Milestone 5: New Checks + Dashboard Widget + E2E Testing ✅
+
+**Obiettivo**: DiskCheck, VersionsCheck, DashboardWidget + E2E testing con Playwright
+
+### Tasks
+
+- [x] **M5.1** - DiskCheck con TDD (soglie configurabili, protected wrappers, RedactionInterface)
+- [x] **M5.2** - VersionsCheck con TDD (WP/PHP versions, update notifications, graceful fallback)
+- [x] **M5.3** - DashboardWidget con TDD (worst-status, capability check, render con escaping)
+- [x] **M5.4** - Registrazione DiskCheck + VersionsCheck + DashboardWidget in bootstrap.php + Plugin.php
+- [x] **M5.5** - E2E infrastruttura (package.json, .wp-env.json, playwright.config.ts, tsconfig.json)
+- [x] **M5.6** - E2E helpers (login.ts, selectors.ts) + bin/e2e-setup.sh
+- [x] **M5.7** - E2E spec files (navigation, health-dashboard, alert-settings, dashboard-widget, security)
+- [x] **M5.8** - CI integration (e2e job in ci.yml, .gitignore, .gitattributes)
+- [x] **M5.9** - Unit + integration tests per DiskCheck, VersionsCheck, DashboardWidget
+- [x] **M5.10** - All quality gates pass + 138 E2E test runs green
+
+### Dettagli Implementazione
+
+**DiskCheck:**
+- `WARNING_THRESHOLD = 20`, `CRITICAL_THRESHOLD = 10` (percent free space)
+- Protected wrappers: `get_disk_path()`, `get_free_space()`, `get_total_space()`
+- Edge cases: functions disabled → `is_enabled()` false; functions return false → warning; total=0 → guard
+- `size_format((int) $free)` cast for PHPStan compatibility
+- Deps: `RedactionInterface`
+
+**VersionsCheck:**
+- `RECOMMENDED_PHP_VERSION = '8.1'`
+- Status: core update → critical, plugin/theme update → warning, old PHP → warning
+- `filter_real_updates()`: keeps only `response === 'upgrade'`
+- `load_update_functions()`: try/catch \Throwable, `@codeCoverageIgnoreStart/End` around require_once
+- No constructor dependencies (removed unused RedactionInterface after PHPStan flagged it)
+
+**DashboardWidget:**
+- Injects `CheckRunnerInterface`
+- `determine_overall_status()`: priority map (critical=3 > warning=2 > ok=1), empty=unknown
+- Capability check on both `add_widget()` and `render()`
+- Registered via `Plugin::init()` → `register_hooks()` → `wp_dashboard_setup`
+
+**E2E Testing:**
+- `@wordpress/env` ^10.0.0 for Docker-based WordPress (WP 6.7, PHP 8.3)
+- `@playwright/test` ^1.49.0 with Chromium
+- 3 viewports: desktop (1280x720), tablet (768x1024), mobile (375x812)
+- Single worker to avoid wp-env overload; 1 retry locally, 2 in CI
+- `bin/e2e-setup.sh`: creates subscriber_e2e + editor_e2e test users
+- 5 spec files: navigation (6), health-dashboard (14), alert-settings (14), dashboard-widget (6), security (6)
+
+**Statistiche Finali**:
+- 30 file sorgente in `src/` (+3 da M4)
+- 54 file di test PHP (30 unit + 24 integration) (+7 da M4)
+- 515 unit test, 1162 assertions
+- 46 E2E scenari x 3 viewport = 138 test run
+- PHPCS 100% clean, PHPStan level 6: 0 errori
+
+**Deliverable**: Dashboard con 5 check (Database, Error Log, Redis, Disk, Versions) + widget dashboard + E2E testing completo ✅
+
+---
+
 ## Next Milestones
 
-- **M5**: E2E Testing (Playwright multi-viewport)
 - **M6**: WordPress.org Readiness (uninstall.php, readme.txt, Plugin Check)

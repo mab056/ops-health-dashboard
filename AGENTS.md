@@ -61,9 +61,9 @@ Plugin WordPress production-grade per monitoraggio operativo con health checks, 
 
 ## Stato Progetto (Riferimento)
 
-Milestone M1 + M2 + M3 + M4 completate (Core Checks + Storage + Cron + Error Log Summary Safe + Redis Check + Alerting System). Code review post-M4: 13 rilievi risolti. Code review 2 post-M4: 5 rilievi risolti (DNS pinning, \Throwable, channel isolation, secret non-prefill, recipients guard). 698 test (438 unit + 260 integration), 1548 assertions. Unit coverage: 100% (1281/1281 lines, 136/136 methods, 20/20 classes). Integration coverage: 100% (1280/1280 lines, 136/136 methods, 20/20 classes). Entrambe le suite indipendentemente al 100%. PHPCS 100% clean, PHPStan level 6: 0 errori. 27 file sorgente, 47 file di test (27 unit + 20 integration). Milestone corrente: M5 (E2E Testing, pianificata). Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
+Milestone M1-M5 completate (Core Checks + Storage + Cron + Error Log + Redis + Alerting + DiskCheck + VersionsCheck + DashboardWidget + E2E Testing). 515 unit test, 1162 assertions. ~290 integration test. 46 E2E scenari x 3 viewport = 138 test run (Playwright + wp-env). PHPCS 100% clean, PHPStan level 6: 0 errori. 30 file sorgente, 54 file test PHP (30 unit + 24 integration), 5 E2E spec files. Milestone corrente: M6 (WordPress.org Readiness, pianificata). Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
 
-## Baseline Corrente (v0.4.1)
+## Baseline Corrente (v0.5.0)
 
 Punti architetturali da preservare nella codebase attuale:
 1. Bootstrap plugin in `ops-health-dashboard.php` con autoloader fail-safe (admin notice se `vendor/autoload.php` manca).
@@ -71,7 +71,7 @@ Punti architetturali da preservare nella codebase attuale:
 3. Container DI custom in `src/Core/Container.php` (`bind`, `share`, `instance`, `make`).
 4. Lifecycle activation/deactivation in `src/Core/Activator.php` con setup opzioni e cron hook (`ops_health_run_checks`).
 5. Scheduling check periodici tramite `src/Services/Scheduler.php` (WP-Cron ogni 15 minuti) con self-healing throttled via transient `ops_health_cron_check` (valido su admin e frontend).
-6. Check registrati in `config/bootstrap.php`: `DatabaseCheck`, `ErrorLogCheck`, `RedisCheck`.
+6. Check registrati in `config/bootstrap.php`: `DatabaseCheck`, `ErrorLogCheck`, `RedisCheck`, `DiskCheck`, `VersionsCheck`.
 7. Flusso azioni admin in `src/Admin/HealthScreen.php`: `process_actions()` con nonce + capability check e redirect PRG; uscita isolata in `do_exit()` per testabilità.
 8. Redazione dati sensibili centralizzata in `src/Services/Redaction.php`, iniettata in `CheckRunner`, `DatabaseCheck`, `ErrorLogCheck` e `RedisCheck`.
 9. `RedisCheck` usa chiave smoke test univoca per run (`ops_health_smoke_test_<uniqid>`) per evitare race condition tra run concorrenti.
@@ -81,8 +81,12 @@ Punti architetturali da preservare nella codebase attuale:
 13. **Alert Settings**: pagina admin `Ops → Alert Settings` con PRG pattern, nonce `ops_health_alert_settings`, per-channel enable/disable + credentials (`type="password"` + `value=""` + `placeholder="********"` per token/secret — credenziali mai nel DOM), cooldown globale.
 14. **Channel security**: TelegramChannel escape HTML (`htmlspecialchars`), SlackChannel escape mrkdwn, EmailChannel validazione `is_email()`, WhatsAppChannel validazione E.164 phone.
 15. **AlertManager resilience**: cooldown transient impostato PRIMA del dispatch (anti-spam), costanti `STATUS_OK/WARNING/CRITICAL/UNKNOWN`, isolamento per-canale `try/catch \Throwable` in `dispatch_to_channels()`, Scheduler `catch (\Throwable)` attorno a `process()` (cron resiliente a qualsiasi errore).
-16. Tooling quality gate locale: `composer test`, `composer phpcs`, `composer analyse` (PHPStan livello 6 con `phpstan.neon`).
-17. CI separata in `.github/workflows/ci.yml`: job dedicati PHPCS, PHPStan e PHPUnit matrix (PHP 7.4-8.5, coverage su 8.3). Codecov con flag separati `unit`/`integration` (`codecov.yml`, `CODECOV_TOKEN` secret).
+16. **DashboardWidget**: `src/Admin/DashboardWidget.php` registrato in `Plugin::init()`, hook `wp_dashboard_setup`, capability check, worst-status logic.
+17. **DiskCheck**: `src/Checks/DiskCheck.php` con soglie `WARNING_THRESHOLD = 20`, `CRITICAL_THRESHOLD = 10` (percent), protected wrappers, RedactionInterface.
+18. **VersionsCheck**: `src/Checks/VersionsCheck.php` con `RECOMMENDED_PHP_VERSION = '8.1'`, core update → critical, plugin/theme → warning.
+19. Tooling quality gate locale: `composer test`, `composer phpcs`, `composer analyse` (PHPStan livello 6 con `phpstan.neon`).
+20. CI separata in `.github/workflows/ci.yml`: job dedicati PHPCS, PHPStan, PHPUnit matrix (PHP 7.4-8.5, coverage su 8.3), E2E Playwright (Chromium, 3 viewport, wp-env). Codecov con flag separati `unit`/`integration` (`codecov.yml`, `CODECOV_TOKEN` secret).
+21. **E2E Testing**: Playwright + `@wordpress/env` in Docker. 46 scenari x 3 viewport (desktop/tablet/mobile). Selettori centralizzati in `tests/e2e/helpers/selectors.ts`. Login helpers per admin/subscriber/editor. `bin/e2e-setup.sh` crea utenti test.
 
 Nota operativa:
 1. Evitare sezioni datate o checklist "one-shot" in questo file.

@@ -18,3 +18,8 @@ SECURITY.md         export-ignore
 .gitattributes      export-ignore
 codecov.yml         export-ignore
 .gitignore          export-ignore
+package.json        export-ignore
+package-lock.json   export-ignore
+playwright.config.ts export-ignore
+.wp-env.json        export-ignore
+tsconfig.json       export-ignore

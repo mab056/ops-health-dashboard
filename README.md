@@ -25,13 +25,13 @@ Questo plugin fornisce una dashboard operativa in wp-admin con controlli automat
 - **Database** - Connettività e performance delle query
 - **Log Errori** - Aggregazione sicura con redaction automatica
 - **Redis** - Rilevamento estensione + connessione + smoke test con graceful degradation
-- **Spazio Disco** - Libero/totale con soglie configurabili *(pianificato)*
-- **Versioni** - WordPress, PHP, temi, plugin + notifiche aggiornamenti *(pianificato)*
+- **Spazio Disco** - Libero/totale con soglie configurabili (warning <20%, critical <10%)
+- **Versioni** - WordPress, PHP, temi, plugin + notifiche aggiornamenti
 
 ### Dashboard
 - Pagina admin: `Ops → Health Dashboard`
 - Bottoni manuali "Run Now" e "Clear Cache" con protezione nonce
-- Widget dashboard con stato globale *(pianificato M5+)*
+- Widget dashboard con stato globale nella wp-admin Dashboard
 
 ### Alerting
 - **Email** via `wp_mail()` con destinatari configurabili
@@ -88,15 +88,16 @@ ops-health-dashboard/
 ├── src/
 │   ├── Core/           # Container, Plugin, Activator
 │   ├── Interfaces/     # Contratti DI (Check, CheckRunner, Storage, Redaction, HttpClient, AlertManager, AlertChannel)
-│   ├── Checks/         # Implementazioni controlli salute (Database, ErrorLog, Redis)
+│   ├── Checks/         # Implementazioni controlli salute (Database, ErrorLog, Redis, Disk, Versions)
 │   ├── Services/       # Logica business (Storage, Scheduler, Redaction, CheckRunner, AlertManager, HttpClient)
 │   ├── Channels/       # Canali di notifica (Email, Webhook, Slack, Telegram, WhatsApp)
-│   └── Admin/          # UI wp-admin (Menu, HealthScreen, AlertSettings)
+│   └── Admin/          # UI wp-admin (Menu, HealthScreen, AlertSettings, DashboardWidget)
 ├── tests/
 │   ├── Unit/           # Test unitari (Brain\Monkey)
-│   └── Integration/    # Test integrazione (WordPress Test Suite)
+│   ├── Integration/    # Test integrazione (WordPress Test Suite)
+│   └── e2e/            # Test E2E (Playwright + wp-env)
 ├── config/             # Bootstrap e configurazione DI
-└── bin/                # Script tooling (build, matrix, setup test)
+└── bin/                # Script tooling (build, matrix, setup test, e2e)
 ```
 
 ### Componenti Chiave
@@ -111,6 +112,7 @@ ops-health-dashboard/
 - **AlertManager** - Rilevamento cambiamenti stato, dispatch multi-canale, cooldown per-check, alert log
 - **HttpClient** - Client HTTP anti-SSRF (blocco IP privati, validazione DNS, restrizione schema/porta)
 - **5 Channels** - EmailChannel, WebhookChannel, SlackChannel, TelegramChannel, WhatsAppChannel
+- **DashboardWidget** - Widget wp-admin dashboard con stato globale (worst-status) e link alla dashboard completa
 
 ## 📋 Requisiti
 
@@ -162,13 +164,18 @@ Questo progetto segue Test-Driven Development con un **approccio misto**:
 
 **Unit Tests (Brain\Monkey)** - Veloce, isolato
 - Logica business pura, NO WordPress
-- 438 test, ~4 s
+- 515 test, ~5 s
 - Perfetto per TDD rapido
 
 **Integration Tests (WP Test Suite)** - WordPress reale
 - Test con WordPress completo, database, WP-Cron
-- 260 test, ~4 s
+- ~290 test, ~5 s
 - Verifica integrazione reale con WordPress
+
+**E2E Tests (Playwright + wp-env)** - Browser reale
+- 46 scenari x 3 viewport (desktop, tablet, mobile) = 138 test run
+- WordPress completo in Docker via `@wordpress/env`
+- Copertura: navigazione, dashboard, widget, alert settings, sicurezza
 
 ### Comandi Test
 
@@ -188,6 +195,13 @@ composer test:matrix
 
 # Con coverage (richiede Xdebug)
 composer test:coverage
+
+# E2E tests (richiede Docker + Node.js)
+npm ci                                # Installa dipendenze Node.js
+npm run env:start                     # Avvia WordPress in Docker
+bash bin/e2e-setup.sh                 # Crea utenti test
+npm run test:e2e                      # Esegui test E2E
+npm run env:stop                      # Ferma Docker
 
 # PHPCS (WordPress Coding Standards)
 composer phpcs
@@ -266,12 +280,12 @@ public function test_database_check_runs_successfully() {
 
 ### Matrice Test
 
-- **Unit Tests**: Brain\Monkey - 438 test, tutte le versioni PHP - **100%** coverage (1281/1281 lines, 136/136 methods)
-- **Integration Tests**: WP Test Suite - 260 test, tutte le versioni PHP - **100%** coverage (1280/1280 lines, 136/136 methods)
+- **Unit Tests**: Brain\Monkey - 515 test, tutte le versioni PHP
+- **Integration Tests**: WP Test Suite - ~290 test, tutte le versioni PHP
+- **E2E Tests**: Playwright + wp-env - 46 scenari x 3 viewport = 138 test run
 - **PHPStan**: Level 6 con szepeviktor/phpstan-wordpress, 0 errori
 - **Versioni PHP**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
 - **Target Coverage**: 95% progetto, 90% patch (Codecov)
-- **Test E2E**: Viewport Mobile, Tablet, Desktop (futuro M5)
 
 ## 🔒 Sicurezza
 
@@ -315,15 +329,15 @@ public function test_database_check_runs_successfully() {
 
 ## 📊 Stato Sviluppo
 
-Milestone corrente: **M5 - E2E Testing** 🚧
+Milestone corrente: **M6 - WordPress.org Readiness** 🚧
 
 ### Statistiche
 
-- **27 file sorgente** in `src/`
-- **47 file di test** (27 unit + 20 integration)
-- **698 test totali** (438 unit + 260 integration), 1548 assertions
-- **Coverage unit**: **100%** lines (1281/1281), methods (136/136), classes (20/20)
-- **Coverage integration**: **100%** lines (1280/1280), methods (136/136), classes (20/20)
+- **30 file sorgente** in `src/`
+- **54 file di test PHP** (30 unit + 24 integration)
+- **515+ unit test**, 1162 assertions (Brain\Monkey)
+- **~290 integration test** (WP Test Suite)
+- **46 E2E scenari** x 3 viewport = 138 test run (Playwright)
 - **PHPCS**: 100% compliance (0 errori, 0 warning)
 - **PHPStan**: level 6, 0 errori
 
@@ -334,7 +348,7 @@ Milestone corrente: **M5 - E2E Testing** 🚧
 - [x] **M2**: Riepilogo Error Log Sicuro
 - [x] **M3**: Check Redis
 - [x] **M4**: Sistema Alerting (Email, Webhook, Slack, Telegram, WhatsApp + anti-SSRF)
-- [ ] **M5**: Testing E2E (Playwright)
+- [x] **M5**: New Checks + Dashboard Widget + E2E Testing (Playwright)
 - [ ] **M6**: Readiness WordPress.org
 
 Vedi [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) per progressi dettagliati.
@@ -409,6 +423,7 @@ GitHub Actions esegue automaticamente su push/PR:
 - PHPUnit su PHP 7.4, 8.0, 8.1, 8.2, 8.3, 8.4, 8.5
 - Report coverage (solo PHP 8.3)
 - Upload Codecov
+- E2E Playwright (Chromium, 3 viewport, wp-env Docker)
 
 ## 📄 Licenza
 

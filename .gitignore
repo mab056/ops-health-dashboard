@@ -61,6 +61,11 @@ composer.phar
 /phpunit.xml
 /.phpstan-cache
 
+# E2E Testing
+/playwright-report/
+/test-results/
+/tests/e2e/.auth/
+
 # IDE
 .idea/
 .vscode/
