@@ -614,13 +614,14 @@ Richiede PHP 7.4-8.5 installati (via PPA sury) + Docker + Node.js per E2E. Vedi 
 **Milestone M5 - New Checks + Dashboard Widget + E2E** ✅ COMPLETATA
 
 **Stato Attuale:**
-- ✅ **515 test unitari** (Brain\Monkey), 1162 assertions
-- ✅ **292 test di integrazione** (WP Test Suite)
+- ✅ **537 test unitari** (Brain\Monkey), 1203 assertions
+- ✅ **296 test di integrazione** (WP Test Suite), 598 assertions
 - ✅ **46 scenari E2E** x 3 viewport = 138 esecuzioni di test (Playwright + wp-env)
 - ✅ PHPCS 100% compliance (0 errori, 0 warning)
 - ✅ PHPStan level 6: 0 errori (szepeviktor/phpstan-wordpress)
 - ✅ CI/CD completo con PHP 7.4-8.5 + E2E Playwright
-- ✅ 30 file sorgente, 54 file di test PHP (30 unit + 24 integration), 5 file di spec E2E
+- ✅ Coverage: **100%** classi, metodi, linee (sia unit che integration)
+- ✅ 30 file sorgente, 53 file di test PHP (30 unit + 23 integration), 5 file di spec E2E
 - ✅ Pattern enforcement (NO singleton/static/final)
 
 **Componenti Implementati (M1+M2+M3+M4+M5):**

@@ -599,11 +599,11 @@ PHPCS + PHPStan clean
 - SKIP (giallo) quando npm/Docker non disponibili
 - `composer.json` `process-timeout: 0` per esecuzioni lunghe
 
-**Statistiche Finali**:
+**Statistiche Finali** (post code review + coverage push):
 - 30 file sorgente in `src/` (+3 da M4)
-- 54 file di test PHP (30 unit + 24 integration) (+7 da M4)
-- 515 unit test, 1162 assertions
-- 292 integration test
+- 53 file di test PHP (30 unit + 23 integration) (+6 da M4)
+- 537 unit test, 1203 assertions — **100% classi, metodi, linee**
+- 296 integration test, 598 assertions — **100% classi (23/23), metodi (163/163), linee (1507/1507)**
 - 46 E2E scenari x 3 viewport = 138 esecuzioni di test
 - Test matrix locale integrata con E2E (PHPCS + PHPStan + PHP 7.4-8.5 + E2E)
 - PHPCS 100% clean, PHPStan level 6: 0 errori

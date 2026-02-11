@@ -40,6 +40,10 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 - **tsconfig.json** - Minimal TypeScript config for Playwright
 
 ### Changed
+- **RedisCheck** - `catch (\Exception)` → `catch (\Throwable)` in connection and auth catch blocks (consistency with smoke test and cleanup blocks)
+- **Redaction** - URL password regex fix for edge cases
+- **bin/test-matrix.sh** - Fixed `--phpcs-only` binary detection check
+- **CI** - Health check uses explicit `exit 0`/`exit 1` pattern for reliability
 - **config/bootstrap.php** - Registers DiskCheck + VersionsCheck in CheckRunner, adds DashboardWidget share block
 - **Plugin.php** - Calls `DashboardWidget::register_hooks()` in `init()`
 - **bin/test-matrix.sh** - E2E integration with full lifecycle management (wp-env start/stop, test user creation, prerequisite checks npm/docker)
@@ -57,6 +61,8 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 - **DashboardWidgetTest integration** - `$storage->save()` → `$storage->set()` (correct Storage method name)
 - **DashboardWidgetTest integration** - Storage key `'check_results'` → `'latest_results'` (matches CheckRunner key)
 - **DashboardWidgetTest integration** - XSS assertion: `assertStringNotContainsString('<img')` + `assertStringContainsString('&lt;img')` (esc_html preserves attribute text like "onerror" as harmless)
+- **DashboardWidgetTest integration** - Replaced 2x `assertTrue(true)` with real `$wp_meta_boxes` global assertions; added `set_current_screen('dashboard')` for proper WP test context
+- **VersionsCheck** - PHPCS alignment fix on `$updates_available` variable
 
 ### Tests
 - +27 unit tests DiskCheck (pattern enforcement, interface, thresholds, edge cases, redaction)
@@ -67,17 +73,25 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 - +10 integration tests DashboardWidget (admin/subscriber capability, render with/without results)
 - Updated PluginTest (unit + integration) for DashboardWidget expectations
 - 46 E2E scenarios: navigation (6), health-dashboard (14), alert-settings (14), dashboard-widget (6), security (6)
+- +22 unit tests for coverage improvement (post code review):
+  - VersionsCheck: 8 Reflection-based tests for protected methods + 5 path coverage tests (update_check_failed+old_php, plugin_updates+old_php, theme_update_message, core_update_without_version, filter_without_response)
+  - DashboardWidget: 3 edge case tests (unrecognized status, missing name field, unrecognized status with ok)
+- +4 integration tests for VersionsCheck coverage:
+  - Theme update, failing update + old PHP, plugin update + old PHP, core update without response property
+  - 4 new testable subclasses: ThemeUpdateVersionsCheck, FailingUpdateOldPhpVersionsCheck, PluginUpdateOldPhpVersionsCheck, CoreUpdateNoResponseVersionsCheck
+- DashboardWidget: `@codeCoverageIgnore` for unreachable defensive ternary fallback (line 99)
 
 ### Development Notes
-- 515 unit tests (Brain\Monkey), 1162 assertions
-- 292 integration tests (WP Test Suite)
-- 54 PHP test files (30 unit + 24 integration)
+- 537 unit tests (Brain\Monkey), 1203 assertions — **100% classes, methods, lines**
+- 296 integration tests (WP Test Suite), 598 assertions — **100% classes (23/23), methods (163/163), lines (1507/1507)**
+- 53 PHP test files (30 unit + 23 integration)
 - 30 source files in `src/` (+3 new: DiskCheck, VersionsCheck, DashboardWidget)
 - 46 scenari E2E x 3 viewport = 138 esecuzioni di test, tutti verdi
 - Local test matrix (`bin/test-matrix.sh`) now includes E2E with full lifecycle management
 - CI E2E: desktop-only (46 tests), 1 worker, 60s timeout, 30s login, 15-min job timeout, health check wait, `line` + `github` reporter
 - PHPCS 100% clean, PHPStan level 6: 0 errori
 - TDD rigoroso per ogni componente: RED → GREEN → REFACTOR
+- Code review post-M5: coverage push + code review fixes (RedisCheck \Throwable, Redaction regex, test-matrix.sh, CI health check, DashboardWidgetTest real assertions)
 
 ## 0.4.1 - 2026-02-10
 
