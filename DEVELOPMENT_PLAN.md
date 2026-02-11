@@ -612,6 +612,23 @@ PHPCS + PHPStan clean
 
 ---
 
-## Next Milestones
+## M6 — WordPress.org Readiness ✅
 
-- **M6**: WordPress.org Readiness (uninstall.php, readme.txt, Plugin Check)
+**Obiettivo**: Preparare il plugin per la submission su WordPress.org.
+
+**Deliverable**:
+1. `uninstall.php` con classe `Uninstaller` per pulizia completa dati (opzioni, cron, transient)
+2. `readme.txt` in formato WordPress.org standard
+3. ABSPATH guards su tutti i 32 file sorgente + config
+4. `bin/build-zip.sh` aggiornato per includere uninstall.php e readme.txt
+5. `tests/bootstrap.php` definisce ABSPATH per compatibilità unit test
+
+**Statistiche Finali**:
+- 32 file sorgente in `src/` (+1 da M5: Uninstaller)
+- 55 file di test PHP (32 unit + 23 integration) (+2 da M5)
+- 550 unit test, 1252 assertions — **100% classi, metodi, linee**
+- 308 integration test, 642 assertions — **100% classi, metodi, linee**
+- 46 E2E scenari x 3 viewport = 138 esecuzioni di test
+- PHPCS 100% clean, PHPStan level 6: 0 errori
+
+**Deliverable**: Plugin WordPress.org ready con uninstall.php, readme.txt, ABSPATH guards ✅

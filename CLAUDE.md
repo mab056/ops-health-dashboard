@@ -611,18 +611,19 @@ Richiede PHP 7.4-8.5 installati (via PPA sury) + Docker + Node.js per E2E. Vedi 
 
 ## 🎯 Current Status
 
-**Milestone M5 - New Checks + Dashboard Widget + E2E** ✅ COMPLETATA
+**Milestone M6 - WordPress.org Readiness** ✅ COMPLETATA
 
 **Stato Attuale:**
-- ✅ **537 test unitari** (Brain\Monkey), 1203 assertions
-- ✅ **296 test di integrazione** (WP Test Suite), 598 assertions
+- ✅ **550 test unitari** (Brain\Monkey), 1252 assertions
+- ✅ **308 test di integrazione** (WP Test Suite), 642 assertions
 - ✅ **46 scenari E2E** x 3 viewport = 138 esecuzioni di test (Playwright + wp-env)
 - ✅ PHPCS 100% compliance (0 errori, 0 warning)
 - ✅ PHPStan level 6: 0 errori (szepeviktor/phpstan-wordpress)
 - ✅ CI/CD completo con PHP 7.4-8.5 + E2E Playwright
 - ✅ Coverage: **100%** classi, metodi, linee (sia unit che integration)
-- ✅ 30 file sorgente, 53 file di test PHP (30 unit + 23 integration), 5 file di spec E2E
+- ✅ 32 file sorgente, 55 file di test PHP (32 unit + 23 integration), 5 file di spec E2E
 - ✅ Pattern enforcement (NO singleton/static/final)
+- ✅ WordPress.org ready: uninstall.php, readme.txt, ABSPATH guards
 
 **Componenti Implementati (M1+M2+M3+M4+M5):**
 - StorageInterface, CheckInterface, RedactionInterface, CheckRunnerInterface (contratti DI)
@@ -649,8 +650,12 @@ Richiede PHP 7.4-8.5 installati (via PPA sury) + Docker + Node.js per E2E. Vedi 
 - AlertSettings (pagina admin configurazione alert, PRG, nonce, per-channel enable/disable + credentials con secret non-prefill + preserve-on-empty, cooldown)
 - DashboardWidget (widget wp-admin dashboard, worst-status, capability check, CheckRunnerInterface)
 - Activator (usa costanti Scheduler::HOOK_NAME/INTERVAL)
+- Uninstaller ($wpdb injection, pulizia opzioni/cron/transient, bulk delete cooldown via LIKE query)
 
-**Next: M6 - WordPress.org Readiness**
+**WordPress.org Readiness (M6):**
+- uninstall.php con guard WP_UNINSTALL_PLUGIN
+- readme.txt in formato WordPress.org standard
+- ABSPATH guards su tutti i file sorgente con @codeCoverageIgnore
 
 ## 📞 Per Aiuto
 

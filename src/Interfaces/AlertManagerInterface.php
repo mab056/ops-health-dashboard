@@ -11,6 +11,14 @@
 
 namespace OpsHealthDashboard\Interfaces;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
+	// @codeCoverageIgnoreStart
+	exit;
+	// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
+	// @codeCoverageIgnoreEnd
+}
+
 /**
  * Interface AlertManagerInterface
  *

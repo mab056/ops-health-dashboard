@@ -61,9 +61,9 @@ Plugin WordPress production-grade per monitoraggio operativo con health checks, 
 
 ## Stato Progetto (Riferimento)
 
-Milestone M1-M5 completate (Core Checks + Storage + Cron + Error Log + Redis + Alerting + DiskCheck + VersionsCheck + DashboardWidget + E2E Testing). 537 unit test, 1203 assertions. 296 integration test, 598 assertions. Coverage: 100% classi, metodi, linee (sia unit che integration). 46 E2E scenari x 3 viewport = 138 esecuzioni di test (Playwright + wp-env). PHPCS 100% clean, PHPStan level 6: 0 errori. 30 file sorgente, 53 file di test PHP (30 unit + 23 integration), 5 file di spec E2E. Milestone corrente: M6 (WordPress.org Readiness, pianificata). Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
+Milestone M1-M6 completate (Core Checks + Storage + Cron + Error Log + Redis + Alerting + DiskCheck + VersionsCheck + DashboardWidget + E2E Testing + WordPress.org Readiness). 550 unit test, 1252 assertions. 308 integration test, 642 assertions. Coverage: 100% classi, metodi, linee (sia unit che integration). 46 E2E scenari x 3 viewport = 138 esecuzioni di test (Playwright + wp-env). PHPCS 100% clean, PHPStan level 6: 0 errori. 32 file sorgente, 55 file di test PHP (32 unit + 23 integration), 5 file di spec E2E. Plugin WordPress.org ready con uninstall.php, readme.txt, ABSPATH guards. Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
 
-## Baseline Corrente (v0.5.0)
+## Baseline Corrente (v0.6.0)
 
 Punti architetturali da preservare nella codebase attuale:
 1. Bootstrap plugin in `ops-health-dashboard.php` con autoloader fail-safe (admin notice se `vendor/autoload.php` manca).

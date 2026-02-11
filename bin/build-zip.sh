@@ -67,6 +67,8 @@ cp "$PLUGIN_DIR/$PLUGIN_SLUG.php" "$DEST/"
 cp "$PLUGIN_DIR/LICENSE" "$DEST/"
 cp "$PLUGIN_DIR/README.md" "$DEST/"
 cp "$PLUGIN_DIR/CHANGELOG.md" "$DEST/"
+[ -f "$PLUGIN_DIR/uninstall.php" ] && cp "$PLUGIN_DIR/uninstall.php" "$DEST/"
+[ -f "$PLUGIN_DIR/readme.txt" ] && cp "$PLUGIN_DIR/readme.txt" "$DEST/"
 
 cp -r "$PLUGIN_DIR/src" "$DEST/"
 cp -r "$PLUGIN_DIR/config" "$DEST/"

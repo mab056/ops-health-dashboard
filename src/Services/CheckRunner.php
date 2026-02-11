@@ -10,6 +10,14 @@
 
 namespace OpsHealthDashboard\Services;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
+	// @codeCoverageIgnoreStart
+	exit;
+	// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
+	// @codeCoverageIgnoreEnd
+}
+
 use OpsHealthDashboard\Interfaces\CheckInterface;
 use OpsHealthDashboard\Interfaces\CheckRunnerInterface;
 use OpsHealthDashboard\Interfaces\RedactionInterface;

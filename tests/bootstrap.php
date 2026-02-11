@@ -9,6 +9,12 @@
  * @package OpsHealthDashboard
  */
 
+// Definisce ABSPATH per i guard di accesso diretto nei file sorgente.
+// Unit test non caricano WordPress, serve per evitare exit() nei file src/.
+if ( ! defined( 'ABSPATH' ) ) {
+	define( 'ABSPATH', '/tmp/wordpress/' );
+}
+
 // Carica le dipendenze di Composer.
 require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 

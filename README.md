@@ -332,18 +332,18 @@ public function test_database_check_runs_successfully() {
 - ✅ Conforme WordPress Coding Standards
 - ✅ Nessuna chiamata outbound senza opt-in
 - Plugin Check tool *(da verificare in M6)*
-- Cleanup in disinstallazione via `uninstall.php` *(pianificato M6)*
+- Cleanup in disinstallazione via `uninstall.php`
 
 ## 📊 Stato Sviluppo
 
-Milestone corrente: **M6 - WordPress.org Readiness** 🚧
+Milestone corrente: **M6 - WordPress.org Readiness** ✅
 
 ### Statistiche
 
-- **30 file sorgente** in `src/`
-- **53 file di test PHP** (30 unit + 23 integration)
-- **537 unit test**, 1203 assertions (Brain\Monkey)
-- **296 integration test**, 598 assertions (WP Test Suite)
+- **32 file sorgente** in `src/`
+- **55 file di test PHP** (32 unit + 23 integration)
+- **550 unit test**, 1252 assertions (Brain\Monkey)
+- **308 integration test**, 642 assertions (WP Test Suite)
 - **46 E2E scenari** x 3 viewport = 138 esecuzioni di test (Playwright)
 - **Coverage**: 100% classi, 100% metodi, 100% linee (sia unit che integration)
 - **PHPCS**: 100% compliance (0 errori, 0 warning)
@@ -357,7 +357,7 @@ Milestone corrente: **M6 - WordPress.org Readiness** 🚧
 - [x] **M3**: Check Redis
 - [x] **M4**: Sistema Alerting (Email, Webhook, Slack, Telegram, WhatsApp + anti-SSRF)
 - [x] **M5**: New Checks + Dashboard Widget + E2E Testing (Playwright)
-- [ ] **M6**: Readiness WordPress.org
+- [x] **M6**: WordPress.org Readiness (uninstall.php, readme.txt, ABSPATH guards)
 
 Vedi [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) per progressi dettagliati.
 

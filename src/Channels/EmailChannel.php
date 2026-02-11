@@ -9,6 +9,14 @@
 
 namespace OpsHealthDashboard\Channels;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
+	// @codeCoverageIgnoreStart
+	exit;
+	// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
+	// @codeCoverageIgnoreEnd
+}
+
 use OpsHealthDashboard\Interfaces\AlertChannelInterface;
 use OpsHealthDashboard\Interfaces\StorageInterface;
 

@@ -5,6 +5,41 @@ Tutte le modifiche rilevanti a questo progetto saranno documentate in questo fil
 Il formato è basato su [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.6.0 - 2026-02-11
+
+### Added
+- **M6 — WordPress.org Readiness**
+- **uninstall.php** - Gestore disinstallazione con classe `Uninstaller`
+  - Cancella tutte le opzioni del plugin (`ops_health_activated_at`, `ops_health_version`, `ops_health_latest_results`, `ops_health_alert_settings`, `ops_health_alert_log`)
+  - Cancella il cron hook `ops_health_run_checks`
+  - Cancella i transient fissi (`ops_health_cron_check`, `ops_health_admin_notice`, `ops_health_alert_notice`)
+  - Cancella i transient di cooldown dinamici via `$wpdb` LIKE query (futuro-proof)
+  - Constructor injection per `$wpdb` (NO global access nel classe)
+  - Guard `WP_UNINSTALL_PLUGIN` nel file wrapper
+- **readme.txt** - File metadata in formato WordPress.org standard
+  - Description, Installation, FAQ, Screenshots (placeholder), Changelog, Upgrade Notices
+  - `Stable tag: 0.5.0`, `Tested up to: 6.7`, `Requires PHP: 7.4`
+- **ABSPATH guards** - Protezione accesso diretto su tutti i 32 file sorgente + config
+  - `if ( ! defined( 'ABSPATH' ) ) { exit; }` dopo `namespace`, prima del codice
+  - `@codeCoverageIgnore` sull'exit non raggiungibile per mantenere 100% coverage
+  - `tests/bootstrap.php` definisce ABSPATH per unit test (Brain\Monkey)
+
+### Changed
+- **bin/build-zip.sh** - Include `uninstall.php` e `readme.txt` nel ZIP di distribuzione
+
+### Tests
+- +13 unit tests Uninstaller (pattern enforcement, cleanup opzioni, cron, transient fissi, cooldown $wpdb, prepare, tabella, idempotenza)
+- +12 integration tests Uninstaller (cleanup reale opzioni/cron/transient, preserva dati non-plugin, ciclo activate→uninstall, cooldown custom)
+- `tests/bootstrap.php` definisce `ABSPATH` per compatibilità guard accesso diretto
+
+### Development Notes
+- 550 unit tests (Brain\Monkey), 1252 assertions — **100% classes, methods, lines**
+- 308 integration tests (WP Test Suite), 642 assertions — **100% classes, methods, lines**
+- 55 PHP test files (32 unit + 23 integration)
+- 32 source files in `src/` (+1 new: Uninstaller)
+- PHPCS 100% clean, PHPStan level 6: 0 errori
+- WordPress.org readiness: uninstall.php, readme.txt, ABSPATH guards
+
 ## 0.5.0 - 2026-02-11
 
 ### Added
