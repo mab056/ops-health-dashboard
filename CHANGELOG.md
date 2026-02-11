@@ -26,25 +26,37 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
   - Per-check status list with CSS classes `ops-health-widget-status-{status}`
   - Link to full dashboard page
   - Capability check `manage_options` on both `add_widget()` and `render()`
-  - All output escaped: `esc_html()`, `esc_attr()`, `esc_url()`
+  - Output con escaping: `esc_html()`, `esc_attr()`, `esc_url()`
 - **E2E Testing** - Playwright + wp-env (Docker-based WordPress environment)
-  - 46 test scenarios x 3 viewports (desktop 1280px, tablet 768px, mobile 375px) = 138 test runs
-  - 5 spec files: navigation, health-dashboard, alert-settings, dashboard-widget, security
+  - 46 scenari di test x 3 viewport (desktop 1280px, tablet 768px, mobile 375px) = 138 esecuzioni di test
+  - 5 file di spec: navigation, health-dashboard, alert-settings, dashboard-widget, security
   - Centralized selectors (`tests/e2e/helpers/selectors.ts`) for maintainability
   - Login helpers for admin, subscriber, editor roles (`tests/e2e/helpers/login.ts`)
   - `bin/e2e-setup.sh` creates test users via wp-env WP-CLI
-  - CI job: Node 20, Chromium, wp-env, artifact upload on failure
+  - Job CI: Node 20, Chromium, wp-env, artifact upload on failure
 - **package.json** - `@playwright/test`, `@wordpress/env`, npm scripts for env:start/stop, test:e2e
-- **playwright.config.ts** - 3 Chromium projects, retries in CI, single worker
+- **playwright.config.ts** - 3 Chromium projects, retries 2 in CI, 2 workers in CI, timeout 60s in CI
 - **.wp-env.json** - WP 6.7, PHP 8.3, plugin mapping, WP_DEBUG enabled
 - **tsconfig.json** - Minimal TypeScript config for Playwright
 
 ### Changed
 - **config/bootstrap.php** - Registers DiskCheck + VersionsCheck in CheckRunner, adds DashboardWidget share block
 - **Plugin.php** - Calls `DashboardWidget::register_hooks()` in `init()`
+- **bin/test-matrix.sh** - E2E integration with full lifecycle management (wp-env start/stop, test user creation, prerequisite checks npm/docker)
+  - New flags: `--e2e-only`, `--no-e2e`; dot reporter for real-time progress; ANSI stripping for result parsing
+  - SKIP (yellow) status for E2E when prerequisites missing
+- **composer.json** - Added `"process-timeout": 0` to prevent timeout on long-running matrix+E2E runs
+- **playwright.config.ts** - CI optimizations: `workers: 2`, `timeout: 60_000` in CI (vs 1 worker, 30s locally)
+- **login.ts** - Login timeout increased from 15s to 30s for all three helpers (Docker in CI is slower)
+- **.github/workflows/ci.yml** - Added `e2e` job (Node 20, Chromium, wp-env, Playwright) with `timeout-minutes: 15`
 - **.gitignore** - Added `/playwright-report/`, `/test-results/`, `/tests/e2e/.auth/`
 - **.gitattributes** - Added export-ignore for `package.json`, `package-lock.json`, `playwright.config.ts`, `.wp-env.json`, `tsconfig.json`
-- **.github/workflows/ci.yml** - Added `e2e` job (Node 20, Chromium, wp-env, Playwright)
+
+### Fixed
+- **DashboardWidgetTest integration** - `require_once ABSPATH . 'wp-admin/includes/dashboard.php'` before `add_widget()` (function not loaded by default in WP test suite)
+- **DashboardWidgetTest integration** - `$storage->save()` → `$storage->set()` (correct Storage method name)
+- **DashboardWidgetTest integration** - Storage key `'check_results'` → `'latest_results'` (matches CheckRunner key)
+- **DashboardWidgetTest integration** - XSS assertion: `assertStringNotContainsString('<img')` + `assertStringContainsString('&lt;img')` (esc_html preserves attribute text like "onerror" as harmless)
 
 ### Tests
 - +27 unit tests DiskCheck (pattern enforcement, interface, thresholds, edge cases, redaction)
@@ -58,9 +70,12 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
 
 ### Development Notes
 - 515 unit tests (Brain\Monkey), 1162 assertions
+- 292 integration tests (WP Test Suite)
 - 54 PHP test files (30 unit + 24 integration)
 - 30 source files in `src/` (+3 new: DiskCheck, VersionsCheck, DashboardWidget)
-- 46 E2E scenarios x 3 viewports = 138 test runs, all green
+- 46 scenari E2E x 3 viewport = 138 esecuzioni di test, tutti verdi
+- Local test matrix (`bin/test-matrix.sh`) now includes E2E with full lifecycle management
+- CI E2E: 2 workers, 60s timeout, 30s login timeout, 15-minute job timeout
 - PHPCS 100% clean, PHPStan level 6: 0 errori
 - TDD rigoroso per ogni componente: RED → GREEN → REFACTOR
 

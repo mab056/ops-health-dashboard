@@ -9,7 +9,12 @@
 [![Security Policy](https://img.shields.io/badge/Security-Policy-blue)](SECURITY.md)
 [![PHP Version](https://img.shields.io/badge/PHP-7.4%2B-blue)](https://www.php.net/)
 [![WordPress](https://img.shields.io/badge/WordPress-5.8%2B-blue)](https://wordpress.org/)
-[![Version](https://img.shields.io/badge/Version-0.4.1-green)](https://github.com/mab056/ops-health-dashboard/releases)
+[![Release](https://img.shields.io/github/v/release/mab056/ops-health-dashboard)](https://github.com/mab056/ops-health-dashboard/releases)
+[![Release Date](https://img.shields.io/github/release-date/mab056/ops-health-dashboard)](https://github.com/mab056/ops-health-dashboard/releases)
+[![Last Commit](https://img.shields.io/github/last-commit/mab056/ops-health-dashboard)](https://github.com/mab056/ops-health-dashboard/commits)
+[![Open Issues](https://img.shields.io/github/issues/mab056/ops-health-dashboard)](https://github.com/mab056/ops-health-dashboard/issues)
+[![Open PRs](https://img.shields.io/github/issues-pr/mab056/ops-health-dashboard)](https://github.com/mab056/ops-health-dashboard/pulls)
+[![Downloads](https://img.shields.io/github/downloads/mab056/ops-health-dashboard/total)](https://github.com/mab056/ops-health-dashboard/releases)
 
 Plugin WordPress di monitoraggio operativo production-grade con controlli automatici e alerting multi-canale configurabile.
 
@@ -169,7 +174,7 @@ Questo progetto segue Test-Driven Development con un **approccio misto**:
 
 **Integration Tests (WP Test Suite)** - WordPress reale
 - Test con WordPress completo, database, WP-Cron
-- ~290 test, ~5 s
+- 292 test, ~5 s
 - Verifica integrazione reale con WordPress
 
 **E2E Tests (Playwright + wp-env)** - Browser reale
@@ -216,15 +221,17 @@ bin/build-zip.sh --output /tmp/p.zip  # Percorso output personalizzato
 
 ### Test Matrix Locale
 
-Esegui l'intera matrice CI in locale (richiede PHP 7.4-8.5):
+Esegui l'intera matrice CI in locale (richiede PHP 7.4-8.5 + Docker per E2E):
 
 ```bash
-composer test:matrix                   # Matrice completa (PHPCS + PHPStan + 7 versioni PHP)
+composer test:matrix                   # Matrice completa (PHPCS + PHPStan + 7 versioni PHP + E2E)
 bin/test-matrix.sh --php 7.4           # Solo una versione
 bin/test-matrix.sh --php 7.4 --php 8.3 # Versioni specifiche
 bin/test-matrix.sh --parallel          # Esecuzione parallela
-bin/test-matrix.sh --phpcs-only        # Solo PHPCS
-bin/test-matrix.sh --tests-only        # Solo PHPUnit
+bin/test-matrix.sh --phpcs-only        # Solo PHPCS + PHPStan
+bin/test-matrix.sh --tests-only        # Solo PHPUnit (salta PHPCS, PHPStan, E2E)
+bin/test-matrix.sh --e2e-only          # Solo E2E (Playwright + wp-env)
+bin/test-matrix.sh --no-e2e            # Tutto tranne E2E
 ```
 
 ### Workflow TDD
@@ -281,7 +288,7 @@ public function test_database_check_runs_successfully() {
 ### Matrice Test
 
 - **Unit Tests**: Brain\Monkey - 515 test, tutte le versioni PHP
-- **Integration Tests**: WP Test Suite - ~290 test, tutte le versioni PHP
+- **Integration Tests**: WP Test Suite - 292 test, tutte le versioni PHP
 - **E2E Tests**: Playwright + wp-env - 46 scenari x 3 viewport = 138 esecuzioni di test
 - **PHPStan**: Level 6 con szepeviktor/phpstan-wordpress, 0 errori
 - **Versioni PHP**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
@@ -336,7 +343,7 @@ Milestone corrente: **M6 - WordPress.org Readiness** 🚧
 - **30 file sorgente** in `src/`
 - **54 file di test PHP** (30 unit + 24 integration)
 - **515+ unit test**, 1162 assertions (Brain\Monkey)
-- **~290 integration test** (WP Test Suite)
+- **292 integration test** (WP Test Suite)
 - **46 E2E scenari** x 3 viewport = 138 esecuzioni di test (Playwright)
 - **PHPCS**: 100% compliance (0 errori, 0 warning)
 - **PHPStan**: level 6, 0 errori
@@ -405,7 +412,7 @@ composer test                    # Tutti i test (unit + integration)
 composer test:unit               # Solo test unitari (Brain\Monkey, veloce)
 composer test:integration        # Solo test di integrazione (WP Test Suite)
 composer test:coverage           # Coverage completa
-composer test:matrix             # Matrice PHP 7.4-8.5 + PHPCS + PHPStan (come CI)
+composer test:matrix             # Matrice PHP 7.4-8.5 + PHPCS + PHPStan + E2E (come CI)
 
 # Code Quality
 composer phpcs                   # Controlla WordPress Coding Standards

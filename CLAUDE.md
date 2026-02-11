@@ -340,13 +340,15 @@ composer test                        # Tutti i test (unit + integration)
 composer test:unit                   # Solo test unitari (veloce)
 composer test:integration           # Solo test di integrazione (con WP)
 composer test:coverage              # Tutti con coverage
-composer test:matrix                # Matrice completa PHP 7.4-8.5 + PHPCS + PHPStan (come CI)
+composer test:matrix                # Matrice completa PHP 7.4-8.5 + PHPCS + PHPStan + E2E (come CI)
 
 # Test Matrix (opzioni)
 bin/test-matrix.sh --php 7.4        # Solo una versione
 bin/test-matrix.sh --parallel       # Tutte le versioni in parallelo
 bin/test-matrix.sh --phpcs-only     # Solo PHPCS + PHPStan
-bin/test-matrix.sh --tests-only     # Solo PHPUnit, salta PHPCS e PHPStan
+bin/test-matrix.sh --tests-only     # Solo PHPUnit, salta PHPCS, PHPStan e E2E
+bin/test-matrix.sh --e2e-only       # Solo E2E (Playwright + wp-env)
+bin/test-matrix.sh --no-e2e         # Tutto tranne E2E
 
 # Code Quality
 composer phpcs                      # Check WordPress Coding Standards
@@ -597,9 +599,9 @@ GitHub Actions esegue automaticamente:
 
 **Test Matrix Locale** (replica CI localmente):
 ```bash
-composer test:matrix                # PHPCS + PHPStan + PHPUnit su tutte le 7 versioni PHP
+composer test:matrix                # PHPCS + PHPStan + PHPUnit su 7 versioni PHP + E2E Playwright
 ```
-Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`.
+Richiede PHP 7.4-8.5 installati (via PPA sury) + Docker + Node.js per E2E. Vedi `bin/test-matrix.sh --help`.
 
 **Quality Gates (DEVONO PASSARE):**
 - PHPCS: 100% compliance
@@ -613,7 +615,7 @@ Richiede PHP 7.4-8.5 installati (via PPA sury). Vedi `bin/test-matrix.sh --help`
 
 **Stato Attuale:**
 - ✅ **515 test unitari** (Brain\Monkey), 1162 assertions
-- ✅ **~290 test di integrazione** (WP Test Suite)
+- ✅ **292 test di integrazione** (WP Test Suite)
 - ✅ **46 scenari E2E** x 3 viewport = 138 esecuzioni di test (Playwright + wp-env)
 - ✅ PHPCS 100% compliance (0 errori, 0 warning)
 - ✅ PHPStan level 6: 0 errori (szepeviktor/phpstan-wordpress)

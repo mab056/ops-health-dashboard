@@ -587,18 +587,28 @@ PHPCS + PHPStan clean
 - `@wordpress/env` ^10.0.0 for Docker-based WordPress (WP 6.7, PHP 8.3)
 - `@playwright/test` ^1.49.0 with Chromium
 - 3 viewports: desktop (1280x720), tablet (768x1024), mobile (375x812)
-- Single worker to avoid wp-env overload; 1 retry locally, 2 in CI
+- CI: 2 workers, 60s timeout, login timeout 30s, job timeout 15 min
+- Locally: 1 worker, 30s timeout, 1 retry
 - `bin/e2e-setup.sh`: creates subscriber_e2e + editor_e2e test users
 - 5 file di spec: navigation (6), health-dashboard (14), alert-settings (14), dashboard-widget (6), security (6)
+
+**Test Matrix Locale (`bin/test-matrix.sh`):**
+- E2E integrato con lifecycle management (wp-env start/stop, utenti test, prerequisiti npm/docker)
+- Flag: `--e2e-only`, `--no-e2e`, `--tests-only`, `--phpcs-only`, `--parallel`
+- Dot reporter per progresso real-time, ANSI stripping per parsing risultati
+- SKIP (giallo) quando npm/Docker non disponibili
+- `composer.json` `process-timeout: 0` per esecuzioni lunghe
 
 **Statistiche Finali**:
 - 30 file sorgente in `src/` (+3 da M4)
 - 54 file di test PHP (30 unit + 24 integration) (+7 da M4)
 - 515 unit test, 1162 assertions
+- 292 integration test
 - 46 E2E scenari x 3 viewport = 138 esecuzioni di test
+- Test matrix locale integrata con E2E (PHPCS + PHPStan + PHP 7.4-8.5 + E2E)
 - PHPCS 100% clean, PHPStan level 6: 0 errori
 
-**Deliverable**: Dashboard con 5 check (Database, Error Log, Redis, Disk, Versions) + widget dashboard + E2E testing completo ✅
+**Deliverable**: Dashboard con 5 check (Database, Error Log, Redis, Disk, Versions) + widget dashboard + E2E testing completo + test matrix locale con E2E ✅
 
 ---
 
