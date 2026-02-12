@@ -72,3 +72,6 @@ composer.phar
 *.swp
 *.swo
 *~
+last_error
+ops-health-dashboard.code-workspace
+0
