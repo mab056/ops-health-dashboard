@@ -18,7 +18,7 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
   - Guard `WP_UNINSTALL_PLUGIN` nel file wrapper
 - **readme.txt** - File metadata in formato WordPress.org standard
   - Description, Installation, FAQ, Screenshots (placeholder), Changelog, Upgrade Notices
-  - `Stable tag: 0.5.0`, `Tested up to: 6.7`, `Requires PHP: 7.4`
+  - `Stable tag: 0.6.0`, `Tested up to: 6.7`, `Requires PHP: 7.4`
 - **ABSPATH guards** - Protezione accesso diretto su tutti i 32 file sorgente + config
   - `if ( ! defined( 'ABSPATH' ) ) { exit; }` dopo `namespace`, prima del codice
   - `@codeCoverageIgnore` sull'exit non raggiungibile per mantenere 100% coverage

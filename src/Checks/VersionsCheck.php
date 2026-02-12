@@ -33,7 +33,7 @@ class VersionsCheck implements CheckInterface {
 	 *
 	 * @var string
 	 */
-	const RECOMMENDED_PHP_VERSION = '8.1';
+	const RECOMMENDED_PHP_VERSION = '8.3';
 
 	/**
 	 * Esegue il check delle versioni

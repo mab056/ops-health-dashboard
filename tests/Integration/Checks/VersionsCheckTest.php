@@ -68,7 +68,7 @@ class VersionsCheckTest extends WP_UnitTestCase {
 
 		$this->assertEquals( $wp_version, $result['details']['wp_version'] );
 		$this->assertEquals( PHP_VERSION, $result['details']['php_version'] );
-		$this->assertEquals( '8.1', $result['details']['php_recommended'] );
+		$this->assertEquals( '8.3', $result['details']['php_recommended'] );
 		$this->assertIsArray( $result['details']['updates_available'] );
 	}
 
@@ -186,7 +186,7 @@ class VersionsCheckTest extends WP_UnitTestCase {
 		$this->assertEquals( 'warning', $result['status'] );
 		$this->assertStringContainsString( 'Unable to check', $result['message'] );
 		$this->assertStringContainsString( 'PHP', $result['message'] );
-		$this->assertStringContainsString( '8.1', $result['message'] );
+		$this->assertStringContainsString( '8.3', $result['message'] );
 	}
 
 	/**

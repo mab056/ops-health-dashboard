@@ -79,7 +79,7 @@ class Uninstaller {
 	 * @return void
 	 */
 	private function clear_cron(): void {
-		wp_clear_scheduled_hook( 'ops_health_run_checks' );
+		wp_clear_scheduled_hook( \OpsHealthDashboard\Services\Scheduler::HOOK_NAME );
 	}
 
 	/**

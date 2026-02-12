@@ -459,7 +459,7 @@ class VersionsCheckTest extends TestCase {
 	public function test_php_at_recommended_version_returns_ok() {
 		$this->mock_i18n();
 		$check = $this->create_check_mock();
-		$this->setup_versions( $check, '6.7', '8.1.0', [], [], [] );
+		$this->setup_versions( $check, '6.7', '8.3.0', [], [], [] );
 
 		$result = $check->run();
 
@@ -501,7 +501,7 @@ class VersionsCheckTest extends TestCase {
 	 * Testa che la costante RECOMMENDED_PHP_VERSION è definita
 	 */
 	public function test_recommended_php_version_constant() {
-		$this->assertEquals( '8.1', VersionsCheck::RECOMMENDED_PHP_VERSION );
+		$this->assertEquals( '8.3', VersionsCheck::RECOMMENDED_PHP_VERSION );
 	}
 
 	// ─── Protected Methods ──────────────────────────────────────────
@@ -690,7 +690,7 @@ class VersionsCheckTest extends TestCase {
 		$this->assertEquals( 'warning', $result['status'] );
 		$this->assertStringContainsString( 'Unable to check', $result['message'] );
 		$this->assertStringContainsString( 'PHP', $result['message'] );
-		$this->assertStringContainsString( '8.1', $result['message'] );
+		$this->assertStringContainsString( '8.3', $result['message'] );
 	}
 
 	/**
