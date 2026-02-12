@@ -5,7 +5,7 @@ Tutte le modifiche rilevanti a questo progetto saranno documentate in questo fil
 Il formato è basato su [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 0.6.0 - 2026-02-11
+## 0.6.0 - 2026-02-12
 
 ### Added
 - **M6 — WordPress.org Readiness**
@@ -14,31 +14,52 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0
   - Cancella il cron hook `ops_health_run_checks`
   - Cancella i transient fissi (`ops_health_cron_check`, `ops_health_admin_notice`, `ops_health_alert_notice`)
   - Cancella i transient di cooldown dinamici via `$wpdb` LIKE query (futuro-proof)
-  - Constructor injection per `$wpdb` (NO global access nel classe)
+  - Constructor injection per `$wpdb` (NO global access nella classe)
   - Guard `WP_UNINSTALL_PLUGIN` nel file wrapper
 - **readme.txt** - File metadata in formato WordPress.org standard
   - Description, Installation, FAQ, Screenshots (placeholder), Changelog, Upgrade Notices
-  - `Stable tag: 0.6.0`, `Tested up to: 6.7`, `Requires PHP: 7.4`
-- **ABSPATH guards** - Protezione accesso diretto su tutti i 32 file sorgente + config
+  - `Stable tag: 0.6.0`, `Tested up to: 6.9`, `Requires PHP: 7.4`
+- **ABSPATH guards** - Protezione accesso diretto su tutti i file sorgente + config
   - `if ( ! defined( 'ABSPATH' ) ) { exit; }` dopo `namespace`, prima del codice
   - `@codeCoverageIgnore` sull'exit non raggiungibile per mantenere 100% coverage
   - `tests/bootstrap.php` definisce ABSPATH per unit test (Brain\Monkey)
+- **HealthScreen UI** - Pagina admin con card colorate, summary banner, CSS dedicato
+  - `assets/css/health-screen.css` — stili dedicati pagina admin (card grid, summary banner, status colors)
+  - `HealthScreen::register_hooks()` + `enqueue_styles()` con guard `get_current_screen()`
+  - `HealthScreen::SCREEN_ID` costante per screen ID WordPress
+  - `HealthScreen::determine_overall_status()` — logica worst-status (priority map: critical > warning > ok)
+  - Summary banner `.ops-health-summary` con bordo sinistro colorato per status globale
+  - Card grid `.ops-health-checks` con CSS Grid 2 colonne, responsive a 1 colonna su mobile
+  - Card check `.ops-health-check` con sfondo bianco, bordo sinistro colorato per status
+  - Palette WordPress admin nativa: ok `#00a32a`, warning `#dba617`, critical `#d63638`, unknown `#787c82`
 
 ### Changed
 - **bin/build-zip.sh** - Include `uninstall.php` e `readme.txt` nel ZIP di distribuzione
+- **Plugin.php** - Chiama `HealthScreen::register_hooks()` in `init()` (enqueue CSS condizionale)
+- **HealthScreen** - Rimossi 3 inline styles dai bottoni azione, migrati a CSS dedicato
+
+### Fixed
+- **DashboardWidget CSS** - Fix specificità CSS per dots colorati (`.ops-health-widget-status-ok .ops-health-widget-dot` ecc.); prima tutti i dots erano grigi
 
 ### Tests
 - +13 unit tests Uninstaller (pattern enforcement, cleanup opzioni, cron, transient fissi, cooldown $wpdb, prepare, tabella, idempotenza)
 - +12 integration tests Uninstaller (cleanup reale opzioni/cron/transient, preserva dati non-plugin, ciclo activate→uninstall, cooldown custom)
-- `tests/bootstrap.php` definisce `ABSPATH` per compatibilità guard accesso diretto
+- +12 unit tests HealthScreen (register_hooks, enqueue_styles guard, SCREEN_ID, determine_overall_status, render HTML)
+- +6 integration tests HealthScreen (enqueue_styles real WP, register_hooks, render summary banner, determine_overall_status Reflection)
+- +1 integration test DashboardWidget (test isolation fix: wp_dequeue_style cleanup)
+- Aggiornati 2 unit tests PluginTest per aspettative HealthScreen::register_hooks()
+- +1 integration test PluginTest (admin_enqueue_scripts hook)
+- `tests/bootstrap.php` definisce ABSPATH per compatibilità guard accesso diretto
 
 ### Development Notes
-- 550 unit tests (Brain\Monkey), 1252 assertions — **100% classes, methods, lines**
-- 308 integration tests (WP Test Suite), 642 assertions — **100% classes, methods, lines**
-- 55 PHP test files (32 unit + 23 integration)
-- 32 source files in `src/` (+1 new: Uninstaller)
+- 567 unit tests (Brain\Monkey), 1287 assertions — **100% classes, methods, lines**
+- 318 integration tests (WP Test Suite), 654 assertions — **100% classes, methods, lines**
+- 55 PHP test files (31 unit + 24 integration)
+- 31 source files in `src/`
+- 2 CSS files: `dashboard-widget.css`, `health-screen.css`
 - PHPCS 100% clean, PHPStan level 6: 0 errori
 - WordPress.org readiness: uninstall.php, readme.txt, ABSPATH guards
+- HealthScreen UI: card grid, summary banner, CSS dedicato con palette WordPress nativa
 
 ## 0.5.0 - 2026-02-11
 

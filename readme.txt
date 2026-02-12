@@ -86,15 +86,19 @@ No. All health check results are processed through a redaction service that auto
 
 == Changelog ==
 
+= 0.6.0 =
+* Added uninstall.php with Uninstaller class for complete data cleanup
+* Added dedicated CSS for Health Dashboard and Dashboard Widget
+* Added ABSPATH guards on all source files and config files
+* Added readme.txt in WordPress.org format
+* Updated recommended PHP version in VersionsCheck to 8.3+
+
 = 0.5.0 =
 * Added DiskCheck with configurable thresholds (warning <20%, critical <10%)
 * Added VersionsCheck for WordPress/PHP version monitoring with update notifications
 * Added DashboardWidget showing global status in the wp-admin dashboard
 * Added E2E testing with Playwright and wp-env (46 scenarios x 3 viewports)
 * Improved RedisCheck with catch Throwable error handling
-* Added uninstall.php with Uninstaller class for complete data cleanup
-* Added ABSPATH guards on all source files for WordPress.org readiness
-* Added readme.txt in WordPress.org format
 
 = 0.4.1 =
 * DNS pinning via CURLOPT_RESOLVE in HttpClient (anti-TOCTOU)
@@ -110,6 +114,9 @@ No. All health check results are processed through a redaction service that auto
 For the full changelog, see [CHANGELOG.md](https://github.com/mab056/ops-health-dashboard/blob/main/CHANGELOG.md).
 
 == Upgrade Notices ==
+
+= 0.6.0 =
+WordPress.org readiness improvements (uninstall cleanup, ABSPATH guards, docs) and UI styling updates. No breaking changes.
 
 = 0.5.0 =
 New health checks (Disk Space, Versions) and Dashboard Widget. No breaking changes.

@@ -61,7 +61,7 @@ Plugin WordPress production-grade per monitoraggio operativo con health checks, 
 
 ## Stato Progetto (Riferimento)
 
-Milestone M1-M6 completate (Core Checks + Storage + Cron + Error Log + Redis + Alerting + DiskCheck + VersionsCheck + DashboardWidget + E2E Testing + WordPress.org Readiness). 550 unit test, 1252 assertions. 308 integration test, 642 assertions. Coverage: 100% classi, metodi, linee (sia unit che integration). 46 E2E scenari x 3 viewport = 138 esecuzioni di test (Playwright + wp-env). PHPCS 100% clean, PHPStan level 6: 0 errori. 32 file sorgente, 55 file di test PHP (32 unit + 23 integration), 5 file di spec E2E. Plugin WordPress.org ready con uninstall.php, readme.txt, ABSPATH guards. Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
+Milestone M1-M6 completate (Core Checks + Storage + Cron + Error Log + Redis + Alerting + DiskCheck + VersionsCheck + DashboardWidget + E2E Testing + WordPress.org Readiness + HealthScreen UI). 567 unit test, 1287 assertions. 318 integration test, 654 assertions. Coverage: 100% classi, metodi, linee (sia unit che integration). 46 E2E scenari x 3 viewport = 138 esecuzioni di test (Playwright + wp-env). PHPCS 100% clean, PHPStan level 6: 0 errori. 31 file sorgente, 55 file di test PHP (31 unit + 24 integration), 5 file di spec E2E, 2 file CSS. Plugin WordPress.org ready con uninstall.php, readme.txt, ABSPATH guards. HealthScreen con card grid, summary banner e CSS dedicato. Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
 
 ## Baseline Corrente (v0.6.0)
 
@@ -81,7 +81,8 @@ Punti architetturali da preservare nella codebase attuale:
 13. **Alert Settings**: pagina admin `Ops → Alert Settings` con PRG pattern, nonce `ops_health_alert_settings`, per-channel enable/disable + credentials (`type="password"` + `value=""` + `placeholder="********"` per token/secret — credenziali mai nel DOM), cooldown globale.
 14. **Channel security**: TelegramChannel escape HTML (`htmlspecialchars`), SlackChannel escape mrkdwn, EmailChannel validazione `is_email()`, WhatsAppChannel validazione E.164 phone.
 15. **AlertManager resilience**: cooldown transient impostato PRIMA del dispatch (anti-spam), costanti `STATUS_OK/WARNING/CRITICAL/UNKNOWN`, isolamento per-canale `try/catch \Throwable` in `dispatch_to_channels()`, Scheduler `catch (\Throwable)` attorno a `process()` (cron resiliente a qualsiasi errore).
-16. **DashboardWidget**: `src/Admin/DashboardWidget.php` registrato in `Plugin::init()`, hook `wp_dashboard_setup`, capability check, worst-status logic.
+16. **DashboardWidget**: `src/Admin/DashboardWidget.php` registrato in `Plugin::init()`, hook `wp_dashboard_setup`, capability check, worst-status logic, CSS `assets/css/dashboard-widget.css`.
+23. **HealthScreen UI**: `register_hooks()` + `enqueue_styles()` con guard `get_current_screen()`, `SCREEN_ID` constant, `determine_overall_status()` priority map, CSS card grid + summary banner in `assets/css/health-screen.css`, palette WordPress nativa.
 17. **DiskCheck**: `src/Checks/DiskCheck.php` con soglie `WARNING_THRESHOLD = 20`, `CRITICAL_THRESHOLD = 10` (percent), protected wrappers, RedactionInterface.
 18. **VersionsCheck**: `src/Checks/VersionsCheck.php` con `RECOMMENDED_PHP_VERSION = '8.1'`, core update → critical, plugin/theme → warning.
 19. Tooling quality gate locale: `composer test`, `composer phpcs`, `composer analyse` (PHPStan livello 6 con `phpstan.neon`).

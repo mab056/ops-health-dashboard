@@ -27,6 +27,13 @@ use OpsHealthDashboard\Interfaces\CheckRunnerInterface;
 class HealthScreen {
 
 	/**
+	 * Screen ID per la pagina admin health dashboard
+	 *
+	 * @var string
+	 */
+	const SCREEN_ID = 'toplevel_page_ops-health-dashboard';
+
+	/**
 	 * CheckRunner per ottenere i risultati
 	 *
 	 * @var CheckRunnerInterface
@@ -40,6 +47,37 @@ class HealthScreen {
 	 */
 	public function __construct( CheckRunnerInterface $runner ) {
 		$this->runner = $runner;
+	}
+
+	/**
+	 * Registra gli hook WordPress
+	 *
+	 * @return void
+	 */
+	public function register_hooks(): void {
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_styles' ] );
+	}
+
+	/**
+	 * Carica gli stili sulla pagina health dashboard
+	 *
+	 * Enqueue il CSS solo sulla schermata health dashboard.
+	 *
+	 * @return void
+	 */
+	public function enqueue_styles(): void {
+		$screen = get_current_screen();
+
+		if ( null === $screen || self::SCREEN_ID !== $screen->id ) {
+			return;
+		}
+
+		wp_enqueue_style(
+			'ops-health-dashboard-screen',
+			plugin_dir_url( OPS_HEALTH_DASHBOARD_FILE ) . 'assets/css/health-screen.css',
+			[],
+			OPS_HEALTH_DASHBOARD_VERSION
+		);
 	}
 
 	/**
@@ -139,8 +177,8 @@ class HealthScreen {
 				</div>
 			<?php endif; ?>
 
-			<div class="ops-health-actions" style="margin: 12px 0;">
-				<form method="post" style="display:inline;">
+			<div class="ops-health-actions">
+				<form method="post">
 					<?php wp_nonce_field( 'ops_health_admin_action', '_ops_health_nonce' ); ?>
 					<input type="hidden" name="ops_health_action" value="run_now" />
 					<?php
@@ -152,7 +190,7 @@ class HealthScreen {
 					);
 					?>
 				</form>
-				<form method="post" style="display:inline; margin-left: 8px;">
+				<form method="post">
 					<?php wp_nonce_field( 'ops_health_admin_action', '_ops_health_nonce' ); ?>
 					<input type="hidden" name="ops_health_action" value="clear_cache" />
 					<?php
@@ -171,6 +209,25 @@ class HealthScreen {
 					<p><?php echo esc_html__( 'No health checks have been run yet.', 'ops-health-dashboard' ); ?></p>
 				</div>
 			<?php else : ?>
+				<?php
+				$overall_status = $this->determine_overall_status( $results );
+				$status_labels  = [
+					'ok'       => __( 'Healthy', 'ops-health-dashboard' ),
+					'warning'  => __( 'Warning', 'ops-health-dashboard' ),
+					'critical' => __( 'Critical', 'ops-health-dashboard' ),
+					'unknown'  => __( 'Unknown', 'ops-health-dashboard' ),
+				];
+				$overall_label  = isset( $status_labels[ $overall_status ] )
+					? $status_labels[ $overall_status ]
+					// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
+					// @codeCoverageIgnoreStart
+					: $status_labels['unknown'];
+				// @codeCoverageIgnoreEnd
+				?>
+				<div class="ops-health-summary ops-health-summary-<?php echo esc_attr( $overall_status ); ?>">
+					<strong><?php echo esc_html( $overall_label ); ?></strong>
+				</div>
+
 				<div class="ops-health-checks">
 					<?php foreach ( $results as $check_id => $result ) : ?>
 						<?php
@@ -193,5 +250,40 @@ class HealthScreen {
 			<?php endif; ?>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Determina lo status globale (il peggiore vince)
+	 *
+	 * Critical > warning > ok; risultati vuoti = unknown.
+	 *
+	 * @param array $results Risultati dei check.
+	 * @return string Status globale.
+	 */
+	private function determine_overall_status( array $results ): string {
+		if ( empty( $results ) ) {
+			return 'unknown';
+		}
+
+		$priority = [
+			'critical' => 3,
+			'warning'  => 2,
+			'ok'       => 1,
+		];
+
+		$worst        = 0;
+		$worst_status = 'unknown';
+
+		foreach ( $results as $result ) {
+			$status = isset( $result['status'] ) ? $result['status'] : 'unknown';
+			$value  = isset( $priority[ $status ] ) ? $priority[ $status ] : 0;
+
+			if ( $value > $worst ) {
+				$worst        = $value;
+				$worst_status = $status;
+			}
+		}
+
+		return $worst_status;
 	}
 }

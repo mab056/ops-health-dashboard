@@ -4,10 +4,10 @@
 
 | Versione | Supportata |
 |----------|------------|
+| 0.6.x    | :white_check_mark: |
 | 0.5.x    | :white_check_mark: |
 | 0.4.x    | :white_check_mark: |
-| 0.3.x    | :white_check_mark: |
-| < 0.3    | :x: |
+| < 0.4    | :x: |
 
 ## Segnalare una vulnerabilità
 
@@ -18,7 +18,7 @@ La sicurezza di Ops Health Dashboard è considerata una priorità. Se hai trovat
 ### Come Segnalare
 
 1. **GitHub Security Advisory** (preferito): apri una [draft security advisory](https://github.com/mab056/ops-health-dashboard/security/advisories/new) sul repository
-2. **Email**: invia una segnalazione dettagliata a `dev@example.com`
+2. **Email**: invia una segnalazione dettagliata a `info@mattiabondrano.dev`
 
 ### Cosa Includere
 

@@ -179,6 +179,70 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'ops-health-dashboard', $output );
 	}
 
+	// ─── enqueue_styles ─────────────────────────────────────────────
+
+	/**
+	 * Testa che enqueue_styles registra il CSS sulla dashboard
+	 */
+	public function test_enqueue_styles_registers_stylesheet_on_dashboard() {
+		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $user_id );
+		set_current_screen( 'dashboard' );
+
+		$runner = new CheckRunner( new Storage(), new Redaction() );
+		$widget = new DashboardWidget( $runner );
+		$widget->enqueue_styles();
+
+		$this->assertTrue( wp_style_is( 'ops-health-dashboard-widget', 'enqueued' ) );
+
+		wp_dequeue_style( 'ops-health-dashboard-widget' );
+	}
+
+	/**
+	 * Testa che enqueue_styles NON registra il CSS per subscriber sulla dashboard
+	 */
+	public function test_enqueue_styles_not_enqueued_for_subscriber_on_dashboard() {
+		$user_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
+		wp_set_current_user( $user_id );
+		set_current_screen( 'dashboard' );
+
+		$runner = new CheckRunner( new Storage(), new Redaction() );
+		$widget = new DashboardWidget( $runner );
+		$widget->enqueue_styles();
+
+		$this->assertFalse( wp_style_is( 'ops-health-dashboard-widget', 'enqueued' ) );
+	}
+
+	/**
+	 * Testa che enqueue_styles NON registra il CSS su altre schermate
+	 */
+	public function test_enqueue_styles_not_registered_on_other_screens() {
+		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $user_id );
+		set_current_screen( 'plugins' );
+
+		$runner = new CheckRunner( new Storage(), new Redaction() );
+		$widget = new DashboardWidget( $runner );
+		$widget->enqueue_styles();
+
+		$this->assertFalse( wp_style_is( 'ops-health-dashboard-widget', 'enqueued' ) );
+	}
+
+	/**
+	 * Testa che register_hooks aggiunge l'action admin_enqueue_scripts
+	 */
+	public function test_register_hooks_adds_enqueue_action() {
+		$runner = new CheckRunner( new Storage(), new Redaction() );
+		$widget = new DashboardWidget( $runner );
+		$widget->register_hooks();
+
+		$this->assertNotFalse(
+			has_action( 'admin_enqueue_scripts', [ $widget, 'enqueue_styles' ] )
+		);
+	}
+
+	// ─── Output escaping ────────────────────────────────────────────
+
 	/**
 	 * Testa che output è correttamente escaped (no tag non previsti)
 	 */

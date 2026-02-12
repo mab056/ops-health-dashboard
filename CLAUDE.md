@@ -595,7 +595,7 @@ GitHub Actions esegue automaticamente:
 - ✅ Coverage report (solo PHP 8.3)
 - ✅ Upload Codecov con flag separati (`unit`, `integration`) via `codecov-action@v5`
 - ✅ `codecov.yml`: soglia progetto 95%, patch 90%, `carryforward: true`
-- ✅ E2E Playwright (Chromium, 3 viewport, wp-env Docker)
+- ✅ E2E Playwright (Chromium; desktop-only in CI, 3 viewport in locale, wp-env Docker)
 
 **Test Matrix Locale** (replica CI localmente):
 ```bash
@@ -614,18 +614,19 @@ Richiede PHP 7.4-8.5 installati (via PPA sury) + Docker + Node.js per E2E. Vedi 
 **Milestone M6 - WordPress.org Readiness** ✅ COMPLETATA
 
 **Stato Attuale:**
-- ✅ **550 test unitari** (Brain\Monkey), 1252 assertions
-- ✅ **308 test di integrazione** (WP Test Suite), 642 assertions
-- ✅ **46 scenari E2E** x 3 viewport = 138 esecuzioni di test (Playwright + wp-env)
+- ✅ **567 test unitari** (Brain\Monkey), 1287 assertions
+- ✅ **318 test di integrazione** (WP Test Suite), 654 assertions
+- ✅ **46 scenari E2E** x 3 viewport = 138 esecuzioni locali; CI desktop-only (46 test)
 - ✅ PHPCS 100% compliance (0 errori, 0 warning)
 - ✅ PHPStan level 6: 0 errori (szepeviktor/phpstan-wordpress)
-- ✅ CI/CD completo con PHP 7.4-8.5 + E2E Playwright
+- ✅ CI/CD completo con PHP 7.4-8.5 + E2E Playwright (desktop-only in CI)
 - ✅ Coverage: **100%** classi, metodi, linee (sia unit che integration)
-- ✅ 32 file sorgente, 55 file di test PHP (32 unit + 23 integration), 5 file di spec E2E
+- ✅ 31 file sorgente, 55 file di test PHP (31 unit + 24 integration), 5 file di spec E2E, 2 file CSS
 - ✅ Pattern enforcement (NO singleton/static/final)
 - ✅ WordPress.org ready: uninstall.php, readme.txt, ABSPATH guards
+- ✅ HealthScreen UI: card grid, summary banner, CSS dedicato con palette WordPress nativa
 
-**Componenti Implementati (M1+M2+M3+M4+M5):**
+**Componenti Implementati (M1+M2+M3+M4+M5+M6):**
 - StorageInterface, CheckInterface, RedactionInterface, CheckRunnerInterface (contratti DI)
 - HttpClientInterface, AlertManagerInterface, AlertChannelInterface (contratti M4)
 - Storage (Options API, sentinel pattern in `has()`, autoload=false)
@@ -635,7 +636,7 @@ Richiede PHP 7.4-8.5 installati (via PPA sury) + Docker + Node.js per E2E. Vedi 
 - ErrorLogCheck (tail log, aggregazione severità, campioni redatti, anti-symlink, flock LOCK_SH)
 - RedisCheck (graceful degradation, estensione+connessione+auth+smoke test, response time, RedactionInterface)
 - DiskCheck (soglie configurabili WARNING 20%/CRITICAL 10%, protected wrappers, RedactionInterface)
-- VersionsCheck (WP/PHP versions, update notifications, graceful fallback, RECOMMENDED_PHP_VERSION = '8.1')
+- VersionsCheck (WP/PHP versions, update notifications, graceful fallback, RECOMMENDED_PHP_VERSION = '8.3')
 - HttpClient (anti-SSRF: blocco IP privati, validazione DNS, DNS pinning CURLOPT_RESOLVE anti-TOCTOU, restrizione schema/porta, no redirect, rifiuto IPv6, validazione HTTP 2xx)
 - AlertManager (state change detection, cooldown pre-dispatch via transient, dispatch multi-canale con isolamento per-canale try/catch \Throwable, alert log limitato a 50 voci, costanti STATUS_OK/WARNING/CRITICAL/UNKNOWN)
 - EmailChannel (wp_mail, recipients configurabili con validazione is_email)
@@ -646,7 +647,7 @@ Richiede PHP 7.4-8.5 installati (via PPA sury) + Docker + Node.js per E2E. Vedi 
 - Scheduler (WP-Cron 15 min, prevenzione duplicati, self-healing throttled, AlertManager integration opzionale, catch \Throwable)
 - Container (DI con rilevazione dipendenze circolari)
 - Menu (capability check, `load-{$page_hook}` per process_actions PRG, submenu Alert Settings)
-- HealthScreen (capability check, bottoni Run Now/Clear Cache con nonce, validazione difensiva, CheckRunnerInterface)
+- HealthScreen (capability check, bottoni Run Now/Clear Cache con nonce, validazione difensiva, CheckRunnerInterface, CSS card grid + summary banner, enqueue_styles con screen guard)
 - AlertSettings (pagina admin configurazione alert, PRG, nonce, per-channel enable/disable + credentials con secret non-prefill + preserve-on-empty, cooldown)
 - DashboardWidget (widget wp-admin dashboard, worst-status, capability check, CheckRunnerInterface)
 - Activator (usa costanti Scheduler::HOOK_NAME/INTERVAL)

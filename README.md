@@ -169,12 +169,12 @@ Questo progetto segue Test-Driven Development con un **approccio misto**:
 
 **Unit Tests (Brain\Monkey)** - Veloce, isolato
 - Logica business pura, NO WordPress
-- 537 test, 1203 assertions, ~6 s
+- 567 test, 1287 assertions, ~6 s
 - Perfetto per TDD rapido
 
 **Integration Tests (WP Test Suite)** - WordPress reale
 - Test con WordPress completo, database, WP-Cron
-- 296 test, 598 assertions, ~6 s
+- 318 test, 654 assertions, ~6 s
 - Verifica integrazione reale con WordPress
 
 **E2E Tests (Playwright + wp-env)** - Browser reale
@@ -287,8 +287,8 @@ public function test_database_check_runs_successfully() {
 
 ### Matrice Test
 
-- **Unit Tests**: Brain\Monkey - 537 test, 1203 assertions, tutte le versioni PHP
-- **Integration Tests**: WP Test Suite - 296 test, 598 assertions, tutte le versioni PHP
+- **Unit Tests**: Brain\Monkey - 567 test, 1287 assertions, tutte le versioni PHP
+- **Integration Tests**: WP Test Suite - 318 test, 654 assertions, tutte le versioni PHP
 - **E2E Tests**: Playwright + wp-env - 46 scenari x 3 viewport = 138 esecuzioni di test
 - **PHPStan**: Level 6 con szepeviktor/phpstan-wordpress, 0 errori
 - **Versioni PHP**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
@@ -327,12 +327,13 @@ public function test_database_check_runs_successfully() {
 - **Sanitizzazione Input**: Tutti gli input utente sanitizzati
 - **Escaping Output**: Tutti gli output sono sottoposti a escaping
 
-### WordPress.org Ready *(pianificato M6)*
+### WordPress.org Ready
 
 - ✅ Conforme WordPress Coding Standards
 - ✅ Nessuna chiamata outbound senza opt-in
-- Plugin Check tool *(da verificare in M6)*
-- Cleanup in disinstallazione via `uninstall.php`
+- ✅ Cleanup in disinstallazione via `uninstall.php`
+- ✅ `readme.txt` in formato WordPress.org standard
+- ✅ ABSPATH guards su tutti i file sorgente
 
 ## 📊 Stato Sviluppo
 
@@ -340,10 +341,10 @@ Milestone corrente: **M6 - WordPress.org Readiness** ✅
 
 ### Statistiche
 
-- **32 file sorgente** in `src/`
-- **55 file di test PHP** (32 unit + 23 integration)
-- **550 unit test**, 1252 assertions (Brain\Monkey)
-- **308 integration test**, 642 assertions (WP Test Suite)
+- **31 file sorgente** in `src/`, 2 file CSS in `assets/css/`
+- **55 file di test PHP** (31 unit + 24 integration)
+- **567 unit test**, 1287 assertions (Brain\Monkey)
+- **318 integration test**, 654 assertions (WP Test Suite)
 - **46 E2E scenari** x 3 viewport = 138 esecuzioni di test (Playwright)
 - **Coverage**: 100% classi, 100% metodi, 100% linee (sia unit che integration)
 - **PHPCS**: 100% compliance (0 errori, 0 warning)
@@ -431,7 +432,7 @@ GitHub Actions esegue automaticamente su push/PR:
 - PHPUnit su PHP 7.4, 8.0, 8.1, 8.2, 8.3, 8.4, 8.5
 - Report coverage (solo PHP 8.3)
 - Upload Codecov
-- E2E Playwright (Chromium, 3 viewport, wp-env Docker)
+- E2E Playwright (Chromium, desktop-only in CI; 3 viewport in locale, wp-env Docker)
 
 ## 📄 Licenza
 

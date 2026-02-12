@@ -1,7 +1,7 @@
 # Development Plan - Ops Health Dashboard
 
-**Current Milestone**: M6 - WordPress.org Readiness
-**Status**: M5 completata, M6 pianificata
+**Current Milestone**: M6 - WordPress.org Readiness ✅
+**Status**: Tutte le milestone completate (M0-M6)
 
 ---
 
@@ -278,9 +278,10 @@
 
 ## Known Issues / Tech Debt
 
-- **CSS 'unknown' status**: HealthScreen non ha classe CSS per lo stato 'unknown' (solo ok/warning/critical). Aggiungere quando si implementano gli asset CSS (M4+).
-- **Action buttons inline style**: i bottoni usano `style="display:inline"` inline; migrarli a foglio CSS dedicato in M4+.
-- **uninstall.php**: pianificato per M6.
+- ~~**CSS 'unknown' status**: risolto in v0.6.0 con `health-screen.css` (classe `.ops-health-check-unknown`)~~
+- ~~**Action buttons inline style**: risolto in v0.6.0 — migrati a CSS dedicato `health-screen.css`~~
+- ~~**uninstall.php**: risolto in v0.6.0~~
+- Nessun issue noto al momento.
 
 ## Milestone 3: Check Redis ✅ 1/1
 
@@ -571,7 +572,7 @@ PHPCS + PHPStan clean
 - Deps: `RedactionInterface`
 
 **VersionsCheck:**
-- `RECOMMENDED_PHP_VERSION = '8.1'`
+- `RECOMMENDED_PHP_VERSION = '8.3'`
 - Status: core update → critical, plugin/theme update → warning, old PHP → warning
 - `filter_real_updates()`: keeps only `response === 'upgrade'`
 - `load_update_functions()`: try/catch \Throwable, `@codeCoverageIgnoreStart/End` around require_once
@@ -603,7 +604,7 @@ PHPCS + PHPStan clean
 - 30 file sorgente in `src/` (+3 da M4)
 - 53 file di test PHP (30 unit + 23 integration) (+6 da M4)
 - 537 unit test, 1203 assertions — **100% classi, metodi, linee**
-- 296 integration test, 598 assertions — **100% classi (23/23), metodi (163/163), linee (1507/1507)**
+- 296 integration test, 598 assertions — **100% classi, metodi, linee**
 - 46 E2E scenari x 3 viewport = 138 esecuzioni di test
 - Test matrix locale integrata con E2E (PHPCS + PHPStan + PHP 7.4-8.5 + E2E)
 - PHPCS 100% clean, PHPStan level 6: 0 errori
@@ -619,16 +620,16 @@ PHPCS + PHPStan clean
 **Deliverable**:
 1. `uninstall.php` con classe `Uninstaller` per pulizia completa dati (opzioni, cron, transient)
 2. `readme.txt` in formato WordPress.org standard
-3. ABSPATH guards su tutti i 32 file sorgente + config
+3. ABSPATH guards su tutti i file sorgente + config
 4. `bin/build-zip.sh` aggiornato per includere uninstall.php e readme.txt
 5. `tests/bootstrap.php` definisce ABSPATH per compatibilità unit test
 
-**Statistiche Finali**:
-- 32 file sorgente in `src/` (+1 da M5: Uninstaller)
-- 55 file di test PHP (32 unit + 23 integration) (+2 da M5)
-- 550 unit test, 1252 assertions — **100% classi, metodi, linee**
-- 308 integration test, 642 assertions — **100% classi, metodi, linee**
+**Statistiche Finali** (post HealthScreen UI + coverage push):
+- 31 file sorgente in `src/`, 2 file CSS in `assets/css/`
+- 55 file di test PHP (31 unit + 24 integration)
+- 567 unit test, 1287 assertions — **100% classi, metodi, linee**
+- 318 integration test, 654 assertions — **100% classi, metodi, linee**
 - 46 E2E scenari x 3 viewport = 138 esecuzioni di test
 - PHPCS 100% clean, PHPStan level 6: 0 errori
 
-**Deliverable**: Plugin WordPress.org ready con uninstall.php, readme.txt, ABSPATH guards ✅
+**Deliverable**: Plugin WordPress.org ready con uninstall.php, readme.txt, ABSPATH guards, HealthScreen UI con CSS dedicato ✅

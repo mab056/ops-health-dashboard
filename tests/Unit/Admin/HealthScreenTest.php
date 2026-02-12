@@ -195,6 +195,8 @@ class HealthScreenTest extends TestCase {
 
 		Functions\expect( 'get_transient' )
 			->andReturn( false );
+
+		Functions\when( '__' )->returnArg();
 	}
 
 	/**
@@ -498,6 +500,242 @@ class HealthScreenTest extends TestCase {
 		$this->assertStringContainsString( 'notice-success', $output );
 		$this->assertStringContainsString( 'Test notice message', $output );
 	}
+
+	// ─── register_hooks ────────────────────────────────────────────
+
+	/**
+	 * Testa che register_hooks registra l'hook admin_enqueue_scripts
+	 */
+	public function test_register_hooks_adds_admin_enqueue_scripts() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$screen = new HealthScreen( $runner );
+
+		$hooks = [];
+		Functions\expect( 'add_action' )
+			->atLeast()
+			->times( 1 )
+			->andReturnUsing(
+				function ( $hook, $callback ) use ( &$hooks ) {
+					$hooks[ $hook ] = $callback;
+				}
+			);
+
+		$screen->register_hooks();
+
+		$this->assertArrayHasKey( 'admin_enqueue_scripts', $hooks );
+		$this->assertSame( [ $screen, 'enqueue_styles' ], $hooks['admin_enqueue_scripts'] );
+	}
+
+	// ─── enqueue_styles ────────────────────────────────────────────
+
+	/**
+	 * Testa che SCREEN_ID ha il valore corretto
+	 */
+	public function test_screen_id_constant_value() {
+		$this->assertSame(
+			'toplevel_page_ops-health-dashboard',
+			HealthScreen::SCREEN_ID
+		);
+	}
+
+	/**
+	 * Testa che enqueue_styles carica il CSS sulla schermata health
+	 */
+	public function test_enqueue_styles_on_health_screen() {
+		if ( ! defined( 'OPS_HEALTH_DASHBOARD_FILE' ) ) {
+			define( 'OPS_HEALTH_DASHBOARD_FILE', '/fake/ops-health-dashboard.php' );
+		}
+		if ( ! defined( 'OPS_HEALTH_DASHBOARD_VERSION' ) ) {
+			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.6.0' );
+		}
+
+		$screen_obj     = new \stdClass();
+		$screen_obj->id = 'toplevel_page_ops-health-dashboard';
+
+		Functions\expect( 'get_current_screen' )
+			->once()
+			->andReturn( $screen_obj );
+
+		Functions\expect( 'plugin_dir_url' )
+			->once()
+			->andReturn( 'http://example.com/wp-content/plugins/ops-health-dashboard/' );
+
+		Functions\expect( 'wp_enqueue_style' )
+			->once()
+			->with(
+				'ops-health-dashboard-screen',
+				Mockery::type( 'string' ),
+				[],
+				Mockery::type( 'string' )
+			);
+
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$screen = new HealthScreen( $runner );
+		$screen->enqueue_styles();
+	}
+
+	/**
+	 * Testa che enqueue_styles NON carica il CSS su altre schermate
+	 */
+	public function test_enqueue_styles_skips_other_screen() {
+		$screen_obj     = new \stdClass();
+		$screen_obj->id = 'plugins';
+
+		Functions\expect( 'get_current_screen' )
+			->once()
+			->andReturn( $screen_obj );
+
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$screen = new HealthScreen( $runner );
+		$screen->enqueue_styles();
+
+		$this->assertTrue( true );
+	}
+
+	/**
+	 * Testa che enqueue_styles gestisce screen null
+	 */
+	public function test_enqueue_styles_handles_null_screen() {
+		Functions\expect( 'get_current_screen' )
+			->once()
+			->andReturn( null );
+
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$screen = new HealthScreen( $runner );
+		$screen->enqueue_styles();
+
+		$this->assertTrue( true );
+	}
+
+	// ─── determine_overall_status ──────────────────────────────────
+
+	/**
+	 * Testa che overall status per risultati vuoti è 'unknown'
+	 */
+	public function test_overall_status_empty_is_unknown() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$screen = new HealthScreen( $runner );
+
+		$reflection = new \ReflectionMethod( $screen, 'determine_overall_status' );
+		$reflection->setAccessible( true );
+
+		$this->assertEquals( 'unknown', $reflection->invoke( $screen, [] ) );
+	}
+
+	/**
+	 * Testa che overall status con tutti ok è 'ok'
+	 */
+	public function test_overall_status_all_ok() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$screen = new HealthScreen( $runner );
+
+		$reflection = new \ReflectionMethod( $screen, 'determine_overall_status' );
+		$reflection->setAccessible( true );
+
+		$results = [
+			'a' => [ 'status' => 'ok' ],
+			'b' => [ 'status' => 'ok' ],
+		];
+		$this->assertEquals( 'ok', $reflection->invoke( $screen, $results ) );
+	}
+
+	/**
+	 * Testa che overall status worst wins (critical > ok)
+	 */
+	public function test_overall_status_worst_wins() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$screen = new HealthScreen( $runner );
+
+		$reflection = new \ReflectionMethod( $screen, 'determine_overall_status' );
+		$reflection->setAccessible( true );
+
+		$results = [
+			'a' => [ 'status' => 'ok' ],
+			'b' => [ 'status' => 'critical' ],
+		];
+		$this->assertEquals( 'critical', $reflection->invoke( $screen, $results ) );
+	}
+
+	/**
+	 * Testa che overall status con status mancante usa default
+	 */
+	public function test_overall_status_missing_status_field() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$screen = new HealthScreen( $runner );
+
+		$reflection = new \ReflectionMethod( $screen, 'determine_overall_status' );
+		$reflection->setAccessible( true );
+
+		$results = [
+			'a' => [],
+			'b' => [ 'status' => 'ok' ],
+		];
+		$this->assertEquals( 'ok', $reflection->invoke( $screen, $results ) );
+	}
+
+	// ─── render (HTML changes) ─────────────────────────────────────
+
+	/**
+	 * Testa che render non contiene inline styles
+	 */
+	public function test_render_has_no_inline_styles() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [] );
+
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'style="', $output );
+	}
+
+	/**
+	 * Testa che render mostra il banner di stato quando ci sono risultati
+	 */
+	public function test_render_shows_summary_banner_with_results() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [
+			'database' => [
+				'status'  => 'ok',
+				'message' => 'OK',
+				'name'    => 'Database',
+			],
+		] );
+
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'ops-health-summary', $output );
+	}
+
+	/**
+	 * Testa che render nasconde il banner quando non ci sono risultati
+	 */
+	public function test_render_hides_summary_when_no_results() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [] );
+
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'ops-health-summary', $output );
+	}
+
+	// ─── Pattern enforcement ───────────────────────────────────────
 
 	/**
 	 * Testa che la classe NON è final

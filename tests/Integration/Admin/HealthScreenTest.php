@@ -337,6 +337,111 @@ class HealthScreenTest extends WP_UnitTestCase {
 		$screen->render();
 	}
 
+	// ─── enqueue_styles ────────────────────────────────────────────
+
+	/**
+	 * Testa che enqueue_styles registra il CSS sulla schermata health
+	 */
+	public function test_enqueue_styles_registers_stylesheet_on_health_screen() {
+		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $user_id );
+		set_current_screen( 'toplevel_page_ops-health-dashboard' );
+
+		$screen = $this->create_health_screen();
+		$screen->enqueue_styles();
+
+		$this->assertTrue( wp_style_is( 'ops-health-dashboard-screen', 'enqueued' ) );
+
+		wp_dequeue_style( 'ops-health-dashboard-screen' );
+	}
+
+	/**
+	 * Testa che enqueue_styles NON registra il CSS su altre schermate
+	 */
+	public function test_enqueue_styles_not_registered_on_other_screens() {
+		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $user_id );
+		set_current_screen( 'plugins' );
+
+		$screen = $this->create_health_screen();
+		$screen->enqueue_styles();
+
+		$this->assertFalse( wp_style_is( 'ops-health-dashboard-screen', 'enqueued' ) );
+	}
+
+	/**
+	 * Testa che register_hooks aggiunge l'action admin_enqueue_scripts
+	 */
+	public function test_register_hooks_adds_enqueue_action() {
+		$screen = $this->create_health_screen();
+		$screen->register_hooks();
+
+		$this->assertNotFalse(
+			has_action( 'admin_enqueue_scripts', [ $screen, 'enqueue_styles' ] )
+		);
+	}
+
+	// ─── Summary banner ────────────────────────────────────────────
+
+	/**
+	 * Testa che render mostra il summary banner con risultati salvati
+	 */
+	public function test_render_shows_summary_banner_with_stored_results() {
+		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $user_id );
+
+		update_option(
+			'ops_health_latest_results',
+			[
+				'database' => [
+					'status'  => 'ok',
+					'message' => 'OK',
+					'name'    => 'Database',
+				],
+			]
+		);
+
+		$screen = $this->create_health_screen();
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'ops-health-summary', $output );
+		$this->assertStringContainsString( 'ops-health-summary-ok', $output );
+		$this->assertStringContainsString( 'Healthy', $output );
+	}
+
+	/**
+	 * Testa che render non contiene inline styles
+	 */
+	public function test_render_has_no_inline_styles() {
+		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $user_id );
+
+		$screen = $this->create_health_screen();
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'style="', $output );
+	}
+
+	/**
+	 * Testa che determine_overall_status ritorna 'unknown' per risultati vuoti
+	 */
+	public function test_determine_overall_status_empty_returns_unknown() {
+		$screen = $this->create_health_screen();
+
+		$reflection = new \ReflectionMethod( $screen, 'determine_overall_status' );
+		$reflection->setAccessible( true );
+
+		$this->assertSame( 'unknown', $reflection->invoke( $screen, [] ) );
+	}
+
+	// ─── Pattern enforcement ───────────────────────────────────────
+
 	/**
 	 * Testa che la classe NON è final
 	 */

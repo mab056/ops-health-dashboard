@@ -121,20 +121,148 @@ class DashboardWidgetTest extends TestCase {
 		$runner = $this->create_runner_mock();
 		$widget = new DashboardWidget( $runner );
 
+		$hooks = [];
 		Functions\expect( 'add_action' )
-			->once()
-			->with(
-				'wp_dashboard_setup',
-				Mockery::on(
-					function ( $callback ) use ( $widget ) {
-						return is_array( $callback )
-							&& $callback[0] === $widget
-							&& 'add_widget' === $callback[1];
-					}
-				)
+			->atLeast()
+			->times( 1 )
+			->andReturnUsing(
+				function ( $hook, $callback ) use ( &$hooks ) {
+					$hooks[ $hook ] = $callback;
+				}
 			);
 
 		$widget->register_hooks();
+
+		$this->assertArrayHasKey( 'wp_dashboard_setup', $hooks );
+		$this->assertSame( [ $widget, 'add_widget' ], $hooks['wp_dashboard_setup'] );
+	}
+
+	/**
+	 * Testa che register_hooks registra l'hook admin_enqueue_scripts
+	 */
+	public function test_register_hooks_adds_admin_enqueue_scripts() {
+		$runner = $this->create_runner_mock();
+		$widget = new DashboardWidget( $runner );
+
+		$hooks = [];
+		Functions\expect( 'add_action' )
+			->atLeast()
+			->times( 1 )
+			->andReturnUsing(
+				function ( $hook, $callback ) use ( &$hooks ) {
+					$hooks[ $hook ] = $callback;
+				}
+			);
+
+		$widget->register_hooks();
+
+		$this->assertArrayHasKey( 'admin_enqueue_scripts', $hooks );
+		$this->assertSame( [ $widget, 'enqueue_styles' ], $hooks['admin_enqueue_scripts'] );
+	}
+
+	// ─── enqueue_styles ─────────────────────────────────────────────
+
+	/**
+	 * Testa che enqueue_styles carica il CSS sulla dashboard per admin
+	 */
+	public function test_enqueue_styles_on_dashboard_screen() {
+		if ( ! defined( 'OPS_HEALTH_DASHBOARD_FILE' ) ) {
+			define( 'OPS_HEALTH_DASHBOARD_FILE', '/fake/ops-health-dashboard.php' );
+		}
+		if ( ! defined( 'OPS_HEALTH_DASHBOARD_VERSION' ) ) {
+			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.6.0' );
+		}
+
+		$screen     = new \stdClass();
+		$screen->id = 'dashboard';
+
+		Functions\expect( 'current_user_can' )
+			->once()
+			->with( 'manage_options' )
+			->andReturn( true );
+
+		Functions\expect( 'get_current_screen' )
+			->once()
+			->andReturn( $screen );
+
+		Functions\expect( 'plugin_dir_url' )
+			->once()
+			->andReturn( 'http://example.com/wp-content/plugins/ops-health-dashboard/' );
+
+		Functions\expect( 'wp_enqueue_style' )
+			->once()
+			->with(
+				'ops-health-dashboard-widget',
+				Mockery::type( 'string' ),
+				[],
+				Mockery::type( 'string' )
+			);
+
+		$runner = $this->create_runner_mock();
+		$widget = new DashboardWidget( $runner );
+		$widget->enqueue_styles();
+	}
+
+	/**
+	 * Testa che enqueue_styles NON carica il CSS per utenti senza manage_options
+	 */
+	public function test_enqueue_styles_skips_for_non_admin_user() {
+		Functions\expect( 'current_user_can' )
+			->once()
+			->with( 'manage_options' )
+			->andReturn( false );
+
+		$runner = $this->create_runner_mock();
+		$widget = new DashboardWidget( $runner );
+		$widget->enqueue_styles();
+
+		// wp_enqueue_style non deve essere chiamato.
+		$this->assertInstanceOf( DashboardWidget::class, $widget );
+	}
+
+	/**
+	 * Testa che enqueue_styles NON carica il CSS su schermate non-dashboard
+	 */
+	public function test_enqueue_styles_skips_non_dashboard_screen() {
+		$screen     = new \stdClass();
+		$screen->id = 'plugins';
+
+		Functions\expect( 'current_user_can' )
+			->once()
+			->with( 'manage_options' )
+			->andReturn( true );
+
+		Functions\expect( 'get_current_screen' )
+			->once()
+			->andReturn( $screen );
+
+		$runner = $this->create_runner_mock();
+		$widget = new DashboardWidget( $runner );
+		$widget->enqueue_styles();
+
+		// wp_enqueue_style non deve essere chiamato.
+		$this->assertInstanceOf( DashboardWidget::class, $widget );
+	}
+
+	/**
+	 * Testa che enqueue_styles gestisce screen null
+	 */
+	public function test_enqueue_styles_handles_null_screen() {
+		Functions\expect( 'current_user_can' )
+			->once()
+			->with( 'manage_options' )
+			->andReturn( true );
+
+		Functions\expect( 'get_current_screen' )
+			->once()
+			->andReturn( null );
+
+		$runner = $this->create_runner_mock();
+		$widget = new DashboardWidget( $runner );
+		$widget->enqueue_styles();
+
+		// wp_enqueue_style non deve essere chiamato.
+		$this->assertInstanceOf( DashboardWidget::class, $widget );
 	}
 
 	// ─── add_widget ─────────────────────────────────────────────────
@@ -375,6 +503,31 @@ class DashboardWidgetTest extends TestCase {
 		ob_start();
 		$widget->render();
 		ob_get_clean();
+	}
+
+	/**
+	 * Testa che render include la classe CSS footer
+	 */
+	public function test_render_includes_footer_class() {
+		$this->mock_render_functions();
+		$runner = $this->create_runner_mock();
+		$runner->shouldReceive( 'get_latest_results' )->andReturn(
+			[
+				'database' => [
+					'status'  => 'ok',
+					'message' => 'OK',
+					'name'    => 'Database',
+				],
+			]
+		);
+
+		$widget = new DashboardWidget( $runner );
+
+		ob_start();
+		$widget->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'ops-health-widget-footer', $output );
 	}
 
 	// ─── determine_overall_status ───────────────────────────────────

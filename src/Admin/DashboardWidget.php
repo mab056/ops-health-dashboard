@@ -50,6 +50,33 @@ class DashboardWidget {
 	 */
 	public function register_hooks(): void {
 		add_action( 'wp_dashboard_setup', [ $this, 'add_widget' ] );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_styles' ] );
+	}
+
+	/**
+	 * Carica gli stili del widget sulla pagina dashboard
+	 *
+	 * Enqueue il CSS solo sulla schermata principale della dashboard wp-admin.
+	 *
+	 * @return void
+	 */
+	public function enqueue_styles(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$screen = get_current_screen();
+
+		if ( null === $screen || 'dashboard' !== $screen->id ) {
+			return;
+		}
+
+		wp_enqueue_style(
+			'ops-health-dashboard-widget',
+			plugin_dir_url( OPS_HEALTH_DASHBOARD_FILE ) . 'assets/css/dashboard-widget.css',
+			[],
+			OPS_HEALTH_DASHBOARD_VERSION
+		);
 	}
 
 	/**
@@ -127,7 +154,7 @@ class DashboardWidget {
 			<?php endforeach; ?>
 		</ul>
 
-		<p>
+		<p class="ops-health-widget-footer">
 			<a href="<?php echo esc_url( $dashboard_url ); ?>">
 				<?php echo esc_html__( 'View full dashboard', 'ops-health-dashboard' ); ?>
 			</a>

@@ -112,6 +112,23 @@ class PluginTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Testa che init() registra l'hook admin_enqueue_scripts
+	 */
+	public function test_init_registers_admin_enqueue_scripts_hook() {
+		$plugin = bootstrap();
+
+		remove_all_actions( 'admin_enqueue_scripts' );
+
+		$plugin->init();
+
+		$this->assertGreaterThan(
+			0,
+			has_action( 'admin_enqueue_scripts' ),
+			'admin_enqueue_scripts hook should be registered after init()'
+		);
+	}
+
+	/**
 	 * Testa che la classe NON è final
 	 */
 	public function test_class_is_not_final() {

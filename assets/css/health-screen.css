@@ -1,0 +1,116 @@
+/**
+ * Ops Health Dashboard Screen Styles
+ *
+ * Styles for the main admin health dashboard page.
+ * Uses WordPress admin color palette for native look.
+ *
+ * Declaration order follows Code Guide by mdo:
+ * Positioning > Box model > Typography > Visual > Misc
+ *
+ * @package OpsHealthDashboard
+ */
+
+/* --- Actions bar --- */
+
+.ops-health-actions {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	margin: 16px 0;
+}
+
+.ops-health-actions form {
+	display: inline;
+}
+
+/* --- Overall status summary banner --- */
+
+.ops-health-summary {
+	padding: 12px 16px;
+	margin-bottom: 16px;
+	border-left: 4px solid #787c82;
+	background: #f0f0f1;
+}
+
+.ops-health-summary strong {
+	font-size: 16px;
+}
+
+.ops-health-summary-ok {
+	border-left-color: #00a32a;
+	background: #edfaef;
+}
+
+.ops-health-summary-warning {
+	border-left-color: #dba617;
+	background: #fcf9e8;
+}
+
+.ops-health-summary-critical {
+	border-left-color: #d63638;
+	background: #fcf0f1;
+}
+
+.ops-health-summary-unknown {
+	border-left-color: #787c82;
+	background: #f0f0f1;
+}
+
+/* --- Check cards grid --- */
+
+.ops-health-checks {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 16px;
+}
+
+@media (max-width: 782px) {
+	.ops-health-checks {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* --- Individual check card --- */
+
+.ops-health-check {
+	padding: 16px;
+	border: 1px solid #c3c4c7;
+	border-left: 4px solid #787c82;
+	border-radius: 4px;
+	background: #fff;
+	box-shadow: 0 1px 1px rgb(0 0 0 / .04);
+}
+
+.ops-health-check h3 {
+	margin: 0 0 8px;
+	font-size: 14px;
+}
+
+.ops-health-check .status {
+	margin: 0 0 4px;
+	font-size: 13px;
+}
+
+.ops-health-check .message {
+	margin: 0;
+	color: #50575e;
+	font-size: 13px;
+}
+
+/* Status variants — card left border color */
+
+.ops-health-check-ok {
+	border-left-color: #00a32a;
+}
+
+.ops-health-check-warning {
+	border-left-color: #dba617;
+}
+
+.ops-health-check-critical {
+	border-left-color: #d63638;
+}
+
+.ops-health-check-unknown {
+	border-left-color: #787c82;
+}
