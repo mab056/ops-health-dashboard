@@ -23,8 +23,13 @@ $is_integration_test = false;
 
 // Controlla gli argomenti della riga di comando.
 if ( isset( $_SERVER['argv'] ) ) {
-	foreach ( $_SERVER['argv'] as $arg ) {
-		if ( strpos( $arg, '--testsuite=integration' ) !== false || strpos( $arg, 'tests/Integration' ) !== false ) {
+	$argv = $_SERVER['argv'];
+	$argc = count( $argv );
+	for ( $i = 0; $i < $argc; $i++ ) {
+		if ( strpos( $argv[ $i ], '--testsuite=integration' ) !== false
+			|| strpos( $argv[ $i ], 'tests/Integration' ) !== false
+			|| ( $argv[ $i ] === '--testsuite' && isset( $argv[ $i + 1 ] ) && $argv[ $i + 1 ] === 'integration' )
+		) {
 			$is_integration_test = true;
 			break;
 		}
