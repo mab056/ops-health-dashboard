@@ -5,6 +5,45 @@ Tutte le modifiche rilevanti a questo progetto saranno documentate in questo fil
 Il formato è basato su [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.6.1 - 2026-02-15
+
+### Fixed
+- **WebhookChannel HMAC signature** - Body ora serializzato una sola volta e firma HMAC calcolata sulla stringa pre-serializzata; prima il body veniva serializzato due volte (una volta per la firma, una volta da HttpClient) producendo una firma non verificabile lato consumer
+- **HttpClientInterface `post()`** - Accetta `array|string` body (PHPDoc `@param array|string`, nessun type hint PHP per compatibilità 7.4); permette ai channel di passare body pre-serializzati
+
+### Added
+- **Uninstaller multisite** - `uninstall()` dispatcha a `uninstall_network()` o `uninstall_single()` in base a `is_multisite()`
+  - `uninstall_network()` itera tutti i blog via `$wpdb->get_col()` + `switch_to_blog()`/`restore_current_blog()`
+  - Pulizia completa per-blog: opzioni, cron, transient fissi, cooldown transient
+- **uninstall.php multisite fallback** - Aggiunto `elseif(is_multisite())` con variabili prefissate per gestione multisite senza autoloader
+- **Multisite integration tests** - 3 nuovi test in `UninstallerTest`:
+  - `test_uninstall_on_multisite_cleans_all_sites` — crea 3 blog, imposta dati plugin su tutti, verifica pulizia completa
+  - `test_uninstall_on_multisite_cleans_cooldown_transients` — verifica pulizia cooldown transient su tutti i blog
+  - `test_uninstall_on_multisite_preserves_non_plugin_data` — verifica che opzioni non-plugin siano preservate
+- **`WP_TESTS_MULTISITE` support** - `tests/bootstrap.php` supporta env var per abilitare modalità multisite
+- **Composer scripts multisite**:
+  - `test:integration:multisite` — esegue test di integrazione in modalità multisite
+  - `test:coverage:multisite` — coverage multisite con clover XML
+  - `test:coverage` aggiornato — esegue unit + integration single-site + integration multisite
+
+### Changed
+- **build-zip.sh** - Rimosso `|| true` su `composer install --no-dev`, aggiunto controllo esplicito con `exit 1` su fallimento
+- **readme.txt** - Chiarito "46 scenari; 3 viewport localmente, desktop-only in CI"
+
+### Tests
+- +7 unit test: WebhookChannel string body, HttpClient string/array body, Uninstaller multisite (mock single-site, network dispatch, single-site dispatch, per-blog cleanup)
+- +3 integration test multisite: Uninstaller multi-blog cleanup, cooldown transient, preservazione dati non-plugin
+- +1 integration test: aggiornato UninstallerTest con nuove assertions
+
+### Development Notes
+- 574 unit tests (Brain\Monkey), 1336 assertions — **100% classes, methods, lines**
+- 322 integration tests (WP Test Suite), 655 assertions (single-site) / 684 assertions (multisite) — **100% combinato**
+- 55 PHP test files (31 unit + 24 integration)
+- 31 source files in `src/`, 2 CSS files in `assets/css/`
+- PHPCS 100% clean, PHPStan level 6: 0 errori
+- Coverage: Uninstaller 81.25% (single-site only) → **100% combinato** (single-site + multisite)
+- Version bump: 0.6.0 → 0.6.1
+
 ## 0.6.0 - 2026-02-12
 
 ### Added

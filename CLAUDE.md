@@ -339,7 +339,9 @@ composer install
 composer test                        # Tutti i test (unit + integration)
 composer test:unit                   # Solo test unitari (veloce)
 composer test:integration           # Solo test di integrazione (con WP)
-composer test:coverage              # Tutti con coverage
+composer test:integration:multisite # Test di integrazione in modalità multisite
+composer test:coverage              # Tutti con coverage (unit + integration + multisite)
+composer test:coverage:multisite    # Coverage solo multisite
 composer test:matrix                # Matrice completa PHP 7.4-8.5 + PHPCS + PHPStan + E2E (come CI)
 
 # Test Matrix (opzioni)
@@ -614,21 +616,22 @@ Richiede PHP 7.4-8.5 installati (via PPA sury) + Docker + Node.js per E2E. Vedi 
 **Milestone M6 - WordPress.org Readiness** ✅ COMPLETATA
 
 **Stato Attuale:**
-- ✅ **567 test unitari** (Brain\Monkey), 1287 assertions
-- ✅ **318 test di integrazione** (WP Test Suite), 654 assertions
+- ✅ **574 test unitari** (Brain\Monkey), 1336 assertions
+- ✅ **322 test di integrazione** (WP Test Suite), 655 assertions (single-site) / 684 assertions (multisite)
 - ✅ **46 scenari E2E** x 3 viewport = 138 esecuzioni locali; CI desktop-only (46 test)
 - ✅ PHPCS 100% compliance (0 errori, 0 warning)
 - ✅ PHPStan level 6: 0 errori (szepeviktor/phpstan-wordpress)
 - ✅ CI/CD completo con PHP 7.4-8.5 + E2E Playwright (desktop-only in CI)
-- ✅ Coverage: **100%** classi, metodi, linee (sia unit che integration)
+- ✅ Coverage: **100%** classi, metodi, linee (unit + integration single-site + multisite combinati)
 - ✅ 31 file sorgente, 55 file di test PHP (31 unit + 24 integration), 5 file di spec E2E, 2 file CSS
 - ✅ Pattern enforcement (NO singleton/static/final)
 - ✅ WordPress.org ready: uninstall.php, readme.txt, ABSPATH guards
 - ✅ HealthScreen UI: card grid, summary banner, CSS dedicato con palette WordPress nativa
+- ✅ Multisite: Uninstaller supporta multisite, uninstall.php con fallback multisite
 
 **Componenti Implementati (M1+M2+M3+M4+M5+M6):**
 - StorageInterface, CheckInterface, RedactionInterface, CheckRunnerInterface (contratti DI)
-- HttpClientInterface, AlertManagerInterface, AlertChannelInterface (contratti M4)
+- HttpClientInterface (`post()` accetta `array|string` body), AlertManagerInterface, AlertChannelInterface (contratti M4)
 - Storage (Options API, sentinel pattern in `has()`, autoload=false)
 - CheckRunner (try/catch, type safety, RedactionInterface, clear_results)
 - DatabaseCheck ($wpdb injection, no info disclosure, i18n, RedactionInterface per $wpdb errors)
@@ -640,7 +643,7 @@ Richiede PHP 7.4-8.5 installati (via PPA sury) + Docker + Node.js per E2E. Vedi 
 - HttpClient (anti-SSRF: blocco IP privati, validazione DNS, DNS pinning CURLOPT_RESOLVE anti-TOCTOU, restrizione schema/porta, no redirect, rifiuto IPv6, validazione HTTP 2xx)
 - AlertManager (state change detection, cooldown pre-dispatch via transient, dispatch multi-canale con isolamento per-canale try/catch \Throwable, alert log limitato a 50 voci, costanti STATUS_OK/WARNING/CRITICAL/UNKNOWN)
 - EmailChannel (wp_mail, recipients configurabili con validazione is_email)
-- WebhookChannel (JSON POST, firma HMAC opzionale con header X-OpsHealth-Signature documentato)
+- WebhookChannel (JSON POST, firma HMAC su body pre-serializzato con header X-OpsHealth-Signature documentato)
 - SlackChannel (Block Kit, color attachments, escape mrkdwn)
 - TelegramChannel (Bot API, HTML parse mode con htmlspecialchars)
 - WhatsAppChannel (webhook generico, Bearer auth, phone number con validazione E.164)
@@ -651,12 +654,13 @@ Richiede PHP 7.4-8.5 installati (via PPA sury) + Docker + Node.js per E2E. Vedi 
 - AlertSettings (pagina admin configurazione alert, PRG, nonce, per-channel enable/disable + credentials con secret non-prefill + preserve-on-empty, cooldown)
 - DashboardWidget (widget wp-admin dashboard, worst-status, capability check, CheckRunnerInterface)
 - Activator (usa costanti Scheduler::HOOK_NAME/INTERVAL)
-- Uninstaller ($wpdb injection, pulizia opzioni/cron/transient, bulk delete cooldown via LIKE query)
+- Uninstaller ($wpdb injection, supporto multisite con `uninstall_network()`, pulizia opzioni/cron/transient, bulk delete cooldown via LIKE query)
 
 **WordPress.org Readiness (M6):**
-- uninstall.php con guard WP_UNINSTALL_PLUGIN
+- uninstall.php con guard WP_UNINSTALL_PLUGIN + fallback multisite
 - readme.txt in formato WordPress.org standard
 - ABSPATH guards su tutti i file sorgente con @codeCoverageIgnore
+- Uninstaller con supporto multisite completo (`uninstall_network()` + iterazione blog)
 
 ## 📞 Per Aiuto
 

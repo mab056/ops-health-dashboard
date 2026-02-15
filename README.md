@@ -40,7 +40,7 @@ Questo plugin fornisce una dashboard operativa in wp-admin con controlli automat
 
 ### Alerting
 - **Email** via `wp_mail()` con destinatari configurabili
-- **Webhook** generico POST JSON con firma HMAC opzionale
+- **Webhook** generico POST JSON con firma HMAC opzionale (su body pre-serializzato)
 - **Slack** via Incoming Webhook con Block Kit payload
 - **Telegram** via Bot API con parse mode HTML
 - **WhatsApp** via webhook generico con auth Bearer
@@ -169,13 +169,14 @@ Questo progetto segue Test-Driven Development con un **approccio misto**:
 
 **Unit Tests (Brain\Monkey)** - Veloce, isolato
 - Logica business pura, NO WordPress
-- 567 test, 1287 assertions, ~6 s
+- 574 test, 1336 assertions, ~3 s
 - Perfetto per TDD rapido
 
 **Integration Tests (WP Test Suite)** - WordPress reale
 - Test con WordPress completo, database, WP-Cron
-- 318 test, 654 assertions, ~6 s
+- 322 test, 655 assertions (single-site) / 684 assertions (multisite), ~4 s
 - Verifica integrazione reale con WordPress
+- Supporto multisite via `WP_TESTS_MULTISITE=1`
 
 **E2E Tests (Playwright + wp-env)** - Browser reale
 - 46 scenari x 3 viewport (desktop, tablet, mobile) = 138 esecuzioni di test
@@ -192,13 +193,16 @@ composer test:unit
 composer install-wp-tests              # Setup una tantum
 composer test:integration
 
+# Integration tests in modalità multisite
+composer test:integration:multisite
+
 # Tutti i test (unit + integration)
 composer test
 
 # Matrice completa PHP 7.4-8.5 + PHPCS + PHPStan (come CI)
 composer test:matrix
 
-# Con coverage (richiede Xdebug)
+# Con coverage (richiede Xdebug) — esegue unit + integration + multisite
 composer test:coverage
 
 # E2E tests (richiede Docker + Node.js)
@@ -287,8 +291,8 @@ public function test_database_check_runs_successfully() {
 
 ### Matrice Test
 
-- **Unit Tests**: Brain\Monkey - 567 test, 1287 assertions, tutte le versioni PHP
-- **Integration Tests**: WP Test Suite - 318 test, 654 assertions, tutte le versioni PHP
+- **Unit Tests**: Brain\Monkey - 574 test, 1336 assertions, tutte le versioni PHP
+- **Integration Tests**: WP Test Suite - 322 test, 655/684 assertions (single-site/multisite), tutte le versioni PHP
 - **E2E Tests**: Playwright + wp-env - 46 scenari x 3 viewport = 138 esecuzioni di test
 - **PHPStan**: Level 6 con szepeviktor/phpstan-wordpress, 0 errori
 - **Versioni PHP**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
@@ -331,7 +335,7 @@ public function test_database_check_runs_successfully() {
 
 - ✅ Conforme WordPress Coding Standards
 - ✅ Nessuna chiamata outbound senza opt-in
-- ✅ Cleanup in disinstallazione via `uninstall.php`
+- ✅ Cleanup in disinstallazione via `uninstall.php` (single-site e multisite)
 - ✅ `readme.txt` in formato WordPress.org standard
 - ✅ ABSPATH guards su tutti i file sorgente
 
@@ -343,10 +347,10 @@ Milestone corrente: **M6 - WordPress.org Readiness** ✅
 
 - **31 file sorgente** in `src/`, 2 file CSS in `assets/css/`
 - **55 file di test PHP** (31 unit + 24 integration)
-- **567 unit test**, 1287 assertions (Brain\Monkey)
-- **318 integration test**, 654 assertions (WP Test Suite)
+- **574 unit test**, 1336 assertions (Brain\Monkey)
+- **322 integration test**, 655 assertions single-site / 684 multisite (WP Test Suite)
 - **46 E2E scenari** x 3 viewport = 138 esecuzioni di test (Playwright)
-- **Coverage**: 100% classi, 100% metodi, 100% linee (sia unit che integration)
+- **Coverage**: 100% classi, 100% metodi, 100% linee (unit + integration + multisite combinati)
 - **PHPCS**: 100% compliance (0 errori, 0 warning)
 - **PHPStan**: level 6, 0 errori
 
@@ -413,7 +417,8 @@ git push origin feature/nome-tua-feature
 composer test                    # Tutti i test (unit + integration)
 composer test:unit               # Solo test unitari (Brain\Monkey, veloce)
 composer test:integration        # Solo test di integrazione (WP Test Suite)
-composer test:coverage           # Coverage completa
+composer test:integration:multisite  # Test integrazione in modalità multisite
+composer test:coverage           # Coverage completa (unit + integration + multisite)
 composer test:matrix             # Matrice PHP 7.4-8.5 + PHPCS + PHPStan + E2E (come CI)
 
 # Code Quality

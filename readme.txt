@@ -3,7 +3,7 @@ Contributors: mattiabondrano
 Tags: health check, monitoring, dashboard, alerting, devops
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 0.6.0
+Stable tag: 0.6.1
 Requires PHP: 7.4
 License: GPL-3.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -72,7 +72,7 @@ By default, checks run every 15 minutes via WP-Cron. You can also trigger checks
 
 = What data is cleaned up when I uninstall the plugin? =
 
-All plugin options, transients and scheduled cron events are removed when you delete the plugin through the WordPress admin. No data remains in the database.
+All plugin options, transients and scheduled cron events are removed when you delete the plugin through the WordPress admin. On multisite networks, data is cleaned across all sites. No data remains in the database.
 
 = Is sensitive data exposed in health check results? =
 
@@ -85,6 +85,13 @@ No. All health check results are processed through a redaction service that auto
 3. Dashboard widget with global status
 
 == Changelog ==
+
+= 0.6.1 =
+* Fixed WebhookChannel HMAC signature: body is now serialized once and signed on the pre-serialized string
+* Added multisite support in Uninstaller (iterates all blogs on network uninstall)
+* Added multisite fallback in uninstall.php
+* Improved build-zip.sh error handling (explicit failure on composer install errors)
+* Added multisite integration tests with WP_TESTS_MULTISITE support
 
 = 0.6.0 =
 * Added uninstall.php with Uninstaller class for complete data cleanup
@@ -114,6 +121,9 @@ No. All health check results are processed through a redaction service that auto
 For the full changelog, see [CHANGELOG.md](https://github.com/mab056/ops-health-dashboard/blob/main/CHANGELOG.md).
 
 == Upgrade Notices ==
+
+= 0.6.1 =
+HMAC webhook signature fix, multisite uninstall support, improved build reliability. No breaking changes.
 
 = 0.6.0 =
 WordPress.org readiness improvements (uninstall cleanup, ABSPATH guards, docs) and UI styling updates. No breaking changes.

@@ -624,12 +624,42 @@ PHPCS + PHPStan clean
 4. `bin/build-zip.sh` aggiornato per includere uninstall.php e readme.txt
 5. `tests/bootstrap.php` definisce ABSPATH per compatibilità unit test
 
-**Statistiche Finali** (post HealthScreen UI + coverage push):
+**Statistiche Finali** (post code review + multisite coverage):
 - 31 file sorgente in `src/`, 2 file CSS in `assets/css/`
 - 55 file di test PHP (31 unit + 24 integration)
-- 567 unit test, 1287 assertions — **100% classi, metodi, linee**
-- 318 integration test, 654 assertions — **100% classi, metodi, linee**
+- 574 unit test, 1336 assertions — **100% classi, metodi, linee**
+- 322 integration test, 655 assertions (single-site) / 684 assertions (multisite) — **100% combinato**
 - 46 E2E scenari x 3 viewport = 138 esecuzioni di test
 - PHPCS 100% clean, PHPStan level 6: 0 errori
 
 **Deliverable**: Plugin WordPress.org ready con uninstall.php, readme.txt, ABSPATH guards, HealthScreen UI con CSS dedicato ✅
+
+---
+
+## Progress Log (Post-M6)
+
+### 2026-02-15 (Code Review Post-M6 + Multisite Coverage)
+
+**Code Review Post-M6** - 4 miglioramenti implementati da review esterna:
+
+**Fix:**
+- **WebhookChannel HMAC**: body serializzato una sola volta, firma HMAC calcolata su stringa pre-serializzata, passata come stringa a HttpClient (evita doppia serializzazione)
+- **HttpClientInterface `post()`**: accetta `array|string` body (PHPDoc `@param array|string`, no PHP type hint per compatibilità 7.4)
+- **Uninstaller multisite**: `uninstall()` dispatcha a `uninstall_network()` (itera tutti i blog) o `uninstall_single()` in base a `is_multisite()`
+- **uninstall.php**: aggiunto fallback `elseif(is_multisite())` con variabili prefissate
+- **build-zip.sh**: rimosso `|| true` su `composer install`, aggiunto controllo esplicito con exit 1
+- **readme.txt**: chiarito "46 scenari; 3 viewport localmente, desktop-only in CI"
+
+**Multisite Coverage Push:**
+- `tests/bootstrap.php`: supporto `WP_TESTS_MULTISITE` env var → `define('WP_TESTS_MULTISITE', true)`
+- 3 nuovi test integrazione multisite in `UninstallerTest`: pulizia multi-blog, cooldown transient, preservazione dati non-plugin
+- `composer.json`: 3 nuovi script (`test:integration:multisite`, `test:coverage:multisite`, `test:coverage` aggiornato con 3 run)
+- Coverage: Uninstaller 81.25%→96.88% (multisite) / 81.25% (single-site) → **100% combinato**
+
+**Nuovi test:**
+- +7 unit test: WebhookChannel string body, HttpClient string/array body, Uninstaller multisite
+- +4 integration test: 3 multisite Uninstaller + 1 aggiornato
+
+Totale: 574 unit (1336 assertions) + 322 integration (655/684 assertions), PHPCS + PHPStan clean
+
+**Lesson**: `is_multisite()` branch richiede due run di test (single-site + multisite); `WP_TESTS_MULTISITE` env var abilita la modalità multisite nel bootstrap WP Test Suite
