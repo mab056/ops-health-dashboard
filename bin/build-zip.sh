@@ -78,7 +78,11 @@ cp -r "$PLUGIN_DIR/config" "$DEST/"
 # Installa dipendenze production-only.
 cp "$PLUGIN_DIR/composer.json" "$DEST/"
 cd "$DEST"
-composer install --no-dev --no-interaction --optimize-autoloader --quiet 2>/dev/null || true
+if ! composer install --no-dev --no-interaction --optimize-autoloader --quiet 2>&1; then
+	echo "ERROR: composer install failed. ZIP non generato." >&2
+	rm -rf "$TMP_DIR"
+	exit 1
+fi
 rm -f "$DEST/composer.json" "$DEST/composer.lock"
 cd - > /dev/null
 

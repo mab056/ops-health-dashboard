@@ -754,6 +754,95 @@ class HttpClientTest extends TestCase {
 	}
 
 	// ---------------------------------------------------
+	// post() - Body pre-serializzato (stringa)
+	// ---------------------------------------------------
+
+	/**
+	 * Testa POST con body stringa pre-serializzato (nessun re-encode)
+	 *
+	 * @return void
+	 */
+	public function test_post_sends_pre_serialized_string_body_as_is() {
+		$client = $this->create_client_with_resolved_ip(
+			$this->create_redaction_mock(),
+			'93.184.216.34'
+		);
+
+		$raw_body = '{"key":"value"}';
+
+		Functions\expect( 'wp_remote_post' )
+			->once()
+			->with(
+				'https://api.example.com/webhook',
+				Mockery::on(
+					function ( $args ) use ( $raw_body ) {
+						return $args['body'] === $raw_body;
+					}
+				)
+			)
+			->andReturn(
+				[
+					'response' => [ 'code' => 200 ],
+					'body'     => 'ok',
+				]
+			);
+
+		Functions\expect( 'is_wp_error' )->once()->andReturn( false );
+		Functions\expect( 'wp_remote_retrieve_response_code' )->once()->andReturn( 200 );
+		Functions\expect( 'wp_remote_retrieve_body' )->once()->andReturn( 'ok' );
+
+		$result = $client->post(
+			'https://api.example.com/webhook',
+			$raw_body
+		);
+
+		$this->assertTrue( $result['success'] );
+	}
+
+	/**
+	 * Testa POST con body array viene JSON-encoded
+	 *
+	 * @return void
+	 */
+	public function test_post_json_encodes_array_body() {
+		$client = $this->create_client_with_resolved_ip(
+			$this->create_redaction_mock(),
+			'93.184.216.34'
+		);
+
+		$body     = [ 'key' => 'value' ];
+		$expected = json_encode( $body );
+
+		Functions\expect( 'wp_remote_post' )
+			->once()
+			->with(
+				'https://api.example.com/webhook',
+				Mockery::on(
+					function ( $args ) use ( $expected ) {
+						return $args['body'] === $expected;
+					}
+				)
+			)
+			->andReturn(
+				[
+					'response' => [ 'code' => 200 ],
+					'body'     => 'ok',
+				]
+			);
+
+		Functions\expect( 'is_wp_error' )->once()->andReturn( false );
+		Functions\expect( 'wp_remote_retrieve_response_code' )->once()->andReturn( 200 );
+		Functions\expect( 'wp_remote_retrieve_body' )->once()->andReturn( 'ok' );
+
+		$result = $client->post(
+			'https://api.example.com/webhook',
+			$body
+		);
+
+		$this->assertTrue( $result['success'] );
+	}
+
+	// ---------------------------------------------------
 	// Helper
 	// ---------------------------------------------------
 

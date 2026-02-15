@@ -44,11 +44,44 @@ class Uninstaller {
 	/**
 	 * Esegue la pulizia completa del plugin
 	 *
-	 * Rimuove opzioni, cron hook e transient dal database.
+	 * Su multisite itera su tutti i blog della rete.
+	 * Su single-site esegue la pulizia direttamente.
 	 *
 	 * @return void
 	 */
 	public function uninstall(): void {
+		if ( is_multisite() ) {
+			$this->uninstall_network();
+		} else {
+			$this->uninstall_single();
+		}
+	}
+
+	/**
+	 * Pulizia network multisite
+	 *
+	 * Itera su tutti i blog della rete ed esegue la pulizia per ciascuno.
+	 *
+	 * @return void
+	 */
+	private function uninstall_network(): void {
+		$blog_ids = get_sites( [ 'fields' => 'ids' ] );
+
+		foreach ( $blog_ids as $blog_id ) {
+			switch_to_blog( $blog_id );
+			$this->uninstall_single();
+			restore_current_blog();
+		}
+	}
+
+	/**
+	 * Pulizia singolo sito
+	 *
+	 * Rimuove opzioni, cron hook e transient dal database del sito corrente.
+	 *
+	 * @return void
+	 */
+	private function uninstall_single(): void {
 		$this->delete_options();
 		$this->clear_cron();
 		$this->delete_transients();

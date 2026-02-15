@@ -323,7 +323,7 @@ class WebhookChannelTest extends TestCase
 			->once()
 			->with(
 				'https://hooks.example.com/alert',
-				Mockery::type( 'array' ),
+				Mockery::type( 'string' ),
 				Mockery::type( 'array' )
 			)
 			->andReturn(
@@ -363,6 +363,11 @@ class WebhookChannelTest extends TestCase
 		$http_client = $this->create_http_client_mock();
 		$http_client->shouldReceive( 'post' )
 			->once()
+			->with(
+				'https://hooks.example.com/alert',
+				Mockery::type( 'string' ),
+				Mockery::type( 'array' )
+			)
 			->andReturn(
 				[
 					'success' => false,
@@ -386,6 +391,10 @@ class WebhookChannelTest extends TestCase
 	/**
 	 * Testa invio webhook con firma HMAC quando secret configurato
 	 *
+	 * La firma HMAC deve essere calcolata sullo stesso raw body
+	 * passato a HttpClient (stringa pre-serializzata), non su un
+	 * json_encode() separato.
+	 *
 	 * @return void
 	 */
 	public function test_send_with_hmac_signature()
@@ -399,15 +408,22 @@ class WebhookChannelTest extends TestCase
 			],
 		];
 
-		$payload           = $this->create_test_payload();
-		$expected_signature = hash_hmac( 'sha256', json_encode( $payload ), $secret );
+		$payload  = $this->create_test_payload();
+		$raw_body = json_encode( $payload );
+		$expected_signature = hash_hmac( 'sha256', $raw_body, $secret );
 
 		$http_client = $this->create_http_client_mock();
 		$http_client->shouldReceive( 'post' )
 			->once()
 			->with(
 				'https://hooks.example.com/alert',
-				Mockery::type( 'array' ),
+				Mockery::on(
+					function ( $body ) use ( $raw_body ) {
+						// Il body deve essere una stringa pre-serializzata,
+						// NON un array da ri-serializzare.
+						return is_string( $body ) && $body === $raw_body;
+					}
+				),
 				Mockery::on(
 					function ( $headers ) use ( $expected_signature ) {
 						return isset( $headers['X-OpsHealth-Signature'] )
@@ -452,7 +468,7 @@ class WebhookChannelTest extends TestCase
 			->once()
 			->with(
 				'https://hooks.example.com/alert',
-				Mockery::type( 'array' ),
+				Mockery::type( 'string' ),
 				Mockery::on(
 					function ( $headers ) {
 						return ! isset( $headers['X-OpsHealth-Signature'] );

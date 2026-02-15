@@ -98,14 +98,18 @@ class WebhookChannel implements AlertChannelInterface {
 		$url      = isset( $settings['url'] ) ? $settings['url'] : '';
 		$secret   = isset( $settings['secret'] ) ? $settings['secret'] : '';
 
+		// Serializza il body una sola volta per garantire che la firma HMAC
+		// corrisponda esattamente ai byte inviati (nessun doppio json_encode).
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+		$raw_body = json_encode( $payload );
+
 		$headers = [];
 		if ( '' !== $secret ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
-			$signature                        = hash_hmac( 'sha256', json_encode( $payload ), $secret );
+			$signature                        = hash_hmac( 'sha256', $raw_body, $secret );
 			$headers['X-OpsHealth-Signature'] = $signature;
 		}
 
-		$result = $this->http_client->post( $url, $payload, $headers );
+		$result = $this->http_client->post( $url, $raw_body, $headers );
 
 		if ( ! $result['success'] ) {
 			return [

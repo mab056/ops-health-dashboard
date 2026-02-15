@@ -4,6 +4,7 @@
  *
  * Pulizia completa dei dati del plugin quando viene cancellato
  * tramite la pagina plugin di WordPress admin.
+ * Supporta single-site e multisite network.
  *
  * @package OpsHealthDashboard
  */
@@ -17,11 +18,30 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 global $wpdb;
 
 if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
-	// Autoloader disponibile: usa la classe Uninstaller.
+	// Autoloader disponibile: usa la classe Uninstaller (gestisce multisite).
 	require_once __DIR__ . '/vendor/autoload.php';
 	( new \OpsHealthDashboard\Core\Uninstaller( $wpdb ) )->uninstall();
+} elseif ( is_multisite() ) {
+	// Fallback inline multisite: itera su tutti i blog della rete.
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+	$ops_health_blog_ids = get_sites( [ 'fields' => 'ids' ] );
+	foreach ( $ops_health_blog_ids as $ops_health_blog_id ) {
+		switch_to_blog( $ops_health_blog_id );
+		ops_health_uninstall_single_site( $wpdb );
+		restore_current_blog();
+	}
 } else {
-	// Fallback: pulizia inline senza autoloader.
+	// Fallback inline single-site.
+	ops_health_uninstall_single_site( $wpdb );
+}
+
+/**
+ * Pulizia dati plugin per un singolo sito (fallback inline)
+ *
+ * @param object $wpdb Istanza globale $wpdb.
+ * @return void
+ */
+function ops_health_uninstall_single_site( $wpdb ) {
 	// Opzioni.
 	delete_option( 'ops_health_activated_at' );
 	delete_option( 'ops_health_version' );

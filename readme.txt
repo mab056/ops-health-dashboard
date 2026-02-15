@@ -97,7 +97,7 @@ No. All health check results are processed through a redaction service that auto
 * Added DiskCheck with configurable thresholds (warning <20%, critical <10%)
 * Added VersionsCheck for WordPress/PHP version monitoring with update notifications
 * Added DashboardWidget showing global status in the wp-admin dashboard
-* Added E2E testing with Playwright and wp-env (46 scenarios x 3 viewports)
+* Added E2E testing with Playwright and wp-env (46 scenarios; 3 viewports locally, desktop-only in CI)
 * Improved RedisCheck with catch Throwable error handling
 
 = 0.4.1 =

@@ -81,12 +81,12 @@ class HttpClient implements HttpClientInterface {
 	 * Usa DNS pinning via CURLOPT_RESOLVE per prevenire attacchi
 	 * TOCTOU/DNS rebinding tra validazione e richiesta effettiva.
 	 *
-	 * @param string $url     URL di destinazione.
-	 * @param array  $body    Dati del corpo della richiesta.
-	 * @param array  $headers Header HTTP aggiuntivi.
+	 * @param string       $url     URL di destinazione.
+	 * @param array|string $body    Dati del corpo: array (auto-serializzato JSON) o stringa pre-serializzata.
+	 * @param array        $headers Header HTTP aggiuntivi.
 	 * @return array Risultato con chiavi success, code, body, error.
 	 */
-	public function post( string $url, array $body, array $headers = [] ): array {
+	public function post( string $url, $body, array $headers = [] ): array {
 		$resolved = $this->validate_and_resolve( $url );
 
 		if ( null === $resolved ) {
@@ -108,7 +108,7 @@ class HttpClient implements HttpClientInterface {
 
 		$args = [
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- wp_json_encode non disponibile in unit test.
-			'body'        => json_encode( $body ),
+			'body'        => is_string( $body ) ? $body : json_encode( $body ),
 			'headers'     => array_merge(
 				[ 'Content-Type' => 'application/json' ],
 				$headers

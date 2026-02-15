@@ -40,9 +40,9 @@ interface HttpClientInterface {
 	 *
 	 * L'URL DEVE passare la validazione is_safe_url() prima dell'invio.
 	 *
-	 * @param string $url     URL di destinazione.
-	 * @param array  $body    Dati del corpo della richiesta.
-	 * @param array  $headers Header HTTP aggiuntivi.
+	 * @param string       $url     URL di destinazione.
+	 * @param array|string $body    Dati del corpo: array (auto-serializzato JSON) o stringa pre-serializzata.
+	 * @param array        $headers Header HTTP aggiuntivi.
 	 * @return array {
 	 *     @type bool        $success    Se la richiesta è andata a buon fine.
 	 *     @type int         $code       Codice di risposta HTTP.
@@ -50,5 +50,5 @@ interface HttpClientInterface {
 	 *     @type string|null $error      Messaggio di errore se fallita.
 	 * }
 	 */
-	public function post( string $url, array $body, array $headers = [] ): array;
+	public function post( string $url, $body, array $headers = [] ): array;
 }
