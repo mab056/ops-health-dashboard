@@ -1,71 +1,71 @@
-# Contribuire a Ops Health Dashboard
+# Contributing to Ops Health Dashboard
 
-Grazie per il tuo interesse nel contribuire. Questo documento fornisce linee guida e requisiti per collaborare al progetto.
+Thanks for your interest in contributing. This document provides guidelines and requirements for collaborating on the project.
 
-## 🎯 Principi Fondamentali
+## Core Rules
 
-Questo progetto segue **standard di sviluppo rigorosi**:
+This project follows **strict development standards**:
 
-1. **TDD (Test-Driven Development)** - Test prima del codice, sempre
-2. **NO Singleton Pattern** - Usa dependency injection
-3. **NO Static Methods/Properties** - Solo dipendenze esplicite
-4. **NO Final Classes/Methods** - Garantisci testabilità ed estensibilità
-5. **Security First** - L'hardening non è negoziabile
-6. **WordPress Coding Standards** - Conformità WPCS richiesta
+1. **TDD (Test-Driven Development)** - Tests before code, always
+2. **NO Singleton Pattern** - Use dependency injection
+3. **NO Static Methods/Properties** - Explicit dependencies only
+4. **NO Final Classes/Methods** - Ensure testability and extensibility
+5. **Security First** - Hardening is non-negotiable
+6. **WordPress Coding Standards** - WPCS compliance required
 
-## 📋 Prerequisiti
+## Prerequisites
 
-Prima di contribuire, assicurati di avere:
+Before contributing, ensure you have:
 
-- PHP 7.4+ installato (8.3+ raccomandato)
-- Composer installato
-- Git configurato
-- Ambiente di sviluppo WordPress locale
-- Familiarità con PHPUnit e TDD
+- PHP 7.4+ (8.3+ recommended)
+- Composer
+- Git
+- Local WordPress dev environment
+- Familiarity with PHPUnit and TDD
 
-## 🚀 Iniziare
+## Setup
 
-### 1. Fork e Clone
+### 1. Fork and Clone
 
 ```bash
-# Fai il fork del repository su GitHub
-# Poi clona il tuo fork
+# Fork the repository on GitHub
+# Then clone your fork
 git clone https://github.com/YOUR_USERNAME/ops-health-dashboard.git
 cd ops-health-dashboard
 
-# Aggiungi il remote upstream
+# Add the upstream remote
 git remote add upstream https://github.com/mab056/ops-health-dashboard.git
 ```
 
-### 2. Installa le dipendenze
+### 2. Install Dependencies
 
 ```bash
-# Installa le dipendenze Composer
+# Install Composer dependencies
 composer install
 
-# Installa la suite di test WordPress
+# Install the WordPress test suite
 composer install-wp-tests
 ```
 
-### 3. Crea il feature branch
+### 3. Create a Branch
 
 ```bash
-# Aggiorna il branch principale
+# Update the main branch
 git checkout dev
 git pull upstream dev
 
-# Crea il feature branch
+# Create the feature branch
 git checkout -b feature/your-feature-name
 
-# Oppure per bug fix
+# Or for bug fixes
 git checkout -b fix/bug-description
 ```
 
-## 🧪 TDD Workflow (OBBLIGATORIO)
+## Required TDD Workflow
 
-**Ogni feature deve seguire il ciclo RED → GREEN → REFACTOR.**
+**Every feature must follow the RED -> GREEN -> REFACTOR cycle.**
 
-### Step 1: RED - Scrivi un test che fallisce
+### Step 1: RED - Write a Failing Test
 
 ```php
 // tests/Unit/Services/MyNewServiceTest.php
@@ -113,14 +113,14 @@ class MyNewServiceTest extends TestCase {
 }
 ```
 
-**Esegui il test: dovrebbe FALLIRE.**
+**Run the test: it should FAIL.**
 
 ```bash
 composer test
 # Expected: FAILURES! (Tests: X, Assertions: Y, Failures: Z)
 ```
 
-### Step 2: GREEN - Implementa il codice minimo
+### Step 2: GREEN - Implement the Minimum Code
 
 ```php
 // src/Services/MyNewService.php
@@ -145,14 +145,14 @@ class MyNewService {
 }
 ```
 
-**Esegui il test: dovrebbe PASSARE.**
+**Run the test: it should PASS.**
 
 ```bash
 composer test
 # Expected: OK (X tests, Y assertions)
 ```
 
-### Step 3: REFACTOR - Migliora la qualità del codice
+### Step 3: REFACTOR - Improve Code Quality
 
 ```php
 // Add error handling, validation, dependencies, etc.
@@ -186,7 +186,7 @@ class MyNewService {
 }
 ```
 
-**Esegui nuovamente i test: devono ancora passare.**
+**Run tests again: they must still pass.**
 
 ```bash
 composer test
@@ -194,12 +194,12 @@ composer phpcs
 composer analyse
 ```
 
-## 🚫 Applicazione dei Pattern
+## Pattern Enforcement
 
-### ❌ NON Usare il Singleton Pattern
+### DO NOT Use the Singleton Pattern
 
 ```php
-// ❌ SBAGLIATO - Questo farà fallire i test
+// WRONG - This will FAIL tests
 class BadService {
 	private static $instance;
 
@@ -214,10 +214,10 @@ class BadService {
 }
 ```
 
-### ✅ USA la Dependency Injection
+### DO Use Dependency Injection
 
 ```php
-// ✅ CORRETTO
+// CORRECT
 class GoodService {
 	private $container;
 
@@ -240,10 +240,10 @@ function bootstrap(): Plugin {
 }
 ```
 
-### ❌ NON Usare Static Methods
+### DO NOT Use Static Methods
 
 ```php
-// ❌ SBAGLIATO
+// WRONG
 class BadHelper {
 	public static function doSomething() {
 		return 'value';
@@ -251,10 +251,10 @@ class BadHelper {
 }
 ```
 
-### ✅ USA Instance Methods
+### DO Use Instance Methods
 
 ```php
-// ✅ CORRETTO
+// CORRECT
 class GoodHelper {
 	public function doSomething(): string {
 		return 'value';
@@ -271,10 +271,10 @@ class Consumer {
 }
 ```
 
-### ❌ NON Usare il Modificatore Final
+### DO NOT Use the Final Modifier
 
 ```php
-// ❌ SBAGLIATO - Impedisce il testing con mock
+// WRONG - Prevents testing with mocks
 final class BadClass {
 	public function method() {}
 }
@@ -284,10 +284,10 @@ class AnotherBadClass {
 }
 ```
 
-### ✅ Mantieni le Classi Estensibili
+### DO Keep Classes Extensible
 
 ```php
-// ✅ CORRETTO - Testabile ed estensibile
+// CORRECT - Testable and extensible
 class GoodClass {
 	public function method() {}
 }
@@ -300,7 +300,29 @@ class GoodClassMock extends GoodClass {
 }
 ```
 
-## 🔒 Requisiti di Sicurezza
+## Testing Requirements
+
+### Unit Tests (`tests/Unit/`)
+
+Use Brain\Monkey for isolated logic.
+
+### Integration Tests (`tests/Integration/`)
+
+Use the real WordPress test suite when changing:
+
+- Options API interactions
+- Cron/scheduling behavior
+- Hooks/admin behavior
+- Database persistence/integration behavior
+
+### Pattern-Enforcement Tests
+
+Add or keep tests that verify:
+
+- No `final` classes/methods
+- No static methods/properties
+
+## Security Requirements
 
 ### Input Sanitization
 
@@ -343,12 +365,12 @@ if (!wp_verify_nonce($_POST['ops_health_nonce'], 'ops_health_action')) {
 }
 ```
 
-### Redazione Dati Sensibili
+### Sensitive Data Redaction
 
-Usa il servizio `Redaction` per sanitizzare qualsiasi output che potrebbe contenere dati sensibili (log, messaggi di errore, dettagli diagnostici):
+Use the `Redaction` service to sanitize any output that could contain sensitive data (logs, error messages, diagnostic details):
 
 ```php
-// Inietta RedactionInterface (NON istanziare direttamente)
+// Inject RedactionInterface (DO NOT instantiate directly)
 class MyCheck implements CheckInterface {
 	private $redaction;
 
@@ -358,14 +380,14 @@ class MyCheck implements CheckInterface {
 
 	public function run(): array {
 		$samples = $this->redaction->redact_lines($raw_lines);
-		// $samples ora ha path, credenziali, email, IP redatti
+		// $samples now has paths, credentials, emails, IPs redacted
 	}
 }
 ```
 
-Vedi `src/Services/Redaction.php` e `src/Checks/ErrorLogCheck.php` come implementazioni di riferimento.
+See `src/Services/Redaction.php` and `src/Checks/ErrorLogCheck.php` as reference implementations.
 
-### Anti-SSRF per Webhooks
+### Anti-SSRF for Webhooks
 
 ```php
 // Use HttpClient service (includes anti-SSRF)
@@ -378,7 +400,19 @@ if (!$client->is_safe_url($url)) {
 $response = $client->post($url, ['example' => 'payload']);
 ```
 
-## 📝 Standard di Codifica
+## Architecture Requirements
+
+Non-negotiable architecture constraints:
+
+- No singleton usage
+- No static methods/properties for business logic
+- No `final` classes/methods
+- Constructor DI only
+- Interface-first where applicable (`*Interface` + concrete implementation)
+- Bootstrap through `config/bootstrap.php`
+- Inject WordPress dependencies (`$wpdb`, etc.) instead of direct globals in business logic
+
+## Code Style
 
 ### PHP - WordPress Coding Standards
 
@@ -390,18 +424,18 @@ composer phpcs
 composer phpcbf
 ```
 
-### Regole Principali
+### Main Rules
 
-- **Indentazione**: Tab (non spazi)
-- **Lunghezza riga**: 120 caratteri (soft), 150 (hard)
-- **Stile parentesi**: Allman style
-- **Nomenclatura**:
-  - Classi: `PascalCase`
-  - Metodi: `snake_case`
-  - Costanti: `UPPER_SNAKE_CASE`
-  - Globali: prefisso `ops_health_`
+- **Indentation**: Tabs (not spaces)
+- **Line length**: 120 characters (soft), 150 (hard)
+- **Brace style**: Allman style
+- **Naming**:
+  - Classes: `PascalCase`
+  - Methods: `snake_case`
+  - Constants: `UPPER_SNAKE_CASE`
+  - Globals: `ops_health_` prefix
 
-### Documentazione
+### Documentation
 
 ```php
 /**
@@ -422,33 +456,46 @@ public function method_name(string $param1, int $param2): array {
 }
 ```
 
-## 🔄 Processo di Pull Request
+## Local Quality Gates (Required Before PR)
 
-### 1. Prima di Aprire una PR
+Run:
 
 ```bash
-# Assicurati che tutti i test passino su tutte le versioni PHP
+composer test:unit
+composer test:integration
+composer phpcs
+composer analyse
+```
+
+If integration tests cannot run in your environment (for example DB unavailable), clearly report the concrete failure in the PR instead of marking them as passed.
+
+## Pull Request Process
+
+### 1. Before Opening a PR
+
+```bash
+# Make sure all tests pass on all PHP versions
 composer test:matrix
 
-# Oppure almeno sulla versione corrente
+# Or at least on the current version
 composer test
 composer phpcs
 composer analyse
 
-# Verifica che il build ZIP funzioni
+# Verify the build ZIP works
 bin/build-zip.sh
 
-# Aggiorna DEVELOPMENT_PLAN.md se stai completando task di milestone
+# Update DEVELOPMENT_PLAN.md if completing milestone tasks
 
-# Commit con formato conventional commit
+# Commit with conventional commit format
 git commit -m "feat: add new feature"
-# oppure
+# or
 git commit -m "fix: resolve bug"
 ```
 
-### 2. Formato del Messaggio di Commit
+### 2. Commit Message Format
 
-Segui [Conventional Commits](https://www.conventionalcommits.org/):
+Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
 <type>(<scope>): <description>
@@ -460,16 +507,16 @@ Segui [Conventional Commits](https://www.conventionalcommits.org/):
 Co-Authored-By: Your Name <your.email@example.com>
 ```
 
-**Tipi:**
-- `feat`: Nuova funzionalità
-- `fix`: Correzione di bug
-- `docs`: Solo documentazione
-- `style`: Stile del codice (formattazione, nessun cambio di logica)
-- `refactor`: Refactoring del codice
-- `test`: Aggiunta/aggiornamento test
-- `chore`: Modifiche di build/configurazione
+**Types:**
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation only
+- `style`: Code style (formatting, no logic change)
+- `refactor`: Code refactoring
+- `test`: Adding/updating tests
+- `chore`: Build/configuration changes
 
-**Esempi:**
+**Examples:**
 
 ```bash
 feat(checks): add Redis health check with TDD
@@ -495,93 +542,90 @@ descriptive exception instead of infinite loop.
 Tests: 3 new tests
 ```
 
-### 3. Apri la Pull Request
+### 3. Open the Pull Request
 
-- **Titolo**: Uguale all'oggetto del messaggio di commit
-- **Descrizione**:
-  - Quali modifiche sono state fatte
-  - Perché (link all'issue, se applicabile)
-  - Come testare
-  - Screenshot (se ci sono modifiche UI)
-- **Branch di base**: `dev`
+- **Title**: Same as the commit message subject
+- **Description**:
+  - What changes were made
+  - Why (link to issue, if applicable)
+  - How to test
+  - Screenshots (if there are UI changes)
+- **Base branch**: `dev`
 
-### 4. Checklist della PR
+### 4. PR Checklist
 
-- [ ] Test scritti prima (TDD)
-- [ ] Tutti i test passano su tutte le versioni PHP (`composer test:matrix`)
-- [ ] PHPCS passa (`composer phpcs`)
-- [ ] PHPStan passa (`composer analyse`)
-- [ ] NON è stato usato il singleton pattern
-- [ ] NON sono stati usati static methods
-- [ ] NON ci sono classi/metodi final
-- [ ] Sicurezza: input sanitizzati, output con escaping
-- [ ] Documentazione aggiornata (se necessario)
-- [ ] CHANGELOG.md aggiornato
-- [ ] Formato conventional commit
+- [ ] Tests written first (TDD)
+- [ ] All tests pass on all PHP versions (`composer test:matrix`)
+- [ ] PHPCS passes (`composer phpcs`)
+- [ ] PHPStan passes (`composer analyse`)
+- [ ] No singleton pattern used
+- [ ] No static methods used
+- [ ] No final classes/methods
+- [ ] Security: inputs sanitized, outputs escaped
+- [ ] Documentation updated (if needed)
+- [ ] CHANGELOG.md updated
+- [ ] Conventional commit format
 
-### 5. Processo di Review
+### 5. Review Process
 
-- I maintainer effettueranno la review entro 3-5 giorni lavorativi
-- Rispondi al feedback con nuovi commit
-- Una volta approvato, squash e merge su `dev`
+- Maintainers will review within 3-5 business days
+- Respond to feedback with new commits
+- Once approved, squash and merge to `dev`
 
-## 🐛 Segnalazione Bug
+## Commit Convention
 
-### Prima di Aprire un Issue
+Use Conventional Commits:
 
-1. Cerca negli issue esistenti
-2. Prova l'ultima versione
-3. Riproduci con un test case minimo
+- `feat`: new feature
+- `fix`: bug fix
+- `refactor`: behavior-preserving refactor
+- `test`: tests only
+- `docs`: documentation only
+- `chore`: tooling/build/maintenance
 
-### Template dell'Issue
+## Reporting Bugs
 
-```markdown
-**Descrivi il bug**
-Descrizione chiara di cosa sia il bug.
+### Before Opening an Issue
 
-**Come Riprodurre**
-Passi per riprodurre:
-1. Vai a '...'
-2. Clicca su '...'
-3. Vedi l'errore
+1. Search existing issues
+2. Try the latest version
+3. Reproduce with a minimal test case
 
-**Comportamento atteso**
-Cosa ti aspettavi che accadesse.
+When opening an issue, include:
 
-**Ambiente:**
-- Versione PHP: [es. 8.3]
-- Versione WordPress: [es. 6.4]
-- Versione Plugin: [es. 1.0.0]
+- Clear problem description
+- Exact reproduction steps
+- Expected vs actual behavior
+- Environment details (PHP, WP, plugin version)
+- Logs/screenshots if useful
 
-**Contesto aggiuntivo**
-Qualsiasi altro contesto sul problema.
-```
+## Feature Requests
 
-## 💡 Richieste di Funzionalità
+### Before Requesting
 
-### Prima di Richiedere
+1. Check the roadmap in [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)
+2. Search existing issues
+3. Consider WordPress.org compliance
 
-1. Controlla la roadmap in [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)
-2. Cerca negli issue esistenti
-3. Considera la conformità con WordPress.org
+For feature proposals, include:
 
-### Template della Richiesta
+- Problem statement
+- Proposed behavior
+- Expected impact/value
+- Possible risks or compatibility concerns
 
-```markdown
-**Descrizione della Funzionalità**
-Descrizione chiara della funzionalità.
+## Security Issues
 
-**Caso d'Uso**
-Perché questa funzionalità è necessaria? Quale problema risolve?
+Do not report vulnerabilities in public issues.
 
-**Soluzione Proposta**
-Come la implementeresti?
+Use:
 
-**Alternative Considerate**
-Altri approcci a cui hai pensato.
-```
+- GitHub Security Advisory (preferred)
+- `info@mattiabondrano.dev`
 
-## 📚 Risorse
+See `SECURITY.md`.
+
+## Resources
 
 - [WordPress Plugin Handbook](https://developer.wordpress.org/plugins/)
 - [WordPress Coding Standards](https://make.wordpress.org/core/handbook/best-practices/coding-standards/php/)
@@ -589,16 +633,20 @@ Altri approcci a cui hai pensato.
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [TDD Best Practices](https://testdriven.io/)
 
-## ❓ Domande
+## Questions
 
-- **Domande generali**: Apri una [GitHub Discussion](https://github.com/mab056/ops-health-dashboard/discussions)
-- **Segnalazione bug**: Apri un [Issue](https://github.com/mab056/ops-health-dashboard/issues)
-- **Problemi di sicurezza**: Invia un'email direttamente (NON aprire un issue pubblico)
+- **General questions**: Open a [GitHub Discussion](https://github.com/mab056/ops-health-dashboard/discussions)
+- **Bug reports**: Open an [Issue](https://github.com/mab056/ops-health-dashboard/issues)
+- **Security issues**: Email directly (DO NOT open a public issue)
 
-## 📄 Licenza
+## License
 
-Contribuendo, accetti che i tuoi contributi saranno rilasciati sotto licenza GPL-3.0-or-later.
+By contributing, you agree that your contributions will be released under the GPL-3.0-or-later license.
 
----
+## References
 
-**Grazie per aver contribuito! 🙏**
+- `README.md`
+- `DEVELOPMENT_PLAN.md`
+- `CHANGELOG.md`
+- `SECURITY.md`
+- `AGENTS.md`

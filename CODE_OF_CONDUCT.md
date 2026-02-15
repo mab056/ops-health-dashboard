@@ -1,83 +1,83 @@
-# Codice di Condotta
+# Code of Conduct
 
-## Il nostro impegno
+## Our Pledge
 
-Come partecipanti, contributor e maintainer di questo progetto, ci impegniamo a rendere la partecipazione alla community un'esperienza libera da molestie per chiunque, indipendentemente da età, corporatura, disabilità visibile o non visibile, etnia, caratteristiche sessuali, identità ed espressione di genere, livello di esperienza, istruzione, status socio-economico, nazionalità, aspetto personale, razza, religione o identità e orientamento sessuale.
+We, as members, contributors, and maintainers, pledge to make participation in our community a harassment-free experience for everyone, regardless of age, body size, visible or invisible disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, religion, or sexual identity and orientation.
 
-Ci impegniamo ad agire e interagire in modi che contribuiscano a una community aperta, accogliente, inclusiva e sana.
+We pledge to act and interact in ways that contribute to an open, welcoming, inclusive, and healthy community.
 
-## Standard di comportamento
+## Standards
 
-Esempi di comportamento che contribuiscono a un ambiente positivo per la community:
+Examples of behavior that contributes to a positive environment include:
 
-- Mostrare empatia e rispetto verso le altre persone
-- Accettare e offrire feedback costruttivo con professionalità
-- Assumersi responsabilità degli errori e imparare dall'esperienza
-- Mantenere il focus su ciò che è meglio per il progetto e la community
+- Showing empathy and respect toward other people
+- Giving and accepting constructive feedback professionally
+- Taking responsibility for mistakes and learning from experience
+- Focusing on what is best for the project and community
 
-Esempi di comportamento inaccettabile:
+Examples of unacceptable behavior include:
 
-- Uso di linguaggio o immagini sessualizzati e attenzioni sessuali indesiderate
-- Trolling, commenti insultanti o denigratori, attacchi personali o politici
-- Molestie pubbliche o private
-- Pubblicazione di informazioni private altrui senza consenso esplicito
-- Qualsiasi condotta non appropriata in un contesto professionale
+- Sexualized language or imagery, and unwelcome sexual attention
+- Trolling, insulting or derogatory comments, and personal or political attacks
+- Public or private harassment
+- Publishing others' private information without explicit permission
+- Any conduct inappropriate in a professional context
 
-## Ambito di applicazione
+## Scope
 
-Questo Codice di Condotta si applica in tutti gli spazi del progetto, inclusi:
+This Code of Conduct applies in all project spaces, including:
 
-- Issue, pull request, discussioni e review su GitHub
-- Chat, email e altri canali ufficiali collegati al progetto
-- Qualsiasi rappresentanza pubblica del progetto da parte di contributor o maintainer
+- GitHub issues, pull requests, discussions, and reviews
+- Chat, email, and other official project channels
+- Any public representation of the project by contributors or maintainers
 
 ## Enforcement
 
-I maintainer sono responsabili di chiarire e applicare in modo equo gli standard di comportamento accettabili e adotteranno azioni correttive appropriate e proporzionate in risposta a comportamenti ritenuti inappropriati, minacciosi, offensivi o dannosi.
+Maintainers are responsible for clarifying and fairly enforcing acceptable behavior standards and will take appropriate and proportionate corrective action in response to behavior deemed inappropriate, threatening, offensive, or harmful.
 
-I maintainer hanno il diritto e la responsabilità di rimuovere, modificare o rifiutare commenti, commit, codice, modifiche wiki, issue e altri contributi non allineati a questo Codice di Condotta, comunicando quando opportuno le motivazioni delle decisioni di moderazione.
+Maintainers have the right and responsibility to remove, edit, or reject comments, commits, code, wiki edits, issues, and other contributions that are not aligned with this Code of Conduct, and will communicate moderation decisions when appropriate.
 
-## Segnalazioni
+## Reporting
 
-Per segnalare comportamenti inaccettabili, contatta i maintainer tramite:
+To report unacceptable behavior, contact maintainers via:
 
 - Email: `info@mattiabondrano.dev`
-- GitHub Security Advisory (per segnalazioni sensibili): <https://github.com/mab056/ops-health-dashboard/security/advisories/new>
+- GitHub Security Advisory (for sensitive reports): <https://github.com/mab056/ops-health-dashboard/security/advisories/new>
 
-Ogni segnalazione sarà gestita con tempestività e riservatezza, nei limiti tecnici e legali applicabili.
+All reports will be handled promptly and confidentially, within applicable technical and legal limits.
 
-## Linee guida di applicazione
+## Enforcement Guidelines
 
-I maintainer seguiranno queste linee guida per determinare le conseguenze di eventuali violazioni:
+Maintainers may use the following guidelines to determine consequences for violations:
 
-### 1. Correzione
+### 1. Correction
 
-**Impatto sulla community**: uso di linguaggio o comportamenti ritenuti non appropriati o non professionali.
+**Community impact**: Use of inappropriate or unprofessional language or behavior.
 
-**Conseguenza**: richiamo privato e richiesta di adeguamento del comportamento.
+**Consequence**: A private warning and a request to adjust behavior.
 
-### 2. Avvertimento
+### 2. Warning
 
-**Impatto sulla community**: violazione singola o serie di comportamenti inappropriati.
+**Community impact**: A single serious incident or repeated inappropriate behavior.
 
-**Conseguenza**: avvertimento formale con indicazione chiara dei comportamenti non accettabili. Possibile sospensione temporanea dalle interazioni con il progetto.
+**Consequence**: A formal warning with clear expectations. Temporary suspension from project interactions may apply.
 
-### 3. Sospensione temporanea
+### 3. Temporary Ban
 
-**Impatto sulla community**: violazione grave, incluse molestie o condotte aggressive.
+**Community impact**: Serious violation, including harassment or aggressive conduct.
 
-**Conseguenza**: divieto temporaneo di interazione o contribuzione al progetto per un periodo definito.
+**Consequence**: A temporary ban from interacting with or contributing to the project.
 
-### 4. Ban permanente
+### 4. Permanent Ban
 
-**Impatto sulla community**: pattern di violazioni, molestie continuate o comportamenti che mettono a rischio la sicurezza psicologica o tecnica della community.
+**Community impact**: Pattern of violations, sustained harassment, or behavior that threatens the community's psychological or technical safety.
 
-**Conseguenza**: esclusione permanente da tutti gli spazi del progetto.
+**Consequence**: Permanent exclusion from all project spaces.
 
-## Attribuzione
+## Attribution
 
-Questo Codice di Condotta è adattato dal [Contributor Covenant](https://www.contributor-covenant.org/), versione 2.1, disponibile su:
+This Code of Conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org/), version 2.1:
 <https://www.contributor-covenant.org/version/2/1/code_of_conduct/>.
 
-Per chiarimenti sulle linee guida di enforcement del Contributor Covenant:
+For enforcement FAQ:
 <https://www.contributor-covenant.org/faq>.

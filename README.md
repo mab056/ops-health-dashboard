@@ -16,62 +16,66 @@
 [![Open PRs](https://img.shields.io/github/issues-pr/mab056/ops-health-dashboard)](https://github.com/mab056/ops-health-dashboard/pulls)
 [![Downloads](https://img.shields.io/github/downloads/mab056/ops-health-dashboard/total)](https://github.com/mab056/ops-health-dashboard/releases)
 
-Plugin WordPress di monitoraggio operativo production-grade con controlli automatici e alerting multi-canale configurabile.
+Production-grade WordPress plugin for operational monitoring with automated health checks and configurable multi-channel alerting.
 
-## 🎯 Problema
+## Problem
 
-**"Non so cosa sta succedendo finché non esplode."**
+**"I don't know what is happening until it breaks."**
 
-Questo plugin fornisce una dashboard operativa in wp-admin con controlli automatici di salute e alerting configurabile (email, webhook, Slack, Telegram, WhatsApp) per sapere cosa sta succedendo *prima* che si rompa.
+This plugin provides an operational dashboard in wp-admin with automated health checks and configurable alerting (email, webhook, Slack, Telegram, WhatsApp), so you know what is happening *before* it breaks.
 
-## ✨ Funzionalità (MVP)
+## Features
 
-### Controlli di Salute
-- **Database** - Connettività e performance delle query
-- **Log Errori** - Aggregazione sicura con redaction automatica
-- **Redis** - Rilevamento estensione + connessione + smoke test con graceful degradation
-- **Spazio Disco** - Libero/totale con soglie configurabili (warning <20%, critical <10%)
-- **Versioni** - WordPress, PHP, temi, plugin + notifiche aggiornamenti
+### Health Checks
 
-### Dashboard
-- Pagina admin: `Ops → Health Dashboard`
-- Bottoni manuali "Run Now" e "Clear Cache" con protezione nonce
-- Widget dashboard con stato globale nella wp-admin Dashboard
+- **Database** - Connectivity and query performance
+- **Error Logs** - Secure aggregation with automatic redaction
+- **Redis** - Extension detection + connection + smoke test with graceful degradation
+- **Disk Space** - Free/total with configurable thresholds (warning <20%, critical <10%)
+- **Versions** - WordPress, PHP, themes, plugins + update notifications
+
+### Admin UI
+
+- Admin page: `Ops -> Health Dashboard`
+- Manual actions: `Run Now`, `Clear Cache` (nonce-protected)
+- Dashboard widget with global worst-status in wp-admin Dashboard
 
 ### Alerting
-- **Email** via `wp_mail()` con destinatari configurabili
-- **Webhook** generico POST JSON con firma HMAC opzionale (su body pre-serializzato)
-- **Slack** via Incoming Webhook con Block Kit payload
-- **Telegram** via Bot API con parse mode HTML
-- **WhatsApp** via webhook generico con auth Bearer
-- Cooldown intelligente per-check via transient (default 60 min)
-- Recovery alert bypassano il cooldown
-- Pagina admin configurazione: `Ops → Alert Settings`
-- Anti-SSRF su tutte le richieste HTTP outbound
+
+- **Email** via `wp_mail()` with configurable recipients
+- **Webhook** generic JSON POST with optional HMAC signature (on pre-serialized body)
+- **Slack** via Incoming Webhook with Block Kit payload
+- **Telegram** via Bot API with HTML parse mode
+- **WhatsApp** via generic webhook with Bearer auth
+- Smart per-check cooldown via transient (default 60 min)
+- Recovery alerts bypass cooldown
+- Admin configuration page: `Ops -> Alert Settings`
+- Anti-SSRF on all outbound HTTP requests
 
 ### Scheduling
-- WP-Cron (default: ogni 15 minuti)
-- Trigger manuale dei check via bottone "Run Now"
-- Alert automatici solo su cambiamenti di stato
 
-## 🏗️ Architettura
+- WP-Cron (default: every 15 minutes)
+- Manual trigger via `Run Now` button
+- Automatic alerts only on status changes
 
-Costruito con **OOP moderno, TDD e hardening di sicurezza rigoroso**.
+## Architecture
 
-### Principi Core
+Built with **modern OOP, TDD, and rigorous security hardening**.
 
-#### ⚠️ NO Singleton, NO Static, NO Final
+### Core Principles
 
-Questo plugin evita rigorosamente anti-pattern che danneggiano la testabilità:
+#### NO Singleton, NO Static, NO Final
+
+This plugin strictly avoids anti-patterns that harm testability:
 
 ```php
-// ❌ SBAGLIATO - Pattern singleton
+// WRONG - Singleton pattern
 class Plugin {
     private static $instance;
     public static function get_instance() { ... }
 }
 
-// ✅ CORRETTO - Dependency injection
+// CORRECT - Dependency injection
 class Plugin {
     private $container;
     public function __construct(Container $container) {
@@ -80,177 +84,177 @@ class Plugin {
 }
 ```
 
-**Perché?**
-- **Testabilità**: Singleton e static rendono impossibile il mocking
-- **Flessibilità**: Final impedisce l'estensibilità
-- **Best Practices**: WordPress core si è allontanato dai singleton
-- **Prevedibilità**: Dipendenze esplicite sono più facili da tracciare
+**Why?**
+- **Testability**: Singleton and static make mocking impossible
+- **Flexibility**: Final prevents extensibility
+- **Best Practices**: WordPress core has moved away from singletons
+- **Predictability**: Explicit dependencies are easier to trace
 
-### Struttura Directory
+### Directory Structure
 
-```
+```text
 ops-health-dashboard/
 ├── src/
-│   ├── Core/           # Container, Plugin, Activator
-│   ├── Interfaces/     # Contratti DI (Check, CheckRunner, Storage, Redaction, HttpClient, AlertManager, AlertChannel)
-│   ├── Checks/         # Implementazioni controlli salute (Database, ErrorLog, Redis, Disk, Versions)
-│   ├── Services/       # Logica business (Storage, Scheduler, Redaction, CheckRunner, AlertManager, HttpClient)
-│   ├── Channels/       # Canali di notifica (Email, Webhook, Slack, Telegram, WhatsApp)
-│   └── Admin/          # UI wp-admin (Menu, HealthScreen, AlertSettings, DashboardWidget)
+│   ├── Core/           # Container, Plugin, Activator, Uninstaller
+│   ├── Interfaces/     # DI contracts (Check, CheckRunner, Storage, Redaction, HttpClient, AlertManager, AlertChannel)
+│   ├── Checks/         # Health check implementations (Database, ErrorLog, Redis, Disk, Versions)
+│   ├── Services/       # Business logic (Storage, Scheduler, Redaction, CheckRunner, AlertManager, HttpClient)
+│   ├── Channels/       # Notification channels (Email, Webhook, Slack, Telegram, WhatsApp)
+│   └── Admin/          # wp-admin UI (Menu, HealthScreen, AlertSettings, DashboardWidget)
 ├── tests/
-│   ├── Unit/           # Test unitari (Brain\Monkey)
-│   ├── Integration/    # Test integrazione (WordPress Test Suite)
-│   └── e2e/            # Test E2E (Playwright + wp-env)
-├── config/             # Bootstrap e configurazione DI
-└── bin/                # Script tooling (build, matrix, setup test, e2e)
+│   ├── Unit/           # Unit tests (Brain\Monkey)
+│   ├── Integration/    # Integration tests (WordPress Test Suite)
+│   └── e2e/            # E2E tests (Playwright + wp-env)
+├── config/             # Bootstrap and DI configuration
+└── bin/                # Tooling scripts (build, matrix, test setup, e2e)
 ```
 
-### Componenti Chiave
+### Key Components
 
-- **Container** - Container DI lightweight con `share()` (non singleton), rilevazione dipendenze circolari
-- **Plugin** - Orchestratore principale con constructor injection
-- **CheckRunnerInterface** - Contratto per disaccoppiare Scheduler e HealthScreen dal CheckRunner concreto
-- **CheckRunner** - Orchestra i controlli di salute, redige messaggi eccezione via RedactionInterface
-- **Storage** - Wrapper WordPress Options API con `autoload=false`
-- **Redaction** - Sanitizzazione dati sensibili (11 pattern, IPv4 con validazione ottetti)
-- **Scheduler** - Scheduling WP-Cron ogni 15 minuti + self-healing throttled + AlertManager integration
-- **AlertManager** - Rilevamento cambiamenti stato, dispatch multi-canale, cooldown per-check, alert log
-- **HttpClient** - Client HTTP anti-SSRF (blocco IP privati, validazione DNS, restrizione schema/porta)
+- **Container** - Lightweight DI container with `share()` (not singleton), circular dependency detection
+- **Plugin** - Main orchestrator with constructor injection
+- **CheckRunnerInterface** - Contract to decouple Scheduler and HealthScreen from the concrete CheckRunner
+- **CheckRunner** - Orchestrates health checks, redacts exception messages via RedactionInterface
+- **Storage** - WordPress Options API wrapper with `autoload=false`
+- **Redaction** - Sensitive data sanitization (11 patterns, IPv4 with octet validation)
+- **Scheduler** - WP-Cron scheduling every 15 minutes + throttled self-healing + AlertManager integration
+- **AlertManager** - Status change detection, multi-channel dispatch, per-check cooldown, alert log
+- **HttpClient** - Anti-SSRF HTTP client (private IP blocking, DNS validation, scheme/port restriction)
 - **5 Channels** - EmailChannel, WebhookChannel, SlackChannel, TelegramChannel, WhatsAppChannel
-- **DashboardWidget** - Widget wp-admin dashboard con stato globale (worst-status) e link alla dashboard completa
+- **DashboardWidget** - wp-admin dashboard widget with global status (worst-status) and link to full dashboard
 
-## 📋 Requisiti
+## Requirements
 
-- **PHP**: 7.4+ (minimo dichiarato), 8.3+ (raccomandato)
+- **PHP**: 7.4+ (minimum), 8.3+ (recommended)
 - **WordPress**: 5.8+
-- **MySQL**: 5.7+ o MariaDB 10.2+
-- **Composer**: Per dipendenze di sviluppo
+- **MySQL**: 5.7+ or MariaDB 10.2+
+- **Composer**: For development dependencies
 
-## 🚀 Installazione
+## Installation
 
-### Per Utenti (Produzione)
+### Production
 
-1. Scarica l'ultima release da [GitHub Releases](https://github.com/mab056/ops-health-dashboard/releases) oppure genera lo ZIP con `bin/build-zip.sh`
-2. Carica il file ZIP tramite `Plugin → Aggiungi Nuovo → Carica Plugin` in wp-admin
-3. Attiva tramite admin WordPress
-4. Naviga su `Ops → Health Dashboard`
+1. Download the latest release from [GitHub Releases](https://github.com/mab056/ops-health-dashboard/releases) or build the ZIP via `bin/build-zip.sh`.
+2. Upload the ZIP file via `Plugins -> Add New -> Upload Plugin` in wp-admin.
+3. Activate via WordPress admin.
+4. Navigate to `Ops -> Health Dashboard`.
 
-### Per Sviluppatori (sviluppo locale)
+### Local Development
 
 ```bash
-# Clona repository
+# Clone repository
 git clone https://github.com/mab056/ops-health-dashboard.git
 cd ops-health-dashboard
 
-# Installa dipendenze
+# Install dependencies
 composer install
 
-# Esegui test unitari (veloci, senza WordPress)
+# Run unit tests (fast, no WordPress needed)
 composer test:unit
 
-# Installa la suite di test WordPress per i test di integrazione
+# Install WordPress test suite for integration tests
 composer install-wp-tests
 
-# Esegui tutti i test (unit + integrazione)
+# Run all tests (unit + integration)
 composer test
 
-# Esegui PHPCS
+# Run PHPCS
 composer phpcs
 
-# Esegui PHPStan (analisi statica level 6)
+# Run PHPStan (static analysis level 6)
 composer analyse
 ```
 
-## 🧪 Testing
+## Testing
 
-Questo progetto segue Test-Driven Development con un **approccio misto**:
+This project follows Test-Driven Development with a **mixed approach**.
 
-### Approccio Test Misto
+### Mixed Test Approach
 
-**Unit Tests (Brain\Monkey)** - Veloce, isolato
-- Logica business pura, NO WordPress
-- 574 test, 1336 assertions, ~3 s
-- Perfetto per TDD rapido
+**Unit Tests (Brain\Monkey)** - Fast, isolated
+- Pure business logic, NO WordPress
+- 574 tests, 1336 assertions, ~3 s
+- Ideal for rapid TDD
 
-**Integration Tests (WP Test Suite)** - WordPress reale
-- Test con WordPress completo, database, WP-Cron
-- 322 test, 655 assertions (single-site) / 684 assertions (multisite), ~4 s
-- Verifica integrazione reale con WordPress
-- Supporto multisite via `WP_TESTS_MULTISITE=1`
+**Integration Tests (WP Test Suite)** - Real WordPress
+- Full WordPress, database, WP-Cron
+- 322 tests, 655 assertions (single-site) / 684 assertions (multisite), ~4 s
+- Verifies real WordPress integration
+- Multisite support via `WP_TESTS_MULTISITE=1`
 
-**E2E Tests (Playwright + wp-env)** - Browser reale
-- 46 scenari x 3 viewport (desktop, tablet, mobile) = 138 esecuzioni di test
-- WordPress completo in Docker via `@wordpress/env`
-- Copertura: navigazione, dashboard, widget, alert settings, sicurezza
+**E2E Tests (Playwright + wp-env)** - Real browser
+- 46 scenarios x 3 viewports (desktop, tablet, mobile) = 138 test executions
+- Full WordPress in Docker via `@wordpress/env`
+- Coverage: navigation, dashboard, widget, alert settings, security
 
-### Comandi Test
+### Test Commands
 
 ```bash
-# Unit tests (veloci, WordPress non richiesto)
+# Unit tests (fast, no WordPress needed)
 composer test:unit
 
-# Integration tests (richiedono WP test suite)
-composer install-wp-tests              # Setup una tantum
+# Integration tests (require WP test suite)
+composer install-wp-tests              # One-time setup
 composer test:integration
 
-# Integration tests in modalità multisite
+# Integration tests in multisite mode
 composer test:integration:multisite
 
-# Tutti i test (unit + integration)
+# All tests (unit + integration)
 composer test
 
-# Matrice completa PHP 7.4-8.5 + PHPCS + PHPStan (come CI)
+# Full PHP 7.4-8.5 matrix + PHPCS + PHPStan (like CI)
 composer test:matrix
 
-# Con coverage (richiede Xdebug) — esegue unit + integration + multisite
+# With coverage (requires Xdebug) - runs unit + integration + multisite
 composer test:coverage
 
-# E2E tests (richiede Docker + Node.js)
-npm ci                                # Installa dipendenze Node.js
-npm run env:start                     # Avvia WordPress in Docker
-bash bin/e2e-setup.sh                 # Crea utenti test
-npm run test:e2e                      # Esegui test E2E
-npm run env:stop                      # Ferma Docker
+# E2E tests (require Docker + Node.js)
+npm ci                                # Install Node.js dependencies
+npm run env:start                     # Start WordPress in Docker
+bash bin/e2e-setup.sh                 # Create test users
+npm run test:e2e                      # Run E2E tests
+npm run env:stop                      # Stop Docker
 
 # PHPCS (WordPress Coding Standards)
 composer phpcs
 
-# Auto-fix problemi PHPCS
+# Auto-fix PHPCS issues
 composer phpcbf
 
-# Build ZIP per la produzione
-bin/build-zip.sh                      # Genera dist/ops-health-dashboard-VERSION.zip
-bin/build-zip.sh --output /tmp/p.zip  # Percorso output personalizzato
+# Build ZIP for production
+bin/build-zip.sh                      # Generates dist/ops-health-dashboard-VERSION.zip
+bin/build-zip.sh --output /tmp/p.zip  # Custom output path
 ```
 
-### Test Matrix Locale
+### Local Test Matrix
 
-Esegui l'intera matrice CI in locale (richiede PHP 7.4-8.5 + Docker per E2E):
+Run the full CI matrix locally (requires PHP 7.4-8.5 + Docker for E2E):
 
 ```bash
-composer test:matrix                   # Matrice completa (PHPCS + PHPStan + 7 versioni PHP + E2E)
-bin/test-matrix.sh --php 7.4           # Solo una versione
-bin/test-matrix.sh --php 7.4 --php 8.3 # Versioni specifiche
-bin/test-matrix.sh --parallel          # Esecuzione parallela
-bin/test-matrix.sh --phpcs-only        # Solo PHPCS + PHPStan
-bin/test-matrix.sh --tests-only        # Solo PHPUnit (salta PHPCS, PHPStan, E2E)
-bin/test-matrix.sh --e2e-only          # Solo E2E (Playwright + wp-env)
-bin/test-matrix.sh --no-e2e            # Tutto tranne E2E
+composer test:matrix                   # Full matrix (PHPCS + PHPStan + 7 PHP versions + E2E)
+bin/test-matrix.sh --php 7.4           # Single version only
+bin/test-matrix.sh --php 7.4 --php 8.3 # Specific versions
+bin/test-matrix.sh --parallel          # Parallel execution
+bin/test-matrix.sh --phpcs-only        # PHPCS + PHPStan only
+bin/test-matrix.sh --tests-only        # PHPUnit only (skip PHPCS, PHPStan, E2E)
+bin/test-matrix.sh --e2e-only          # E2E only (Playwright + wp-env)
+bin/test-matrix.sh --no-e2e            # Everything except E2E
 ```
 
-### Workflow TDD
+### TDD Workflow
 
-Ogni funzionalità segue: **RED → GREEN → REFACTOR**
+Every feature follows: **RED -> GREEN -> REFACTOR**
 
-1. **RED**: Scrivi prima il test che fallisce (unit test con Brain\Monkey)
-2. **GREEN**: Scrivi codice minimo per passare
-3. **REFACTOR**: Pulisci e ottimizza
-4. **INTEGRATION**: Aggiungi integration test per verificare con WordPress reale
+1. **RED**: Write a failing test first (unit test with Brain\Monkey)
+2. **GREEN**: Write the minimum code to pass
+3. **REFACTOR**: Clean up and optimize
+4. **INTEGRATION**: Add integration test to verify with real WordPress
 
-Esempio:
+Example:
 
 ```php
-// RED: Unit test con Brain\Monkey (veloce)
+// RED: Unit test with Brain\Monkey (fast)
 public function test_run_returns_ok_when_database_healthy() {
     $wpdb = Mockery::mock( 'wpdb' );
     $wpdb->shouldReceive( 'query' )->once()->with( 'SELECT 1' )->andReturn( 1 );
@@ -266,7 +270,7 @@ public function test_run_returns_ok_when_database_healthy() {
     $this->assertEquals( 'ok', $result['status'] );
 }
 
-// GREEN: Implementa codice minimo
+// GREEN: Implement minimum code
 public function run(): array {
     $start  = microtime( true );
     $result = $this->wpdb->query( 'SELECT 1' );
@@ -277,7 +281,7 @@ public function run(): array {
     ];
 }
 
-// INTEGRATION: Test con WordPress reale
+// INTEGRATION: Test with real WordPress
 public function test_database_check_runs_successfully() {
     global $wpdb;
     $redaction = new Redaction();
@@ -289,169 +293,180 @@ public function test_database_check_runs_successfully() {
 }
 ```
 
-### Matrice Test
+### Test Matrix
 
-- **Unit Tests**: Brain\Monkey - 574 test, 1336 assertions, tutte le versioni PHP
-- **Integration Tests**: WP Test Suite - 322 test, 655/684 assertions (single-site/multisite), tutte le versioni PHP
-- **E2E Tests**: Playwright + wp-env - 46 scenari x 3 viewport = 138 esecuzioni di test
-- **PHPStan**: Level 6 con szepeviktor/phpstan-wordpress, 0 errori
-- **Versioni PHP**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
-- **Target Coverage**: 95% progetto, 90% patch (Codecov)
+- **Unit Tests**: Brain\Monkey - 574 tests, 1336 assertions, all PHP versions
+- **Integration Tests**: WP Test Suite - 322 tests, 655/684 assertions (single-site/multisite), all PHP versions
+- **E2E Tests**: Playwright + wp-env - 46 scenarios x 3 viewports = 138 test executions
+- **PHPStan**: Level 6 with szepeviktor/phpstan-wordpress, 0 errors
+- **PHP Versions**: 7.4, 8.0, 8.1, 8.2, 8.3 (coverage), 8.4, 8.5
+- **Target Coverage**: 95% project, 90% patch (Codecov)
 
-## 🔒 Sicurezza
+## Security
 
-### Funzionalità Hardening
+### Hardening Features
 
-- **Solo Admin**: Tutte le funzionalità richiedono capability `manage_options`
-- **Nonces**: Protezione CSRF su tutti i form e AJAX
-- **Anti-SSRF**: Protezione attiva su tutte le richieste HTTP outbound
-  - Validazione schema (solo http/https)
-  - Blocco IP privati e riservati (RFC 1918, loopback, link-local)
-  - Validazione risoluzione DNS (prevenzione DNS rebinding)
-  - DNS pinning via `CURLOPT_RESOLVE` (prevenzione TOCTOU/DNS rebinding)
-  - Restrizione porte (solo 80/443)
-  - Rifiuto IPv6 (safe-fail)
-  - Validazione HTTP status (solo 2xx = successo)
+- **Admin Only**: All features require `manage_options` capability
+- **Nonces**: CSRF protection on all forms and AJAX
+- **Anti-SSRF**: Active protection on all outbound HTTP requests
+  - Scheme validation (http/https only)
+  - Private/reserved IP blocking (RFC 1918, loopback, link-local)
+  - DNS resolution validation (DNS rebinding prevention)
+  - DNS pinning via `CURLOPT_RESOLVE` (TOCTOU/DNS rebinding prevention)
+  - Port restriction (80/443 only)
+  - IPv6 safe-fail rejection
+  - HTTP status validation (2xx only = success)
   - No redirect following
-  - Timeout 5 secondi
-- **Channel Security**: Protezione da injection su tutti i canali
-  - TelegramChannel: escape HTML (`htmlspecialchars`)
-  - SlackChannel: escape mrkdwn (formattazione)
-  - EmailChannel: validazione `is_email()` destinatari
-  - WhatsAppChannel: validazione E.164 phone number
-  - Token/secret mascherati (`type="password"`, credenziali mai nel DOM)
-- **Cooldown pre-dispatch**: Previene alert spam anche in caso di errori dei canali
-- **Channel isolation**: `try/catch \Throwable` per-canale (un canale che fallisce non blocca gli altri)
-- **Scheduler resilience**: `catch (\Throwable)` su AlertManager (cron sopravvive a qualsiasi errore)
-- **Redaction Dati**: Sanitizzazione automatica di:
-  - Credenziali (password, API key, token)
-  - Path file (ABSPATH, WP_CONTENT_DIR)
-  - Credenziali database
-  - Dati utente (email, IP)
-- **Sanitizzazione Input**: Tutti gli input utente sanitizzati
-- **Escaping Output**: Tutti gli output sono sottoposti a escaping
+  - 5 second timeout
+- **Channel Security**: Injection protection on all channels
+  - TelegramChannel: HTML escaping (`htmlspecialchars`)
+  - SlackChannel: mrkdwn escaping (formatting)
+  - EmailChannel: `is_email()` recipient validation
+  - WhatsAppChannel: E.164 phone number validation
+  - Token/secret masked (`type="password"`, credentials never in DOM)
+- **Cooldown pre-dispatch**: Prevents alert spam even on channel errors
+- **Channel isolation**: `try/catch \Throwable` per channel (one failing channel does not block others)
+- **Scheduler resilience**: `catch (\Throwable)` on AlertManager (cron survives any error)
+- **Data Redaction**: Automatic sanitization of:
+  - Credentials (passwords, API keys, tokens)
+  - File paths (ABSPATH, WP_CONTENT_DIR)
+  - Database credentials
+  - User data (email, IP)
+- **Input Sanitization**: All user inputs sanitized
+- **Output Escaping**: All outputs escaped
 
 ### WordPress.org Ready
 
-- ✅ Conforme WordPress Coding Standards
-- ✅ Nessuna chiamata outbound senza opt-in
-- ✅ Cleanup in disinstallazione via `uninstall.php` (single-site e multisite)
-- ✅ `readme.txt` in formato WordPress.org standard
-- ✅ ABSPATH guards su tutti i file sorgente
+- Compliant with WordPress Coding Standards
+- No outbound calls without opt-in
+- Clean uninstall via `uninstall.php` (single-site and multisite)
+- `readme.txt` in WordPress.org standard format
+- ABSPATH guards on all source files
 
-## 📊 Stato Sviluppo
+For details, see `SECURITY.md`.
 
-Milestone corrente: **M6 - WordPress.org Readiness** ✅
+## Project Status
 
-### Statistiche
+Current milestone: **M6 - WordPress.org Readiness**
 
-- **31 file sorgente** in `src/`, 2 file CSS in `assets/css/`
-- **55 file di test PHP** (31 unit + 24 integration)
-- **574 unit test**, 1336 assertions (Brain\Monkey)
-- **322 integration test**, 655 assertions single-site / 684 multisite (WP Test Suite)
-- **46 E2E scenari** x 3 viewport = 138 esecuzioni di test (Playwright)
-- **Coverage**: 100% classi, 100% metodi, 100% linee (unit + integration + multisite combinati)
-- **PHPCS**: 100% compliance (0 errori, 0 warning)
-- **PHPStan**: level 6, 0 errori
+### Statistics
+
+- **31 source files** in `src/`, 2 CSS files in `assets/css/`
+- **55 PHP test files** (31 unit + 24 integration)
+- **574 unit tests**, 1336 assertions (Brain\Monkey)
+- **322 integration tests**, 655 assertions single-site / 684 multisite (WP Test Suite)
+- **46 E2E scenarios** x 3 viewports = 138 test executions (Playwright)
+- **Coverage**: 100% classes, 100% methods, 100% lines (unit + integration + multisite combined)
+- **PHPCS**: 100% compliance (0 errors, 0 warnings)
+- **PHPStan**: level 6, 0 errors
 
 ### Roadmap
 
-- [x] **M0**: Setup & Infrastruttura (TDD, CI/CD, classi core)
+- [x] **M0**: Setup & Infrastructure (TDD, CI/CD, core classes)
 - [x] **M1**: Core Checks + Storage + Cron
-- [x] **M2**: Riepilogo Error Log Sicuro
-- [x] **M3**: Check Redis
-- [x] **M4**: Sistema Alerting (Email, Webhook, Slack, Telegram, WhatsApp + anti-SSRF)
+- [x] **M2**: Secure Error Log Summary
+- [x] **M3**: Redis Check
+- [x] **M4**: Alerting System (Email, Webhook, Slack, Telegram, WhatsApp + anti-SSRF)
 - [x] **M5**: New Checks + Dashboard Widget + E2E Testing (Playwright)
 - [x] **M6**: WordPress.org Readiness (uninstall.php, readme.txt, ABSPATH guards)
 
-Vedi [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) per progressi dettagliati.
+See [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) for detailed progress.
 
-## 🤝 Contribuire
+## Contributing
 
-Accogliamo contributi! Leggi [CONTRIBUTING.md](CONTRIBUTING.md) per:
+We welcome contributions! Read [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
-- Requisiti workflow TDD
+- TDD workflow requirements
 - Pattern enforcement (NO singleton/static/final)
-- Standard di codifica
-- Processo pull request
-- Requisiti testing
+- Coding standards
+- Pull request process
+- Testing requirements
 
-### Quick Start per Contributori
+### Quick Start for Contributors
 
 ```bash
-# Fork e clone
-git clone https://github.com/TUO_USERNAME/ops-health-dashboard.git
+# Fork and clone
+git clone https://github.com/YOUR_USERNAME/ops-health-dashboard.git
 cd ops-health-dashboard
 
-# Crea feature branch
-git checkout -b feature/nome-tua-feature
+# Create feature branch
+git checkout -b feature/your-feature-name
 
-# Installa dipendenze
+# Install dependencies
 composer install
 
-# Scrivi prima i test (TDD)
-# Poi implementa feature
-# Assicurati che tutti i test passino
+# Write tests first (TDD)
+# Then implement feature
+# Make sure all tests pass
 composer test
 composer phpcs
 composer analyse
 
-# Commit e push
-git commit -m "feat: descrizione tua feature"
-git push origin feature/nome-tua-feature
+# Commit and push
+git commit -m "feat: your feature description"
+git push origin feature/your-feature-name
 ```
 
-## 📝 Standard di Codifica
+## Coding Standards
 
 - **PHP**: WordPress Coding Standards (WPCS)
 - **HTML/CSS**: Code Guide
 - **JavaScript**: MDN Code Style Guide
-- **Lunghezza Riga**: 120 caratteri (soft), 150 (hard)
+- **Line Length**: 120 characters (soft), 150 (hard)
 
-## 🔧 Configurazione
+## Configuration
 
-### Comandi Composer
+### Composer Commands
 
 ```bash
 # Testing
-composer test                    # Tutti i test (unit + integration)
-composer test:unit               # Solo test unitari (Brain\Monkey, veloce)
-composer test:integration        # Solo test di integrazione (WP Test Suite)
-composer test:integration:multisite  # Test integrazione in modalità multisite
-composer test:coverage           # Coverage completa (unit + integration + multisite)
-composer test:matrix             # Matrice PHP 7.4-8.5 + PHPCS + PHPStan + E2E (come CI)
+composer test                    # All tests (unit + integration)
+composer test:unit               # Unit tests only (Brain\Monkey, fast)
+composer test:integration        # Integration tests only (WP Test Suite)
+composer test:integration:multisite  # Integration tests in multisite mode
+composer test:coverage           # Full coverage (unit + integration + multisite)
+composer test:matrix             # PHP 7.4-8.5 matrix + PHPCS + PHPStan + E2E (like CI)
 
 # Code Quality
-composer phpcs                   # Controlla WordPress Coding Standards
-composer phpcbf                  # Auto-fix standard codifica
+composer phpcs                   # Check WordPress Coding Standards
+composer phpcbf                  # Auto-fix coding standards
 
 # Setup
-composer install-wp-tests        # Installa la suite di test WordPress (una tantum)
+composer install-wp-tests        # Install WordPress test suite (one-time)
 ```
 
 ### CI/CD
 
-GitHub Actions esegue automaticamente su push/PR:
-- Check PHPCS (WordPress Coding Standards)
-- PHPStan (analisi statica livello 6)
-- PHPUnit su PHP 7.4, 8.0, 8.1, 8.2, 8.3, 8.4, 8.5
-- Report coverage (solo PHP 8.3)
-- Upload Codecov
-- E2E Playwright (Chromium, desktop-only in CI; 3 viewport in locale, wp-env Docker)
+GitHub Actions runs automatically on push/PR:
+- PHPCS check (WordPress Coding Standards)
+- PHPStan (static analysis level 6)
+- PHPUnit on PHP 7.4, 8.0, 8.1, 8.2, 8.3, 8.4, 8.5
+- Coverage report (PHP 8.3 only)
+- Codecov upload
+- E2E Playwright (Chromium, desktop-only in CI; 3 viewports locally, wp-env Docker)
 
-## 📄 Licenza
+## Security Reporting
 
-GPL-3.0-or-later - vedi file [LICENSE](LICENSE).
+Do not open public issues for vulnerabilities.
 
-## 👥 Autori
+- Preferred: GitHub Security Advisory
+- Email: `info@mattiabondrano.dev`
+
+See `SECURITY.md`.
+
+## License
+
+GPL-3.0-or-later - see [LICENSE](LICENSE).
+
+## Authors
 
 - Mattia Bondrano - [GitHub](https://github.com/mab056)
 
-Sviluppato con il supporto di Claude Code (Opus 4.5, 4.6, Sonnet 4.5) e Codex (Codex 5.2, 5.3).
+Developed with the support of Claude Code (Opus 4.5, 4.6, Sonnet 4.5) and Codex (Codex 5.2, 5.3).
 
-## 📞 Supporto
+## Support
 
 - **Issues**: [GitHub Issues](https://github.com/mab056/ops-health-dashboard/issues)
-- **Documentazione**: Vedi [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)
-- **Contribuire**: Vedi [CONTRIBUTING.md](CONTRIBUTING.md)
-- **AI Assistant**: Vedi [CLAUDE.md](CLAUDE.md) per istruzioni Claude Code, [AGENTS.md](AGENTS.md) per istruzioni Codex
+- **Documentation**: See [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)
+- **Contributing**: See [CONTRIBUTING.md](CONTRIBUTING.md)
+- **AI Assistant**: See [CLAUDE.md](CLAUDE.md) for Claude Code instructions, [AGENTS.md](AGENTS.md) for Codex instructions

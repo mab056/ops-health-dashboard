@@ -1,14 +1,14 @@
 ## Summary
 
-Descrivi in modo chiaro cosa cambia questa PR e perché.
+Describe clearly what this PR changes and why.
 
 ## Type of change
 
-- [ ] `feat` - Nuova funzionalità
+- [ ] `feat` - New feature
 - [ ] `fix` - Bug fix
-- [ ] `refactor` - Refactor senza cambio comportamento
-- [ ] `test` - Aggiunta/modifica test
-- [ ] `docs` - Solo documentazione
+- [ ] `refactor` - Refactor without behavior changes
+- [ ] `test` - Added/updated tests
+- [ ] `docs` - Documentation only
 - [ ] `chore` - Tooling/CI/build
 
 ## Related issues
@@ -26,9 +26,9 @@ Descrivi in modo chiaro cosa cambia questa PR e perché.
 
 ### Test strategy (TDD)
 
-- [ ] RED: test aggiunto/aggiornato e inizialmente fallito
-- [ ] GREEN: implementazione minima per far passare i test
-- [ ] REFACTOR: refactor eseguito mantenendo i test verdi
+- [ ] RED: test added/updated and initially failing
+- [ ] GREEN: minimal implementation to make tests pass
+- [ ] REFACTOR: cleanup/refactor completed with tests still green
 
 ### Commands executed
 
@@ -37,10 +37,10 @@ Descrivi in modo chiaro cosa cambia questa PR e perché.
 - [ ] `composer phpcs`
 - [ ] `composer analyse`
 
-Dettagli output/errori rilevanti (obbligatorio se qualcosa non è stato eseguito):
+Relevant output/errors (required if something was not executed):
 
 ```text
-Incolla qui un output sintetico o un errore concreto (es. DB non raggiungibile)
+Paste a concise output summary or concrete error (e.g. DB unreachable)
 ```
 
 ## Manual test steps
@@ -49,34 +49,34 @@ Incolla qui un output sintetico o un errore concreto (es. DB non raggiungibile)
 2. 
 3. 
 
-## Checklist architetturale (obbligatoria)
+## Architecture checklist (required)
 
-- [ ] Nessun singleton introdotto
-- [ ] Nessun metodo/proprietà statici/statiche
-- [ ] Nessuna classe/metodo `final`
-- [ ] Dependency injection via costruttore rispettata
-- [ ] Design interface-first rispettato dove applicabile
-- [ ] Nessun accesso globale diretto WordPress nella business logic
+- [ ] No singleton introduced
+- [ ] No static methods/properties introduced
+- [ ] No `final` classes/methods introduced
+- [ ] Constructor dependency injection respected
+- [ ] Interface-first design respected where applicable
+- [ ] No direct WordPress global access in business logic
 
-## Checklist sicurezza (obbligatoria)
+## Security checklist (required)
 
-- [ ] Input sanitizzati (`sanitize_text_field`, `sanitize_email`, `esc_url_raw`, `absint`, ...)
-- [ ] Output escaped (`esc_html`, `esc_attr`, `esc_url`, `esc_js`)
-- [ ] Capability check presente (`current_user_can('manage_options')`) se area admin
-- [ ] Nonce verificato su form/AJAX
-- [ ] Anti-SSRF applicata per webhook/HTTP esterni
+- [ ] Inputs sanitized (`sanitize_text_field`, `sanitize_email`, `esc_url_raw`, `absint`, ...)
+- [ ] Outputs escaped (`esc_html`, `esc_attr`, `esc_url`, `esc_js`)
+- [ ] Capability checks present (`current_user_can('manage_options')`) for admin areas
+- [ ] Nonce verified for forms/AJAX
+- [ ] Anti-SSRF applied to external webhook/HTTP requests
 
-## Checklist regressioni
+## Regression checklist
 
-- [ ] Verificato `git diff --name-only` e `git diff`
-- [ ] Copertura test aggiornata sul comportamento modificato
-- [ ] Nessuna regressione cron/scheduler (no duplicati, self-healing attivo)
-- [ ] Compatibilità del tooling in esecuzione sequenziale/parallela verificata
+- [ ] Checked `git diff --name-only` and `git diff`
+- [ ] Test coverage updated for changed behavior
+- [ ] No cron/scheduler regressions (no duplicates, self-healing still active)
+- [ ] Sequential/parallel tooling compatibility verified
 
-## Screenshots / recordings (se UI)
+## Screenshots / recordings (UI changes)
 
-<!-- Inserisci screenshot o GIF per HealthScreen, Alert Settings, Dashboard Widget, ecc. -->
+<!-- Add screenshots or GIFs for HealthScreen, Alert Settings, Dashboard Widget, etc. -->
 
 ## Additional notes
 
-<!-- Rischi residui, tradeoff tecnici, follow-up -->
+<!-- Residual risks, technical trade-offs, follow-up work -->

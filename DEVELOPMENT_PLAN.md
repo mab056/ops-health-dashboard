@@ -1,145 +1,145 @@
 # Development Plan - Ops Health Dashboard
 
 **Current Milestone**: M6 - WordPress.org Readiness ✅
-**Status**: Tutte le milestone completate (M0-M6)
+**Status**: All milestones completed (M0-M6)
 
 ---
 
-## Milestone 0: Setup & Infrastruttura ✅ 8/8
+## Milestone 0: Setup & Infrastructure ✅ 8/8
 
-**Obiettivo**: Scaffolding completo con CI verde
+**Goal**: Complete scaffolding with green CI
 
 ### Tasks
 
-- [x] **M0.1** - Struttura directory completa
-- [x] **M0.2** - Setup composer.json con dipendenze
-- [x] **M0.3** - Configurazione PHPCS (WPCS)
+- [x] **M0.1** - Complete directory structure
+- [x] **M0.2** - Setup composer.json with dependencies
+- [x] **M0.3** - PHPCS configuration (WPCS)
 - [x] **M0.4** - Setup PHPUnit (config + bootstrap)
 - [x] **M0.5** - GitHub Actions workflows
-- [x] **M0.6** - File bootstrap (main plugin + config)
+- [x] **M0.6** - Bootstrap files (main plugin + config)
 - [x] **M0.7** - Core classes (Container, Plugin, Activator) - TDD
 - [x] **M0.8** - Script bin/install-wp-tests.sh
 
 **Pattern Enforcement**:
-- ✅ Container usa `share()` per shared instances, NON `singleton()`
-- ✅ Plugin riceve Container via constructor, NO `get_instance()`
-- ✅ Bootstrap function crea e configura, NO static factories
-- ✅ Nessuna classe final, nessun metodo final
+- ✅ Container uses `share()` for shared instances, NOT `singleton()`
+- ✅ Plugin receives Container via constructor, NO `get_instance()`
+- ✅ Bootstrap function creates and configures, NO static factories
+- ✅ No final classes, no final methods
 
-**Deliverable**: CI verde con PHPCS + PHPUnit matrix + coverage 8.3
+**Deliverable**: Green CI with PHPCS + PHPUnit matrix + coverage 8.3
 
 ---
 
 ## Milestone 1: Core Checks + Storage + Cron ✅ 10/10
 
-**Obiettivo**: Check base con dashboard funzionante
+**Goal**: Base checks with working dashboard
 
 ### Tasks
 
-- [x] **M1.1** - StorageInterface + CheckInterface (contratti DI)
-- [x] **M1.2** - Storage service (Options API wrapper con prefisso `ops_health_`)
-- [x] **M1.3** - CheckRunner orchestrator (esecuzione check + salvataggio risultati)
-- [x] **M1.4** - DatabaseCheck con constructor injection `$wpdb` (TDD)
-- [x] **M1.5** - Scheduler service (WP-Cron ogni 15 minuti)
+- [x] **M1.1** - StorageInterface + CheckInterface (DI contracts)
+- [x] **M1.2** - Storage service (Options API wrapper with `ops_health_` prefix)
+- [x] **M1.3** - CheckRunner orchestrator (check execution + result saving)
+- [x] **M1.4** - DatabaseCheck with constructor injection `$wpdb` (TDD)
+- [x] **M1.5** - Scheduler service (WP-Cron every 15 minutes)
 - [x] **M1.6** - Admin Menu registration
-- [x] **M1.7** - HealthScreen rendering con capability check
-- [x] **M1.8** - bootstrap.php con DI wiring completo
-- [x] **M1.9** - Unit tests completi (104 test, Brain\Monkey)
-- [x] **M1.10** - Integration tests completi (33 test, WP Test Suite)
+- [x] **M1.7** - HealthScreen rendering with capability check
+- [x] **M1.8** - bootstrap.php with complete DI wiring
+- [x] **M1.9** - Complete unit tests (104 tests, Brain\Monkey)
+- [x] **M1.10** - Complete integration tests (33 tests, WP Test Suite)
 
-### Code Review - Issue Risolte (17/18)
+### Code Review - Issues Resolved (17/18)
 
-- ✅ Activator: hook name corretto `ops_health_run_checks`, rimosso `flush_rewrite_rules()`
-- ✅ Activator: gestisce schedule/unschedule cron (non Plugin::init)
+- ✅ Activator: correct hook name `ops_health_run_checks`, removed `flush_rewrite_rules()`
+- ✅ Activator: handles cron schedule/unschedule (not Plugin::init)
 - ✅ DatabaseCheck: `$wpdb` via constructor injection (NO global)
-- ✅ DatabaseCheck: nessuna esposizione db_host/db_name nei dettagli
-- ✅ DatabaseCheck: messaggi i18n con `__()`
-- ✅ CheckRunner: try/catch per `\Throwable` su ogni check
-- ✅ CheckRunner: `get_latest_results()` type safety (ritorna sempre array)
-- ✅ Storage: `has()` con sentinel object pattern
-- ✅ HealthScreen: validazione difensiva chiavi risultato (isset)
-- ✅ HealthScreen: messaggio "no checks" quando risultati vuoti
-- ✅ Plugin: `init()` registra solo hook, non schedula
-- ✅ bootstrap.php: inietta `$wpdb` globale in DatabaseCheck
-- ✅ composer.json: test script esegue suite sequenzialmente
-- ✅ CI: coverage con file separati per suite
-- ✅ Test: rimossi tutti i `assertTrue(true)` placeholders
-- ✅ Test: aggiunti test per static properties
-- ✅ Test: aggiunti test per eccezioni e edge case
-- ⏳ uninstall.php → pianificato per M6
+- ✅ DatabaseCheck: no db_host/db_name exposure in details
+- ✅ DatabaseCheck: i18n messages with `__()`
+- ✅ CheckRunner: try/catch for `\Throwable` on each check
+- ✅ CheckRunner: `get_latest_results()` type safety (always returns array)
+- ✅ Storage: `has()` with sentinel object pattern
+- ✅ HealthScreen: defensive result key validation (isset)
+- ✅ HealthScreen: "no checks" message when results are empty
+- ✅ Plugin: `init()` only registers hooks, does not schedule
+- ✅ bootstrap.php: injects global `$wpdb` into DatabaseCheck
+- ✅ composer.json: test script runs suites sequentially
+- ✅ CI: coverage with separate files per suite
+- ✅ Test: removed all `assertTrue(true)` placeholders
+- ✅ Test: added tests for static properties
+- ✅ Test: added tests for exceptions and edge cases
+- ⏳ uninstall.php → planned for M6
 
-**Statistiche Finali**:
-- 11 file sorgente in `src/`
-- 18 file di test (11 unit + 7 integrazione)
-- 137 test totali, 275 assertions
-- PHPCS 100% clean (0 errori, 0 warning)
+**Final Statistics**:
+- 11 source files in `src/`
+- 18 test files (11 unit + 7 integration)
+- 137 total tests, 275 assertions
+- PHPCS 100% clean (0 errors, 0 warnings)
 
-**Deliverable**: la dashboard mostra il Database check con auto-refresh WP-Cron ✅
+**Deliverable**: the dashboard shows the Database check with WP-Cron auto-refresh ✅
 
 ---
 
-## Milestone 2: Riepilogo Error Log Sicuro ✅ 6/6 + Code Review 15/15
+## Milestone 2: Secure Error Log Summary ✅ 6/6 + Code Review 15/15
 
-**Obiettivo**: Check error log con redazione automatica dei dati sensibili
+**Goal**: Error log check with automatic sensitive data redaction
 
 ### Tasks
 
-- [x] **M2.1** - RedactionInterface (contratto DI per redazione)
-- [x] **M2.2** - Redaction service (11 pattern: credenziali, token, PII, path)
-- [x] **M2.3** - ErrorLogCheck con TDD (tail log, aggregazione, campioni redatti)
+- [x] **M2.1** - RedactionInterface (DI contract for redaction)
+- [x] **M2.2** - Redaction service (11 patterns: credentials, tokens, PII, paths)
+- [x] **M2.3** - ErrorLogCheck with TDD (tail log, aggregation, redacted samples)
 - [x] **M2.4** - DI wiring in bootstrap.php (RedactionInterface + ErrorLogCheck)
-- [x] **M2.5** - Unit tests completi (56 nuovi test, Brain\Monkey + Mockery partial mock)
-- [x] **M2.6** - Integration tests completi (8 nuovi test, WP Test Suite + file temp)
+- [x] **M2.5** - Complete unit tests (56 new tests, Brain\Monkey + Mockery partial mock)
+- [x] **M2.6** - Complete integration tests (8 new tests, WP Test Suite + temp files)
 
-### Dettagli Implementazione
+### Implementation Details
 
-**Redaction Service** - 11 pattern di redazione in catena ordinata:
-1. Path WP_CONTENT_DIR -> `[WP_CONTENT]` (str_replace, più specifico prima)
+**Redaction Service** - 11 redaction patterns in ordered chain:
+1. Path WP_CONTENT_DIR -> `[WP_CONTENT]` (str_replace, most specific first)
 2. Path ABSPATH -> `[ABSPATH]/` (str_replace)
-3. Credenziali DB (DB_PASSWORD, DB_USER, DB_NAME, DB_HOST) -> `[REDACTED]`
-4. WordPress salts (AUTH_KEY, SECURE_AUTH_KEY, ecc.) -> `[REDACTED]`
+3. DB credentials (DB_PASSWORD, DB_USER, DB_NAME, DB_HOST) -> `[REDACTED]`
+4. WordPress salts (AUTH_KEY, SECURE_AUTH_KEY, etc.) -> `[REDACTED]`
 5. API key, secret, token -> `[REDACTED]`
 6. Bearer token -> `[REDACTED]`
-7. Password in URL e campi generici -> `[REDACTED]`
+7. Password in URL and generic fields -> `[REDACTED]`
 8. Email -> `[EMAIL_REDACTED]`
-9. IPv4 -> `[IP_REDACTED]` (con validazione ottetti 0-255)
-10. IPv6 (min 5 gruppi per evitare falsi positivi su timestamp) -> `[IP_REDACTED]`
+9. IPv4 -> `[IP_REDACTED]` (with octet validation 0-255)
+10. IPv6 (min 5 groups to avoid false positives on timestamps) -> `[IP_REDACTED]`
 11. Home directory `/home/user` -> `/home/[USER_REDACTED]`
 
-**ErrorLogCheck** - Riepilogo sicuro del log errori:
-- Risoluzione path: `WP_DEBUG_LOG` (stringa) -> `ini_get('error_log')`
-- Validazione: esistenza, leggibilità, anti-symlink
-- Tail efficiente: max 512KB, max 100 righe, `flock(LOCK_SH)` per accesso concorrente
-- Classificazione: fatal, parse, warning, notice, deprecated, strict, other
+**ErrorLogCheck** - Secure error log summary:
+- Path resolution: `WP_DEBUG_LOG` (string) -> `ini_get('error_log')`
+- Validation: existence, readability, anti-symlink
+- Efficient tail: max 512KB, max 100 lines, `flock(LOCK_SH)` for concurrent access
+- Classification: fatal, parse, warning, notice, deprecated, strict, other
 - Status: critical (fatal/parse > 0), warning (warning/deprecated/strict > 0), ok
-- Max 5 campioni critici/warning, redatti prima dell'inclusione
-- Protected methods per testabilità con Mockery partial mock
+- Max 5 critical/warning samples, redacted before inclusion
+- Protected methods for testability with Mockery partial mock
 
-### Code Review - Issue Risolte (15/15)
+### Code Review - Issues Resolved (15/15)
 
-- ✅ **CheckRunnerInterface**: nuovo contratto per disaccoppiare HealthScreen e Scheduler da CheckRunner concreto
-- ✅ **RedactionInterface in CheckRunner**: messaggi eccezione redatti prima dell'inclusione nei risultati
-- ✅ **RedactionInterface in DatabaseCheck**: `$wpdb->last_error` redatto prima dell'inclusione nei risultati
-- ✅ **Container dipendenze circolari**: array `$resolving` rileva loop infiniti durante la risoluzione
-- ✅ **Storage autoload=false**: `update_option()` con terzo parametro `false` per dati grandi
-- ✅ **Scheduler self-healing admin-only**: guard `is_admin()` in `register_hooks()` previene self-healing su frontend
-- ✅ **Scheduler costanti**: `HOOK_NAME` e `INTERVAL` come costanti di classe
-- ✅ **Activator usa costanti Scheduler**: `Scheduler::HOOK_NAME` e `Scheduler::INTERVAL` invece di stringhe hardcoded
-- ✅ **HealthScreen CheckRunnerInterface**: type-hint su interfaccia, mostra `result['name']` con `ucfirst()` fallback
-- ✅ **ErrorLogCheck flock(LOCK_SH)**: lock condiviso durante lettura log per sicurezza concorrente
-- ✅ **IPv4 regex validazione ottetti**: regex verifica che ogni ottetto sia 0-255 (non solo \d{1,3})
-- ✅ **URL password regex restrittiva**: no whitespace nel pattern per evitare falsi positivi
-- ✅ **bootstrap.php container->instance()**: `$wpdb` registrato con `instance()` invece di closure
-- ✅ **bootstrap.php CheckRunnerInterface binding**: CheckRunner registrato sotto `CheckRunnerInterface::class`
-- ✅ **CheckRunner include 'name' nei risultati**: ogni risultato include la chiave `name` dal check
+- ✅ **CheckRunnerInterface**: new contract to decouple HealthScreen and Scheduler from concrete CheckRunner
+- ✅ **RedactionInterface in CheckRunner**: exception messages redacted before inclusion in results
+- ✅ **RedactionInterface in DatabaseCheck**: `$wpdb->last_error` redacted before inclusion in results
+- ✅ **Container circular dependencies**: `$resolving` array detects infinite loops during resolution
+- ✅ **Storage autoload=false**: `update_option()` with third parameter `false` for large data
+- ✅ **Scheduler self-healing admin-only**: `is_admin()` guard in `register_hooks()` prevents self-healing on frontend
+- ✅ **Scheduler constants**: `HOOK_NAME` and `INTERVAL` as class constants
+- ✅ **Activator uses Scheduler constants**: `Scheduler::HOOK_NAME` and `Scheduler::INTERVAL` instead of hardcoded strings
+- ✅ **HealthScreen CheckRunnerInterface**: type-hint on interface, shows `result['name']` with `ucfirst()` fallback
+- ✅ **ErrorLogCheck flock(LOCK_SH)**: shared lock during log reading for concurrent safety
+- ✅ **IPv4 regex octet validation**: regex verifies each octet is 0-255 (not just \d{1,3})
+- ✅ **URL password restrictive regex**: no whitespace in pattern to avoid false positives
+- ✅ **bootstrap.php container->instance()**: `$wpdb` registered with `instance()` instead of closure
+- ✅ **bootstrap.php CheckRunnerInterface binding**: CheckRunner registered under `CheckRunnerInterface::class`
+- ✅ **CheckRunner includes 'name' in results**: each result includes the `name` key from the check
 
-**Statistiche Finali**:
-- 15 file sorgente in `src/`
-- 24 file di test (15 unit + 9 integration)
-- 210 test totali (169 unit + 41 integration), 472 assertions
-- PHPCS 100% clean (0 errori, 0 warning)
+**Final Statistics**:
+- 15 source files in `src/`
+- 24 test files (15 unit + 9 integration)
+- 210 total tests (169 unit + 41 integration), 472 assertions
+- PHPCS 100% clean (0 errors, 0 warnings)
 
-**Deliverable**: Dashboard mostra Database + Error Log check con redazione automatica ✅
+**Deliverable**: Dashboard shows Database + Error Log check with automatic redaction ✅
 
 ---
 
@@ -147,52 +147,52 @@
 
 ### 2026-02-09 (Code Review 2)
 
-**PHPStan Integration** - Analisi statica level 6:
-- Installato `phpstan/phpstan` + `szepeviktor/phpstan-wordpress`
-- Creato `phpstan.neon` (level 6, `missingType.iterableValue` ignorato)
-- Aggiunto `composer analyse` script
-- Aggiunto job PHPStan in GitHub Actions CI (`.github/workflows/ci.yml`)
-- Integrato in `bin/test-matrix.sh` (eseguito con PHPCS)
-- Fix: `ErrorLogCheck::resolve_log_path()` assegnazione WP_DEBUG_LOG a variabile con `@phpstan-ignore` per compatibilità con gli stubs
+**PHPStan Integration** - Static analysis level 6:
+- Installed `phpstan/phpstan` + `szepeviktor/phpstan-wordpress`
+- Created `phpstan.neon` (level 6, `missingType.iterableValue` ignored)
+- Added `composer analyse` script
+- Added PHPStan job in GitHub Actions CI (`.github/workflows/ci.yml`)
+- Integrated in `bin/test-matrix.sh` (executed with PHPCS)
+- Fix: `ErrorLogCheck::resolve_log_path()` WP_DEBUG_LOG assignment to variable with `@phpstan-ignore` for stub compatibility
 - Fix: `.phpcs.xml.dist` exclude `.phpstan-cache`
-- PHPStan level 6: 0 errori
+- PHPStan level 6: 0 errors
 
-**Code Review 2** - 3 fix sorgente + 4 test aggiornati:
-- Scheduler: self-healing con transient throttle (ogni ora) invece di `is_admin()` guard
-- RedisCheck: chiave smoke test unica per run con `uniqid()` (evita race condition cron vs manual)
-- RedisCheck `cleanup_and_close()`: accetta `$smoke_key` parametro
-- Integration HealthScreenTest: corretta option key `ops_health_results` → `ops_health_latest_results`
-- SchedulerTest: mocks `get_transient`/`set_transient` al posto di `is_admin`
-- RedisCheckTest: `Mockery::on()` pattern matcher per chiave dinamica
-- Integration SchedulerTest: `delete_transient` al posto di `set_current_screen`
-- Totale: 265 test (212 unit + 53 integration), 620 assertions, PHPCS clean
-- **Lesson**: `is_admin()` limita self-healing al solo admin; usare transient throttle per copertura frontend
-- **Lesson**: chiavi Redis condivise tra esecuzioni concorrenti causano race condition; usare `uniqid()` per unicità
+**Code Review 2** - 3 source fixes + 4 tests updated:
+- Scheduler: self-healing with transient throttle (every hour) instead of `is_admin()` guard
+- RedisCheck: unique smoke test key per run with `uniqid()` (avoids race condition cron vs manual)
+- RedisCheck `cleanup_and_close()`: accepts `$smoke_key` parameter
+- Integration HealthScreenTest: corrected option key `ops_health_results` → `ops_health_latest_results`
+- SchedulerTest: mocks `get_transient`/`set_transient` instead of `is_admin`
+- RedisCheckTest: `Mockery::on()` pattern matcher for dynamic key
+- Integration SchedulerTest: `delete_transient` instead of `set_current_screen`
+- Total: 265 tests (212 unit + 53 integration), 620 assertions, PHPCS clean
+- **Lesson**: `is_admin()` limits self-healing to admin only; use transient throttle for frontend coverage
+- **Lesson**: shared Redis keys between concurrent executions cause race conditions; use `uniqid()` for uniqueness
 
 ### 2026-02-09 (Code Review Post-M3)
 
-**Code Review Post-M3** - 5 fix sorgente + 9 nuovi test + 6 test aggiornati:
-- Activator.php: `900` → `15 * MINUTE_IN_SECONDS`, aggiunto `__()` i18n
-- ErrorLogCheck.php: `classify_line()` da 6 regex a singola regex + map (riduce da 600 a 100 valutazioni per 100 righe)
-- HealthScreen.php: estratto `exit` → `do_exit()` protetto per testabilità
-- RedisCheck.php: `unset($e)` → `phpcs:ignore` (2 catch block)
-- .gitignore: rimosso `composer.lock`
-- +7 test HealthScreen (process_actions completo), +2 DatabaseCheck, +1 Menu
-- Aggiornati 3 SchedulerTest + 3 ActivatorTest per nuove dipendenze
-- Totale: 265 test (212 unit + 53 integration), 617 assertions, PHPCS clean
+**Code Review Post-M3** - 5 source fixes + 9 new tests + 6 tests updated:
+- Activator.php: `900` → `15 * MINUTE_IN_SECONDS`, added `__()` i18n
+- ErrorLogCheck.php: `classify_line()` from 6 regex to single regex + map (reduces from 600 to 100 evaluations for 100 lines)
+- HealthScreen.php: extracted `exit` → protected `do_exit()` for testability
+- RedisCheck.php: `unset($e)` → `phpcs:ignore` (2 catch blocks)
+- .gitignore: removed `composer.lock`
+- +7 HealthScreen tests (complete process_actions), +2 DatabaseCheck, +1 Menu
+- Updated 3 SchedulerTest + 3 ActivatorTest for new dependencies
+- Total: 265 tests (212 unit + 53 integration), 617 assertions, PHPCS clean
 
 ### 2026-02-09 (M3)
 
-**M3 - Redis Check** completata:
-- Implementato `RedisCheck` con graceful degradation (Redis opzionale, tutti i fallimenti sono `warning`)
-- Rilevamento estensione PHP Redis, connessione, autenticazione, selezione database, smoke test SET/GET/DEL
-- Misurazione tempo di risposta (>100ms = warning)
-- Host e errori redatti via `RedactionInterface`
-- Protected methods (`is_extension_loaded`, `create_redis_instance`, `get_redis_config`) per testabilità
-- `TestableRedisCheck` subclass per integration test (pattern da `TestableErrorLogCheck`)
-- Registrato in `config/bootstrap.php` via `$runner->add_check()`
-- 25 unit test + 6 integration test
-- Totale: 256 test (203 unit + 53 integration), 572 assertions, PHPCS clean
+**M3 - Redis Check** completed:
+- Implemented `RedisCheck` with graceful degradation (Redis optional, all failures are `warning`)
+- PHP Redis extension detection, connection, authentication, database selection, smoke test SET/GET/DEL
+- Response time measurement (>100ms = warning)
+- Host and errors redacted via `RedactionInterface`
+- Protected methods (`is_extension_loaded`, `create_redis_instance`, `get_redis_config`) for testability
+- `TestableRedisCheck` subclass for integration test (pattern from `TestableErrorLogCheck`)
+- Registered in `config/bootstrap.php` via `$runner->add_check()`
+- 25 unit tests + 6 integration tests
+- Total: 256 tests (203 unit + 53 integration), 572 assertions, PHPCS clean
 
 ### 2026-02-09 (CI Fix)
 
@@ -217,19 +217,19 @@
 
 ### 2026-02-09
 
-**M2 Code Review** (15/15 issue risolte):
-- CheckRunnerInterface per disaccoppiamento (HealthScreen, Scheduler usano interfaccia)
-- RedactionInterface iniettata in CheckRunner (redige eccezioni) e DatabaseCheck (redige $wpdb errors)
-- Container: rilevazione dipendenze circolari con array `$resolving`
+**M2 Code Review** (15/15 issues resolved):
+- CheckRunnerInterface for decoupling (HealthScreen, Scheduler use interface)
+- RedactionInterface injected in CheckRunner (redacts exceptions) and DatabaseCheck (redacts $wpdb errors)
+- Container: circular dependency detection with `$resolving` array
 - Storage: `autoload=false` in `update_option()`
-- Scheduler: self-healing solo in contesto admin (`is_admin()` guard), costanti HOOK_NAME/INTERVAL
-- ErrorLogCheck: `flock(LOCK_SH)` per accesso concorrente sicuro
-- Redaction: IPv4 regex con validazione ottetti (0-255), URL password regex restrittiva
-- bootstrap.php: `container->instance($wpdb)`, binding CheckRunnerInterface
-- Activator: usa `Scheduler::HOOK_NAME` e `Scheduler::INTERVAL`
-- CheckRunner: include chiave `name` nei risultati
-- 210 test (169 unit + 41 integration), 472 assertions, PHPCS clean
-- Lesson learned: WP test suite `is_admin()` restituisce false; usare `set_current_screen('dashboard')` per abilitare contesto admin nei test di integrazione
+- Scheduler: self-healing only in admin context (`is_admin()` guard), HOOK_NAME/INTERVAL constants
+- ErrorLogCheck: `flock(LOCK_SH)` for safe concurrent access
+- Redaction: IPv4 regex with octet validation (0-255), restrictive URL password regex
+- bootstrap.php: `container->instance($wpdb)`, CheckRunnerInterface binding
+- Activator: uses `Scheduler::HOOK_NAME` and `Scheduler::INTERVAL`
+- CheckRunner: includes `name` key in results
+- 210 tests (169 unit + 41 integration), 472 assertions, PHPCS clean
+- Lesson learned: WP test suite `is_admin()` returns false; use `set_current_screen('dashboard')` to enable admin context in integration tests
 
 ### 2026-02-08
 
@@ -245,7 +245,7 @@
 - Added `bin/test-matrix.sh` for local PHP 7.4-8.5 matrix testing (mirrors CI)
 
 **Post-M1 Hardening** (code review Codex):
-- Fixed `--parallel` in test-matrix.sh: i risultati delle subshell ora sono propagati via file temporanei
+- Fixed `--parallel` in test-matrix.sh: subshell results are now propagated via temporary files
 - Added Scheduler self-healing: `register_hooks()` calls `schedule()` to re-create missing cron event
 - 137 tests (104 unit + 33 integration), 275 assertions
 
@@ -256,7 +256,7 @@
 - Added Version and PHPCS badges to README.md, updated license badge to GPL v3
 - Added `dist/` to .gitignore
 
-**Completed M0**: Setup & Infrastruttura ✅
+**Completed M0**: Setup & Infrastructure ✅
 - Created complete directory structure
 - Setup composer.json with all dependencies (PHPUnit, WPCS, Brain\Monkey, etc.)
 - Configured PHPCS for WordPress Coding Standards
@@ -278,40 +278,40 @@
 
 ## Known Issues / Tech Debt
 
-- ~~**CSS 'unknown' status**: risolto in v0.6.0 con `health-screen.css` (classe `.ops-health-check-unknown`)~~
-- ~~**Action buttons inline style**: risolto in v0.6.0 — migrati a CSS dedicato `health-screen.css`~~
-- ~~**uninstall.php**: risolto in v0.6.0~~
-- Nessun issue noto al momento.
+- ~~**CSS 'unknown' status**: resolved in v0.6.0 with `health-screen.css` (class `.ops-health-check-unknown`)~~
+- ~~**Action buttons inline style**: resolved in v0.6.0 — migrated to dedicated CSS `health-screen.css`~~
+- ~~**uninstall.php**: resolved in v0.6.0~~
+- No known issues at this time.
 
-## Milestone 3: Check Redis ✅ 1/1
+## Milestone 3: Redis Check ✅ 1/1
 
-**Obiettivo**: Check Redis opzionale con graceful degradation
+**Goal**: Optional Redis check with graceful degradation
 
 ### Tasks
 
-- [x] **M3.1** - RedisCheck con TDD (rilevamento estensione, connessione, auth, smoke test, response time)
+- [x] **M3.1** - RedisCheck with TDD (extension detection, connection, auth, smoke test, response time)
 
 ### Code Review Post-M3
 
-- ✅ **Activator MINUTE_IN_SECONDS**: usa `15 * MINUTE_IN_SECONDS` e `__()` i18n per intervallo cron (allineato con Scheduler)
-- ✅ **ErrorLogCheck classify_line()**: ottimizzato da 6 regex sequenziali a singola regex con alternazione + mappa di lookup
-- ✅ **HealthScreen do_exit()**: estratto `exit` in metodo protetto per testabilità con Mockery partial mock
-- ✅ **RedisCheck unset($e)**: rimosso anti-pattern, sostituito con `phpcs:ignore`
-- ✅ **.gitignore composer.lock**: rimossa voce (deve essere committato per build riproducibili)
-- ✅ **HealthScreenTest +7 test**: copertura completa di `process_actions()` (early returns, run_now, clear_cache, notice)
-- ✅ **DatabaseCheckTest +2 test**: warning su query lenta, fallback `Unknown error`
-- ✅ **MenuTest +1 test**: skip `load-hook` quando `add_menu_page` ritorna false
-- ✅ **SchedulerTest aggiornati**: expectation `add_filter` in 3 test `register_hooks`
-- ✅ **ActivatorTest aggiornati**: definizione `MINUTE_IN_SECONDS` e mock `__()`
+- ✅ **Activator MINUTE_IN_SECONDS**: uses `15 * MINUTE_IN_SECONDS` and `__()` i18n for cron interval (aligned with Scheduler)
+- ✅ **ErrorLogCheck classify_line()**: optimized from 6 sequential regex to single regex with alternation + lookup map
+- ✅ **HealthScreen do_exit()**: extracted `exit` into protected method for testability with Mockery partial mock
+- ✅ **RedisCheck unset($e)**: removed anti-pattern, replaced with `phpcs:ignore`
+- ✅ **.gitignore composer.lock**: removed entry (must be committed for reproducible builds)
+- ✅ **HealthScreenTest +7 tests**: complete coverage of `process_actions()` (early returns, run_now, clear_cache, notice)
+- ✅ **DatabaseCheckTest +2 tests**: warning on slow query, fallback `Unknown error`
+- ✅ **MenuTest +1 test**: skip `load-hook` when `add_menu_page` returns false
+- ✅ **SchedulerTest updated**: `add_filter` expectation in 3 `register_hooks` tests
+- ✅ **ActivatorTest updated**: `MINUTE_IN_SECONDS` definition and `__()` mock
 
-**Statistiche Finali**:
-- 16 file sorgente in `src/`
-- 26 file di test (16 unit + 10 integration)
-- 314 test totali (215 unit + 99 integration), 744 assertions
-- PHPCS 100% clean (0 errori, 0 warning)
-- PHPStan level 6: 0 errori
+**Final Statistics**:
+- 16 source files in `src/`
+- 26 test files (16 unit + 10 integration)
+- 314 total tests (215 unit + 99 integration), 744 assertions
+- PHPCS 100% clean (0 errors, 0 warnings)
+- PHPStan level 6: 0 errors
 
-**Deliverable**: Dashboard mostra Database + Error Log + Redis check con graceful degradation ✅
+**Deliverable**: Dashboard shows Database + Error Log + Redis check with graceful degradation ✅
 
 ---
 
@@ -319,47 +319,47 @@
 
 ### 2026-02-09 (Code Review 3)
 
-**Code Review 3** - 4 fix sorgente + 4 test migliorati + CI/config:
-- CheckRunner: exception message internazionalizzato con `__()` per i18n
-- DatabaseCheck: soglia 0.5s estratta in costante `SLOW_QUERY_THRESHOLD`
-- ErrorLogCheck: null coalesce difensivo `?? 'other'` in `classify_line()`
-- Activator: commento esplicativo sul filtro `cron_schedules` duplicato
+**Code Review 3** - 4 source fixes + 4 tests improved + CI/config:
+- CheckRunner: exception message internationalized with `__()` for i18n
+- DatabaseCheck: 0.5s threshold extracted into `SLOW_QUERY_THRESHOLD` constant
+- ErrorLogCheck: defensive null coalesce `?? 'other'` in `classify_line()`
+- Activator: explanatory comment on duplicate `cron_schedules` filter
 - HealthScreenTest: `$_POST` cleanup in `tearDown()`, 4× `assertTrue(true)` → `assertInstanceOf()`
 - MenuTest: 2× `assertTrue(true)` → `assertInstanceOf()`
 - ActivatorTest: 1× `assertTrue(true)` → `assertInstanceOf()`
-- CheckRunnerTest: verifica `__()` nel test eccezione
-- CI: rimosso `--no-suggest` deprecato, aggiunto `permissions: contents: read`
-- Nuovo `.gitattributes` con `export-ignore` per file di sviluppo
-- build-zip.sh: `mkdir -p` per directory output custom
-- install-wp-tests.sh: variabili quotate nei path critici
-- Totale: 314 test (215 unit + 99 integration), 744 assertions, PHPCS + PHPStan clean
+- CheckRunnerTest: verifies `__()` in exception test
+- CI: removed deprecated `--no-suggest`, added `permissions: contents: read`
+- New `.gitattributes` with `export-ignore` for development files
+- build-zip.sh: `mkdir -p` for custom output directory
+- install-wp-tests.sh: quoted variables in critical paths
+- Total: 314 tests (215 unit + 99 integration), 744 assertions, PHPCS + PHPStan clean
 
 ### 2026-02-09 (Test Matrix Stabilization)
 
-**Test Matrix Fix** - 3 problemi risolti per stabilità test su PHP 7.4-8.5:
+**Test Matrix Fix** - 3 issues resolved for test stability on PHP 7.4-8.5:
 
-1. **RedisCheckTest fatale senza ext-redis**: `extends \Redis` nelle classi FakeRedis* helper causava `Class 'Redis' not found` su PHP senza ext-redis. Fix: guard `extension_loaded('redis')` su `require_once` + `@requires extension redis` sui metodi test che usano FakeRedis subclasses. Il `return;` a livello file non funzionava perché PHPUnit bypassa il guard durante la discovery dei test.
+1. **RedisCheckTest fatal without ext-redis**: `extends \Redis` in FakeRedis* helper classes caused `Class 'Redis' not found` on PHP without ext-redis. Fix: `extension_loaded('redis')` guard on `require_once` + `@requires extension redis` on test methods that use FakeRedis subclasses. The file-level `return;` did not work because PHPUnit bypasses the guard during test discovery.
 
-2. **DatabaseCheckTest flaky (EINTR)**: `usleep()` singolo veniva interrotto da SIGALRM (PHPUnit php-invoker) causando duration < 0.5s nonostante usleep di 1.5-3s. Fix: busy-wait loop con `usleep(50000)` in incrementi che riprende dopo ogni interruzione.
+2. **DatabaseCheckTest flaky (EINTR)**: single `usleep()` was interrupted by SIGALRM (PHPUnit php-invoker) causing duration < 0.5s despite usleep of 1.5-3s. Fix: busy-wait loop with `usleep(50000)` in increments that resumes after each interruption.
 
-3. **test-matrix.sh count "?"**: il grep `'OK \(\K[0-9]+'` non matchava l'output PHPUnit quando ci sono test skipped (`Tests: N, Assertions: M, Skipped: S.` invece di `OK (N tests, M assertions)`). Fix: grep fallback con `Tests: \K[0-9]+`.
+3. **test-matrix.sh count "?"**: the grep `'OK \(\K[0-9]+'` did not match PHPUnit output when there are skipped tests (`Tests: N, Assertions: M, Skipped: S.` instead of `OK (N tests, M assertions)`). Fix: grep fallback with `Tests: \K[0-9]+`.
 
-**Copertura test migliorata**: 265 → 314 test (+49), 620 → 743 assertions (+123)
-- Documentazione post-mortem del fix test matrix Redis integrata nel changelog e nel progress log
-- **Lesson**: `usleep()` può essere interrotto da SIGALRM (EINTR); usare busy-wait loop per timing tests
-- **Lesson**: PHPUnit cambia formato output con test skipped; grep patterns devono gestire entrambi i formati
-- **Lesson**: `@requires extension redis` su metodi individuali è il modo corretto per skip senza ext-redis
-- **Lesson**: `extends \Redis` è eager (parent deve esistere a definizione classe), ma `: \Redis` return type è lazy
+**Improved test coverage**: 265 → 314 tests (+49), 620 → 743 assertions (+123)
+- Post-mortem documentation of Redis test matrix fix integrated into changelog and progress log
+- **Lesson**: `usleep()` can be interrupted by SIGALRM (EINTR); use busy-wait loop for timing tests
+- **Lesson**: PHPUnit changes output format with skipped tests; grep patterns must handle both formats
+- **Lesson**: `@requires extension redis` on individual methods is the correct way to skip without ext-redis
+- **Lesson**: `extends \Redis` is eager (parent must exist at class definition), but `: \Redis` return type is lazy
 
 ---
 
 ## Milestone 4: Alerting System ✅ 10/10
 
-**Obiettivo**: Multi-channel alerting on check status changes with anti-SSRF protection
+**Goal**: Multi-channel alerting on check status changes with anti-SSRF protection
 
 ### Tasks
 
-- [x] **M4.1** - HttpClientInterface + HttpClient (anti-SSRF: scheme/port/IP validation, risoluzione DNS, no redirects)
+- [x] **M4.1** - HttpClientInterface + HttpClient (anti-SSRF: scheme/port/IP validation, DNS resolution, no redirects)
 - [x] **M4.2** - AlertChannelInterface + EmailChannel (`wp_mail()`, configurable recipients)
 - [x] **M4.3** - AlertManagerInterface + AlertManager (state change detection, cooldown, dispatch, alert log)
 - [x] **M4.4** - WebhookChannel (generic JSON POST, optional HMAC `X-OpsHealth-Signature`)
@@ -370,7 +370,7 @@
 - [x] **M4.9** - AlertSettings admin page + Menu submenu (PRG, nonce, capability check)
 - [x] **M4.10** - Bootstrap wiring + AlertingFlowTest (end-to-end integration)
 
-### Dettagli Implementazione
+### Implementation Details
 
 **HttpClient (Anti-SSRF):**
 - `is_safe_url()`: scheme http/https only, ports 80/443 only, block private IPs (10/172.16/192.168/127/169.254/0.0.0.0)
@@ -422,17 +422,17 @@
 ]
 ```
 
-**Statistiche Finali**:
-- 27 file sorgente in `src/` (+11 da M3)
-- 47 file di test (27 unit + 20 integration) (+21 da M3)
-- 698 test totali (438 unit + 260 integration), 1548 assertions
+**Final Statistics**:
+- 27 source files in `src/` (+11 from M3)
+- 47 test files (27 unit + 20 integration) (+21 from M3)
+- 698 total tests (438 unit + 260 integration), 1548 assertions
 - Unit coverage: **100%** (1281/1281 lines, 136/136 methods, 20/20 classes)
 - Integration coverage: **100%** (1280/1280 lines, 136/136 methods, 20/20 classes)
-- PHPCS 100% clean (0 errori, 0 warning)
-- PHPStan level 6: 0 errori
-- +196 nuovi test per M4 + 10 test aggiunti in code review 1 + 120 test integrazione aggiunti in coverage push + 8 test aggiunti in code review 2 + 5 test aggiunti in coverage 100% push
+- PHPCS 100% clean (0 errors, 0 warnings)
+- PHPStan level 6: 0 errors
+- +196 new tests for M4 + 10 tests added in code review 1 + 120 integration tests added in coverage push + 8 tests added in code review 2 + 5 tests added in 100% coverage push
 
-**Deliverable**: Alerting multi-canale con anti-SSRF, DNS pinning, cooldown intelligente, UI admin configurazione ✅
+**Deliverable**: Multi-channel alerting with anti-SSRF, DNS pinning, smart cooldown, admin configuration UI ✅
 
 ---
 
@@ -440,104 +440,104 @@
 
 ### 2026-02-10 (Code Review 2 Post-M4)
 
-**Code Review 2 Post-M4** - 5 rilievi risolti con TDD rigoroso (RED → GREEN → REFACTOR):
+**Code Review 2 Post-M4** - 5 findings resolved with strict TDD (RED → GREEN → REFACTOR):
 
 **High:**
-- HttpClient: DNS pinning via `CURLOPT_RESOLVE` + `http_api_curl` action (previene TOCTOU/DNS rebinding tra validazione e richiesta HTTP). Estratti `validate_and_resolve()` private + `create_dns_pin()` protected.
+- HttpClient: DNS pinning via `CURLOPT_RESOLVE` + `http_api_curl` action (prevents TOCTOU/DNS rebinding between validation and HTTP request). Extracted `validate_and_resolve()` private + `create_dns_pin()` protected.
 
 **Medium:**
-- Scheduler: `catch (\Exception)` → `catch (\Throwable)` in `run_checks()` (cattura TypeError, ValueError, non solo Exception)
-- AlertManager: try/catch `\Throwable` per-canale in `dispatch_to_channels()` (isolamento canali: un canale che fallisce non blocca gli altri)
+- Scheduler: `catch (\Exception)` → `catch (\Throwable)` in `run_checks()` (catches TypeError, ValueError, not just Exception)
+- AlertManager: try/catch `\Throwable` per-channel in `dispatch_to_channels()` (channel isolation: one failing channel does not block the others)
 
 **Low:**
-- AlertSettings: password fields rendono `value=""` + `placeholder="********"` (credenziali mai presenti nel sorgente HTML/DOM). `build_settings_from_post()` preserva secret esistenti quando il campo POST è vuoto.
-- EmailChannel: guard `empty($recipients)` dopo `parse_recipients()` in `send()` (previene chiamata `wp_mail()` senza destinatari)
+- AlertSettings: password fields render `value=""` + `placeholder="********"` (credentials never present in HTML/DOM source). `build_settings_from_post()` preserves existing secrets when POST field is empty.
+- EmailChannel: `empty($recipients)` guard after `parse_recipients()` in `send()` (prevents `wp_mail()` call without recipients)
 
-Totale: 693 test (437 unit + 256 integration), 1529 assertions, PHPCS + PHPStan clean
-- **Lesson**: `CURLOPT_RESOLVE` via `http_api_curl` WordPress hook è la soluzione standard per DNS pinning senza rompere HTTPS/SNI
-- **Lesson**: password fields devono usare `value=""` (mai il valore reale) + preserve-on-empty per non perdere il secret al salvataggio
+Total: 693 tests (437 unit + 256 integration), 1529 assertions, PHPCS + PHPStan clean
+- **Lesson**: `CURLOPT_RESOLVE` via `http_api_curl` WordPress hook is the standard solution for DNS pinning without breaking HTTPS/SNI
+- **Lesson**: password fields must use `value=""` (never the real value) + preserve-on-empty to avoid losing the secret on save
 
 ### 2026-02-10 (Coverage 100% Push)
 
-**Coverage push: 99.92%/98.98% → 100%/100%** — 5 nuovi test per chiudere le ultime linee non coperte:
+**Coverage push: 99.92%/98.98% → 100%/100%** — 5 new tests to close the last uncovered lines:
 
-**Gap identificati tramite Clover XML parsing:**
-- AlertSettings `build_settings_from_post()` linea 327: `$existing = []` dentro `if (!is_array($existing))` — storage corrotto
-- AlertSettings linee 336/340/344: preserve existing secrets quando campo POST vuoto — non esercitato in integrazione
-- EmailChannel `send()` linee 86-89: guard `empty($recipients)` — tutti i recipients invalidi dopo `parse_recipients()`
-- AlertManager `dispatch_to_channels()` linee 281-285: `catch (\Throwable)` — nessun canale lanciava eccezione in integrazione
+**Gaps identified via Clover XML parsing:**
+- AlertSettings `build_settings_from_post()` line 327: `$existing = []` inside `if (!is_array($existing))` — corrupted storage
+- AlertSettings lines 336/340/344: preserve existing secrets when POST field is empty — not exercised in integration
+- EmailChannel `send()` lines 86-89: `empty($recipients)` guard — all recipients invalid after `parse_recipients()`
+- AlertManager `dispatch_to_channels()` lines 281-285: `catch (\Throwable)` — no channel was throwing exception in integration
 
-**Test aggiunti:**
+**Tests added:**
 - Unit AlertSettingsTest: `test_process_actions_handles_corrupted_existing_settings` (storage returns non-array)
 - Integration AlertSettingsTest: `test_process_actions_preserves_existing_secrets_when_empty` + `test_process_actions_handles_corrupted_existing_settings`
 - Integration EmailChannelTest: `test_send_returns_error_when_all_recipients_invalid`
 - Integration AlertingFlowTest: `test_dispatch_catches_throwable_from_channel` (ThrowingChannel + per-channel isolation)
 
-Totale: 698 test (438 unit + 260 integration), 1548 assertions
-Coverage: **100%** sia per unit che per integration, indipendentemente (1281/1281 + 1280/1280 lines)
+Total: 698 tests (438 unit + 260 integration), 1548 assertions
+Coverage: **100%** for both unit and integration, independently (1281/1281 + 1280/1280 lines)
 PHPCS + PHPStan clean
 
 ### 2026-02-10 (Code Review Post-M4)
 
-**Code Review Post-M4** - 13 rilievi risolti (4 Critical, 3 High, 3 Medium, 3 Low):
+**Code Review Post-M4** - 13 findings resolved (4 Critical, 3 High, 3 Medium, 3 Low):
 
 **Critical:**
-- HttpClient.post(): restituisce `success: false` per risposte HTTP non-2xx
-- AlertManager: cooldown impostato PRIMA del dispatch (previene alert spam in caso di errori dei canali)
-- TelegramChannel: `htmlspecialchars()` su tutte le variabili interpolate in messaggi HTML
-- Scheduler: `try/catch` attorno a `alert_manager->process()` (cron resilience)
+- HttpClient.post(): returns `success: false` for non-2xx HTTP responses
+- AlertManager: cooldown set BEFORE dispatch (prevents alert spam in case of channel errors)
+- TelegramChannel: `htmlspecialchars()` on all interpolated variables in HTML messages
+- Scheduler: `try/catch` around `alert_manager->process()` (cron resilience)
 
 **High:**
-- SlackChannel: `escape_mrkdwn()` per `*`, `_`, `~`, `` ` ``, `&`, `<`, `>`
-- EmailChannel: `is_email()` in `parse_recipients()` filtra email non valide
-- AlertSettings: `type="password"` + `autocomplete="off"` per token/secret
+- SlackChannel: `escape_mrkdwn()` for `*`, `_`, `~`, `` ` ``, `&`, `<`, `>`
+- EmailChannel: `is_email()` in `parse_recipients()` filters invalid emails
+- AlertSettings: `type="password"` + `autocomplete="off"` for tokens/secrets
 
 **Medium:**
-- AlertingFlowTest: rafforzato con EmailChannel + asserzioni meaningful
-- HttpClient: IPv6 rejection documentato in `is_private_ip()` PHPDoc
-- AlertManager: costanti `STATUS_OK/WARNING/CRITICAL/UNKNOWN` sostituiscono stringhe hardcoded
+- AlertingFlowTest: strengthened with EmailChannel + meaningful assertions
+- HttpClient: IPv6 rejection documented in `is_private_ip()` PHPDoc
+- AlertManager: `STATUS_OK/WARNING/CRITICAL/UNKNOWN` constants replace hardcoded strings
 
 **Low:**
 - Interface tests: `assertTrue(interface_exists/method_exists)` → Reflection-based assertions
-- WebhookChannel: `X-OpsHealth-Signature` header documentato con istruzioni verifica
-- WhatsAppChannel: validazione E.164 phone (`is_valid_phone`) in `is_enabled()`
+- WebhookChannel: `X-OpsHealth-Signature` header documented with verification instructions
+- WhatsAppChannel: E.164 phone validation (`is_valid_phone`) in `is_enabled()`
 
-Totale: 556 test (420 unit + 136 integration), 1285 assertions, PHPCS + PHPStan clean
+Total: 556 tests (420 unit + 136 integration), 1285 assertions, PHPCS + PHPStan clean
 
 ### 2026-02-10 (Integration Test Coverage Push)
 
-**Integration test coverage: 63.87% → 100%** — 120 nuovi test di integrazione:
+**Integration test coverage: 63.87% → 100%** — 120 new integration tests:
 
-**7 nuovi file integration test:**
-- `HttpClientTest` (~25 test): TestableHttpClient subclass, anti-SSRF validation, `pre_http_request` interception, test con HttpClient reale su IP diretti
-- `AlertSettingsTest` (~16 test): TestableAlertSettings subclass, PRG pattern, nonce/capability security, render con settings reali
-- `SlackChannelTest` (~12 test): Block Kit payload, color-coded attachments, recovery title, corrupted settings
-- `TelegramChannelTest` (~10 test): Bot API URL, HTML parse mode, chat_id, corrupted settings
-- `WebhookChannelTest` (~12 test): HMAC signature verification, no-secret header check
-- `WhatsAppChannelTest` (~13 test): E.164 phone validation, Bearer auth header
-- `EmailChannelTest` (~12 test): `pre_wp_mail` interception, `is_email()` validation, wp_mail failure
+**7 new integration test files:**
+- `HttpClientTest` (~25 tests): TestableHttpClient subclass, anti-SSRF validation, `pre_http_request` interception, tests with real HttpClient on direct IPs
+- `AlertSettingsTest` (~16 tests): TestableAlertSettings subclass, PRG pattern, nonce/capability security, render with real settings
+- `SlackChannelTest` (~12 tests): Block Kit payload, color-coded attachments, recovery title, corrupted settings
+- `TelegramChannelTest` (~10 tests): Bot API URL, HTML parse mode, chat_id, corrupted settings
+- `WebhookChannelTest` (~12 tests): HMAC signature verification, no-secret header check
+- `WhatsAppChannelTest` (~13 tests): E.164 phone validation, Bearer auth header
+- `EmailChannelTest` (~12 tests): `pre_wp_mail` interception, `is_email()` validation, wp_mail failure
 
-**3 file integration test potenziati:**
-- `MenuTest` (+4 test): submenu registration, render delegation, null AlertSettings, load hook
+**3 enhanced integration test files:**
+- `MenuTest` (+4 tests): submenu registration, render delegation, null AlertSettings, load hook
 - `SchedulerTest` (+1 test): ThrowingAlertManager resilience (try/catch around process())
-- `AlertingFlowTest` (+6 test): real home_url/bloginfo, DEFAULT_COOLDOWN, missing status key, corrupted log, disabled channels, error redaction
+- `AlertingFlowTest` (+6 tests): real home_url/bloginfo, DEFAULT_COOLDOWN, missing status key, corrupted log, disabled channels, error redaction
 
-**Tecniche chiave:**
-- TestableHttpClient: override `resolve_host()` per IP controllato senza DNS
-- TestableAlertSettings: override `do_exit()` per prevenire exit() nei test
-- ThrowingAlertManager: implementa AlertManagerInterface, lancia in process() per test resilienza
-- HttpClient reale con IP diretti (127.0.0.1, 172.16.0.1, 192.168.1.1): `gethostbyname()` su IP restituisce l'IP stesso, risolve limitazione di attribuzione della coverage Xdebug su subclass
-- `pre_http_request` filter (2nd arg=$args, 3rd=$url) per intercettare `wp_remote_post()`
-- `pre_wp_mail` filter: return true=intercetta, return false=simula fallimento
-- Admin user context: `self::factory()->user->create(['role'=>'administrator'])` per `$submenu` global
+**Key techniques:**
+- TestableHttpClient: overrides `resolve_host()` for controlled IP without DNS
+- TestableAlertSettings: overrides `do_exit()` to prevent exit() in tests
+- ThrowingAlertManager: implements AlertManagerInterface, throws in process() for resilience testing
+- Real HttpClient with direct IPs (127.0.0.1, 172.16.0.1, 192.168.1.1): `gethostbyname()` on an IP returns the IP itself, resolves Xdebug coverage attribution limitation on subclass
+- `pre_http_request` filter (2nd arg=$args, 3rd=$url) to intercept `wp_remote_post()`
+- `pre_wp_mail` filter: return true=intercept, return false=simulate failure
+- Admin user context: `self::factory()->user->create(['role'=>'administrator'])` for `$submenu` global
 
-Totale: 685 test (429 unit + 256 integration), 1497 assertions
-Coverage: **100%** sia per unit test sia per integration test, considerati separatamente
+Total: 685 tests (429 unit + 256 integration), 1497 assertions
+Coverage: **100%** for both unit tests and integration tests, considered separately
 PHPCS + PHPStan clean
 
 ### 2026-02-10 (M4 Implementation)
 
-**M4 - Alerting System** completata in 10 sub-task:
+**M4 - Alerting System** completed in 10 sub-tasks:
 - M4.1-M4.7: HttpClient + 5 channels + AlertManager (TDD, ~170 unit tests)
 - M4.8: Scheduler modification with optional AlertManager injection
 - M4.9: AlertSettings admin page + Menu submenu (+22 unit, +6 menu tests)
@@ -547,22 +547,22 @@ PHPCS + PHPStan clean
 
 ## Milestone 5: New Checks + Dashboard Widget + E2E Testing ✅
 
-**Obiettivo**: DiskCheck, VersionsCheck, DashboardWidget + E2E testing con Playwright
+**Goal**: DiskCheck, VersionsCheck, DashboardWidget + E2E testing with Playwright
 
 ### Tasks
 
-- [x] **M5.1** - DiskCheck con TDD (soglie configurabili, protected wrappers, RedactionInterface)
-- [x] **M5.2** - VersionsCheck con TDD (WP/PHP versions, update notifications, graceful fallback)
-- [x] **M5.3** - DashboardWidget con TDD (worst-status, capability check, render con escaping)
-- [x] **M5.4** - Registrazione DiskCheck + VersionsCheck + DashboardWidget in bootstrap.php + Plugin.php
-- [x] **M5.5** - E2E infrastruttura (package.json, .wp-env.json, playwright.config.ts, tsconfig.json)
+- [x] **M5.1** - DiskCheck with TDD (configurable thresholds, protected wrappers, RedactionInterface)
+- [x] **M5.2** - VersionsCheck with TDD (WP/PHP versions, update notifications, graceful fallback)
+- [x] **M5.3** - DashboardWidget with TDD (worst-status, capability check, render with escaping)
+- [x] **M5.4** - DiskCheck + VersionsCheck + DashboardWidget registration in bootstrap.php + Plugin.php
+- [x] **M5.5** - E2E infrastructure (package.json, .wp-env.json, playwright.config.ts, tsconfig.json)
 - [x] **M5.6** - E2E helpers (login.ts, selectors.ts) + bin/e2e-setup.sh
-- [x] **M5.7** - File di spec E2E (navigation, health-dashboard, alert-settings, dashboard-widget, security)
+- [x] **M5.7** - E2E spec files (navigation, health-dashboard, alert-settings, dashboard-widget, security)
 - [x] **M5.8** - CI integration (e2e job in ci.yml, .gitignore, .gitattributes)
-- [x] **M5.9** - Unit + integration tests per DiskCheck, VersionsCheck, DashboardWidget
-- [x] **M5.10** - Tutti i quality gate passano + 138 esecuzioni E2E verdi
+- [x] **M5.9** - Unit + integration tests for DiskCheck, VersionsCheck, DashboardWidget
+- [x] **M5.10** - All quality gates pass + 138 green E2E executions
 
-### Dettagli Implementazione
+### Implementation Details
 
 **DiskCheck:**
 - `WARNING_THRESHOLD = 20`, `CRITICAL_THRESHOLD = 10` (percent free space)
@@ -591,48 +591,48 @@ PHPCS + PHPStan clean
 - CI: desktop-only (46 tests, ~8 min), 1 worker, 60s timeout, login timeout 30s, job timeout 15 min, health check wait, `line` + `github` reporter
 - Locally: 1 worker, 30s timeout, 1 retry
 - `bin/e2e-setup.sh`: creates subscriber_e2e + editor_e2e test users
-- 5 file di spec: navigation (6), health-dashboard (14), alert-settings (14), dashboard-widget (6), security (6)
+- 5 spec files: navigation (6), health-dashboard (14), alert-settings (14), dashboard-widget (6), security (6)
 
-**Test Matrix Locale (`bin/test-matrix.sh`):**
-- E2E integrato con lifecycle management (wp-env start/stop, utenti test, prerequisiti npm/docker)
-- Flag: `--e2e-only`, `--no-e2e`, `--tests-only`, `--phpcs-only`, `--parallel`
-- Dot reporter per progresso real-time, ANSI stripping per parsing risultati
-- SKIP (giallo) quando npm/Docker non disponibili
-- `composer.json` `process-timeout: 0` per esecuzioni lunghe
+**Local Test Matrix (`bin/test-matrix.sh`):**
+- E2E integrated with lifecycle management (wp-env start/stop, test users, npm/docker prerequisites)
+- Flags: `--e2e-only`, `--no-e2e`, `--tests-only`, `--phpcs-only`, `--parallel`
+- Dot reporter for real-time progress, ANSI stripping for result parsing
+- SKIP (yellow) when npm/Docker are not available
+- `composer.json` `process-timeout: 0` for long-running executions
 
-**Statistiche Finali** (post code review + coverage push):
-- 30 file sorgente in `src/` (+3 da M4)
-- 53 file di test PHP (30 unit + 23 integration) (+6 da M4)
-- 537 unit test, 1203 assertions — **100% classi, metodi, linee**
-- 296 integration test, 598 assertions — **100% classi, metodi, linee**
-- 46 E2E scenari x 3 viewport = 138 esecuzioni di test
-- Test matrix locale integrata con E2E (PHPCS + PHPStan + PHP 7.4-8.5 + E2E)
-- PHPCS 100% clean, PHPStan level 6: 0 errori
+**Final Statistics** (post code review + coverage push):
+- 30 source files in `src/` (+3 from M4)
+- 53 PHP test files (30 unit + 23 integration) (+6 from M4)
+- 537 unit tests, 1203 assertions — **100% classes, methods, lines**
+- 296 integration tests, 598 assertions — **100% classes, methods, lines**
+- 46 E2E scenarios x 3 viewports = 138 test executions
+- Local test matrix integrated with E2E (PHPCS + PHPStan + PHP 7.4-8.5 + E2E)
+- PHPCS 100% clean, PHPStan level 6: 0 errors
 
-**Deliverable**: Dashboard con 5 check (Database, Error Log, Redis, Disk, Versions) + widget dashboard + E2E testing completo + test matrix locale con E2E ✅
+**Deliverable**: Dashboard with 5 checks (Database, Error Log, Redis, Disk, Versions) + dashboard widget + complete E2E testing + local test matrix with E2E ✅
 
 ---
 
 ## M6 — WordPress.org Readiness ✅
 
-**Obiettivo**: Preparare il plugin per la submission su WordPress.org.
+**Goal**: Prepare the plugin for WordPress.org submission.
 
 **Deliverable**:
-1. `uninstall.php` con classe `Uninstaller` per pulizia completa dati (opzioni, cron, transient)
-2. `readme.txt` in formato WordPress.org standard
-3. ABSPATH guards su tutti i file sorgente + config
-4. `bin/build-zip.sh` aggiornato per includere uninstall.php e readme.txt
-5. `tests/bootstrap.php` definisce ABSPATH per compatibilità unit test
+1. `uninstall.php` with `Uninstaller` class for complete data cleanup (options, cron, transients)
+2. `readme.txt` in WordPress.org standard format
+3. ABSPATH guards on all source files + config
+4. `bin/build-zip.sh` updated to include uninstall.php and readme.txt
+5. `tests/bootstrap.php` defines ABSPATH for unit test compatibility
 
-**Statistiche Finali** (post code review + multisite coverage):
-- 31 file sorgente in `src/`, 2 file CSS in `assets/css/`
-- 55 file di test PHP (31 unit + 24 integration)
-- 574 unit test, 1336 assertions — **100% classi, metodi, linee**
-- 322 integration test, 655 assertions (single-site) / 684 assertions (multisite) — **100% combinato**
-- 46 E2E scenari x 3 viewport = 138 esecuzioni di test
-- PHPCS 100% clean, PHPStan level 6: 0 errori
+**Final Statistics** (post code review + multisite coverage):
+- 31 source files in `src/`, 2 CSS files in `assets/css/`
+- 55 PHP test files (31 unit + 24 integration)
+- 574 unit tests, 1336 assertions — **100% classes, methods, lines**
+- 322 integration tests, 655 assertions (single-site) / 684 assertions (multisite) — **100% combined**
+- 46 E2E scenarios x 3 viewports = 138 test executions
+- PHPCS 100% clean, PHPStan level 6: 0 errors
 
-**Deliverable**: Plugin WordPress.org ready con uninstall.php, readme.txt, ABSPATH guards, HealthScreen UI con CSS dedicato ✅
+**Deliverable**: WordPress.org ready plugin with uninstall.php, readme.txt, ABSPATH guards, HealthScreen UI with dedicated CSS ✅
 
 ---
 
@@ -640,26 +640,26 @@ PHPCS + PHPStan clean
 
 ### 2026-02-15 (Code Review Post-M6 + Multisite Coverage)
 
-**Code Review Post-M6** - 4 miglioramenti implementati da review esterna:
+**Code Review Post-M6** - 4 improvements implemented from external review:
 
 **Fix:**
-- **WebhookChannel HMAC**: body serializzato una sola volta, firma HMAC calcolata su stringa pre-serializzata, passata come stringa a HttpClient (evita doppia serializzazione)
-- **HttpClientInterface `post()`**: accetta `array|string` body (PHPDoc `@param array|string`, no PHP type hint per compatibilità 7.4)
-- **Uninstaller multisite**: `uninstall()` dispatcha a `uninstall_network()` (itera tutti i blog) o `uninstall_single()` in base a `is_multisite()`
-- **uninstall.php**: aggiunto fallback `elseif(is_multisite())` con variabili prefissate
-- **build-zip.sh**: rimosso `|| true` su `composer install`, aggiunto controllo esplicito con exit 1
-- **readme.txt**: chiarito "46 scenari; 3 viewport localmente, desktop-only in CI"
+- **WebhookChannel HMAC**: body serialized only once, HMAC signature computed on pre-serialized string, passed as string to HttpClient (avoids double serialization)
+- **HttpClientInterface `post()`**: accepts `array|string` body (PHPDoc `@param array|string`, no PHP type hint for 7.4 compatibility)
+- **Uninstaller multisite**: `uninstall()` dispatches to `uninstall_network()` (iterates all blogs) or `uninstall_single()` based on `is_multisite()`
+- **uninstall.php**: added `elseif(is_multisite())` fallback with prefixed variables
+- **build-zip.sh**: removed `|| true` on `composer install`, added explicit check with exit 1
+- **readme.txt**: clarified "46 scenarios; 3 viewports locally, desktop-only in CI"
 
 **Multisite Coverage Push:**
-- `tests/bootstrap.php`: supporto `WP_TESTS_MULTISITE` env var → `define('WP_TESTS_MULTISITE', true)`
-- 3 nuovi test integrazione multisite in `UninstallerTest`: pulizia multi-blog, cooldown transient, preservazione dati non-plugin
-- `composer.json`: 3 nuovi script (`test:integration:multisite`, `test:coverage:multisite`, `test:coverage` aggiornato con 3 run)
-- Coverage: Uninstaller 81.25%→96.88% (multisite) / 81.25% (single-site) → **100% combinato**
+- `tests/bootstrap.php`: support for `WP_TESTS_MULTISITE` env var → `define('WP_TESTS_MULTISITE', true)`
+- 3 new multisite integration tests in `UninstallerTest`: multi-blog cleanup, cooldown transient, non-plugin data preservation
+- `composer.json`: 3 new scripts (`test:integration:multisite`, `test:coverage:multisite`, `test:coverage` updated with 3 runs)
+- Coverage: Uninstaller 81.25%→96.88% (multisite) / 81.25% (single-site) → **100% combined**
 
-**Nuovi test:**
-- +7 unit test: WebhookChannel string body, HttpClient string/array body, Uninstaller multisite
-- +4 integration test: 3 multisite Uninstaller + 1 aggiornato
+**New tests:**
+- +7 unit tests: WebhookChannel string body, HttpClient string/array body, Uninstaller multisite
+- +4 integration tests: 3 multisite Uninstaller + 1 updated
 
-Totale: 574 unit (1336 assertions) + 322 integration (655/684 assertions), PHPCS + PHPStan clean
+Total: 574 unit (1336 assertions) + 322 integration (655/684 assertions), PHPCS + PHPStan clean
 
-**Lesson**: `is_multisite()` branch richiede due run di test (single-site + multisite); `WP_TESTS_MULTISITE` env var abilita la modalità multisite nel bootstrap WP Test Suite
+**Lesson**: `is_multisite()` branch requires two test runs (single-site + multisite); `WP_TESTS_MULTISITE` env var enables multisite mode in WP Test Suite bootstrap

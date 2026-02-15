@@ -1,114 +1,116 @@
 # AGENTS.md - Ops Health Dashboard
 
-Istruzioni operative per agenti AI che lavorano su questo repository.
+Operational instructions for AI agents working on this repository.
 
-## Obiettivo Progetto
+## Project Goal
 
-Plugin WordPress production-grade per monitoraggio operativo con health checks, dashboard admin, scheduling WP-Cron e alerting.
+Production-grade WordPress plugin for operational monitoring with health checks, admin dashboard, WP-Cron scheduling, and alerting.
 
-## Regole Architetturali Non Negoziabili
+## Non-Negotiable Architecture Rules
 
-1. NO singleton.
-2. NO metodi/proprietà statiche.
-3. NO classi/metodi `final`.
-4. Usare dependency injection via costruttore.
-5. Usare il container DI con `share()` per istanze condivise (non singleton globali).
+1. No singleton pattern.
+2. No static methods/properties.
+3. No `final` classes/methods.
+4. Use constructor dependency injection.
+5. Use DI container `share()` for shared instances (not global singletons).
 
-## Pattern Richiesti
+## Required Patterns
 
-1. Design interface-first (`*Interface` + implementazioni concrete).
-2. Bootstrap tramite funzione (`config/bootstrap.php`), non tramite factory static.
-3. Dipendenze WordPress (es. `$wpdb`) iniettate, evitando accesso globale diretto nella logica di business.
+1. Interface-first design (`*Interface` + concrete implementations).
+2. Function-based bootstrap (`config/bootstrap.php`), not static factory bootstrap.
+3. Inject WordPress dependencies (for example `$wpdb`) and avoid direct global access in business logic.
 
-## Testing (Obbligatorio)
+## Testing (Mandatory)
 
-1. Seguire sempre TDD: RED -> GREEN -> REFACTOR.
-2. Unit test in `tests/Unit/` con Brain\Monkey per logica isolata.
-3. Integration test in `tests/Integration/` quando si tocca WordPress reale (Options API, cron, hook, admin, DB).
-4. Aggiungere pattern-enforcement test per evitare final/static.
-5. Prima di chiudere una modifica, eseguire:
+1. Always follow TDD: RED -> GREEN -> REFACTOR.
+2. Unit tests in `tests/Unit/` with Brain\Monkey for isolated logic.
+3. Integration tests in `tests/Integration/` when real WordPress behavior is touched.
+4. Add pattern-enforcement tests for `final`/`static` violations.
+5. Before closing changes, run:
    - `composer test`
    - `composer phpcs`
    - `composer analyse`
 
-## Sicurezza (Obbligatoria)
+## Security (Mandatory)
 
-1. Sanitizzare input (`sanitize_text_field`, `sanitize_email`, `esc_url_raw`, `absint`, ecc.).
-2. Effettuare l'escaping dell'output (`esc_html`, `esc_attr`, `esc_url`, `esc_js`).
-3. Verificare capability su pagine admin (`current_user_can('manage_options')`).
-4. Usare e verificare nonce su form/AJAX.
-5. Per webhook/HTTP esterni applicare anti-SSRF con validazione URL.
+1. Sanitize input (`sanitize_text_field`, `sanitize_email`, `esc_url_raw`, `absint`, etc.).
+2. Escape output (`esc_html`, `esc_attr`, `esc_url`, `esc_js`).
+3. Verify admin capabilities (`current_user_can('manage_options')`).
+4. Use and verify nonce in forms/AJAX.
+5. Apply anti-SSRF protections for outbound webhook/HTTP requests.
 
 ## Coding Standards
 
-1. Rispettare WordPress Coding Standards (WPCS).
-2. Indentazione a tab.
-3. Allman style per parentesi.
-4. PHPDoc completo su classi/metodi pubblici.
+1. Follow WordPress Coding Standards (WPCS).
+2. Use tab indentation.
+3. Use Allman brace style.
+4. Complete PHPDoc for classes/public methods.
 5. Naming:
-   - Classi: PascalCase
-   - Metodi: snake_case
-   - Costanti: UPPER_SNAKE_CASE
-   - Chiavi globali/opzioni: prefisso `ops_health_`
+   - Classes: PascalCase
+   - Methods: snake_case
+   - Constants: UPPER_SNAKE_CASE
+   - Global keys/options: `ops_health_` prefix
 
-## Workflow Consigliato
+## Recommended Workflow
 
-1. Scrivere/aggiornare test.
-2. Implementare il minimo codice necessario.
-3. Rifinire (refactor) mantenendo i test verdi.
-4. Eseguire `composer test`, `composer phpcs` e `composer analyse`.
-5. Usare conventional commits (`feat`, `fix`, `docs`, `refactor`, `test`, `chore`).
+1. Write/update tests.
+2. Implement the minimum code needed.
+3. Refactor while keeping tests green.
+4. Run `composer test`, `composer phpcs`, `composer analyse`.
+5. Use conventional commits (`feat`, `fix`, `docs`, `refactor`, `test`, `chore`).
 
-## Stato Progetto (Riferimento)
+## Project Status (Reference)
 
-Milestone M1-M6 completate (Core Checks + Storage + Cron + Error Log + Redis + Alerting + DiskCheck + VersionsCheck + DashboardWidget + E2E Testing + WordPress.org Readiness + HealthScreen UI). 567 unit test, 1287 assertions. 318 integration test, 654 assertions. Coverage: 100% classi, metodi, linee (sia unit che integration). 46 E2E scenari x 3 viewport = 138 esecuzioni di test (Playwright + wp-env). PHPCS 100% clean, PHPStan level 6: 0 errori. 31 file sorgente, 55 file di test PHP (31 unit + 24 integration), 5 file di spec E2E, 2 file CSS. Plugin WordPress.org ready con uninstall.php, readme.txt, ABSPATH guards. HealthScreen con card grid, summary banner e CSS dedicato. Vedi `DEVELOPMENT_PLAN.md` e `CHANGELOG.md` per stato aggiornato.
+Milestones M1-M6 completed (Core Checks + Storage + Cron + Error Log + Redis + Alerting + DiskCheck + VersionsCheck + DashboardWidget + E2E Testing + WordPress.org Readiness + HealthScreen UI). 574 unit tests, 1336 assertions. 322 integration tests, 655 assertions (single-site) / 684 assertions (multisite). Coverage: 100% classes, methods, lines (unit + integration + multisite combined). 46 E2E scenarios x 3 viewports = 138 test executions (Playwright + wp-env). PHPCS 100% clean, PHPStan level 6: 0 errors. 31 source files, 55 PHP test files (31 unit + 24 integration), 5 E2E spec files, 2 CSS files. Plugin WordPress.org ready with uninstall.php, readme.txt, ABSPATH guards. HealthScreen with card grid, summary banner, and dedicated CSS. See `DEVELOPMENT_PLAN.md` and `CHANGELOG.md` for up-to-date status.
 
-## Baseline Corrente (v0.6.0)
+## Current Baseline (v0.6.1)
 
-Punti architetturali da preservare nella codebase attuale:
-1. Bootstrap plugin in `ops-health-dashboard.php` con autoloader fail-safe (admin notice se `vendor/autoload.php` manca).
-2. Orchestrazione principale in `src/Core/Plugin.php` con init idempotente.
-3. Container DI custom in `src/Core/Container.php` (`bind`, `share`, `instance`, `make`).
-4. Lifecycle activation/deactivation in `src/Core/Activator.php` con setup opzioni e cron hook (`ops_health_run_checks`).
-5. Scheduling check periodici tramite `src/Services/Scheduler.php` (WP-Cron ogni 15 minuti) con self-healing throttled via transient `ops_health_cron_check` (valido su admin e frontend).
-6. Check registrati in `config/bootstrap.php`: `DatabaseCheck`, `ErrorLogCheck`, `RedisCheck`, `DiskCheck`, `VersionsCheck`.
-7. Flusso azioni admin in `src/Admin/HealthScreen.php`: `process_actions()` con nonce + capability check e redirect PRG; uscita isolata in `do_exit()` per testabilità.
-8. Redazione dati sensibili centralizzata in `src/Services/Redaction.php`, iniettata in `CheckRunner`, `DatabaseCheck`, `ErrorLogCheck` e `RedisCheck`.
-9. `RedisCheck` usa chiave smoke test univoca per run (`ops_health_smoke_test_<uniqid>`) per evitare race condition tra esecuzioni concorrenti.
-10. Contratto `CheckRunnerInterface` con `clear_results()` usato dal flusso admin (`Run Now` / `Clear Cache`) in `HealthScreen::process_actions()`.
-11. **Alerting**: `AlertManager` rileva cambiamenti stato check, dispatcha a canali abilitati (Email, Webhook, Slack, Telegram, WhatsApp), cooldown per-check via transient, alert log limitato a 50 voci. Integrato in `Scheduler::run_checks()`.
-12. **Anti-SSRF**: `HttpClient` blocca IP privati (RFC 1918, loopback, link-local), valida la risoluzione DNS, DNS pinning via `CURLOPT_RESOLVE` (anti-TOCTOU/DNS rebinding), restringe schema (http/https) e porte (80/443), no redirect, timeout 5s, rifiuto IPv6 (safe-fail), validazione HTTP 2xx.
-13. **Alert Settings**: pagina admin `Ops → Alert Settings` con PRG pattern, nonce `ops_health_alert_settings`, per-channel enable/disable + credentials (`type="password"` + `value=""` + `placeholder="********"` per token/secret — credenziali mai nel DOM), cooldown globale.
-14. **Channel security**: TelegramChannel escape HTML (`htmlspecialchars`), SlackChannel escape mrkdwn, EmailChannel validazione `is_email()`, WhatsAppChannel validazione E.164 phone.
-15. **AlertManager resilience**: cooldown transient impostato PRIMA del dispatch (anti-spam), costanti `STATUS_OK/WARNING/CRITICAL/UNKNOWN`, isolamento per-canale `try/catch \Throwable` in `dispatch_to_channels()`, Scheduler `catch (\Throwable)` attorno a `process()` (cron resiliente a qualsiasi errore).
-16. **DashboardWidget**: `src/Admin/DashboardWidget.php` registrato in `Plugin::init()`, hook `wp_dashboard_setup`, capability check, worst-status logic, CSS `assets/css/dashboard-widget.css`.
-23. **HealthScreen UI**: `register_hooks()` + `enqueue_styles()` con guard `get_current_screen()`, `SCREEN_ID` constant, `determine_overall_status()` priority map, CSS card grid + summary banner in `assets/css/health-screen.css`, palette WordPress nativa.
-17. **DiskCheck**: `src/Checks/DiskCheck.php` con soglie `WARNING_THRESHOLD = 20`, `CRITICAL_THRESHOLD = 10` (percent), protected wrappers, RedactionInterface.
-18. **VersionsCheck**: `src/Checks/VersionsCheck.php` con `RECOMMENDED_PHP_VERSION = '8.1'`, core update → critical, plugin/theme → warning.
-19. Tooling quality gate locale: `composer test`, `composer phpcs`, `composer analyse` (PHPStan livello 6 con `phpstan.neon`).
-20. CI separata in `.github/workflows/ci.yml`: job dedicati PHPCS, PHPStan, PHPUnit matrix (PHP 7.4-8.5, coverage su 8.3), E2E Playwright (Chromium, desktop-only in CI, wp-env, `timeout-minutes: 15`). Codecov con flag separati `unit`/`integration` (`codecov.yml`, `CODECOV_TOKEN` secret).
-21. **E2E Testing**: Playwright + `@wordpress/env` in Docker. 46 scenari x 3 viewport localmente (desktop/tablet/mobile), desktop-only in CI (46 test, ~8 min). CI: 1 worker, timeout 60s, login timeout 30s, health check wait, `line` + `github` reporter. Selettori centralizzati in `tests/e2e/helpers/selectors.ts`. Login helpers per admin/subscriber/editor. `bin/e2e-setup.sh` crea utenti test.
-22. **Test Matrix Locale**: `bin/test-matrix.sh` replica CI localmente: PHPCS + PHPStan + PHPUnit (PHP 7.4-8.5) + E2E Playwright. Flag `--e2e-only`, `--no-e2e`, `--tests-only`, `--phpcs-only`, `--parallel`. E2E integrato con lifecycle management (wp-env start/stop, utenti test, prerequisiti npm/docker). `composer.json` `process-timeout: 0` per esecuzioni lunghe.
+Architecture points to preserve:
 
-Nota operativa:
-1. Evitare sezioni datate o checklist "one-shot" in questo file.
-2. Aggiornare questa sezione solo quando cambia la baseline tecnica (versione, bootstrap, scheduler, contract principali).
+1. Plugin bootstrap in `ops-health-dashboard.php` with fail-safe autoloader and admin notice when `vendor/autoload.php` is missing.
+2. Main orchestration in `src/Core/Plugin.php` with idempotent init.
+3. Custom DI container in `src/Core/Container.php` (`bind`, `share`, `instance`, `make`).
+4. Activation/deactivation lifecycle in `src/Core/Activator.php` with options setup and cron hook `ops_health_run_checks`.
+5. Periodic scheduling in `src/Services/Scheduler.php` (every 15 minutes) with throttled self-healing via transient `ops_health_cron_check`.
+6. Checks registered in `config/bootstrap.php`: `DatabaseCheck`, `ErrorLogCheck`, `RedisCheck`, `DiskCheck`, `VersionsCheck`.
+7. Admin action flow in `src/Admin/HealthScreen.php` via `process_actions()` with nonce + capability checks and PRG redirect; isolated `do_exit()` for testability.
+8. Sensitive data redaction centralized in `src/Services/Redaction.php`, injected into `CheckRunner`, `DatabaseCheck`, `ErrorLogCheck`, `RedisCheck`.
+9. `RedisCheck` uses per-run unique smoke-test key (`ops_health_smoke_test_<uniqid>`) to avoid race conditions.
+10. `CheckRunnerInterface` includes `clear_results()` used by admin flow (`Run Now`/`Clear Cache`).
+11. Alerting pipeline via `AlertManager` with state-change detection, multi-channel dispatch, per-check cooldown, max 50 alert log entries, integrated in `Scheduler::run_checks()`.
+12. Anti-SSRF `HttpClient` protections: private IP blocking, DNS validation, DNS pinning (`CURLOPT_RESOLVE`), scheme/port restrictions, no redirects, 5s timeout, IPv6 safe-fail rejection, 2xx validation.
+13. Alert settings page at `Ops -> Alert Settings` with PRG, nonce `ops_health_alert_settings`, per-channel enable/disable and masked credentials not exposed in DOM.
+14. Channel-level security: Telegram HTML escaping, Slack mrkdwn escaping, Email `is_email()`, WhatsApp E.164 validation.
+15. AlertManager resilience: cooldown set before dispatch, status constants, per-channel `try/catch \Throwable`, Scheduler wrapping `process()` with `catch (\Throwable)`.
+16. Dashboard widget in `src/Admin/DashboardWidget.php` registered in `Plugin::init()` with capability check and worst-status logic.
+17. Health screen UI with `register_hooks()`, guarded `enqueue_styles()`, `SCREEN_ID`, overall-status priority map, card-grid + summary banner CSS.
+18. Disk check thresholds (`WARNING_THRESHOLD = 20`, `CRITICAL_THRESHOLD = 10`) and wrappers for testability.
+19. Versions check with `RECOMMENDED_PHP_VERSION = '8.1'`; core updates critical, plugin/theme updates warning.
+20. Local quality gates: `composer test`, `composer phpcs`, `composer analyse` (PHPStan level 6 with `phpstan.neon`).
+21. CI in `.github/workflows/ci.yml`: dedicated PHPCS, PHPStan, PHPUnit matrix (PHP 7.4-8.5, coverage on 8.3), E2E Playwright (Chromium, desktop-only in CI, wp-env, `timeout-minutes: 15`). Codecov with separate flags `unit`/`integration` (`codecov.yml`, `CODECOV_TOKEN` secret).
+22. E2E Testing: Playwright + `@wordpress/env` in Docker. 46 scenarios x 3 viewports locally (desktop/tablet/mobile), desktop-only in CI (46 tests, ~8 min). CI: 1 worker, timeout 60s, login timeout 30s, health check wait, `line` + `github` reporter. Centralized selectors in `tests/e2e/helpers/selectors.ts`. Login helpers for admin/subscriber/editor. `bin/e2e-setup.sh` creates test users.
+23. Local Test Matrix: `bin/test-matrix.sh` replicates CI locally: PHPCS + PHPStan + PHPUnit (PHP 7.4-8.5) + E2E Playwright. Flags `--e2e-only`, `--no-e2e`, `--tests-only`, `--phpcs-only`, `--parallel`. E2E integrated with lifecycle management (wp-env start/stop, test users, npm/docker prerequisites). `composer.json` `process-timeout: 0` for long-running executions.
 
-## Checklist Revisione Modifiche
+Operational note:
+1. Avoid dated sections or "one-shot" checklists in this file.
+2. Update this section only when the technical baseline changes (version, bootstrap, scheduler, main contracts).
 
-Prima di chiudere PR/commit, verificare sempre:
-1. `git diff --name-only` e `git diff` sui file toccati.
-2. Copertura test aggiornata per ogni comportamento nuovo/modificato.
-3. Assenza regressioni su cron/scheduler (niente duplicati, self-healing attivo).
-4. Compatibilità degli script di tooling in esecuzione sequenziale e parallela.
-5. Esecuzione:
+## Change Review Checklist
+
+Before closing PR/commit:
+
+1. Review `git diff --name-only` and `git diff` for touched files.
+2. Ensure test coverage reflects every changed behavior.
+3. Confirm no cron/scheduler regressions.
+4. Confirm tooling compatibility in sequential and parallel runs.
+5. Execute:
    - `composer test:unit`
-   - `composer test:integration` (in ambiente con DB disponibile)
+   - `composer test:integration` (with DB available)
    - `composer phpcs`
    - `composer analyse`
-6. Se l'ambiente locale/sandbox non consente i test di integrazione, esplicitarlo nel report finale con errore concreto (es. DB non raggiungibile), senza marcarli come "passati".
+6. If integration tests cannot run in sandbox/local env, explicitly report concrete failure (for example DB unreachable), not as passed.
 
-## Documenti di Riferimento
+## Reference Docs
 
 1. `README.md`
 2. `CONTRIBUTING.md`

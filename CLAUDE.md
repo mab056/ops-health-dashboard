@@ -1,41 +1,41 @@
 # Claude.ai Instructions - Ops Health Dashboard
 
-Questo file contiene istruzioni specifiche per Claude (o altri assistenti AI) su come lavorare con questo progetto WordPress.
+This file contains specific instructions for Claude (or other AI assistants) on how to work with this WordPress project.
 
-## 🎯 Obiettivo del Progetto
+## 🎯 Project Goal
 
-Plugin WordPress **production-grade** per monitoraggio operativo con:
-- Health checks automatici (Database, Redis, Disk, Error Logs, Versions)
-- Alerting multi-canale (Email, Webhook, Slack, Telegram, WhatsApp)
-- Dashboard wp-admin con stato globale
+**Production-grade** WordPress plugin for operational monitoring with:
+- Automated health checks (Database, Redis, Disk, Error Logs, Versions)
+- Multi-channel alerting (Email, Webhook, Slack, Telegram, WhatsApp)
+- wp-admin dashboard with global status
 - WP-Cron scheduling (default 15 min)
 - WordPress.org ready
 
-## ⚠️ Pattern Architetturali NON NEGOZIABILI
+## ⚠️ NON-NEGOTIABLE Architectural Patterns
 
 ### 🚫 NO Singleton, NO Static, NO Final
 
-**CRITICO:** Questo progetto VIETA rigorosamente questi anti-pattern:
+**CRITICAL:** This project STRICTLY FORBIDS these anti-patterns:
 
 ```php
-// ❌ MAI FARE QUESTO
+// ❌ NEVER DO THIS
 class BadService {
     private static $instance;
     public static function get_instance() { ... }
     private function __construct() {}
 }
 
-// ❌ MAI FARE QUESTO
+// ❌ NEVER DO THIS
 class BadHelper {
     public static function doSomething() { ... }
 }
 
-// ❌ MAI FARE QUESTO
+// ❌ NEVER DO THIS
 final class BadClass {
     final public function method() {}
 }
 
-// ✅ SEMPRE FARE QUESTO
+// ✅ ALWAYS DO THIS
 class GoodService {
     private $dependency;
 
@@ -49,16 +49,16 @@ class GoodService {
 }
 ```
 
-**Motivazione:**
-- **Testabilità**: singleton/static rendono il mocking molto difficile
-- **Flessibilità**: `final` limita l'estensibilità
-- **Best Practices**: WordPress core si è allontanato dai singleton
-- **Dependency Injection**: Tutte le dipendenze devono essere esplicite
+**Rationale:**
+- **Testability**: singleton/static make mocking very difficult
+- **Flexibility**: `final` limits extensibility
+- **Best Practices**: WordPress core has moved away from singletons
+- **Dependency Injection**: All dependencies must be explicit
 
 ### ✅ Container Pattern
 
 ```php
-// Usa Container->share() per istanze condivise (NON singleton)
+// Use Container->share() for shared instances (NOT singleton)
 $container->share(ServiceInterface::class, function($c) {
     return new Service($c->make(DependencyInterface::class));
 });
@@ -71,24 +71,24 @@ function bootstrap(): Plugin {
 }
 ```
 
-## 🧪 Testing Strategy - APPROCCIO MISTO
+## 🧪 Testing Strategy - MIXED APPROACH
 
 ### Unit Tests (tests/Unit/) - Brain\Monkey
 
-**Quando usare:**
-- Logica business pura
+**When to use:**
+- Pure business logic
 - Services (Redaction, Storage, Scheduler, CheckRunner)
 - Utilities (formatter, validator, sanitizer)
-- Container, Plugin (logica pura senza WordPress)
+- Container, Plugin (pure logic without WordPress)
 
-**Caratteristiche:**
-- ⚡ Velocissimi (~3-4s sull'attuale suite unit)
-- 🔒 Isolamento completo
-- 🧬 Mock di funzioni WordPress con Brain\Monkey
+**Characteristics:**
+- ⚡ Very fast (~3-4s on the current unit suite)
+- 🔒 Complete isolation
+- 🧬 WordPress function mocking with Brain\Monkey
 - ❌ NO database, NO filesystem, NO WordPress
-- 📊 Coverage: verificare sempre l'output corrente di PHPUnit
+- 📊 Coverage: always check the current PHPUnit output
 
-**Esempio:**
+**Example:**
 ```php
 use Brain\Monkey;
 use Brain\Monkey\Functions;
@@ -121,29 +121,29 @@ class MyServiceTest extends TestCase {
 }
 ```
 
-**Comandi:**
+**Commands:**
 ```bash
-composer test:unit                    # Esegue solo test unitari
-composer test:coverage:unit          # Unit tests con coverage
+composer test:unit                    # Run only unit tests
+composer test:coverage:unit          # Unit tests with coverage
 ```
 
 ### Integration Tests (tests/Integration/) - WordPress Test Suite
 
-**Quando usare:**
-- Activator (Options API, WP-Cron reali)
+**When to use:**
+- Activator (Options API, real WP-Cron)
 - Admin pages (menu, dashboard widget, AJAX)
 - Database checks (`$wpdb->query`)
 - Hooks/filters registration
-- Qualsiasi cosa che tocca WordPress core
+- Anything that touches WordPress core
 
-**Caratteristiche:**
-- ✅ WordPress completo caricato
-- ✅ Database MySQL reale
-- ✅ WP-Cron, Options API, hooks reali
-- 🐢 Più lenti dei test unitari (richiedono WP Test Suite + DB)
-- 📊 Coverage: verificare sempre l'output corrente di PHPUnit
+**Characteristics:**
+- ✅ Full WordPress loaded
+- ✅ Real MySQL database
+- ✅ Real WP-Cron, Options API, hooks
+- 🐢 Slower than unit tests (require WP Test Suite + DB)
+- 📊 Coverage: always check the current PHPUnit output
 
-**Esempio:**
+**Example:**
 ```php
 use WP_UnitTestCase;
 
@@ -160,17 +160,17 @@ class ActivatorTest extends WP_UnitTestCase {
 }
 ```
 
-**Setup richiesto:**
+**Required setup:**
 ```bash
-composer install-wp-tests             # Una tantum
-composer test:integration            # Esegue solo test di integrazione
+composer install-wp-tests             # One-time setup
+composer test:integration            # Run only integration tests
 ```
 
 ### TDD Workflow - RED → GREEN → REFACTOR
 
-**SEMPRE seguire questo ciclo:**
+**ALWAYS follow this cycle:**
 
-1. **RED**: Scrivi il test che fallisce
+1. **RED**: Write the failing test
    ```php
    public function test_new_feature() {
        $service = new MyService();
@@ -179,14 +179,14 @@ composer test:integration            # Esegue solo test di integrazione
    }
    ```
 
-2. **GREEN**: Codice minimo per passare
+2. **GREEN**: Minimal code to pass
    ```php
    public function newFeature(): string {
        return 'expected';
    }
    ```
 
-3. **REFACTOR**: Cleanup + ottimizzazione
+3. **REFACTOR**: Cleanup + optimization
    ```php
    public function newFeature(): string {
        try {
@@ -198,13 +198,13 @@ composer test:integration            # Esegue solo test di integrazione
    }
    ```
 
-**Test di Pattern Enforcement (OBBLIGATORI):**
+**Pattern Enforcement Tests (MANDATORY):**
 
-Ogni classe DEVE avere questi test:
+Every class MUST have these tests:
 
 ```php
 /**
- * Testa che la classe NON è final
+ * Tests that the class is NOT final
  */
 public function test_class_is_not_final() {
     $reflection = new \ReflectionClass(MyClass::class);
@@ -212,7 +212,7 @@ public function test_class_is_not_final() {
 }
 
 /**
- * Testa che NON esistono metodi static
+ * Tests that NO static methods exist
  */
 public function test_no_static_methods() {
     $reflection = new \ReflectionClass(MyClass::class);
@@ -228,7 +228,7 @@ public function test_no_static_methods() {
 
 ## 🔒 Security Requirements
 
-### Input Sanitization (SEMPRE)
+### Input Sanitization (ALWAYS)
 
 ```php
 // User input
@@ -238,7 +238,7 @@ $url = esc_url_raw($_POST['url']);
 $int = absint($_POST['number']);
 ```
 
-### Output Escaping (SEMPRE)
+### Output Escaping (ALWAYS)
 
 ```php
 // Output
@@ -248,7 +248,7 @@ echo esc_url($url);
 echo esc_js($javascript);
 ```
 
-### Capability checks (SEMPRE sulle pagine admin)
+### Capability checks (ALWAYS on admin pages)
 
 ```php
 if (!current_user_can('manage_options')) {
@@ -256,7 +256,7 @@ if (!current_user_can('manage_options')) {
 }
 ```
 
-### Nonce (SEMPRE su form/AJAX)
+### Nonce (ALWAYS on forms/AJAX)
 
 ```php
 // Generate in form
@@ -268,10 +268,10 @@ if (!wp_verify_nonce($_POST['ops_health_nonce'], 'ops_health_action')) {
 }
 ```
 
-### Anti-SSRF per Webhooks (CRITICO, milestone M4)
+### Anti-SSRF for Webhooks (CRITICAL, milestone M4)
 
 ```php
-// Esempio di servizio HTTP con protezioni anti-SSRF (M4).
+// Example HTTP service with anti-SSRF protections (M4).
 $client = $container->make(HttpClientInterface::class);
 
 if (!$client->is_safe_url($url)) {
@@ -291,17 +291,17 @@ composer phpcbf             # Auto-fix
 composer analyse            # PHPStan static analysis (level 6)
 ```
 
-**Regole principali:**
-- Indentazione: **Tab** (non spazi)
-- Lunghezza riga: 120 soft, 150 hard
-- Stile parentesi: Allman style
-- Nomenclatura:
-  - Classi: `PascalCase`
-  - Metodi: `snake_case`
-  - Costanti: `UPPER_SNAKE_CASE`
-  - Globali: prefisso `ops_health_`
+**Main rules:**
+- Indentation: **Tab** (not spaces)
+- Line length: 120 soft, 150 hard
+- Brace style: Allman style
+- Naming:
+  - Classes: `PascalCase`
+  - Methods: `snake_case`
+  - Constants: `UPPER_SNAKE_CASE`
+  - Globals: `ops_health_` prefix
 
-### PHPDoc (SEMPRE)
+### PHPDoc (ALWAYS)
 
 ```php
 /**
@@ -324,7 +324,7 @@ public function method_name(string $param1, int $param2): array {
 
 ## 🚀 Development Workflow
 
-### Setup Iniziale
+### Initial Setup
 
 ```bash
 git clone https://github.com/mab056/ops-health-dashboard.git
@@ -332,25 +332,25 @@ cd ops-health-dashboard
 composer install
 ```
 
-### Comandi Comuni
+### Common Commands
 
 ```bash
 # Testing
-composer test                        # Tutti i test (unit + integration)
-composer test:unit                   # Solo test unitari (veloce)
-composer test:integration           # Solo test di integrazione (con WP)
-composer test:integration:multisite # Test di integrazione in modalità multisite
-composer test:coverage              # Tutti con coverage (unit + integration + multisite)
-composer test:coverage:multisite    # Coverage solo multisite
-composer test:matrix                # Matrice completa PHP 7.4-8.5 + PHPCS + PHPStan + E2E (come CI)
+composer test                        # All tests (unit + integration)
+composer test:unit                   # Unit tests only (fast)
+composer test:integration           # Integration tests only (with WP)
+composer test:integration:multisite # Integration tests in multisite mode
+composer test:coverage              # All with coverage (unit + integration + multisite)
+composer test:coverage:multisite    # Multisite coverage only
+composer test:matrix                # Full matrix PHP 7.4-8.5 + PHPCS + PHPStan + E2E (like CI)
 
-# Test Matrix (opzioni)
-bin/test-matrix.sh --php 7.4        # Solo una versione
-bin/test-matrix.sh --parallel       # Tutte le versioni in parallelo
-bin/test-matrix.sh --phpcs-only     # Solo PHPCS + PHPStan
-bin/test-matrix.sh --tests-only     # Solo PHPUnit, salta PHPCS, PHPStan e E2E
-bin/test-matrix.sh --e2e-only       # Solo E2E (Playwright + wp-env)
-bin/test-matrix.sh --no-e2e         # Tutto tranne E2E
+# Test Matrix (options)
+bin/test-matrix.sh --php 7.4        # Single version only
+bin/test-matrix.sh --parallel       # All versions in parallel
+bin/test-matrix.sh --phpcs-only     # PHPCS + PHPStan only
+bin/test-matrix.sh --tests-only     # PHPUnit only, skip PHPCS, PHPStan and E2E
+bin/test-matrix.sh --e2e-only       # E2E only (Playwright + wp-env)
+bin/test-matrix.sh --no-e2e         # Everything except E2E
 
 # Code Quality
 composer phpcs                      # Check WordPress Coding Standards
@@ -358,42 +358,42 @@ composer phpcbf                     # Auto-fix coding standards
 composer analyse                    # PHPStan static analysis (level 6)
 
 # WordPress Test Suite
-composer install-wp-tests           # Installa WP test suite (una tantum)
+composer install-wp-tests           # Install WP test suite (one-time)
 
-# Build (produzione)
-bin/build-zip.sh                    # Genera dist/ops-health-dashboard-VERSION.zip
-bin/build-zip.sh --output /tmp/p.zip  # Percorso output personalizzato
+# Build (production)
+bin/build-zip.sh                    # Generate dist/ops-health-dashboard-VERSION.zip
+bin/build-zip.sh --output /tmp/p.zip  # Custom output path
 ```
 
-### Creare una Nuova Feature
+### Creating a New Feature
 
-1. **Crea feature branch:**
+1. **Create feature branch:**
    ```bash
-   git checkout -b feature/nome-feature
+   git checkout -b feature/feature-name
    ```
 
-2. **TDD - Scrivi test PRIMA:**
+2. **TDD - Write tests FIRST:**
    - Unit test in `tests/Unit/` (Brain\Monkey)
-   - Integration test in `tests/Integration/` (WP Test Suite) se necessario
+   - Integration test in `tests/Integration/` (WP Test Suite) if needed
 
-3. **Implementa feature:**
+3. **Implement feature:**
    - NO singleton, NO static, NO final
-   - Constructor injection per dipendenze
-   - Seguire WPCS
+   - Constructor injection for dependencies
+   - Follow WPCS
 
-4. **Verifica qualità:**
+4. **Verify quality:**
    ```bash
    composer test
    composer phpcs
    composer analyse
    ```
 
-5. **Commit con conventional commits:**
+5. **Commit with conventional commits:**
    ```bash
-   git commit -m "feat(scope): descrizione feature
+   git commit -m "feat(scope): feature description
 
-   - Dettaglio 1
-   - Dettaglio 2
+   - Detail 1
+   - Detail 2
 
    Tests: X passing
    Coverage: Y%
@@ -413,17 +413,17 @@ ops-health-dashboard/
 │   ├── Channels/          # Notification channels (EmailChannel, WebhookChannel, SlackChannel, TelegramChannel, WhatsAppChannel)
 │   └── Admin/             # UI wp-admin (Menu, HealthScreen, AlertSettings, DashboardWidget)
 ├── tests/
-│   ├── Unit/              # Brain\Monkey tests (veloce, isolato)
-│   ├── Integration/       # WP Test Suite tests (WordPress reale)
+│   ├── Unit/              # Brain\Monkey tests (fast, isolated)
+│   ├── Integration/       # WP Test Suite tests (real WordPress)
 │   └── e2e/               # Playwright E2E tests (wp-env Docker)
 ├── config/
 │   └── bootstrap.php      # DI container configuration
 ├── bin/
-│   ├── build-zip.sh       # Genera ZIP produzione per WordPress upload
-│   ├── e2e-setup.sh       # Crea utenti test E2E
+│   ├── build-zip.sh       # Generate production ZIP for WordPress upload
+│   ├── e2e-setup.sh       # Create E2E test users
 │   ├── install-wp-tests.sh # Setup WP test suite
-│   └── test-matrix.sh     # Matrice locale PHP 7.4-8.5
-├── dist/                  # Output build ZIP (gitignored)
+│   └── test-matrix.sh     # Local matrix PHP 7.4-8.5
+├── dist/                  # Build ZIP output (gitignored)
 └── .github/workflows/     # CI/CD pipelines
 ```
 
@@ -438,15 +438,15 @@ ops-health-dashboard/
 ```
 
 **Types:**
-- `feat`: Nuova funzionalità
-- `fix`: Correzione bug
-- `docs`: Solo documentazione
-- `style`: Formattazione (no logic change)
-- `refactor`: Refactoring codice
-- `test`: Aggiunta/aggiornamento test
-- `chore`: Build/configurazione
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation only
+- `style`: Formatting (no logic change)
+- `refactor`: Code refactoring
+- `test`: Adding/updating tests
+- `chore`: Build/configuration
 
-**Esempi:**
+**Examples:**
 ```bash
 feat(checks): add Redis health check with TDD
 
@@ -588,94 +588,94 @@ class CheckRunner {
 
 ## 📊 CI/CD Pipeline
 
-GitHub Actions esegue automaticamente:
+GitHub Actions runs automatically:
 - ✅ PHPCS check (WordPress Coding Standards)
-- ✅ PHPStan level 6 (Static Analysis con szepeviktor/phpstan-wordpress)
-- ✅ PHPUnit su PHP 7.4, 8.0, 8.1, 8.2, 8.3, 8.4, 8.5
-- ✅ Unit tests (Brain\Monkey) su tutte le versioni
-- ✅ Integration tests (WP Test Suite) su tutte le versioni
-- ✅ Coverage report (solo PHP 8.3)
-- ✅ Upload Codecov con flag separati (`unit`, `integration`) via `codecov-action@v5`
-- ✅ `codecov.yml`: soglia progetto 95%, patch 90%, `carryforward: true`
-- ✅ E2E Playwright (Chromium; desktop-only in CI, 3 viewport in locale, wp-env Docker)
+- ✅ PHPStan level 6 (Static Analysis with szepeviktor/phpstan-wordpress)
+- ✅ PHPUnit on PHP 7.4, 8.0, 8.1, 8.2, 8.3, 8.4, 8.5
+- ✅ Unit tests (Brain\Monkey) on all versions
+- ✅ Integration tests (WP Test Suite) on all versions
+- ✅ Coverage report (PHP 8.3 only)
+- ✅ Codecov upload with separate flags (`unit`, `integration`) via `codecov-action@v5`
+- ✅ `codecov.yml`: project threshold 95%, patch 90%, `carryforward: true`
+- ✅ E2E Playwright (Chromium; desktop-only in CI, 3 viewports locally, wp-env Docker)
 
-**Test Matrix Locale** (replica CI localmente):
+**Local Test Matrix** (replicate CI locally):
 ```bash
-composer test:matrix                # PHPCS + PHPStan + PHPUnit su 7 versioni PHP + E2E Playwright
+composer test:matrix                # PHPCS + PHPStan + PHPUnit on 7 PHP versions + E2E Playwright
 ```
-Richiede PHP 7.4-8.5 installati (via PPA sury) + Docker + Node.js per E2E. Vedi `bin/test-matrix.sh --help`.
+Requires PHP 7.4-8.5 installed (via PPA sury) + Docker + Node.js for E2E. See `bin/test-matrix.sh --help`.
 
-**Quality Gates (DEVONO PASSARE):**
+**Quality Gates (MUST PASS):**
 - PHPCS: 100% compliance
 - PHPStan: level 6, 0 errors
 - Tests: 100% passing
-- Coverage: 95% progetto, 90% patch (Codecov)
+- Coverage: 95% project, 90% patch (Codecov)
 
 ## 🎯 Current Status
 
-**Milestone M6 - WordPress.org Readiness** ✅ COMPLETATA
+**Milestone M6 - WordPress.org Readiness** ✅ COMPLETED
 
-**Stato Attuale:**
-- ✅ **574 test unitari** (Brain\Monkey), 1336 assertions
-- ✅ **322 test di integrazione** (WP Test Suite), 655 assertions (single-site) / 684 assertions (multisite)
-- ✅ **46 scenari E2E** x 3 viewport = 138 esecuzioni locali; CI desktop-only (46 test)
-- ✅ PHPCS 100% compliance (0 errori, 0 warning)
-- ✅ PHPStan level 6: 0 errori (szepeviktor/phpstan-wordpress)
-- ✅ CI/CD completo con PHP 7.4-8.5 + E2E Playwright (desktop-only in CI)
-- ✅ Coverage: **100%** classi, metodi, linee (unit + integration single-site + multisite combinati)
-- ✅ 31 file sorgente, 55 file di test PHP (31 unit + 24 integration), 5 file di spec E2E, 2 file CSS
+**Current State:**
+- ✅ **574 unit tests** (Brain\Monkey), 1336 assertions
+- ✅ **322 integration tests** (WP Test Suite), 655 assertions (single-site) / 684 assertions (multisite)
+- ✅ **46 E2E scenarios** x 3 viewports = 138 local runs; CI desktop-only (46 tests)
+- ✅ PHPCS 100% compliance (0 errors, 0 warnings)
+- ✅ PHPStan level 6: 0 errors (szepeviktor/phpstan-wordpress)
+- ✅ Full CI/CD with PHP 7.4-8.5 + E2E Playwright (desktop-only in CI)
+- ✅ Coverage: **100%** classes, methods, lines (unit + integration single-site + multisite combined)
+- ✅ 31 source files, 55 PHP test files (31 unit + 24 integration), 5 E2E spec files, 2 CSS files
 - ✅ Pattern enforcement (NO singleton/static/final)
 - ✅ WordPress.org ready: uninstall.php, readme.txt, ABSPATH guards
-- ✅ HealthScreen UI: card grid, summary banner, CSS dedicato con palette WordPress nativa
-- ✅ Multisite: Uninstaller supporta multisite, uninstall.php con fallback multisite
+- ✅ HealthScreen UI: card grid, summary banner, dedicated CSS with native WordPress palette
+- ✅ Multisite: Uninstaller supports multisite, uninstall.php with multisite fallback
 
-**Componenti Implementati (M1+M2+M3+M4+M5+M6):**
-- StorageInterface, CheckInterface, RedactionInterface, CheckRunnerInterface (contratti DI)
-- HttpClientInterface (`post()` accetta `array|string` body), AlertManagerInterface, AlertChannelInterface (contratti M4)
+**Implemented Components (M1+M2+M3+M4+M5+M6):**
+- StorageInterface, CheckInterface, RedactionInterface, CheckRunnerInterface (DI contracts)
+- HttpClientInterface (`post()` accepts `array|string` body), AlertManagerInterface, AlertChannelInterface (M4 contracts)
 - Storage (Options API, sentinel pattern in `has()`, autoload=false)
 - CheckRunner (try/catch, type safety, RedactionInterface, clear_results)
-- DatabaseCheck ($wpdb injection, no info disclosure, i18n, RedactionInterface per $wpdb errors)
-- Redaction (11 pattern: credenziali DB, salts, API key, token, password, email, IP, path; IPv4 validazione ottetti)
-- ErrorLogCheck (tail log, aggregazione severità, campioni redatti, anti-symlink, flock LOCK_SH)
-- RedisCheck (graceful degradation, estensione+connessione+auth+smoke test, response time, RedactionInterface)
-- DiskCheck (soglie configurabili WARNING 20%/CRITICAL 10%, protected wrappers, RedactionInterface)
+- DatabaseCheck ($wpdb injection, no info disclosure, i18n, RedactionInterface for $wpdb errors)
+- Redaction (11 patterns: DB credentials, salts, API key, token, password, email, IP, path; IPv4 octet validation)
+- ErrorLogCheck (tail log, severity aggregation, redacted samples, anti-symlink, flock LOCK_SH)
+- RedisCheck (graceful degradation, extension+connection+auth+smoke test, response time, RedactionInterface)
+- DiskCheck (configurable thresholds WARNING 20%/CRITICAL 10%, protected wrappers, RedactionInterface)
 - VersionsCheck (WP/PHP versions, update notifications, graceful fallback, RECOMMENDED_PHP_VERSION = '8.3')
-- HttpClient (anti-SSRF: blocco IP privati, validazione DNS, DNS pinning CURLOPT_RESOLVE anti-TOCTOU, restrizione schema/porta, no redirect, rifiuto IPv6, validazione HTTP 2xx)
-- AlertManager (state change detection, cooldown pre-dispatch via transient, dispatch multi-canale con isolamento per-canale try/catch \Throwable, alert log limitato a 50 voci, costanti STATUS_OK/WARNING/CRITICAL/UNKNOWN)
-- EmailChannel (wp_mail, recipients configurabili con validazione is_email)
-- WebhookChannel (JSON POST, firma HMAC su body pre-serializzato con header X-OpsHealth-Signature documentato)
+- HttpClient (anti-SSRF: private IP blocking, DNS validation, DNS pinning CURLOPT_RESOLVE anti-TOCTOU, schema/port restriction, no redirect, IPv6 rejection, HTTP 2xx validation)
+- AlertManager (state change detection, cooldown pre-dispatch via transient, multi-channel dispatch with per-channel try/catch \Throwable isolation, alert log limited to 50 entries, STATUS_OK/WARNING/CRITICAL/UNKNOWN constants)
+- EmailChannel (wp_mail, configurable recipients with is_email validation)
+- WebhookChannel (JSON POST, HMAC signature on pre-serialized body with documented X-OpsHealth-Signature header)
 - SlackChannel (Block Kit, color attachments, escape mrkdwn)
-- TelegramChannel (Bot API, HTML parse mode con htmlspecialchars)
-- WhatsAppChannel (webhook generico, Bearer auth, phone number con validazione E.164)
-- Scheduler (WP-Cron 15 min, prevenzione duplicati, self-healing throttled, AlertManager integration opzionale, catch \Throwable)
-- Container (DI con rilevazione dipendenze circolari)
-- Menu (capability check, `load-{$page_hook}` per process_actions PRG, submenu Alert Settings)
-- HealthScreen (capability check, bottoni Run Now/Clear Cache con nonce, validazione difensiva, CheckRunnerInterface, CSS card grid + summary banner, enqueue_styles con screen guard)
-- AlertSettings (pagina admin configurazione alert, PRG, nonce, per-channel enable/disable + credentials con secret non-prefill + preserve-on-empty, cooldown)
-- DashboardWidget (widget wp-admin dashboard, worst-status, capability check, CheckRunnerInterface)
-- Activator (usa costanti Scheduler::HOOK_NAME/INTERVAL)
-- Uninstaller ($wpdb injection, supporto multisite con `uninstall_network()`, pulizia opzioni/cron/transient, bulk delete cooldown via LIKE query)
+- TelegramChannel (Bot API, HTML parse mode with htmlspecialchars)
+- WhatsAppChannel (generic webhook, Bearer auth, phone number with E.164 validation)
+- Scheduler (WP-Cron 15 min, duplicate prevention, throttled self-healing, optional AlertManager integration, catch \Throwable)
+- Container (DI with circular dependency detection)
+- Menu (capability check, `load-{$page_hook}` for process_actions PRG, Alert Settings submenu)
+- HealthScreen (capability check, Run Now/Clear Cache buttons with nonce, defensive validation, CheckRunnerInterface, CSS card grid + summary banner, enqueue_styles with screen guard)
+- AlertSettings (alert configuration admin page, PRG, nonce, per-channel enable/disable + credentials with secret non-prefill + preserve-on-empty, cooldown)
+- DashboardWidget (wp-admin dashboard widget, worst-status, capability check, CheckRunnerInterface)
+- Activator (uses Scheduler::HOOK_NAME/INTERVAL constants)
+- Uninstaller ($wpdb injection, multisite support with `uninstall_network()`, options/cron/transient cleanup, bulk delete cooldown via LIKE query)
 
 **WordPress.org Readiness (M6):**
-- uninstall.php con guard WP_UNINSTALL_PLUGIN + fallback multisite
-- readme.txt in formato WordPress.org standard
-- ABSPATH guards su tutti i file sorgente con @codeCoverageIgnore
-- Uninstaller con supporto multisite completo (`uninstall_network()` + iterazione blog)
+- uninstall.php with WP_UNINSTALL_PLUGIN guard + multisite fallback
+- readme.txt in WordPress.org standard format
+- ABSPATH guards on all source files with @codeCoverageIgnore
+- Uninstaller with full multisite support (`uninstall_network()` + blog iteration)
 
-## 📞 Per Aiuto
+## 📞 For Help
 
 - **Issues**: https://github.com/mab056/ops-health-dashboard/issues
-- **Documentazione**: README.md, CONTRIBUTING.md, DEVELOPMENT_PLAN.md
+- **Documentation**: README.md, CONTRIBUTING.md, DEVELOPMENT_PLAN.md
 - **CI Status**: https://github.com/mab056/ops-health-dashboard/actions
 
 ## 🙏 Remember
 
-1. **TDD SEMPRE** - Test prima del codice
-2. **NO SINGLETON** - Usa Container->share()
-3. **NO STATIC** - Usa dependency injection
-4. **NO FINAL** - Assicura testabilità
-5. **SECURITY FIRST** - Input sanitizzati, output con escaping, capability verificate
-6. **WPCS COMPLIANCE** - composer phpcs deve passare
+1. **TDD ALWAYS** - Tests before code
+2. **NO SINGLETON** - Use Container->share()
+3. **NO STATIC** - Use dependency injection
+4. **NO FINAL** - Ensure testability
+5. **SECURITY FIRST** - Sanitized inputs, escaped outputs, verified capabilities
+6. **WPCS COMPLIANCE** - composer phpcs must pass
 
 ---
 
