@@ -1,3 +1,13 @@
+/**
+ * Dashboard Widget E2E Tests
+ *
+ * Tests for the wp-admin dashboard widget: visibility for admin,
+ * hidden for subscriber, status display, check list, and
+ * navigation link to full health dashboard.
+ *
+ * @module tests/e2e/dashboard-widget
+ */
+
 import { test, expect } from '@playwright/test';
 import { loginAsAdmin, loginAsSubscriber } from './helpers/login';
 import { DASHBOARD_WIDGET } from './helpers/selectors';

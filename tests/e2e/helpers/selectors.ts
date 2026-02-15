@@ -1,5 +1,11 @@
 /**
- * Centralized selectors for E2E tests.
+ * Centralized CSS selectors for E2E tests.
+ *
+ * Groups selectors by page: MENU, HEALTH_DASHBOARD, ALERT_SETTINGS,
+ * DASHBOARD_WIDGET. Keeps locator strings in one place to avoid
+ * duplication across spec files.
+ *
+ * @module tests/e2e/helpers/selectors
  */
 
 export const MENU = {

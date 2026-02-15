@@ -1,3 +1,12 @@
+/**
+ * Admin Navigation E2E Tests
+ *
+ * Tests for wp-admin menu items: top-level menu, alert settings submenu,
+ * dashicon, page loads, and active menu state.
+ *
+ * @module tests/e2e/navigation
+ */
+
 import { test, expect } from '@playwright/test';
 import { loginAsAdmin } from './helpers/login';
 import { MENU } from './helpers/selectors';

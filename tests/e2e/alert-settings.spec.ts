@@ -1,3 +1,13 @@
+/**
+ * Alert Settings E2E Tests
+ *
+ * Tests for the alert settings admin page: form rendering, nonce,
+ * channel sections (Email, Webhook, Slack, Telegram, WhatsApp),
+ * cooldown input, save action, password field security, and checkboxes.
+ *
+ * @module tests/e2e/alert-settings
+ */
+
 import { test, expect } from '@playwright/test';
 import { loginAsAdmin } from './helpers/login';
 import { ALERT_SETTINGS } from './helpers/selectors';

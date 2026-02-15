@@ -1,3 +1,12 @@
+/**
+ * Health Dashboard E2E Tests
+ *
+ * Tests for the main health dashboard page: page load, Run Now,
+ * Clear Cache, check results display, and status classes.
+ *
+ * @module tests/e2e/health-dashboard
+ */
+
 import { test, expect } from '@playwright/test';
 import { loginAsAdmin } from './helpers/login';
 import { HEALTH_DASHBOARD } from './helpers/selectors';

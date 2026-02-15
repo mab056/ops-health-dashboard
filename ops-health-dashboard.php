@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.6.0' );
+define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.6.1' );
 define( 'OPS_HEALTH_DASHBOARD_FILE', __FILE__ );
 define( 'OPS_HEALTH_DASHBOARD_PATH', plugin_dir_path( __FILE__ ) );
 define( 'OPS_HEALTH_DASHBOARD_URL', plugin_dir_url( __FILE__ ) );

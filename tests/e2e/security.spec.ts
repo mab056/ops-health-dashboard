@@ -1,3 +1,13 @@
+/**
+ * Security E2E Tests
+ *
+ * Tests capability-based access control: subscriber and editor cannot
+ * access health dashboard or alert settings, logged out users are
+ * redirected to login.
+ *
+ * @module tests/e2e/security
+ */
+
 import { test, expect } from '@playwright/test';
 import { loginAsSubscriber, loginAsEditor } from './helpers/login';
 

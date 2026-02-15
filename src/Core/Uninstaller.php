@@ -4,6 +4,7 @@
  *
  * Pulizia completa di tutte le opzioni, transient e cron hook
  * creati dal plugin quando viene cancellato da WordPress.
+ * Supporta sia single-site che multisite network.
  *
  * @package OpsHealthDashboard\Core
  */
@@ -22,6 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class Uninstaller
  *
  * Rimuove tutti i dati del plugin dal database quando viene disinstallato.
+ * Su multisite, itera tutti i blog della rete.
  */
 class Uninstaller {
 
