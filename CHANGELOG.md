@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Planned — Roadmap
+
+### M7 (v0.7.0) — Extensibility API
+- 7 WordPress hooks/filters for third-party check and channel registration
+- `ops_health_register_checks` / `ops_health_register_channels` actions
+- `ops_health_check_results` / `ops_health_alert_payload` filters
+- `ops_health_checks_completed` / `ops_health_alert_sent` actions
+- `ops_health_cron_interval` filter for configurable check frequency
+- WordPress Site Health integration (`site_status_tests` + `debug_information`)
+
+### M8 (v0.8.0) — REST API + JSON Export + Check History
+- REST API: 4 endpoints under `ops-health/v1/` (status, run, export, history)
+- `ExportService` with redacted JSON diagnostic export
+- Check history storage (rolling 24-entry window)
+- "Export JSON" button in admin UI
+
+### M9 (v0.9.0) — WP-CLI Integration
+- `wp ops-health status|run|export|list-checks` subcommands
+- Monitoring-compatible exit codes (0=ok, 1=warning, 2=critical)
+- `--format=json|table|csv` output, `--quiet` mode, `--output=<file>`
+
+---
+
 ## 0.6.1 - 2026-02-15
 
 ### Fixed

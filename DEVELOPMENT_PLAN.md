@@ -1,7 +1,7 @@
 # Development Plan - Ops Health Dashboard
 
-**Current Milestone**: M6 - WordPress.org Readiness ✅
-**Status**: All milestones completed (M0-M6)
+**Current Milestone**: M7 - Extensibility API (planned)
+**Status**: M0-M6 completed, M7-M9 planned
 
 ---
 
@@ -663,3 +663,154 @@ PHPCS + PHPStan clean
 Total: 574 unit (1336 assertions) + 322 integration (655/684 assertions), PHPCS + PHPStan clean
 
 **Lesson**: `is_multisite()` branch requires two test runs (single-site + multisite); `WP_TESTS_MULTISITE` env var enables multisite mode in WP Test Suite bootstrap
+
+---
+
+## Milestone 7: Extensibility API ⏳ 0/9
+
+**Version**: 0.7.0
+**Goal**: Make the plugin extensible via standard WordPress hooks/filters + integrate with WordPress Site Health.
+
+### Tasks
+
+- [ ] **M7.1** - Hook: `ops_health_register_checks` in `config/bootstrap.php` (third-party check registration via `$runner->add_check()`)
+- [ ] **M7.2** - Hook: `ops_health_register_channels` in `config/bootstrap.php` (third-party channel registration via `$manager->add_channel()`)
+- [ ] **M7.3** - Filter: `ops_health_check_results` in `CheckRunner::run_all()` (post-processing results before storage)
+- [ ] **M7.4** - Action: `ops_health_checks_completed` in `CheckRunner::run_all()` (react to results after storage)
+- [ ] **M7.5** - Filter: `ops_health_alert_payload` in `AlertManager::build_payload()` (customize alert messages)
+- [ ] **M7.6** - Action: `ops_health_alert_sent` in `AlertManager::dispatch_to_channels()` (audit logging per channel)
+- [ ] **M7.7** - Filter: `ops_health_cron_interval` in `Scheduler` (configurable check frequency)
+- [ ] **M7.8** - WordPress Site Health integration (`src/Admin/SiteHealthIntegration.php`): `site_status_tests` + `debug_information` filters
+- [ ] **M7.9** - Tests + documentation (unit ~45-55, integration ~20-25, pattern enforcement, wiki updates)
+
+### New Files
+- `src/Admin/SiteHealthIntegration.php`
+- `tests/Unit/Admin/SiteHealthIntegrationTest.php`
+- `tests/Integration/Admin/SiteHealthIntegrationTest.php`
+
+### Modified Files
+- `config/bootstrap.php` — 2 `do_action` hooks in share closures
+- `src/Services/CheckRunner.php` — 1 filter + 1 action
+- `src/Services/AlertManager.php` — 1 filter + 1 action
+- `src/Services/Scheduler.php` — 1 filter
+- `src/Core/Plugin.php` — register SiteHealthIntegration
+
+### Hooks Reference
+
+| Hook | Type | Location | Purpose |
+|------|------|----------|---------|
+| `ops_health_register_checks` | action | `config/bootstrap.php` | Register custom checks |
+| `ops_health_register_channels` | action | `config/bootstrap.php` | Register custom alert channels |
+| `ops_health_check_results` | filter | `CheckRunner::run_all()` | Modify results before storage |
+| `ops_health_checks_completed` | action | `CheckRunner::run_all()` | React after checks complete |
+| `ops_health_alert_payload` | filter | `AlertManager::build_payload()` | Customize alert content |
+| `ops_health_alert_sent` | action | `AlertManager::dispatch_to_channels()` | Per-channel audit logging |
+| `ops_health_cron_interval` | filter | `Scheduler` | Configure check frequency |
+
+**Deliverable**: Fully extensible plugin with 7 hooks/filters + WordPress Site Health integration
+
+---
+
+## Milestone 8: REST API + JSON Export + Check History ⏳ 0/9
+
+**Version**: 0.8.0
+**Goal**: Expose plugin data via REST API, add downloadable JSON export, and store check history.
+
+### Tasks
+
+- [ ] **M8.1** - `ExportServiceInterface` contract (`src/Interfaces/ExportServiceInterface.php`)
+- [ ] **M8.2** - `ExportService` implementation with redaction (`src/Services/ExportService.php`)
+- [ ] **M8.3** - `RestController` with 4 endpoints (`src/Api/RestController.php`)
+- [ ] **M8.4** - Check history in `CheckRunner` (append to `ops_health_results_history`, capped at 24, filterable limit)
+- [ ] **M8.5** - Admin UI: "Export JSON" button in `HealthScreen`
+- [ ] **M8.6** - Container wiring for ExportService + RestController in `config/bootstrap.php`
+- [ ] **M8.7** - `CheckRunnerInterface`: add `get_history(): array`
+- [ ] **M8.8** - `Uninstaller`: add `ops_health_results_history` to cleanup
+- [ ] **M8.9** - Tests + documentation (unit ~50-60, integration ~25-30, E2E ~5-8, wiki updates)
+
+### REST API Endpoints
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/wp-json/ops-health/v1/status` | Latest check results (cached) | `manage_options` |
+| POST | `/wp-json/ops-health/v1/run` | Trigger check run (rate-limited) | `manage_options` |
+| GET | `/wp-json/ops-health/v1/export` | Full diagnostic JSON (redacted) | `manage_options` |
+| GET | `/wp-json/ops-health/v1/history` | Check history (last 24 runs) | `manage_options` |
+
+### New Files
+- `src/Interfaces/ExportServiceInterface.php`
+- `src/Services/ExportService.php`
+- `src/Api/RestController.php`
+- Corresponding unit and integration test files
+
+### Modified Files
+- `config/bootstrap.php` — wire ExportService + RestController
+- `src/Services/CheckRunner.php` — history tracking + `get_history()`
+- `src/Interfaces/CheckRunnerInterface.php` — add `get_history()`
+- `src/Admin/HealthScreen.php` — Export JSON button
+- `src/Core/Uninstaller.php` — cleanup `ops_health_results_history`
+- `src/Core/Plugin.php` — register REST routes via `rest_api_init`
+
+**Deliverable**: REST API with 4 endpoints, JSON diagnostic export, check history with 24-entry rolling window
+
+---
+
+## Milestone 9: WP-CLI Integration ⏳ 0/8
+
+**Version**: 0.9.0
+**Goal**: Full WP-CLI interface for headless/DevOps use, with monitoring-compatible exit codes.
+
+### Tasks
+
+- [ ] **M9.1** - `HealthCommand` class (`src/Cli/HealthCommand.php`) with DI, `WP_CLI` guard
+- [ ] **M9.2** - Subcommand: `wp ops-health status` (table/json/csv, exit codes 0/1/2)
+- [ ] **M9.3** - Subcommand: `wp ops-health run` (fresh check, `--quiet` mode)
+- [ ] **M9.4** - Subcommand: `wp ops-health export` (JSON to stdout or `--output=<file>`)
+- [ ] **M9.5** - Subcommand: `wp ops-health list-checks` (registered checks with status)
+- [ ] **M9.6** - `CheckRunnerInterface`: add `get_checks(): array`
+- [ ] **M9.7** - Container wiring for HealthCommand with `WP_CLI` guard
+- [ ] **M9.8** - Tests + documentation (unit ~35-40, integration ~15-20, E2E ~8-10, wiki updates)
+
+### WP-CLI Commands
+
+| Command | Description | Exit Codes |
+|---------|-------------|------------|
+| `wp ops-health status` | Show latest cached results | 0=ok, 1=warning, 2=critical |
+| `wp ops-health run` | Trigger fresh check run | 0=ok, 1=warning, 2=critical |
+| `wp ops-health export` | JSON diagnostic export | 0=success, 1=error |
+| `wp ops-health list-checks` | List registered checks | 0=success |
+
+All commands support `--format=json|table|csv` (WP-CLI standard). `run` supports `--quiet` for monitoring scripts. `export` supports `--output=<file>`.
+
+Exit codes are compatible with Nagios/Icinga/Zabbix monitoring systems.
+
+### New Files
+- `src/Cli/HealthCommand.php`
+- Corresponding unit and integration test files
+
+### Modified Files
+- `config/bootstrap.php` — wire HealthCommand with `WP_CLI` guard
+- `src/Interfaces/CheckRunnerInterface.php` — add `get_checks()`
+- `src/Services/CheckRunner.php` — implement `get_checks()`
+- `src/Core/Plugin.php` — register CLI command
+
+**Deliverable**: Full WP-CLI interface with 4 subcommands, monitoring-compatible exit codes, pipe-friendly JSON export
+
+---
+
+## Milestone Summary
+
+| Milestone | Version | Status | Source Files | Test Files | Tests |
+|-----------|---------|--------|--------------|------------|-------|
+| M0 | 0.1.0 | ✅ | 7 | 7 | ~40 |
+| M1 | 0.1.0 | ✅ | 11 | 18 | 137 |
+| M2 | 0.2.0 | ✅ | 15 | 24 | 210 |
+| M3 | 0.3.0 | ✅ | 16 | 26 | 314 |
+| M4 | 0.4.0 | ✅ | 27 | 47 | 698 |
+| M5 | 0.5.0 | ✅ | 30 | 53 | 833+46 E2E |
+| M6 | 0.6.1 | ✅ | 31 | 55 | 896+46 E2E |
+| M7 | 0.7.0 | ⏳ | +1 | +2 | +65-80 |
+| M8 | 0.8.0 | ⏳ | +3 | +4 | +80-98 |
+| M9 | 0.9.0 | ⏳ | +1 | +2 | +58-70 |
+
+Post-M9 projection: ~36 source files, ~63 test files, ~1100+ PHP tests + ~60 E2E scenarios

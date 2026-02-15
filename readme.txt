@@ -14,7 +14,7 @@ Production-grade WordPress plugin for operational monitoring with automated heal
 
 Ops Health Dashboard provides an operational monitoring dashboard in wp-admin with automated health checks and configurable alerting (email, webhook, Slack, Telegram, WhatsApp), so you know what's happening *before* something breaks.
 
-= Health Checks =
+= Health Check =
 
 * **Database** — Connectivity and query performance
 * **Error Log** — Safe aggregation with automatic sensitive data redaction
