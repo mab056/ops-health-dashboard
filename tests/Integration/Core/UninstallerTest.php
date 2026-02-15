@@ -277,6 +277,128 @@ class UninstallerTest extends WP_UnitTestCase {
 		$this->assertFalse( wp_next_scheduled( 'ops_health_run_checks' ) );
 	}
 
+	// ---------------------------------------------------
+	// Multisite support (richiede WP_TESTS_MULTISITE=1)
+	// ---------------------------------------------------
+
+	/**
+	 * Testa che su multisite uninstall() pulisce tutti i blog della rete
+	 */
+	public function test_uninstall_on_multisite_cleans_all_sites() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Requires multisite.' );
+		}
+
+		global $wpdb;
+
+		// Crea blog aggiuntivi nella rete.
+		$blog_id_2 = self::factory()->blog->create();
+		$blog_id_3 = self::factory()->blog->create();
+
+		$blogs = [ get_current_blog_id(), $blog_id_2, $blog_id_3 ];
+
+		// Imposta dati del plugin su ogni blog.
+		foreach ( $blogs as $blog_id ) {
+			switch_to_blog( $blog_id );
+			update_option( 'ops_health_activated_at', time() );
+			update_option( 'ops_health_version', '0.6.0' );
+			update_option( 'ops_health_latest_results', [ 'test' => 'data' ] );
+			update_option( 'ops_health_alert_settings', [ 'enabled' => true ] );
+			update_option( 'ops_health_alert_log', [ [ 'time' => time() ] ] );
+			set_transient( 'ops_health_cron_check', '1', HOUR_IN_SECONDS );
+			wp_schedule_event( time(), 'hourly', 'ops_health_run_checks' );
+			restore_current_blog();
+		}
+
+		// Esegui la disinstallazione.
+		$uninstaller = new Uninstaller( $wpdb );
+		$uninstaller->uninstall();
+
+		// Verifica pulizia su ogni blog.
+		foreach ( $blogs as $blog_id ) {
+			switch_to_blog( $blog_id );
+			$this->assertFalse( get_option( 'ops_health_activated_at' ), "Blog $blog_id: activated_at should be deleted" );
+			$this->assertFalse( get_option( 'ops_health_version' ), "Blog $blog_id: version should be deleted" );
+			$this->assertFalse( get_option( 'ops_health_latest_results' ), "Blog $blog_id: latest_results should be deleted" );
+			$this->assertFalse( get_option( 'ops_health_alert_settings' ), "Blog $blog_id: alert_settings should be deleted" );
+			$this->assertFalse( get_option( 'ops_health_alert_log' ), "Blog $blog_id: alert_log should be deleted" );
+			$this->assertFalse( get_transient( 'ops_health_cron_check' ), "Blog $blog_id: cron_check transient should be deleted" );
+			$this->assertFalse( wp_next_scheduled( 'ops_health_run_checks' ), "Blog $blog_id: cron should be cleared" );
+			restore_current_blog();
+		}
+	}
+
+	/**
+	 * Testa che su multisite i transient di cooldown vengono cancellati su tutti i blog
+	 */
+	public function test_uninstall_on_multisite_cleans_cooldown_transients() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Requires multisite.' );
+		}
+
+		global $wpdb;
+
+		$blog_id_2 = self::factory()->blog->create();
+
+		$blogs = [ get_current_blog_id(), $blog_id_2 ];
+
+		// Imposta cooldown transient su ogni blog.
+		foreach ( $blogs as $blog_id ) {
+			switch_to_blog( $blog_id );
+			set_transient( 'ops_health_alert_cooldown_database', '1', 3600 );
+			set_transient( 'ops_health_alert_cooldown_redis', '1', 3600 );
+			restore_current_blog();
+		}
+
+		// Esegui la disinstallazione.
+		$uninstaller = new Uninstaller( $wpdb );
+		$uninstaller->uninstall();
+
+		// Verifica pulizia su ogni blog.
+		foreach ( $blogs as $blog_id ) {
+			switch_to_blog( $blog_id );
+			wp_cache_flush();
+			$this->assertFalse( get_transient( 'ops_health_alert_cooldown_database' ), "Blog $blog_id: database cooldown should be deleted" );
+			$this->assertFalse( get_transient( 'ops_health_alert_cooldown_redis' ), "Blog $blog_id: redis cooldown should be deleted" );
+			restore_current_blog();
+		}
+	}
+
+	/**
+	 * Testa che su multisite le opzioni di altri plugin vengono preservate
+	 */
+	public function test_uninstall_on_multisite_preserves_non_plugin_data() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Requires multisite.' );
+		}
+
+		global $wpdb;
+
+		$blog_id_2 = self::factory()->blog->create();
+
+		// Imposta dati del plugin e di un altro plugin su entrambi i blog.
+		$blogs = [ get_current_blog_id(), $blog_id_2 ];
+		foreach ( $blogs as $blog_id ) {
+			switch_to_blog( $blog_id );
+			update_option( 'ops_health_version', '0.6.0' );
+			update_option( 'other_plugin_option', 'keep_me' );
+			restore_current_blog();
+		}
+
+		// Esegui la disinstallazione.
+		$uninstaller = new Uninstaller( $wpdb );
+		$uninstaller->uninstall();
+
+		// Verifica che solo i dati del plugin sono cancellati.
+		foreach ( $blogs as $blog_id ) {
+			switch_to_blog( $blog_id );
+			$this->assertFalse( get_option( 'ops_health_version' ), "Blog $blog_id: plugin option should be deleted" );
+			$this->assertEquals( 'keep_me', get_option( 'other_plugin_option' ), "Blog $blog_id: other plugin option should be preserved" );
+			delete_option( 'other_plugin_option' );
+			restore_current_blog();
+		}
+	}
+
 	/**
 	 * Testa che i transient con cooldown prefix custom vengono cancellati
 	 */

@@ -65,6 +65,11 @@ if ( $is_integration_test ) {
 
 	tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
+	// Supporto multisite via variabile d'ambiente.
+	if ( getenv( 'WP_TESTS_MULTISITE' ) ) {
+		define( 'WP_TESTS_MULTISITE', true );
+	}
+
 	// Avvia l'ambiente di testing di WP.
 	require $_tests_dir . '/includes/bootstrap.php';
 }
