@@ -2,8 +2,8 @@
 /**
  * Redaction Interface
  *
- * Contratto per il servizio di redazione dati sensibili.
- * Sanitizza testi rimuovendo credenziali, path, email, IP e altri dati sensibili.
+ * Contract for the sensitive data redaction service.
+ * Sanitizes text by removing credentials, paths, emails, IPs, and other sensitive data.
  *
  * @package OpsHealthDashboard\Interfaces
  */
@@ -21,23 +21,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Interface RedactionInterface
  *
- * Definisce i metodi per la redazione di dati sensibili.
+ * Defines the methods for sensitive data redaction.
  */
 interface RedactionInterface {
 
 	/**
-	 * Applica la redazione a un singolo testo
+	 * Applies redaction to a single text
 	 *
-	 * @param string $text Testo da sanitizzare.
-	 * @return string Testo con dati sensibili rimossi.
+	 * @param string $text Text to sanitize.
+	 * @return string Text with sensitive data removed.
 	 */
 	public function redact( string $text ): string;
 
 	/**
-	 * Applica la redazione a un array di righe
+	 * Applies redaction to an array of lines
 	 *
-	 * @param array $lines Array di stringhe da sanitizzare.
-	 * @return array Array di stringhe sanitizzate.
+	 * @param array $lines Array of strings to sanitize.
+	 * @return array Array of sanitized strings.
 	 */
 	public function redact_lines( array $lines ): array;
 }

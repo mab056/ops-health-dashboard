@@ -1,9 +1,9 @@
 <?php
 /**
- * Unit Test per RedisCheck
+ * Unit Test for RedisCheck
  *
- * Test unitario con Brain\Monkey per RedisCheck.
- * Usa Mockery partial mock per le operazioni Redis.
+ * Unit test with Brain\Monkey for RedisCheck.
+ * Uses Mockery partial mock for Redis operations.
  *
  * @package OpsHealthDashboard\Tests\Unit\Checks
  */
@@ -21,13 +21,13 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class RedisCheckTest
  *
- * Unit test per RedisCheck.
+ * Unit test for RedisCheck.
  */
 class RedisCheckTest extends TestCase {
 	use MockeryPHPUnitIntegration;
 
 	/**
-	 * Setup per ogni test
+	 * Setup for each test
 	 */
 	protected function setUp(): void {
 		parent::setUp();
@@ -35,7 +35,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Teardown dopo ogni test
+	 * Teardown after each test
 	 */
 	protected function tearDown(): void {
 		\Brain\Monkey\tearDown();
@@ -43,7 +43,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Crea un mock di RedactionInterface
+	 * Creates a RedactionInterface mock
 	 *
 	 * @return \Mockery\MockInterface
 	 */
@@ -59,9 +59,9 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Crea un partial mock di RedisCheck con metodi protetti mockabili
+	 * Creates a partial mock of RedisCheck with mockable protected methods
 	 *
-	 * @param \Mockery\MockInterface $redaction Mock del servizio di redazione.
+	 * @param \Mockery\MockInterface $redaction Redaction service mock.
 	 * @return \Mockery\MockInterface
 	 */
 	private function create_check_mock( $redaction ) {
@@ -72,7 +72,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Crea un mock di Redis
+	 * Creates a Redis mock
 	 *
 	 * @return \Mockery\MockInterface
 	 */
@@ -84,7 +84,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Configura le aspettative i18n standard
+	 * Sets up standard i18n expectations
 	 */
 	private function mock_i18n() {
 		Functions\expect( '__' )
@@ -100,7 +100,7 @@ class RedisCheckTest extends TestCase {
 	// -------------------------------------------------------------------
 
 	/**
-	 * Testa che la classe NON è final
+	 * Tests that the class is NOT final
 	 */
 	public function test_class_is_not_final() {
 		$reflection = new \ReflectionClass( RedisCheck::class );
@@ -108,7 +108,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Tests that NO static methods exist
 	 */
 	public function test_no_static_methods() {
 		$reflection = new \ReflectionClass( RedisCheck::class );
@@ -125,7 +125,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono proprietà static
+	 * Tests that NO static properties exist
 	 */
 	public function test_no_static_properties() {
 		$reflection = new \ReflectionClass( RedisCheck::class );
@@ -139,7 +139,7 @@ class RedisCheckTest extends TestCase {
 	// -------------------------------------------------------------------
 
 	/**
-	 * Testa che RedisCheck implementa CheckInterface
+	 * Tests that RedisCheck implements CheckInterface
 	 */
 	public function test_implements_check_interface() {
 		$redaction = $this->create_redaction_mock();
@@ -148,7 +148,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get_id() ritorna 'redis'
+	 * Tests that get_id() returns 'redis'
 	 */
 	public function test_get_id_returns_redis() {
 		$redaction = $this->create_redaction_mock();
@@ -157,7 +157,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get_name() ritorna il nome corretto
+	 * Tests that get_name() returns the correct name
 	 */
 	public function test_get_name_returns_correct_name() {
 		$redaction = $this->create_redaction_mock();
@@ -169,7 +169,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che is_enabled() ritorna true
+	 * Tests that is_enabled() returns true
 	 */
 	public function test_is_enabled_returns_true() {
 		$redaction = $this->create_redaction_mock();
@@ -182,7 +182,7 @@ class RedisCheckTest extends TestCase {
 	// -------------------------------------------------------------------
 
 	/**
-	 * Testa che run() ritorna warning quando l'estensione Redis non è caricata
+	 * Tests that run() returns warning when the Redis extension is not loaded
 	 */
 	public function test_returns_warning_when_extension_not_loaded() {
 		$redaction = $this->create_redaction_mock();
@@ -201,7 +201,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() procede quando l'estensione è caricata
+	 * Tests that run() proceeds when the extension is loaded
 	 */
 	public function test_proceeds_when_extension_loaded() {
 		$redaction = $this->create_redaction_mock();
@@ -256,7 +256,7 @@ class RedisCheckTest extends TestCase {
 	// -------------------------------------------------------------------
 
 	/**
-	 * Testa che run() ritorna warning quando la connessione fallisce
+	 * Tests that run() returns warning when the connection fails
 	 */
 	public function test_returns_warning_when_connection_fails() {
 		$redaction = $this->create_redaction_mock();
@@ -295,7 +295,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che usa l'host di default quando la costante non è definita
+	 * Tests that it uses the default host when the constant is not defined
 	 */
 	public function test_uses_default_host_when_no_constant() {
 		$redaction = $this->create_redaction_mock();
@@ -311,7 +311,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che usa la porta di default quando la costante non è definita
+	 * Tests that it uses the default port when the constant is not defined
 	 */
 	public function test_uses_default_port_when_no_constant() {
 		$redaction = $this->create_redaction_mock();
@@ -331,7 +331,7 @@ class RedisCheckTest extends TestCase {
 	// -------------------------------------------------------------------
 
 	/**
-	 * Testa che autentica quando la password è configurata
+	 * Tests that it authenticates when the password is configured
 	 */
 	public function test_authenticates_when_password_set() {
 		$redaction = $this->create_redaction_mock();
@@ -374,7 +374,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che ritorna warning quando l'autenticazione fallisce
+	 * Tests that it returns warning when authentication fails
 	 */
 	public function test_returns_warning_when_auth_fails() {
 		$redaction = $this->create_redaction_mock();
@@ -417,7 +417,7 @@ class RedisCheckTest extends TestCase {
 	// -------------------------------------------------------------------
 
 	/**
-	 * Testa che run() ritorna ok quando lo smoke test passa
+	 * Tests that run() returns ok when the smoke test passes
 	 */
 	public function test_returns_ok_when_smoke_test_passes() {
 		$redaction = $this->create_redaction_mock();
@@ -472,7 +472,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna warning quando SET fallisce
+	 * Tests that run() returns warning when SET fails
 	 */
 	public function test_returns_warning_when_set_fails() {
 		$redaction = $this->create_redaction_mock();
@@ -506,7 +506,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna warning quando GET non matcha il valore
+	 * Tests that run() returns warning when GET does not match the value
 	 */
 	public function test_returns_warning_when_get_mismatch() {
 		$redaction = $this->create_redaction_mock();
@@ -541,7 +541,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() include il tempo di risposta nei dettagli
+	 * Tests that run() includes the response time in details
 	 */
 	public function test_measures_response_time() {
 		$redaction = $this->create_redaction_mock();
@@ -574,7 +574,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna warning quando il tempo di risposta è lento
+	 * Tests that run() returns warning when the response time is slow
 	 */
 	public function test_returns_warning_when_slow_response() {
 		$redaction = $this->create_redaction_mock();
@@ -596,7 +596,7 @@ class RedisCheckTest extends TestCase {
 		$redis->shouldReceive( 'connect' )->andReturn( true );
 		$redis->shouldReceive( 'set' )->andReturnUsing(
 			function () {
-				// Simula 300ms di latenza (soglia 100ms, margine 3x).
+				// Simulates 300ms of latency (threshold 100ms, margin 3x).
 				usleep( 300000 );
 				return true;
 			}
@@ -617,7 +617,7 @@ class RedisCheckTest extends TestCase {
 	// -------------------------------------------------------------------
 
 	/**
-	 * Testa che run() ha tutte le chiavi richieste nel risultato
+	 * Tests that run() has all required keys in the result
 	 */
 	public function test_run_returns_required_keys() {
 		$redaction = $this->create_redaction_mock();
@@ -637,7 +637,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() misura la durata
+	 * Tests that run() measures the duration
 	 */
 	public function test_run_measures_duration() {
 		$redaction = $this->create_redaction_mock();
@@ -655,7 +655,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() usa i18n per i messaggi
+	 * Tests that run() uses i18n for messages
 	 */
 	public function test_uses_i18n_for_messages() {
 		$redaction = $this->create_redaction_mock();
@@ -683,7 +683,7 @@ class RedisCheckTest extends TestCase {
 	// -------------------------------------------------------------------
 
 	/**
-	 * Testa che l'host viene redatto nei dettagli
+	 * Tests that the host is redacted in details
 	 */
 	public function test_redacts_host_in_details() {
 		$redaction = Mockery::mock( RedactionInterface::class );
@@ -723,7 +723,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che gli errori vengono redatti nei dettagli
+	 * Tests that errors are redacted in details
 	 */
 	public function test_redacts_error_messages() {
 		$redaction = Mockery::mock( RedactionInterface::class );
@@ -765,7 +765,7 @@ class RedisCheckTest extends TestCase {
 	// -------------------------------------------------------------------
 
 	/**
-	 * Testa che seleziona il database quando configurato
+	 * Tests that it selects the database when configured
 	 */
 	public function test_selects_database_when_configured() {
 		$redaction = $this->create_redaction_mock();
@@ -805,10 +805,10 @@ class RedisCheckTest extends TestCase {
 	// -------------------------------------------------------------------
 
 	/**
-	 * Testa che close_connection() gestisce eccezione senza propagarla
+	 * Tests that close_connection() handles exception without propagating
 	 *
-	 * Quando auth fallisce, close_connection viene chiamato.
-	 * Se anche close() lancia, deve essere inghiottita.
+	 * When auth fails, close_connection is called.
+	 * If close() also throws, it must be swallowed.
 	 */
 	public function test_close_connection_swallows_exception() {
 		$redaction = $this->create_redaction_mock();
@@ -830,7 +830,7 @@ class RedisCheckTest extends TestCase {
 		$redis->shouldReceive( 'connect' )->andReturn( true );
 		$redis->shouldReceive( 'auth' )
 			->andThrow( new \Exception( 'AUTH failed' ) );
-		// close() lancia eccezione — deve essere inghiottita.
+		// close() throws exception -- must be swallowed.
 		$redis->shouldReceive( 'close' )
 			->andThrow( new \Exception( 'Connection already closed' ) );
 
@@ -843,10 +843,10 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che cleanup_and_close() gestisce eccezione su del() senza propagarla
+	 * Tests that cleanup_and_close() handles exception on del() without propagating
 	 *
-	 * Quando SET ritorna false, cleanup_and_close tenta del() + close().
-	 * Se del() lancia, deve essere inghiottita.
+	 * When SET returns false, cleanup_and_close attempts del() + close().
+	 * If del() throws, it must be swallowed.
 	 */
 	public function test_cleanup_and_close_swallows_del_exception() {
 		$redaction = $this->create_redaction_mock();
@@ -867,7 +867,7 @@ class RedisCheckTest extends TestCase {
 
 		$redis->shouldReceive( 'connect' )->andReturn( true );
 		$redis->shouldReceive( 'set' )->andReturn( false );
-		// del() durante cleanup lancia eccezione — deve essere inghiottita.
+		// del() during cleanup throws exception -- must be swallowed.
 		$redis->shouldReceive( 'del' )
 			->andThrow( new \Exception( 'READONLY cannot del' ) );
 		$redis->shouldReceive( 'close' )->byDefault();
@@ -881,7 +881,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna warning quando lo smoke test lancia eccezione
+	 * Tests that run() returns warning when the smoke test throws exception
 	 */
 	public function test_returns_warning_when_smoke_test_throws_exception() {
 		$redaction = $this->create_redaction_mock();
@@ -919,7 +919,7 @@ class RedisCheckTest extends TestCase {
 	// -------------------------------------------------------------------
 
 	/**
-	 * Testa che restituisce warning quando database selection fallisce
+	 * Tests that it returns warning when database selection fails
 	 */
 	public function test_returns_warning_when_database_selection_fails() {
 		$redaction = $this->create_redaction_mock();
@@ -933,7 +933,7 @@ class RedisCheckTest extends TestCase {
 					'host'     => '127.0.0.1',
 					'port'     => 6379,
 					'password' => '',
-					'database' => 999, // Database non valido.
+					'database' => 999, // Invalid database.
 				]
 			);
 		$check->shouldReceive( 'create_redis_instance' )->andReturn( $redis );
@@ -953,9 +953,9 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che is_extension_loaded ritorna un booleano
+	 * Tests that is_extension_loaded returns a boolean
 	 *
-	 * Copre la riga 237: `extension_loaded('redis')`.
+	 * Covers line 237: `extension_loaded('redis')`.
 	 */
 	public function test_is_extension_loaded_returns_bool() {
 		$redaction = $this->create_redaction_mock();
@@ -969,9 +969,9 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che create_redis_instance ritorna un'istanza Redis
+	 * Tests that create_redis_instance returns a Redis instance
 	 *
-	 * Copre la riga 246: `new \Redis()`.
+	 * Covers line 246: `new \Redis()`.
 	 *
 	 * @requires extension redis
 	 */
@@ -987,7 +987,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che TypeError durante connessione viene catturato (catch Throwable)
+	 * Tests that TypeError during connection is caught (catch Throwable)
 	 */
 	public function test_catches_throwable_on_connection() {
 		$redaction = $this->create_redaction_mock();
@@ -1017,7 +1017,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che TypeError durante smoke test viene catturato (catch Throwable)
+	 * Tests that TypeError during smoke test is caught (catch Throwable)
 	 */
 	public function test_catches_throwable_on_smoke_test() {
 		$redaction = $this->create_redaction_mock();
@@ -1050,7 +1050,7 @@ class RedisCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che TypeError in close_connection viene inghiottito (catch Throwable)
+	 * Tests that TypeError in close_connection is swallowed (catch Throwable)
 	 */
 	public function test_close_connection_swallows_throwable() {
 		$redaction = $this->create_redaction_mock();

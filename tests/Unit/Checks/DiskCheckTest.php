@@ -1,9 +1,9 @@
 <?php
 /**
- * Unit Test per DiskCheck
+ * Unit Test for DiskCheck
  *
- * Test unitario con Brain\Monkey per DiskCheck.
- * Usa Mockery partial mock per le operazioni filesystem.
+ * Unit test with Brain\Monkey for DiskCheck.
+ * Uses Mockery partial mock for filesystem operations.
  *
  * @package OpsHealthDashboard\Tests\Unit\Checks
  */
@@ -21,13 +21,13 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class DiskCheckTest
  *
- * Unit test per DiskCheck.
+ * Unit test for DiskCheck.
  */
 class DiskCheckTest extends TestCase {
 	use MockeryPHPUnitIntegration;
 
 	/**
-	 * Setup per ogni test
+	 * Setup for each test
 	 */
 	protected function setUp(): void {
 		parent::setUp();
@@ -35,7 +35,7 @@ class DiskCheckTest extends TestCase {
 	}
 
 	/**
-	 * Teardown dopo ogni test
+	 * Teardown after each test
 	 */
 	protected function tearDown(): void {
 		\Brain\Monkey\tearDown();
@@ -43,7 +43,7 @@ class DiskCheckTest extends TestCase {
 	}
 
 	/**
-	 * Crea un mock di RedactionInterface
+	 * Creates a RedactionInterface mock
 	 *
 	 * @return \Mockery\MockInterface
 	 */
@@ -59,9 +59,9 @@ class DiskCheckTest extends TestCase {
 	}
 
 	/**
-	 * Crea un partial mock di DiskCheck con metodi protetti mockabili
+	 * Creates a partial mock of DiskCheck with mockable protected methods
 	 *
-	 * @param \Mockery\MockInterface $redaction Mock del servizio di redazione.
+	 * @param \Mockery\MockInterface $redaction Redaction service mock.
 	 * @return \Mockery\MockInterface
 	 */
 	private function create_check_mock( $redaction ) {
@@ -72,7 +72,7 @@ class DiskCheckTest extends TestCase {
 	}
 
 	/**
-	 * Configura le aspettative i18n standard
+	 * Sets up standard i18n expectations
 	 */
 	private function mock_i18n() {
 		Functions\expect( '__' )
@@ -84,7 +84,7 @@ class DiskCheckTest extends TestCase {
 	}
 
 	/**
-	 * Configura le aspettative size_format
+	 * Sets up size_format expectations
 	 */
 	private function mock_size_format() {
 		Functions\expect( 'size_format' )
@@ -102,12 +102,12 @@ class DiskCheckTest extends TestCase {
 	}
 
 	/**
-	 * Configura un check mock con spazio disco simulato
+	 * Sets up a check mock with simulated disk space
 	 *
-	 * @param \Mockery\MockInterface $check   Mock del check.
-	 * @param float                  $free    Spazio libero in bytes.
-	 * @param float                  $total   Spazio totale in bytes.
-	 * @param string                 $path    Path del disco.
+	 * @param \Mockery\MockInterface $check   Check mock.
+	 * @param float                  $free    Free space in bytes.
+	 * @param float                  $total   Total space in bytes.
+	 * @param string                 $path    Disk path.
 	 */
 	private function setup_disk_space( $check, $free, $total, $path = '/var/www/html' ) {
 		$check->shouldReceive( 'get_disk_path' )
@@ -125,7 +125,7 @@ class DiskCheckTest extends TestCase {
 	// -------------------------------------------------------------------
 
 	/**
-	 * Testa che la classe NON è final
+	 * Tests that the class is NOT final
 	 */
 	public function test_class_is_not_final() {
 		$reflection = new \ReflectionClass( DiskCheck::class );
@@ -133,7 +133,7 @@ class DiskCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Tests that NO static methods exist
 	 */
 	public function test_no_static_methods() {
 		$reflection = new \ReflectionClass( DiskCheck::class );
@@ -150,7 +150,7 @@ class DiskCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono proprietà static
+	 * Tests that NO static properties exist
 	 */
 	public function test_no_static_properties() {
 		$reflection = new \ReflectionClass( DiskCheck::class );
@@ -164,7 +164,7 @@ class DiskCheckTest extends TestCase {
 	// -------------------------------------------------------------------
 
 	/**
-	 * Testa che DiskCheck implementa CheckInterface
+	 * Tests that DiskCheck implements CheckInterface
 	 */
 	public function test_implements_check_interface() {
 		$redaction = $this->create_redaction_mock();
@@ -173,7 +173,7 @@ class DiskCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get_id() ritorna 'disk'
+	 * Tests that get_id() returns 'disk'
 	 */
 	public function test_get_id_returns_disk() {
 		$redaction = $this->create_redaction_mock();
@@ -182,7 +182,7 @@ class DiskCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get_name() ritorna il nome corretto
+	 * Tests that get_name() returns the correct name
 	 */
 	public function test_get_name_returns_correct_name() {
 		$redaction = $this->create_redaction_mock();
@@ -194,7 +194,7 @@ class DiskCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che is_enabled() ritorna bool
+	 * Tests that is_enabled() returns bool
 	 */
 	public function test_is_enabled_returns_bool() {
 		$redaction = $this->create_redaction_mock();
@@ -203,13 +203,13 @@ class DiskCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che is_enabled() ritorna true quando le funzioni sono disponibili
+	 * Tests that is_enabled() returns true when functions are available
 	 */
 	public function test_is_enabled_returns_true_when_functions_available() {
 		$redaction = $this->create_redaction_mock();
 		$check     = new DiskCheck( $redaction );
 
-		// disk_free_space e disk_total_space sono normalmente disponibili in PHP.
+		// disk_free_space and disk_total_space are normally available in PHP.
 		$this->assertTrue( $check->is_enabled() );
 	}
 
@@ -218,7 +218,7 @@ class DiskCheckTest extends TestCase {
 	// -------------------------------------------------------------------
 
 	/**
-	 * Testa che run() ritorna ok quando il disco è sano (50% libero)
+	 * Tests that run() returns ok when the disk is healthy (50% free)
 	 */
 	public function test_run_returns_ok_when_disk_healthy() {
 		$redaction = $this->create_redaction_mock();
@@ -236,7 +236,7 @@ class DiskCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ha tutte le chiavi richieste nel risultato
+	 * Tests that run() has all required keys in the result
 	 */
 	public function test_run_returns_required_keys() {
 		$redaction = $this->create_redaction_mock();
@@ -256,7 +256,7 @@ class DiskCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() misura la durata
+	 * Tests that run() measures the duration
 	 */
 	public function test_run_measures_duration() {
 		$redaction = $this->create_redaction_mock();
@@ -278,7 +278,7 @@ class DiskCheckTest extends TestCase {
 	// -------------------------------------------------------------------
 
 	/**
-	 * Testa che run() ritorna warning quando sotto la soglia di warning (15%)
+	 * Tests that run() returns warning when below the warning threshold (15%)
 	 */
 	public function test_run_returns_warning_when_below_warning_threshold() {
 		$redaction = $this->create_redaction_mock();
@@ -296,7 +296,7 @@ class DiskCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna critical quando sotto la soglia critica (5%)
+	 * Tests that run() returns critical when below the critical threshold (5%)
 	 */
 	public function test_run_returns_critical_when_below_critical_threshold() {
 		$redaction = $this->create_redaction_mock();
@@ -314,13 +314,13 @@ class DiskCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna ok al confine esatto della soglia warning (20%)
+	 * Tests that run() returns ok at the exact warning threshold boundary (20%)
 	 */
 	public function test_run_returns_ok_at_exact_warning_threshold() {
 		$redaction = $this->create_redaction_mock();
 		$check     = $this->create_check_mock( $redaction );
 
-		// 20 GB free / 100 GB total = 20% (< 20 è warning, 20 è ok).
+		// 20 GB free / 100 GB total = 20% (< 20 is warning, 20 is ok).
 		$this->setup_disk_space( $check, 20.0 * 1073741824, 100.0 * 1073741824 );
 
 		$this->mock_i18n();
@@ -332,13 +332,13 @@ class DiskCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna warning al confine esatto della soglia critica (10%)
+	 * Tests that run() returns warning at the exact critical threshold boundary (10%)
 	 */
 	public function test_run_returns_warning_at_exact_critical_threshold() {
 		$redaction = $this->create_redaction_mock();
 		$check     = $this->create_check_mock( $redaction );
 
-		// 10 GB free / 100 GB total = 10% (< 10 è critical, 10 è warning).
+		// 10 GB free / 100 GB total = 10% (< 10 is critical, 10 is warning).
 		$this->setup_disk_space( $check, 10.0 * 1073741824, 100.0 * 1073741824 );
 
 		$this->mock_i18n();
@@ -354,7 +354,7 @@ class DiskCheckTest extends TestCase {
 	// -------------------------------------------------------------------
 
 	/**
-	 * Testa che run() ritorna warning quando disk_free_space ritorna false
+	 * Tests that run() returns warning when disk_free_space returns false
 	 */
 	public function test_run_returns_warning_when_free_space_returns_false() {
 		$redaction = $this->create_redaction_mock();
@@ -373,7 +373,7 @@ class DiskCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna warning quando disk_total_space ritorna false
+	 * Tests that run() returns warning when disk_total_space returns false
 	 */
 	public function test_run_returns_warning_when_total_space_returns_false() {
 		$redaction = $this->create_redaction_mock();
@@ -391,7 +391,7 @@ class DiskCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna warning quando lo spazio totale è zero
+	 * Tests that run() returns warning when total space is zero
 	 */
 	public function test_run_returns_warning_when_total_space_is_zero() {
 		$redaction = $this->create_redaction_mock();
@@ -413,7 +413,7 @@ class DiskCheckTest extends TestCase {
 	// -------------------------------------------------------------------
 
 	/**
-	 * Testa che run() include free_bytes, total_bytes, free_percent e path nei dettagli
+	 * Tests that run() includes free_bytes, total_bytes, free_percent and path in details
 	 */
 	public function test_run_includes_expected_details() {
 		$redaction = $this->create_redaction_mock();
@@ -433,7 +433,7 @@ class DiskCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che free_percent è calcolato correttamente
+	 * Tests that free_percent is calculated correctly
 	 */
 	public function test_free_percent_is_calculated_correctly() {
 		$redaction = $this->create_redaction_mock();
@@ -455,7 +455,7 @@ class DiskCheckTest extends TestCase {
 	// -------------------------------------------------------------------
 
 	/**
-	 * Testa che il path viene redatto nei dettagli
+	 * Tests that the path is redacted in details
 	 */
 	public function test_redacts_path_in_details() {
 		$redaction = Mockery::mock( RedactionInterface::class );
@@ -480,7 +480,7 @@ class DiskCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che il path nell'errore viene redatto
+	 * Tests that the path in the error result is redacted
 	 */
 	public function test_redacts_path_in_error_result() {
 		$redaction = Mockery::mock( RedactionInterface::class );
@@ -510,7 +510,7 @@ class DiskCheckTest extends TestCase {
 	// -------------------------------------------------------------------
 
 	/**
-	 * Testa che run() usa i18n per i messaggi
+	 * Tests that run() uses i18n for messages
 	 */
 	public function test_uses_i18n_for_messages() {
 		$redaction = $this->create_redaction_mock();
@@ -539,7 +539,7 @@ class DiskCheckTest extends TestCase {
 	// -------------------------------------------------------------------
 
 	/**
-	 * Testa che le costanti di soglia sono definite correttamente
+	 * Tests that threshold constants are defined correctly
 	 */
 	public function test_threshold_constants_are_defined() {
 		$this->assertEquals( 20, DiskCheck::WARNING_THRESHOLD );
@@ -551,7 +551,7 @@ class DiskCheckTest extends TestCase {
 	// -------------------------------------------------------------------
 
 	/**
-	 * Testa che get_disk_path ritorna una stringa
+	 * Tests that get_disk_path returns a string
 	 */
 	public function test_get_disk_path_returns_string() {
 		$redaction = $this->create_redaction_mock();
@@ -565,7 +565,7 @@ class DiskCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get_free_space delega a disk_free_space
+	 * Tests that get_free_space delegates to disk_free_space
 	 */
 	public function test_get_free_space_returns_value() {
 		$redaction = $this->create_redaction_mock();
@@ -576,12 +576,12 @@ class DiskCheckTest extends TestCase {
 
 		$result = $method->invoke( $check, '/' );
 
-		// disk_free_space('/') ritorna float o false.
+		// disk_free_space('/') returns float or false.
 		$this->assertTrue( is_float( $result ) || false === $result );
 	}
 
 	/**
-	 * Testa che get_total_space delega a disk_total_space
+	 * Tests that get_total_space delegates to disk_total_space
 	 */
 	public function test_get_total_space_returns_value() {
 		$redaction = $this->create_redaction_mock();
@@ -592,7 +592,7 @@ class DiskCheckTest extends TestCase {
 
 		$result = $method->invoke( $check, '/' );
 
-		// disk_total_space('/') ritorna float o false.
+		// disk_total_space('/') returns float or false.
 		$this->assertTrue( is_float( $result ) || false === $result );
 	}
 }

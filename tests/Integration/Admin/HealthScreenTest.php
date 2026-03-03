@@ -1,8 +1,8 @@
 <?php
 /**
- * Integration Test per HealthScreen
+ * Integration Test for HealthScreen
  *
- * Test di integrazione con WordPress admin reale.
+ * Integration test with real WordPress admin.
  *
  * @package OpsHealthDashboard\Tests\Integration\Admin
  */
@@ -20,12 +20,12 @@ use WP_UnitTestCase;
 /**
  * Class HealthScreenTest
  *
- * Integration test per HealthScreen con WordPress reale.
+ * Integration test for HealthScreen with real WordPress.
  */
 class HealthScreenTest extends WP_UnitTestCase {
 
 	/**
-	 * Cleanup dopo ogni test
+	 * Clean up after each test
 	 */
 	public function tearDown(): void {
 		unset( $_POST['ops_health_action'], $_POST['_ops_health_nonce'] );
@@ -35,7 +35,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Crea un'istanza di HealthScreen con dipendenze reali
+	 * Creates a HealthScreen instance with real dependencies
 	 *
 	 * @return HealthScreen
 	 */
@@ -47,7 +47,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Crea un TestableHealthScreen con CheckRunner reale
+	 * Creates a TestableHealthScreen with real CheckRunner
 	 *
 	 * @return TestableHealthScreen
 	 */
@@ -59,7 +59,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Crea un TestableHealthScreen con DatabaseCheck reale
+	 * Creates a TestableHealthScreen with real DatabaseCheck
 	 *
 	 * @return TestableHealthScreen
 	 */
@@ -75,7 +75,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che render() produce output con capability check
+	 * Verifies that render() produces output with capability check
 	 */
 	public function test_render_outputs_html_for_admin() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
@@ -92,13 +92,13 @@ class HealthScreenTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che render() mostra messaggio "no checks" quando nessun risultato
+	 * Verifies that render() shows "no checks" message when no results
 	 */
 	public function test_render_shows_no_checks_message_when_empty() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
 		wp_set_current_user( $user_id );
 
-		// Pulisci eventuali risultati precedenti.
+		// Clean up any previous results.
 		delete_option( 'ops_health_latest_results' );
 
 		$health_screen = $this->create_health_screen();
@@ -111,7 +111,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che Menu::render_page() delega a HealthScreen::render()
+	 * Verifies that Menu::render_page() delegates to HealthScreen::render()
 	 */
 	public function test_menu_render_page_delegates_to_health_screen() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
@@ -128,7 +128,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che render() mostra i bottoni d'azione per admin
+	 * Verifies that render() shows action buttons for admin
 	 */
 	public function test_render_shows_action_buttons_for_admin() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
@@ -146,7 +146,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che process_actions() ritorna subito senza POST action
+	 * Verifies that process_actions() returns early without POST action
 	 */
 	public function test_process_actions_returns_early_without_post() {
 		unset( $_POST['ops_health_action'] );
@@ -154,12 +154,12 @@ class HealthScreenTest extends WP_UnitTestCase {
 		$screen = $this->create_testable_screen();
 		$screen->process_actions();
 
-		// Nessun transient impostato = early return.
+		// No transient set = early return.
 		$this->assertFalse( get_transient( 'ops_health_admin_notice' ) );
 	}
 
 	/**
-	 * Testa che process_actions() ritorna subito con nonce invalido
+	 * Verifies that process_actions() returns early with invalid nonce
 	 */
 	public function test_process_actions_returns_early_with_bad_nonce() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
@@ -175,7 +175,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che process_actions() ritorna subito senza capability
+	 * Verifies that process_actions() returns early without capability
 	 */
 	public function test_process_actions_returns_early_without_capability() {
 		$user_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
@@ -191,7 +191,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che process_actions() esegue run_all con action run_now
+	 * Verifies that process_actions() executes run_all with action run_now
 	 */
 	public function test_process_actions_run_now_executes_and_redirects() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
@@ -202,7 +202,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 
 		$screen = $this->create_testable_screen_with_db_check();
 
-		// Intercetta wp_redirect per evitare "headers already sent" nei test.
+		// Intercept wp_redirect to avoid "headers already sent" in tests.
 		add_filter( 'wp_redirect', '__return_false' );
 		$screen->process_actions();
 		remove_filter( 'wp_redirect', '__return_false' );
@@ -211,20 +211,20 @@ class HealthScreenTest extends WP_UnitTestCase {
 		$this->assertNotFalse( $notice );
 		$this->assertStringContainsString( 'executed', strtolower( $notice ) );
 
-		// Verifica che i risultati siano stati salvati.
+		// Verify that results have been saved.
 		$results = get_option( 'ops_health_latest_results' );
 		$this->assertIsArray( $results );
 		$this->assertArrayHasKey( 'database', $results );
 	}
 
 	/**
-	 * Testa che process_actions() esegue clear_results con action clear_cache
+	 * Verifies that process_actions() executes clear_results with action clear_cache
 	 */
 	public function test_process_actions_clear_cache_clears_and_redirects() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
 		wp_set_current_user( $user_id );
 
-		// Prima salva dei risultati.
+		// First save some results.
 		update_option( 'ops_health_latest_results', [ 'database' => [ 'status' => 'ok' ] ] );
 
 		$_POST['ops_health_action'] = 'clear_cache';
@@ -240,12 +240,12 @@ class HealthScreenTest extends WP_UnitTestCase {
 		$this->assertNotFalse( $notice );
 		$this->assertStringContainsString( 'cleared', strtolower( $notice ) );
 
-		// Verifica che i risultati siano stati cancellati.
+		// Verify that results have been cleared.
 		$this->assertFalse( get_option( 'ops_health_latest_results' ) );
 	}
 
 	/**
-	 * Testa che render() mostra notice dal transient
+	 * Verifies that render() shows notice from transient
 	 */
 	public function test_render_shows_notice_from_transient() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
@@ -262,18 +262,18 @@ class HealthScreenTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'Test notice message', $output );
 		$this->assertStringContainsString( 'notice-success', $output );
 
-		// Transient deve essere cancellato dopo render.
+		// Transient must be deleted after render.
 		$this->assertFalse( get_transient( 'ops_health_admin_notice' ) );
 	}
 
 	/**
-	 * Testa che render() mostra i risultati dei check
+	 * Verifies that render() displays check results
 	 */
 	public function test_render_displays_check_results() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
 		wp_set_current_user( $user_id );
 
-		// Salva risultati finti.
+		// Save fake results.
 		update_option(
 			'ops_health_latest_results',
 			[
@@ -298,13 +298,13 @@ class HealthScreenTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che render() usa valori default per chiavi mancanti nei risultati
+	 * Verifies that render() uses default values for missing keys in results
 	 */
 	public function test_render_uses_defaults_for_missing_result_keys() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
 		wp_set_current_user( $user_id );
 
-		// Salva risultati senza status, message e name.
+		// Save results without status, message and name.
 		update_option(
 			'ops_health_latest_results',
 			[
@@ -318,14 +318,14 @@ class HealthScreenTest extends WP_UnitTestCase {
 		$screen->render();
 		$output = ob_get_clean();
 
-		// Deve usare i default: ucfirst(check_id) per name, 'unknown' per status.
+		// Must use defaults: ucfirst(check_id) for name, 'unknown' for status.
 		$this->assertStringContainsString( 'Custom_check', $output );
 		$this->assertStringContainsString( 'ops-health-check-unknown', $output );
 		$this->assertStringNotContainsString( 'No health checks have been run yet', $output );
 	}
 
 	/**
-	 * Testa che render() nega l'accesso senza capability manage_options
+	 * Verifies that render() denies access without manage_options capability
 	 */
 	public function test_render_denies_access_without_capability() {
 		$user_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
@@ -340,7 +340,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 	// ─── enqueue_styles ────────────────────────────────────────────
 
 	/**
-	 * Testa che enqueue_styles registra il CSS sulla schermata health
+	 * Verifies that enqueue_styles registers the CSS on the health screen
 	 */
 	public function test_enqueue_styles_registers_stylesheet_on_health_screen() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
@@ -356,7 +356,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che enqueue_styles NON registra il CSS su altre schermate
+	 * Verifies that enqueue_styles does NOT register the CSS on other screens
 	 */
 	public function test_enqueue_styles_not_registered_on_other_screens() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
@@ -370,7 +370,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che register_hooks aggiunge l'action admin_enqueue_scripts
+	 * Verifies that register_hooks adds the admin_enqueue_scripts action
 	 */
 	public function test_register_hooks_adds_enqueue_action() {
 		$screen = $this->create_health_screen();
@@ -384,7 +384,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 	// ─── Summary banner ────────────────────────────────────────────
 
 	/**
-	 * Testa che render mostra il summary banner con risultati salvati
+	 * Verifies that render shows the summary banner with stored results
 	 */
 	public function test_render_shows_summary_banner_with_stored_results() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
@@ -413,7 +413,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che render non contiene inline styles
+	 * Verifies that render does not contain inline styles
 	 */
 	public function test_render_has_no_inline_styles() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
@@ -429,7 +429,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che determine_overall_status ritorna 'unknown' per risultati vuoti
+	 * Verifies that determine_overall_status returns 'unknown' for empty results
 	 */
 	public function test_determine_overall_status_empty_returns_unknown() {
 		$screen = $this->create_health_screen();
@@ -443,7 +443,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 	// ─── Help tabs ────────────────────────────────────────────────
 
 	/**
-	 * Testa che add_help_tabs registra 3 tab sulla schermata health
+	 * Verifies that add_help_tabs registers 3 tabs on the health screen
 	 */
 	public function test_add_help_tabs_registers_tabs_on_health_screen() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
@@ -463,7 +463,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che add_help_tabs imposta la sidebar con link GitHub
+	 * Verifies that add_help_tabs sets the sidebar with GitHub link
 	 */
 	public function test_add_help_tabs_sets_sidebar_on_health_screen() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
@@ -482,7 +482,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 	// ─── Pattern enforcement ───────────────────────────────────────
 
 	/**
-	 * Testa che la classe NON è final
+	 * Verifies that the class is NOT final
 	 */
 	public function test_class_is_not_final() {
 		$reflection = new \ReflectionClass( HealthScreen::class );
@@ -490,7 +490,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Verifies that NO static methods exist
 	 */
 	public function test_no_static_methods() {
 		$reflection = new \ReflectionClass( HealthScreen::class );
@@ -508,18 +508,18 @@ class HealthScreenTest extends WP_UnitTestCase {
 }
 
 /**
- * HealthScreen testabile con do_exit() no-op
+ * Testable HealthScreen with do_exit() no-op
  *
- * Evita la chiamata a exit() durante i test di process_actions().
+ * Avoids calling exit() during process_actions() tests.
  */
 class TestableHealthScreen extends HealthScreen {
 
 	/**
-	 * Override do_exit() per evitare exit nei test
+	 * Override do_exit() to avoid exit in tests
 	 *
 	 * @return void
 	 */
 	protected function do_exit(): void {
-		// No-op per testabilità.
+		// No-op for testability.
 	}
 }

@@ -1,8 +1,8 @@
 <?php
 /**
- * Integration Test per EmailChannel
+ * Integration Test for EmailChannel
  *
- * Verifica invio alert email con wp_mail reale (interceptato via pre_wp_mail).
+ * Verifies email alert sending with real wp_mail (intercepted via pre_wp_mail).
  *
  * @package OpsHealthDashboard\Tests\Integration\Channels
  */
@@ -16,12 +16,12 @@ use WP_UnitTestCase;
 /**
  * Class EmailChannelTest
  *
- * Integration test per EmailChannel con WordPress reale.
+ * Integration test for EmailChannel with real WordPress.
  */
 class EmailChannelTest extends WP_UnitTestCase {
 
 	/**
-	 * Storage reale
+	 * Real storage
 	 *
 	 * @var Storage
 	 */
@@ -50,10 +50,10 @@ class EmailChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Crea un payload di test
+	 * Creates a test payload
 	 *
-	 * @param array $overrides Override dei campi.
-	 * @return array Payload alert.
+	 * @param array $overrides Field overrides.
+	 * @return array Alert payload.
 	 */
 	private function create_test_payload( array $overrides = [] ): array {
 		return array_merge(
@@ -73,9 +73,9 @@ class EmailChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Intercepta wp_mail per catturare argomenti
+	 * Intercepts wp_mail to capture arguments
 	 *
-	 * @param mixed $captured_mail Variabile per catturare i dati.
+	 * @param mixed $captured_mail Variable to capture data.
 	 * @return void
 	 */
 	private function intercept_wp_mail( &$captured_mail ): void {
@@ -91,7 +91,7 @@ class EmailChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che la classe NON è final
+	 * Verifies that the class is NOT final
 	 *
 	 * @return void
 	 */
@@ -101,7 +101,7 @@ class EmailChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Verifies that NO static methods exist
 	 *
 	 * @return void
 	 */
@@ -120,7 +120,7 @@ class EmailChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che NON esistono proprietà static
+	 * Verifies that NO static properties exist
 	 *
 	 * @return void
 	 */
@@ -132,7 +132,7 @@ class EmailChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa get_id
+	 * Tests get_id
 	 *
 	 * @return void
 	 */
@@ -143,7 +143,7 @@ class EmailChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa get_name
+	 * Tests get_name
 	 *
 	 * @return void
 	 */
@@ -154,7 +154,7 @@ class EmailChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled con impostazioni valide
+	 * Tests is_enabled with valid settings
 	 *
 	 * @return void
 	 */
@@ -175,7 +175,7 @@ class EmailChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled quando disabilitato
+	 * Tests is_enabled when disabled
 	 *
 	 * @return void
 	 */
@@ -196,7 +196,7 @@ class EmailChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled senza recipients
+	 * Tests is_enabled without recipients
 	 *
 	 * @return void
 	 */
@@ -217,7 +217,7 @@ class EmailChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled con settings corrotti (non array)
+	 * Tests is_enabled with corrupted settings (non-array)
 	 *
 	 * @return void
 	 */
@@ -230,7 +230,7 @@ class EmailChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa send failure quando wp_mail ritorna false
+	 * Tests send failure when wp_mail returns false
 	 *
 	 * @return void
 	 */
@@ -260,7 +260,7 @@ class EmailChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa send con successo tramite pre_wp_mail
+	 * Tests send success via pre_wp_mail
 	 *
 	 * @return void
 	 */
@@ -287,7 +287,7 @@ class EmailChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che il soggetto contiene il nome del check e lo status
+	 * Tests that the subject contains the check name and status
 	 *
 	 * @return void
 	 */
@@ -314,7 +314,7 @@ class EmailChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che il body contiene notice di recovery
+	 * Tests that the body contains a recovery notice
 	 *
 	 * @return void
 	 */
@@ -346,7 +346,7 @@ class EmailChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che send ritorna errore quando tutti i recipients sono invalidi
+	 * Tests that send returns error when all recipients are invalid
 	 *
 	 * @return void
 	 */
@@ -369,7 +369,7 @@ class EmailChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che send filtra email non valide con is_email() reale
+	 * Tests that send filters invalid emails with real is_email()
 	 *
 	 * @return void
 	 */
@@ -390,7 +390,7 @@ class EmailChannelTest extends WP_UnitTestCase {
 		$channel = new EmailChannel( $this->storage );
 		$channel->send( $this->create_test_payload() );
 
-		// Solo le email valide devono essere incluse.
+		// Only valid emails must be included.
 		$this->assertContains( 'valid@example.com', $captured_mail['to'] );
 		$this->assertContains( 'another@test.org', $captured_mail['to'] );
 		$this->assertNotContains( 'not-an-email', $captured_mail['to'] );

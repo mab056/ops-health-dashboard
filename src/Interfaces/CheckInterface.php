@@ -2,8 +2,8 @@
 /**
  * Check Interface
  *
- * Contratto per tutti i check di salute del sistema.
- * Ogni check implementa questa interfaccia per fornire informazioni consistenti.
+ * Contract for all system health checks.
+ * Every check implements this interface to provide consistent information.
  *
  * @package OpsHealthDashboard\Interfaces
  */
@@ -21,42 +21,42 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Interface CheckInterface
  *
- * Definisce i metodi per health checks.
+ * Defines the methods for health checks.
  */
 interface CheckInterface {
 
 	/**
-	 * Esegue il check e ritorna i risultati
+	 * Runs the check and returns the results
 	 *
 	 * @return array {
-	 *     Risultati del check.
+	 *     Check results.
 	 *
-	 *     @type string $status   Stato del check: 'ok', 'warning', 'critical'.
-	 *     @type string $message  Messaggio descrittivo del risultato.
-	 *     @type array  $details  Dettagli aggiuntivi specifici del check.
-	 *     @type float  $duration Durata dell'esecuzione in secondi.
+	 *     @type string $status   Check status: 'ok', 'warning', 'critical'.
+	 *     @type string $message  Descriptive result message.
+	 *     @type array  $details  Check-specific additional details.
+	 *     @type float  $duration Execution duration in seconds.
 	 * }
 	 */
 	public function run(): array;
 
 	/**
-	 * Ottiene l'ID univoco del check
+	 * Gets the unique check ID
 	 *
 	 * @return string ID del check (es: 'database', 'disk', 'redis').
 	 */
 	public function get_id(): string;
 
 	/**
-	 * Ottiene il nome human-readable del check
+	 * Gets the human-readable check name
 	 *
 	 * @return string Nome del check (es: 'Database Connection', 'Disk Space').
 	 */
 	public function get_name(): string;
 
 	/**
-	 * Verifica se il check è abilitato
+	 * Checks if the check is enabled
 	 *
-	 * @return bool True se il check è abilitato, false altrimenti.
+	 * @return bool True if the check is enabled, false otherwise.
 	 */
 	public function is_enabled(): bool;
 }

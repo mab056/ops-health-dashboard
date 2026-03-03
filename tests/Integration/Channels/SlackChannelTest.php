@@ -1,8 +1,8 @@
 <?php
 /**
- * Integration Test per SlackChannel
+ * Integration Test for SlackChannel
  *
- * Verifica invio alert Slack con Storage reale e HTTP interceptato.
+ * Verifies Slack alert sending with real Storage and intercepted HTTP.
  *
  * @package OpsHealthDashboard\Tests\Integration\Channels
  */
@@ -18,12 +18,12 @@ use WP_UnitTestCase;
 /**
  * Class SlackChannelTest
  *
- * Integration test per SlackChannel con WordPress reale.
+ * Integration test for SlackChannel with real WordPress.
  */
 class SlackChannelTest extends WP_UnitTestCase {
 
 	/**
-	 * Storage reale
+	 * Real storage
 	 *
 	 * @var Storage
 	 */
@@ -52,10 +52,10 @@ class SlackChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Crea un payload di test
+	 * Creates a test payload
 	 *
-	 * @param array $overrides Override dei campi.
-	 * @return array Payload alert.
+	 * @param array $overrides Field overrides.
+	 * @return array Alert payload.
 	 */
 	private function create_test_payload( array $overrides = [] ): array {
 		return array_merge(
@@ -75,7 +75,7 @@ class SlackChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Crea HttpClient testabile con IP pubblico
+	 * Creates testable HttpClient with public IP
 	 *
 	 * @return TestableHttpClient
 	 */
@@ -84,7 +84,7 @@ class SlackChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che la classe NON è final
+	 * Verifies that the class is NOT final
 	 *
 	 * @return void
 	 */
@@ -94,7 +94,7 @@ class SlackChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Verifies that NO static methods exist
 	 *
 	 * @return void
 	 */
@@ -113,7 +113,7 @@ class SlackChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che NON esistono proprietà static
+	 * Verifies that NO static properties exist
 	 *
 	 * @return void
 	 */
@@ -125,7 +125,7 @@ class SlackChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa get_id
+	 * Tests get_id
 	 *
 	 * @return void
 	 */
@@ -136,7 +136,7 @@ class SlackChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa get_name
+	 * Tests get_name
 	 *
 	 * @return void
 	 */
@@ -147,7 +147,7 @@ class SlackChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled con impostazioni valide
+	 * Tests is_enabled with valid settings
 	 *
 	 * @return void
 	 */
@@ -168,7 +168,7 @@ class SlackChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled quando disabilitato
+	 * Tests is_enabled when disabled
 	 *
 	 * @return void
 	 */
@@ -189,7 +189,7 @@ class SlackChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled senza webhook URL
+	 * Tests is_enabled without webhook URL
 	 *
 	 * @return void
 	 */
@@ -210,7 +210,7 @@ class SlackChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled senza impostazioni
+	 * Tests is_enabled without settings
 	 *
 	 * @return void
 	 */
@@ -221,7 +221,7 @@ class SlackChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa send con successo e payload Block Kit
+	 * Tests send success with Block Kit payload
 	 *
 	 * @return void
 	 */
@@ -260,7 +260,7 @@ class SlackChannelTest extends WP_UnitTestCase {
 		$this->assertTrue( $result['success'] );
 		$this->assertNull( $result['error'] );
 
-		// Verifica struttura Block Kit nel body inviato.
+		// Verify Block Kit structure in the sent body.
 		$body = json_decode( $captured_args['body'], true );
 		$this->assertArrayHasKey( 'blocks', $body );
 		$this->assertArrayHasKey( 'attachments', $body );
@@ -268,7 +268,7 @@ class SlackChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled con settings corrotti (non array)
+	 * Tests is_enabled with corrupted settings (non-array)
 	 *
 	 * @return void
 	 */
@@ -281,7 +281,7 @@ class SlackChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa send con recovery title
+	 * Tests send with recovery title
 	 *
 	 * @return void
 	 */
@@ -324,13 +324,13 @@ class SlackChannelTest extends WP_UnitTestCase {
 			)
 		);
 
-		// Verifica che il titolo contiene [Recovered].
+		// Verify that the title contains [Recovered].
 		$header_text = $captured_body['blocks'][0]['text']['text'];
 		$this->assertStringContainsString( 'Recovered', $header_text );
 	}
 
 	/**
-	 * Testa send con status sconosciuto usa colore fallback
+	 * Tests send with unknown status uses fallback color
 	 *
 	 * @return void
 	 */
@@ -370,7 +370,7 @@ class SlackChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa send con errore HTTP
+	 * Tests send with HTTP error
 	 *
 	 * @return void
 	 */
@@ -400,7 +400,7 @@ class SlackChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che send usa il colore corretto per ogni status
+	 * Tests that send uses the correct color for each status
 	 *
 	 * @return void
 	 */

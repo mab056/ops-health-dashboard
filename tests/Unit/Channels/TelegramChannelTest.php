@@ -1,8 +1,8 @@
 <?php
 /**
- * Test per TelegramChannel
+ * Test for TelegramChannel
  *
- * Verifica l'invio di alert via Telegram Bot API con messaggi HTML.
+ * Verifies sending alerts via Telegram Bot API with HTML messages.
  *
  * @package OpsHealthDashboard\Tests\Unit\Channels
  */
@@ -22,7 +22,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class TelegramChannelTest
  *
- * Test unitari per il canale di alert Telegram.
+ * Unit tests for the Telegram alert channel.
  */
 class TelegramChannelTest extends TestCase
 {
@@ -52,9 +52,9 @@ class TelegramChannelTest extends TestCase
 	}
 
 	/**
-	 * Crea un mock di StorageInterface
+	 * Creates a mock of StorageInterface
 	 *
-	 * @param array $settings Impostazioni da ritornare.
+	 * @param array $settings Settings to return.
 	 * @return \Mockery\MockInterface|StorageInterface
 	 */
 	private function create_storage_mock( array $settings = [] )
@@ -67,7 +67,7 @@ class TelegramChannelTest extends TestCase
 	}
 
 	/**
-	 * Crea un mock di HttpClientInterface
+	 * Creates a mock of HttpClientInterface
 	 *
 	 * @return \Mockery\MockInterface|HttpClientInterface
 	 */
@@ -77,9 +77,9 @@ class TelegramChannelTest extends TestCase
 	}
 
 	/**
-	 * Crea un payload di test
+	 * Creates a test payload
 	 *
-	 * @param array $overrides Chiavi da sovrascrivere.
+	 * @param array $overrides Keys to override.
 	 * @return array
 	 */
 	private function create_test_payload( array $overrides = [] )
@@ -102,7 +102,7 @@ class TelegramChannelTest extends TestCase
 	}
 
 	/**
-	 * Configura mock i18n
+	 * Configures i18n mocks
 	 *
 	 * @return void
 	 */
@@ -117,7 +117,7 @@ class TelegramChannelTest extends TestCase
 	// ---------------------------------------------------
 
 	/**
-	 * Testa che la classe NON e final
+	 * Tests that the class is NOT final
 	 *
 	 * @return void
 	 */
@@ -128,7 +128,7 @@ class TelegramChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Tests that there are NO static methods
 	 *
 	 * @return void
 	 */
@@ -148,7 +148,7 @@ class TelegramChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa che NON esistono proprieta static
+	 * Tests that there are NO static properties
 	 *
 	 * @return void
 	 */
@@ -161,7 +161,7 @@ class TelegramChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa che implementa AlertChannelInterface
+	 * Tests that implements AlertChannelInterface
 	 *
 	 * @return void
 	 */
@@ -179,7 +179,7 @@ class TelegramChannelTest extends TestCase
 	// ---------------------------------------------------
 
 	/**
-	 * Testa che get_id ritorna 'telegram'
+	 * Tests that get_id returns 'telegram'
 	 *
 	 * @return void
 	 */
@@ -193,7 +193,7 @@ class TelegramChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa che get_name ritorna stringa tradotta
+	 * Tests that get_name returns translated string
 	 *
 	 * @return void
 	 */
@@ -212,7 +212,7 @@ class TelegramChannelTest extends TestCase
 	// ---------------------------------------------------
 
 	/**
-	 * Testa is_enabled true con configurazione completa
+	 * Tests is_enabled returns true with complete configuration
 	 *
 	 * @return void
 	 */
@@ -233,7 +233,7 @@ class TelegramChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa is_enabled false quando disabilitato
+	 * Tests is_enabled returns false when disabled
 	 *
 	 * @return void
 	 */
@@ -254,7 +254,7 @@ class TelegramChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa is_enabled false senza bot_token
+	 * Tests is_enabled returns false without bot_token
 	 *
 	 * @return void
 	 */
@@ -274,7 +274,7 @@ class TelegramChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa is_enabled false senza chat_id
+	 * Tests is_enabled returns false without chat_id
 	 *
 	 * @return void
 	 */
@@ -294,7 +294,7 @@ class TelegramChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa is_enabled false senza impostazioni
+	 * Tests is_enabled returns false without settings
 	 *
 	 * @return void
 	 */
@@ -308,7 +308,7 @@ class TelegramChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa is_enabled false senza chiave telegram
+	 * Tests is_enabled returns false without telegram key
 	 *
 	 * @return void
 	 */
@@ -327,7 +327,7 @@ class TelegramChannelTest extends TestCase
 	// ---------------------------------------------------
 
 	/**
-	 * Testa invio Telegram con successo e URL API corretto
+	 * Tests Telegram send with success and correct API URL
 	 *
 	 * @return void
 	 */
@@ -382,7 +382,7 @@ class TelegramChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa invio Telegram con fallimento
+	 * Tests Telegram send with failure
 	 *
 	 * @return void
 	 */
@@ -420,7 +420,7 @@ class TelegramChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa che il messaggio Telegram contiene HTML formattato
+	 * Tests that the Telegram message contains formatted HTML
 	 *
 	 * @return void
 	 */
@@ -467,7 +467,7 @@ class TelegramChannelTest extends TestCase
 		$this->assertNotNull( $captured_body );
 		$message = $captured_body['text'];
 
-		// Verifica elementi HTML nel messaggio.
+		// Verify HTML elements in the message.
 		$this->assertStringContainsString( '<b>', $message );
 		$this->assertStringContainsString( '[Alert]', $message );
 		$this->assertStringContainsString( 'Database Connection', $message );
@@ -477,7 +477,7 @@ class TelegramChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa che caratteri HTML nel payload sono escapati (prevenzione injection)
+	 * Tests that HTML characters in the payload are escaped (injection prevention)
 	 *
 	 * @return void
 	 */

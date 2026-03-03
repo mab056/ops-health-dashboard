@@ -2,8 +2,8 @@
 /**
  * Health Screen
  *
- * Pagina admin principale che mostra i risultati dei check di salute.
- * Interfaccia "Site Health vibe": semaforo + spiegazione + azione consigliata.
+ * Main admin page displaying health check results.
+ * "Site Health vibe" interface: traffic light + explanation + recommended action.
  *
  * @package OpsHealthDashboard\Admin
  */
@@ -25,26 +25,26 @@ use OpsHealthDashboard\Services\Scheduler;
 /**
  * Class HealthScreen
  *
- * Renderizza la pagina principale con i risultati dei check.
+ * Renders the main page with health check results.
  */
 class HealthScreen {
 
 	/**
-	 * Screen ID per la pagina admin health dashboard
+	 * Screen ID for the health dashboard admin page
 	 *
 	 * @var string
 	 */
 	const SCREEN_ID = 'toplevel_page_ops-health-dashboard';
 
 	/**
-	 * CheckRunner per ottenere i risultati
+	 * CheckRunner for retrieving results
 	 *
 	 * @var CheckRunnerInterface
 	 */
 	private $runner;
 
 	/**
-	 * Storage per leggere last_run_at
+	 * Storage for reading last_run_at
 	 *
 	 * @var StorageInterface
 	 */
@@ -53,8 +53,8 @@ class HealthScreen {
 	/**
 	 * Constructor
 	 *
-	 * @param CheckRunnerInterface $runner  CheckRunner per i risultati.
-	 * @param StorageInterface     $storage Storage per dati di timing.
+	 * @param CheckRunnerInterface $runner  CheckRunner for retrieving results.
+	 * @param StorageInterface     $storage Storage for timing data.
 	 */
 	public function __construct( CheckRunnerInterface $runner, StorageInterface $storage ) {
 		$this->runner  = $runner;
@@ -62,7 +62,7 @@ class HealthScreen {
 	}
 
 	/**
-	 * Registra gli hook WordPress
+	 * Registers WordPress hooks
 	 *
 	 * @return void
 	 */
@@ -71,9 +71,9 @@ class HealthScreen {
 	}
 
 	/**
-	 * Carica gli stili sulla pagina health dashboard
+	 * Enqueues styles on the health dashboard page
 	 *
-	 * Enqueue il CSS solo sulla schermata health dashboard.
+	 * Enqueues CSS only on the health dashboard screen.
 	 *
 	 * @return void
 	 */
@@ -128,13 +128,16 @@ class HealthScreen {
 	}
 
 	/**
-	 * Aggiunge la tab Overview all'help screen
+	 * Adds the Overview tab to the help screen
 	 *
-	 * @param \WP_Screen $screen Schermata corrente.
+	 * @param \WP_Screen $screen Current screen.
 	 * @return void
 	 */
 	private function add_overview_help_tab( $screen ): void {
-		$intro   = __( 'This screen displays the results of automated health checks.', 'ops-health-dashboard' );
+		$intro   = __(
+			'Welcome to Ops Health Dashboard. This screen displays the results of automated health checks.',
+			'ops-health-dashboard'
+		);
 		$status  = __( 'The summary banner at the top shows the overall status:', 'ops-health-dashboard' );
 		$healthy = __( 'Healthy', 'ops-health-dashboard' );
 		$warning = __( 'Warning', 'ops-health-dashboard' );
@@ -160,9 +163,9 @@ class HealthScreen {
 	}
 
 	/**
-	 * Aggiunge la tab Health Checks all'help screen
+	 * Adds the Health Checks tab to the help screen
 	 *
-	 * @param \WP_Screen $screen Schermata corrente.
+	 * @param \WP_Screen $screen Current screen.
 	 * @return void
 	 */
 	private function add_checks_help_tab( $screen ): void {
@@ -197,9 +200,9 @@ class HealthScreen {
 	}
 
 	/**
-	 * Aggiunge la tab Actions all'help screen
+	 * Adds the Actions tab to the help screen
 	 *
-	 * @param \WP_Screen $screen Schermata corrente.
+	 * @param \WP_Screen $screen Current screen.
 	 * @return void
 	 */
 	private function add_actions_help_tab( $screen ): void {
@@ -227,9 +230,9 @@ class HealthScreen {
 	}
 
 	/**
-	 * Processa le azioni admin (Run Now, Clear Cache)
+	 * Processes admin actions (Run Now, Clear Cache)
 	 *
-	 * Verifica nonce e capability prima di eseguire.
+	 * Verifies nonce and capability before executing.
 	 *
 	 * @return void
 	 */
@@ -280,9 +283,9 @@ class HealthScreen {
 	}
 
 	/**
-	 * Termina l'esecuzione dello script
+	 * Terminates script execution
 	 *
-	 * Estratto in metodo protetto per testabilità.
+	 * Extracted to protected method for testability.
 	 *
 	 * @return void
 	 * @codeCoverageIgnore
@@ -292,7 +295,7 @@ class HealthScreen {
 	}
 
 	/**
-	 * Renderizza la pagina
+	 * Renders the page
 	 *
 	 * @return void
 	 */
@@ -509,12 +512,12 @@ class HealthScreen {
 	}
 
 	/**
-	 * Determina lo status globale (il peggiore vince)
+	 * Determines overall status (worst wins)
 	 *
-	 * Critical > warning > ok; risultati vuoti = unknown.
+	 * Critical > warning > ok; empty results = unknown.
 	 *
-	 * @param array $results Risultati dei check.
-	 * @return string Status globale.
+	 * @param array $results Check results.
+	 * @return string Overall status.
 	 */
 	private function determine_overall_status( array $results ): string {
 		if ( empty( $results ) ) {

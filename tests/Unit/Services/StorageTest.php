@@ -1,8 +1,8 @@
 <?php
 /**
- * Unit Test per Storage Service
+ * Unit Test for Storage Service
  *
- * Test unitario con Brain\Monkey per Storage (WordPress Options API wrapper).
+ * Unit test with Brain\Monkey per Storage (WordPress Options API wrapper).
  *
  * @package OpsHealthDashboard\Tests\Unit\Services
  */
@@ -18,13 +18,13 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class StorageTest
  *
- * Unit test per Storage service.
+ * Unit test for Storage service.
  */
 class StorageTest extends TestCase {
 	use MockeryPHPUnitIntegration;
 
 	/**
-	 * Setup per ogni test
+	 * Setup for each test
 	 */
 	protected function setUp(): void {
 		parent::setUp();
@@ -32,7 +32,7 @@ class StorageTest extends TestCase {
 	}
 
 	/**
-	 * Teardown dopo ogni test
+	 * Teardown after each test
 	 */
 	protected function tearDown(): void {
 		\Brain\Monkey\tearDown();
@@ -40,7 +40,7 @@ class StorageTest extends TestCase {
 	}
 
 	/**
-	 * Testa che Storage può essere istanziato
+	 * Tests that Storage can be instantiated
 	 */
 	public function test_storage_can_be_instantiated() {
 		$storage = new Storage();
@@ -48,7 +48,7 @@ class StorageTest extends TestCase {
 	}
 
 	/**
-	 * Testa che Storage implementa StorageInterface
+	 * Tests that Storage implements StorageInterface
 	 */
 	public function test_storage_implements_interface() {
 		$storage = new Storage();
@@ -56,7 +56,7 @@ class StorageTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get() recupera un valore con get_option()
+	 * Tests that get() retrieves a value with get_option()
 	 */
 	public function test_get_retrieves_value() {
 		Functions\expect( 'get_option' )
@@ -71,7 +71,7 @@ class StorageTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get() ritorna il default se la chiave non esiste
+	 * Tests that get() returns the default if the key does not exist
 	 */
 	public function test_get_returns_default_when_key_not_exists() {
 		Functions\expect( 'get_option' )
@@ -86,7 +86,7 @@ class StorageTest extends TestCase {
 	}
 
 	/**
-	 * Testa che set() salva un valore con update_option() senza autoload
+	 * Tests that set() saves a value with update_option() without autoload
 	 */
 	public function test_set_saves_value() {
 		Functions\expect( 'update_option' )
@@ -101,7 +101,7 @@ class StorageTest extends TestCase {
 	}
 
 	/**
-	 * Testa che set() ritorna false in caso di errore
+	 * Tests that set() returns false on error
 	 */
 	public function test_set_returns_false_on_error() {
 		Functions\expect( 'update_option' )
@@ -116,7 +116,7 @@ class StorageTest extends TestCase {
 	}
 
 	/**
-	 * Testa che delete() cancella un valore con delete_option()
+	 * Tests that delete() deletes a value with delete_option()
 	 */
 	public function test_delete_removes_value() {
 		Functions\expect( 'delete_option' )
@@ -131,7 +131,7 @@ class StorageTest extends TestCase {
 	}
 
 	/**
-	 * Testa che delete() ritorna false se la chiave non esiste
+	 * Tests that delete() returns false if the key does not exist
 	 */
 	public function test_delete_returns_false_when_key_not_exists() {
 		Functions\expect( 'delete_option' )
@@ -146,7 +146,7 @@ class StorageTest extends TestCase {
 	}
 
 	/**
-	 * Testa che has() ritorna true quando la chiave esiste (usa sentinel)
+	 * Tests that has() returns true when the key exists (uses sentinel)
 	 */
 	public function test_has_returns_true_when_key_exists() {
 		Functions\expect( 'get_option' )
@@ -161,7 +161,7 @@ class StorageTest extends TestCase {
 	}
 
 	/**
-	 * Testa che has() ritorna true anche quando il valore è false (sentinel distingue)
+	 * Tests that has() returns true even when the value is false (sentinel distinguishes)
 	 */
 	public function test_has_returns_true_when_value_is_false() {
 		Functions\expect( 'get_option' )
@@ -176,7 +176,7 @@ class StorageTest extends TestCase {
 	}
 
 	/**
-	 * Testa che has() ritorna false quando get_option ritorna il sentinel
+	 * Tests that has() returns false when get_option returns the sentinel
 	 */
 	public function test_has_returns_false_when_key_not_exists() {
 		Functions\expect( 'get_option' )
@@ -193,7 +193,7 @@ class StorageTest extends TestCase {
 	}
 
 	/**
-	 * Testa che la classe NON è final
+	 * Tests that the class is NOT final
 	 */
 	public function test_class_is_not_final() {
 		$reflection = new \ReflectionClass( Storage::class );
@@ -201,7 +201,7 @@ class StorageTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Tests that there are NO static methods
 	 */
 	public function test_no_static_methods() {
 		$reflection = new \ReflectionClass( Storage::class );
@@ -218,7 +218,7 @@ class StorageTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono proprietà static
+	 * Tests that there are NO static properties
 	 */
 	public function test_no_static_properties() {
 		$reflection = new \ReflectionClass( Storage::class );

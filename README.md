@@ -20,9 +20,9 @@ Production-grade WordPress plugin for operational monitoring with automated heal
 
 ## Problem
 
-**"I don't know what is happening until it breaks."**
+**"I don't know what's happening until it breaks."**
 
-This plugin provides an operational dashboard in wp-admin with automated health checks and configurable alerting (email, webhook, Slack, Telegram, WhatsApp), so you know what is happening *before* it breaks.
+This plugin provides an operational dashboard in wp-admin with automated health checks and configurable alerting (email, webhook, Slack, Telegram, WhatsApp), so you know what's happening *before* it breaks.
 
 ## Features
 

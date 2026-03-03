@@ -1,8 +1,8 @@
 <?php
 /**
- * Unit Test per RedactionInterface
+ * Unit Test for RedactionInterface
  *
- * Verifica la struttura dell'interfaccia RedactionInterface.
+ * Verifies the structure of the RedactionInterface interface.
  *
  * @package OpsHealthDashboard\Tests\Unit\Interfaces
  */
@@ -15,12 +15,12 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class RedactionInterfaceTest
  *
- * Unit test per RedactionInterface.
+ * Unit test for RedactionInterface.
  */
 class RedactionInterfaceTest extends TestCase {
 
 	/**
-	 * Testa che l'interfaccia esiste ed è un'interfaccia
+	 * Tests that the interface exists and is an interface
 	 */
 	public function test_is_interface() {
 		$reflection = new \ReflectionClass( RedactionInterface::class );
@@ -28,7 +28,7 @@ class RedactionInterfaceTest extends TestCase {
 	}
 
 	/**
-	 * Testa che il metodo redact() è definito, pubblico con 1 parametro
+	 * Tests that the redact() method is defined, public with 1 parameter
 	 */
 	public function test_has_redact_method() {
 		$reflection = new \ReflectionClass( RedactionInterface::class );
@@ -40,7 +40,7 @@ class RedactionInterfaceTest extends TestCase {
 	}
 
 	/**
-	 * Testa che il metodo redact_lines() è definito, pubblico con 1 parametro
+	 * Tests that the redact_lines() method is defined, public with 1 parameter
 	 */
 	public function test_has_redact_lines_method() {
 		$reflection = new \ReflectionClass( RedactionInterface::class );

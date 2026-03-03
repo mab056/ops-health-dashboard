@@ -1,9 +1,9 @@
 <?php
 /**
- * Integration Test del Container con WordPress Test Suite
+ * Integration Test for the Container with WordPress Test Suite
  *
- * Verifica che il bootstrap reale risolva tutti i servizi
- * in un ambiente WordPress completo.
+ * Verifies that the real bootstrap resolves all services
+ * in a complete WordPress environment.
  *
  * @package OpsHealthDashboard\Tests\Integration\Core
  */
@@ -25,12 +25,12 @@ use function OpsHealthDashboard\bootstrap;
 /**
  * Class ContainerTest
  *
- * Integration test per Container e bootstrap.
+ * Integration test for Container and bootstrap.
  */
 class ContainerTest extends WP_UnitTestCase {
 
 	/**
-	 * Testa che bootstrap() ritorna un'istanza di Plugin
+	 * Tests that bootstrap() returns a Plugin instance
 	 */
 	public function test_bootstrap_returns_plugin_instance() {
 		$plugin = bootstrap();
@@ -38,7 +38,7 @@ class ContainerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che il container risolve StorageInterface
+	 * Tests that the container resolves StorageInterface
 	 */
 	public function test_container_resolves_storage() {
 		$plugin    = bootstrap();
@@ -49,7 +49,7 @@ class ContainerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che il container risolve RedactionInterface
+	 * Tests that the container resolves RedactionInterface
 	 */
 	public function test_container_resolves_redaction() {
 		$plugin    = bootstrap();
@@ -60,7 +60,7 @@ class ContainerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che il container risolve CheckRunnerInterface
+	 * Tests that the container resolves CheckRunnerInterface
 	 */
 	public function test_container_resolves_check_runner() {
 		$plugin    = bootstrap();
@@ -71,7 +71,7 @@ class ContainerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che il container risolve Scheduler
+	 * Tests that the container resolves Scheduler
 	 */
 	public function test_container_resolves_scheduler() {
 		$plugin    = bootstrap();
@@ -82,7 +82,7 @@ class ContainerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che il container risolve HealthScreen
+	 * Tests that the container resolves HealthScreen
 	 */
 	public function test_container_resolves_health_screen() {
 		$plugin    = bootstrap();
@@ -93,7 +93,7 @@ class ContainerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che il container risolve Menu
+	 * Tests that the container resolves Menu
 	 */
 	public function test_container_resolves_menu() {
 		$plugin    = bootstrap();
@@ -104,7 +104,7 @@ class ContainerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che le istanze shared sono le stesse ad ogni make()
+	 * Tests that shared instances are the same on every make()
 	 */
 	public function test_shared_instances_are_same() {
 		$plugin    = bootstrap();
@@ -120,7 +120,7 @@ class ContainerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che il container inietta wpdb
+	 * Tests that the container injects wpdb
 	 */
 	public function test_container_has_wpdb() {
 		global $wpdb;
@@ -132,7 +132,7 @@ class ContainerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che bind() crea una nuova istanza ad ogni make()
+	 * Tests that bind() creates a new instance on every make()
 	 */
 	public function test_bind_creates_new_instance_each_time() {
 		$container = new Container();
@@ -148,7 +148,7 @@ class ContainerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che make() lancia eccezione per abstract non legato
+	 * Tests that make() throws exception for unbound abstract
 	 */
 	public function test_make_throws_for_unbound_abstract() {
 		$container = new Container();
@@ -160,7 +160,7 @@ class ContainerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che make() lancia eccezione per dipendenze circolari
+	 * Tests that make() throws exception for circular dependencies
 	 */
 	public function test_make_throws_for_circular_dependency() {
 		$container = new Container();
@@ -179,7 +179,7 @@ class ContainerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che la classe NON è final
+	 * Tests that the class is NOT final
 	 */
 	public function test_class_is_not_final() {
 		$reflection = new \ReflectionClass( Container::class );
@@ -187,7 +187,7 @@ class ContainerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Tests that NO static methods exist
 	 */
 	public function test_no_static_methods() {
 		$reflection = new \ReflectionClass( Container::class );
@@ -204,7 +204,7 @@ class ContainerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che NON esistono proprietà static
+	 * Tests that NO static properties exist
 	 */
 	public function test_no_static_properties() {
 		$reflection = new \ReflectionClass( Container::class );

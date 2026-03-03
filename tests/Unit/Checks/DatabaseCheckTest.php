@@ -1,8 +1,8 @@
 <?php
 /**
- * Unit Test per DatabaseCheck
+ * Unit Test for DatabaseCheck
  *
- * Test unitario con Brain\Monkey per DatabaseCheck.
+ * Unit test with Brain\Monkey for DatabaseCheck.
  *
  * @package OpsHealthDashboard\Tests\Unit\Checks
  */
@@ -20,13 +20,13 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class DatabaseCheckTest
  *
- * Unit test per DatabaseCheck.
+ * Unit test for DatabaseCheck.
  */
 class DatabaseCheckTest extends TestCase {
 	use MockeryPHPUnitIntegration;
 
 	/**
-	 * Setup per ogni test
+	 * Setup for each test
 	 */
 	protected function setUp(): void {
 		parent::setUp();
@@ -34,7 +34,7 @@ class DatabaseCheckTest extends TestCase {
 	}
 
 	/**
-	 * Teardown dopo ogni test
+	 * Teardown after each test
 	 */
 	protected function tearDown(): void {
 		\Brain\Monkey\tearDown();
@@ -42,7 +42,7 @@ class DatabaseCheckTest extends TestCase {
 	}
 
 	/**
-	 * Crea un mock wpdb per i test
+	 * Creates a wpdb mock for tests
 	 *
 	 * @return \Mockery\MockInterface
 	 */
@@ -53,7 +53,7 @@ class DatabaseCheckTest extends TestCase {
 	}
 
 	/**
-	 * Crea un mock RedactionInterface per i test
+	 * Creates a RedactionInterface mock for tests
 	 *
 	 * @return \Mockery\MockInterface
 	 */
@@ -67,7 +67,7 @@ class DatabaseCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che DatabaseCheck può essere istanziato con $wpdb e RedactionInterface
+	 * Tests that DatabaseCheck can be instantiated with $wpdb and RedactionInterface
 	 */
 	public function test_database_check_can_be_instantiated() {
 		$wpdb      = $this->create_wpdb_mock();
@@ -77,7 +77,7 @@ class DatabaseCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che DatabaseCheck implementa CheckInterface
+	 * Tests that DatabaseCheck implements CheckInterface
 	 */
 	public function test_database_check_implements_interface() {
 		$wpdb      = $this->create_wpdb_mock();
@@ -87,7 +87,7 @@ class DatabaseCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get_id() ritorna 'database'
+	 * Tests that get_id() returns 'database'
 	 */
 	public function test_get_id_returns_database() {
 		$wpdb      = $this->create_wpdb_mock();
@@ -97,7 +97,7 @@ class DatabaseCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get_name() ritorna il nome corretto con i18n
+	 * Tests that get_name() returns the correct name with i18n
 	 */
 	public function test_get_name_returns_correct_name() {
 		$wpdb      = $this->create_wpdb_mock();
@@ -113,7 +113,7 @@ class DatabaseCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che is_enabled() ritorna true di default
+	 * Tests that is_enabled() returns true by default
 	 */
 	public function test_is_enabled_returns_true_by_default() {
 		$wpdb      = $this->create_wpdb_mock();
@@ -123,7 +123,7 @@ class DatabaseCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna 'ok' quando il DB è sano
+	 * Tests that run() returns 'ok' when the DB is healthy
 	 */
 	public function test_run_returns_ok_when_database_healthy() {
 		$wpdb = $this->create_wpdb_mock();
@@ -152,7 +152,7 @@ class DatabaseCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna 'critical' quando il DB fallisce e redaziona l'errore
+	 * Tests that run() returns 'critical' when the DB fails and redacts the error
 	 */
 	public function test_run_returns_critical_when_database_fails() {
 		$wpdb = $this->create_wpdb_mock();
@@ -183,7 +183,7 @@ class DatabaseCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna 'critical' con last_error anche se query non ritorna false
+	 * Tests that run() returns 'critical' with last_error even if query does not return false
 	 */
 	public function test_run_returns_critical_when_last_error_is_set() {
 		$wpdb = $this->create_wpdb_mock();
@@ -211,7 +211,7 @@ class DatabaseCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna 'warning' quando la query è lenta (> 0.5s)
+	 * Tests that run() returns 'warning' when the query is slow (> 0.5s)
 	 */
 	public function test_run_returns_warning_when_query_slow() {
 		$wpdb = $this->create_wpdb_mock();
@@ -219,8 +219,8 @@ class DatabaseCheckTest extends TestCase {
 			->once()
 			->with( 'SELECT 1' )
 			->andReturnUsing( function () {
-				// Busy-wait per 1s (soglia 0.5s, margine 2x).
-				// Loop resiste a interruzioni EINTR su usleep singoli.
+				// Busy-wait for 1s (threshold 0.5s, margin 2x).
+				// Loop resists EINTR interruptions on individual usleep calls.
 				$target = 1.0;
 				$start  = microtime( true );
 				while ( ( microtime( true ) - $start ) < $target ) {
@@ -244,7 +244,7 @@ class DatabaseCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna 'critical' con messaggio Unknown quando last_error vuoto
+	 * Tests that run() returns 'critical' with Unknown message when last_error is empty
 	 */
 	public function test_run_returns_unknown_error_when_last_error_empty() {
 		$wpdb = $this->create_wpdb_mock();
@@ -268,7 +268,7 @@ class DatabaseCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() non espone db_host o db_name nei dettagli
+	 * Tests that run() does not expose db_host or db_name in details
 	 */
 	public function test_run_does_not_expose_database_info() {
 		$wpdb = $this->create_wpdb_mock();
@@ -290,7 +290,7 @@ class DatabaseCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() misura la durata dell'esecuzione
+	 * Tests that run() measures the execution duration
 	 */
 	public function test_run_measures_duration() {
 		$wpdb = $this->create_wpdb_mock();
@@ -312,7 +312,7 @@ class DatabaseCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che la classe NON è final
+	 * Tests that the class is NOT final
 	 */
 	public function test_class_is_not_final() {
 		$reflection = new \ReflectionClass( DatabaseCheck::class );
@@ -320,7 +320,7 @@ class DatabaseCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Tests that NO static methods exist
 	 */
 	public function test_no_static_methods() {
 		$reflection = new \ReflectionClass( DatabaseCheck::class );
@@ -337,7 +337,7 @@ class DatabaseCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono proprietà static
+	 * Tests that NO static properties exist
 	 */
 	public function test_no_static_properties() {
 		$reflection = new \ReflectionClass( DatabaseCheck::class );

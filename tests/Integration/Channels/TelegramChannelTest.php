@@ -1,8 +1,8 @@
 <?php
 /**
- * Integration Test per TelegramChannel
+ * Integration Test for TelegramChannel
  *
- * Verifica invio alert Telegram con Storage reale e HTTP interceptato.
+ * Verifies Telegram alert sending with real Storage and intercepted HTTP.
  *
  * @package OpsHealthDashboard\Tests\Integration\Channels
  */
@@ -18,12 +18,12 @@ use WP_UnitTestCase;
 /**
  * Class TelegramChannelTest
  *
- * Integration test per TelegramChannel con WordPress reale.
+ * Integration test for TelegramChannel with real WordPress.
  */
 class TelegramChannelTest extends WP_UnitTestCase {
 
 	/**
-	 * Storage reale
+	 * Real storage
 	 *
 	 * @var Storage
 	 */
@@ -52,10 +52,10 @@ class TelegramChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Crea un payload di test
+	 * Creates a test payload
 	 *
-	 * @param array $overrides Override dei campi.
-	 * @return array Payload alert.
+	 * @param array $overrides Field overrides.
+	 * @return array Alert payload.
 	 */
 	private function create_test_payload( array $overrides = [] ): array {
 		return array_merge(
@@ -75,7 +75,7 @@ class TelegramChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Crea HttpClient testabile con IP pubblico
+	 * Creates testable HttpClient with public IP
 	 *
 	 * @return TestableHttpClient
 	 */
@@ -84,7 +84,7 @@ class TelegramChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che la classe NON è final
+	 * Verifies that the class is NOT final
 	 *
 	 * @return void
 	 */
@@ -94,7 +94,7 @@ class TelegramChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Verifies that NO static methods exist
 	 *
 	 * @return void
 	 */
@@ -113,7 +113,7 @@ class TelegramChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che NON esistono proprietà static
+	 * Verifies that NO static properties exist
 	 *
 	 * @return void
 	 */
@@ -125,7 +125,7 @@ class TelegramChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa get_id
+	 * Tests get_id
 	 *
 	 * @return void
 	 */
@@ -136,7 +136,7 @@ class TelegramChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa get_name
+	 * Tests get_name
 	 *
 	 * @return void
 	 */
@@ -147,7 +147,7 @@ class TelegramChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled con bot_token e chat_id
+	 * Tests is_enabled with bot_token and chat_id
 	 *
 	 * @return void
 	 */
@@ -169,7 +169,7 @@ class TelegramChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled quando disabilitato
+	 * Tests is_enabled when disabled
 	 *
 	 * @return void
 	 */
@@ -191,7 +191,7 @@ class TelegramChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled senza bot_token
+	 * Tests is_enabled without bot_token
 	 *
 	 * @return void
 	 */
@@ -213,7 +213,7 @@ class TelegramChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled senza chat_id
+	 * Tests is_enabled without chat_id
 	 *
 	 * @return void
 	 */
@@ -235,7 +235,7 @@ class TelegramChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled con settings corrotti (non array)
+	 * Tests is_enabled with corrupted settings (non-array)
 	 *
 	 * @return void
 	 */
@@ -248,7 +248,7 @@ class TelegramChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa send con URL API Telegram corretto
+	 * Tests send with correct Telegram API URL
 	 *
 	 * @return void
 	 */
@@ -290,7 +290,7 @@ class TelegramChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa send con errore HTTP
+	 * Tests send with HTTP error
 	 *
 	 * @return void
 	 */
@@ -321,7 +321,7 @@ class TelegramChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che il body contiene parse_mode HTML e chat_id
+	 * Tests that the body contains HTML parse_mode and chat_id
 	 *
 	 * @return void
 	 */

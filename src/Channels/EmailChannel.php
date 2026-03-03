@@ -2,7 +2,7 @@
 /**
  * Email Alert Channel
  *
- * Canale di alert che invia notifiche via email usando wp_mail().
+ * Alert channel that sends notifications via email using wp_mail().
  *
  * @package OpsHealthDashboard\Channels
  */
@@ -23,12 +23,12 @@ use OpsHealthDashboard\Interfaces\StorageInterface;
 /**
  * Class EmailChannel
  *
- * Implementazione del canale email per gli alert.
+ * Email channel implementation for alerts.
  */
 class EmailChannel implements AlertChannelInterface {
 
 	/**
-	 * Storage per leggere le impostazioni del canale
+	 * Storage for reading channel settings
 	 *
 	 * @var StorageInterface
 	 */
@@ -37,14 +37,14 @@ class EmailChannel implements AlertChannelInterface {
 	/**
 	 * Constructor
 	 *
-	 * @param StorageInterface $storage Storage per le impostazioni.
+	 * @param StorageInterface $storage Storage for settings.
 	 */
 	public function __construct( StorageInterface $storage ) {
 		$this->storage = $storage;
 	}
 
 	/**
-	 * Ottiene l'identificatore del canale
+	 * Gets the channel identifier
 	 *
 	 * @return string
 	 */
@@ -53,7 +53,7 @@ class EmailChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Ottiene il nome visualizzabile del canale
+	 * Gets the channel display name
 	 *
 	 * @return string
 	 */
@@ -62,9 +62,9 @@ class EmailChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Verifica se il canale è abilitato e configurato
+	 * Checks if the channel is enabled and configured
 	 *
-	 * @return bool True se abilitato con destinatari configurati.
+	 * @return bool True if enabled with configured recipients.
 	 */
 	public function is_enabled(): bool {
 		$settings = $this->get_channel_settings();
@@ -81,10 +81,10 @@ class EmailChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Invia una notifica di alert via email
+	 * Sends an alert notification via email
 	 *
-	 * @param array $payload Dati dell'alert.
-	 * @return array Risultato con chiavi success e error.
+	 * @param array $payload Alert data.
+	 * @return array Result with success and error keys.
 	 */
 	public function send( array $payload ): array {
 		$settings   = $this->get_channel_settings();
@@ -116,9 +116,9 @@ class EmailChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Ottiene le impostazioni del canale email
+	 * Gets the email channel settings
 	 *
-	 * @return array Impostazioni del canale.
+	 * @return array Channel settings.
 	 */
 	private function get_channel_settings(): array {
 		$settings = $this->storage->get( 'alert_settings', [] );
@@ -131,10 +131,10 @@ class EmailChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Converte stringa di destinatari in array
+	 * Converts recipients string to array
 	 *
-	 * @param string $recipients Destinatari separati da virgola.
-	 * @return array Array di indirizzi email.
+	 * @param string $recipients Comma-separated recipients.
+	 * @return array Array of email addresses.
 	 */
 	private function parse_recipients( string $recipients ): array {
 		$list    = explode( ',', $recipients );
@@ -150,10 +150,10 @@ class EmailChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Formatta il soggetto dell'email
+	 * Formats the email subject
 	 *
-	 * @param array $payload Dati dell'alert.
-	 * @return string Soggetto formattato.
+	 * @param array $payload Alert data.
+	 * @return string Formatted subject.
 	 */
 	private function format_subject( array $payload ): string {
 		$check_name = $payload['check_name'] ?? $payload['check_id'] ?? 'Unknown';
@@ -168,10 +168,10 @@ class EmailChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Formatta il corpo dell'email
+	 * Formats the email body
 	 *
-	 * @param array $payload Dati dell'alert.
-	 * @return string Corpo formattato.
+	 * @param array $payload Alert data.
+	 * @return string Formatted body.
 	 */
 	private function format_body( array $payload ): string {
 		$check_name      = $payload['check_name'] ?? $payload['check_id'] ?? 'Unknown';

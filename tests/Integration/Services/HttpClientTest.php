@@ -1,8 +1,8 @@
 <?php
 /**
- * Integration Test per HttpClient Service
+ * Integration Test for HttpClient Service
  *
- * Verifica anti-SSRF e richieste HTTP con WordPress reale.
+ * Verifies anti-SSRF and HTTP requests with real WordPress.
  *
  * @package OpsHealthDashboard\Tests\Integration\Services
  */
@@ -14,14 +14,14 @@ use OpsHealthDashboard\Services\Redaction;
 use WP_UnitTestCase;
 
 /**
- * Sottoclasse testabile di HttpClient
+ * Testable subclass of HttpClient
  *
- * Override di resolve_host() per evitare dipendenza da DNS reale.
+ * Override of resolve_host() to avoid dependency on real DNS.
  */
 class TestableHttpClient extends HttpClient {
 
 	/**
-	 * IP da restituire alla risoluzione
+	 * IP to return on resolution
 	 *
 	 * @var string
 	 */
@@ -31,7 +31,7 @@ class TestableHttpClient extends HttpClient {
 	 * Constructor
 	 *
 	 * @param \OpsHealthDashboard\Interfaces\RedactionInterface $redaction   Redaction service.
-	 * @param string                                            $resolved_ip IP da restituire.
+	 * @param string                                            $resolved_ip IP to return.
 	 */
 	public function __construct( $redaction, string $resolved_ip = '93.184.216.34' ) {
 		parent::__construct( $redaction );
@@ -39,10 +39,10 @@ class TestableHttpClient extends HttpClient {
 	}
 
 	/**
-	 * Override resolve_host per restituire un IP controllato
+	 * Override resolve_host to return a controlled IP
 	 *
-	 * @param string $hostname Hostname da risolvere.
-	 * @return string IP configurato.
+	 * @param string $hostname Hostname to resolve.
+	 * @return string Configured IP.
 	 */
 	protected function resolve_host( string $hostname ): string {
 		return $this->resolved_ip;
@@ -52,12 +52,12 @@ class TestableHttpClient extends HttpClient {
 /**
  * Class HttpClientTest
  *
- * Integration test per HttpClient con WordPress reale.
+ * Integration test for HttpClient with real WordPress.
  */
 class HttpClientTest extends WP_UnitTestCase {
 
 	/**
-	 * Redaction service reale
+	 * Real redaction service
 	 *
 	 * @var Redaction
 	 */
@@ -84,7 +84,7 @@ class HttpClientTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che la classe NON è final
+	 * Tests that the class is NOT final
 	 *
 	 * @return void
 	 */
@@ -94,7 +94,7 @@ class HttpClientTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Tests that NO static methods exist
 	 *
 	 * @return void
 	 */
@@ -113,7 +113,7 @@ class HttpClientTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che NON esistono proprietà static
+	 * Tests that NO static properties exist
 	 *
 	 * @return void
 	 */
@@ -125,7 +125,7 @@ class HttpClientTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che is_safe_url accetta URL pubblici HTTPS
+	 * Tests that is_safe_url accepts public HTTPS URLs
 	 *
 	 * @return void
 	 */
@@ -136,7 +136,7 @@ class HttpClientTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che is_safe_url blocca IP loopback
+	 * Tests that is_safe_url blocks loopback IP
 	 *
 	 * @return void
 	 */
@@ -147,7 +147,7 @@ class HttpClientTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che is_safe_url blocca range 10.0.0.0/8
+	 * Tests that is_safe_url blocks 10.0.0.0/8 range
 	 *
 	 * @return void
 	 */
@@ -158,7 +158,7 @@ class HttpClientTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che is_safe_url blocca range 192.168.0.0/16
+	 * Tests that is_safe_url blocks 192.168.0.0/16 range
 	 *
 	 * @return void
 	 */
@@ -169,7 +169,7 @@ class HttpClientTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che is_safe_url blocca range link-local
+	 * Tests that is_safe_url blocks link-local range
 	 *
 	 * @return void
 	 */
@@ -180,7 +180,7 @@ class HttpClientTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che is_safe_url rifiuta porte non standard
+	 * Tests that is_safe_url rejects non-standard ports
 	 *
 	 * @return void
 	 */
@@ -191,7 +191,7 @@ class HttpClientTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che is_safe_url rifiuta stringa vuota
+	 * Tests that is_safe_url rejects empty string
 	 *
 	 * @return void
 	 */
@@ -202,7 +202,7 @@ class HttpClientTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa post() con HTTP interceptato via pre_http_request
+	 * Tests post() with HTTP intercepted via pre_http_request
 	 *
 	 * @return void
 	 */
@@ -230,7 +230,7 @@ class HttpClientTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che post() non effettua HTTP call per URL non sicuri
+	 * Tests that post() does not make HTTP call for unsafe URLs
 	 *
 	 * @return void
 	 */
@@ -259,7 +259,7 @@ class HttpClientTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che post() gestisce WP_Error da wp_remote_post
+	 * Tests that post() handles WP_Error from wp_remote_post
 	 *
 	 * @return void
 	 */
@@ -280,8 +280,8 @@ class HttpClientTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che is_safe_url rifiuta URL malformati (parse_url failure)
-	 * Usa HttpClient reale (non subclass) per validare copertura diretta.
+	 * Tests that is_safe_url rejects malformed URLs (parse_url failure)
+	 * Uses real HttpClient (not subclass) to validate direct coverage.
 	 *
 	 * @return void
 	 */
@@ -292,8 +292,8 @@ class HttpClientTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che is_safe_url rifiuta schema non consentiti
-	 * Usa HttpClient reale per copertura diretta.
+	 * Tests that is_safe_url rejects disallowed schemes
+	 * Uses real HttpClient for direct coverage.
 	 *
 	 * @return void
 	 */
@@ -304,60 +304,60 @@ class HttpClientTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che is_safe_url rifiuta URL senza host (parse_url senza chiave host)
-	 * Usa HttpClient reale per copertura diretta.
+	 * Tests that is_safe_url rejects URLs without host (parse_url without host key)
+	 * Uses real HttpClient for direct coverage.
 	 *
 	 * @return void
 	 */
 	public function test_is_safe_url_rejects_url_without_host() {
 		$client = new HttpClient( $this->redaction );
 
-		// parse_url('http:path') → ['scheme'=>'http','path'=>'path'] senza chiave host.
+		// parse_url('http:path') → ['scheme'=>'http','path'=>'path'] without host key.
 		$this->assertFalse( $client->is_safe_url( 'http:path' ) );
 	}
 
 	/**
-	 * Testa che is_safe_url blocca IP loopback con HttpClient reale
-	 * Copre resolve_host() e is_private_ip() sulla classe reale.
+	 * Tests that is_safe_url blocks loopback IP with real HttpClient
+	 * Covers resolve_host() and is_private_ip() on the real class.
 	 *
 	 * @return void
 	 */
 	public function test_is_safe_url_blocks_loopback_ip_on_real_client() {
 		$client = new HttpClient( $this->redaction );
 
-		// gethostbyname('127.0.0.1') → '127.0.0.1' (IP diretto, no DNS).
+		// gethostbyname('127.0.0.1') → '127.0.0.1' (direct IP, no DNS).
 		$this->assertFalse( $client->is_safe_url( 'https://127.0.0.1/api' ) );
 	}
 
 	/**
-	 * Testa che is_safe_url blocca 192.168 range con HttpClient reale
-	 * Copre la linea 192.168.0.0/16 in is_private_ip().
+	 * Tests that is_safe_url blocks 192.168 range with real HttpClient
+	 * Covers the 192.168.0.0/16 line in is_private_ip().
 	 *
 	 * @return void
 	 */
 	public function test_is_safe_url_blocks_192_168_range_on_real_client() {
 		$client = new HttpClient( $this->redaction );
 
-		// gethostbyname('192.168.1.1') → '192.168.1.1' (IP diretto, no DNS).
+		// gethostbyname('192.168.1.1') → '192.168.1.1' (direct IP, no DNS).
 		$this->assertFalse( $client->is_safe_url( 'https://192.168.1.1/api' ) );
 	}
 
 	/**
-	 * Testa che is_safe_url blocca 172.16.0.0/12 range con HttpClient reale
-	 * Copre la linea 172.16.0.0/12 in is_private_ip().
+	 * Tests that is_safe_url blocks 172.16.0.0/12 range with real HttpClient
+	 * Covers the 172.16.0.0/12 line in is_private_ip().
 	 *
 	 * @return void
 	 */
 	public function test_is_safe_url_blocks_172_16_range_on_real_client() {
 		$client = new HttpClient( $this->redaction );
 
-		// gethostbyname('172.16.0.1') → '172.16.0.1' (IP diretto, no DNS).
+		// gethostbyname('172.16.0.1') → '172.16.0.1' (direct IP, no DNS).
 		$this->assertFalse( $client->is_safe_url( 'https://172.16.0.1/api' ) );
 	}
 
 	/**
-	 * Testa post() su HttpClient reale con IP privato
-	 * Copre il metodo post() sulla classe reale (non subclass).
+	 * Tests post() on real HttpClient with private IP
+	 * Covers the post() method on the real class (not subclass).
 	 *
 	 * @return void
 	 */
@@ -369,19 +369,19 @@ class HttpClientTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che is_safe_url blocca hostname non risolvibili
+	 * Tests that is_safe_url blocks unresolvable hostnames
 	 *
 	 * @return void
 	 */
 	public function test_is_safe_url_rejects_unresolvable_hostname() {
-		// Simula hostname non risolvibile: resolve_host ritorna l'hostname stesso.
+		// Simulate unresolvable hostname: resolve_host returns the hostname itself.
 		$client = new TestableHttpClient( $this->redaction, 'unresolvable.invalid' );
 
 		$this->assertFalse( $client->is_safe_url( 'https://unresolvable.invalid/api' ) );
 	}
 
 	/**
-	 * Testa che is_safe_url blocca indirizzi IPv6
+	 * Tests that is_safe_url blocks IPv6 addresses
 	 *
 	 * @return void
 	 */
@@ -392,7 +392,7 @@ class HttpClientTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che is_safe_url blocca indirizzo 0.0.0.0
+	 * Tests that is_safe_url blocks 0.0.0.0 address
 	 *
 	 * @return void
 	 */
@@ -403,7 +403,7 @@ class HttpClientTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che post() gestisce status code non-2xx
+	 * Tests that post() handles non-2xx status codes
 	 *
 	 * @return void
 	 */

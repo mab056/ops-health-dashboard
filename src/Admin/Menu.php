@@ -2,7 +2,7 @@
 /**
  * Admin Menu
  *
- * Gestisce la registrazione del menu admin di WordPress.
+ * Manages the registration of the WordPress admin menu.
  *
  * @package OpsHealthDashboard\Admin
  */
@@ -20,19 +20,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class Menu
  *
- * Registra il menu admin per Ops Health Dashboard.
+ * Registers the admin menu for Ops Health Dashboard.
  */
 class Menu {
 
 	/**
-	 * HealthScreen per renderizzare la pagina
+	 * HealthScreen for rendering the page
 	 *
 	 * @var HealthScreen
 	 */
 	private $health_screen;
 
 	/**
-	 * AlertSettings per la pagina di configurazione alert
+	 * AlertSettings for the alert configuration page
 	 *
 	 * @var AlertSettings|null
 	 */
@@ -41,8 +41,8 @@ class Menu {
 	/**
 	 * Constructor
 	 *
-	 * @param HealthScreen       $health_screen  HealthScreen per la pagina.
-	 * @param AlertSettings|null $alert_settings AlertSettings opzionale.
+	 * @param HealthScreen       $health_screen  HealthScreen for the page.
+	 * @param AlertSettings|null $alert_settings Optional AlertSettings.
 	 */
 	public function __construct(
 		HealthScreen $health_screen,
@@ -53,7 +53,7 @@ class Menu {
 	}
 
 	/**
-	 * Registra gli hook WordPress
+	 * Registers WordPress hooks
 	 *
 	 * @return void
 	 */
@@ -62,7 +62,7 @@ class Menu {
 	}
 
 	/**
-	 * Aggiunge la voce di menu in wp-admin
+	 * Adds the menu item in wp-admin
 	 *
 	 * @return void
 	 */
@@ -94,7 +94,7 @@ class Menu {
 	}
 
 	/**
-	 * Renderizza la pagina admin
+	 * Renders the admin page
 	 *
 	 * @return void
 	 */
@@ -103,7 +103,7 @@ class Menu {
 	}
 
 	/**
-	 * Renderizza la pagina alert settings
+	 * Renders the alert settings page
 	 *
 	 * @return void
 	 */
@@ -114,7 +114,7 @@ class Menu {
 	}
 
 	/**
-	 * Aggiunge il sottomenu Alert Settings
+	 * Adds the Alert Settings submenu
 	 *
 	 * @return void
 	 */

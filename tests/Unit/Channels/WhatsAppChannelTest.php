@@ -1,8 +1,8 @@
 <?php
 /**
- * Test per WhatsAppChannel
+ * Test for WhatsAppChannel
  *
- * Verifica l'invio di alert via WhatsApp webhook con Bearer auth opzionale.
+ * Verifies sending alerts via WhatsApp webhook with optional Bearer auth.
  *
  * @package OpsHealthDashboard\Tests\Unit\Channels
  */
@@ -22,7 +22,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class WhatsAppChannelTest
  *
- * Test unitari per il canale di alert WhatsApp.
+ * Unit tests for the WhatsApp alert channel.
  */
 class WhatsAppChannelTest extends TestCase
 {
@@ -52,9 +52,9 @@ class WhatsAppChannelTest extends TestCase
 	}
 
 	/**
-	 * Crea un mock di StorageInterface
+	 * Creates a mock of StorageInterface
 	 *
-	 * @param array $settings Impostazioni da ritornare.
+	 * @param array $settings Settings to return.
 	 * @return \Mockery\MockInterface|StorageInterface
 	 */
 	private function create_storage_mock( array $settings = [] )
@@ -67,7 +67,7 @@ class WhatsAppChannelTest extends TestCase
 	}
 
 	/**
-	 * Crea un mock di HttpClientInterface
+	 * Creates a mock of HttpClientInterface
 	 *
 	 * @return \Mockery\MockInterface|HttpClientInterface
 	 */
@@ -77,9 +77,9 @@ class WhatsAppChannelTest extends TestCase
 	}
 
 	/**
-	 * Crea un payload di test
+	 * Creates a test payload
 	 *
-	 * @param array $overrides Chiavi da sovrascrivere.
+	 * @param array $overrides Keys to override.
 	 * @return array
 	 */
 	private function create_test_payload( array $overrides = [] )
@@ -102,7 +102,7 @@ class WhatsAppChannelTest extends TestCase
 	}
 
 	/**
-	 * Configura mock i18n
+	 * Configures i18n mocks
 	 *
 	 * @return void
 	 */
@@ -117,7 +117,7 @@ class WhatsAppChannelTest extends TestCase
 	// ---------------------------------------------------
 
 	/**
-	 * Testa che la classe NON e final
+	 * Tests that the class is NOT final
 	 *
 	 * @return void
 	 */
@@ -128,7 +128,7 @@ class WhatsAppChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Tests that there are NO static methods
 	 *
 	 * @return void
 	 */
@@ -148,7 +148,7 @@ class WhatsAppChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa che NON esistono proprieta static
+	 * Tests that there are NO static properties
 	 *
 	 * @return void
 	 */
@@ -161,7 +161,7 @@ class WhatsAppChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa che implementa AlertChannelInterface
+	 * Tests that implements AlertChannelInterface
 	 *
 	 * @return void
 	 */
@@ -179,7 +179,7 @@ class WhatsAppChannelTest extends TestCase
 	// ---------------------------------------------------
 
 	/**
-	 * Testa che get_id ritorna 'whatsapp'
+	 * Tests that get_id returns 'whatsapp'
 	 *
 	 * @return void
 	 */
@@ -193,7 +193,7 @@ class WhatsAppChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa che get_name ritorna stringa tradotta
+	 * Tests that get_name returns translated string
 	 *
 	 * @return void
 	 */
@@ -212,7 +212,7 @@ class WhatsAppChannelTest extends TestCase
 	// ---------------------------------------------------
 
 	/**
-	 * Testa is_enabled true con configurazione completa
+	 * Tests is_enabled returns true with complete configuration
 	 *
 	 * @return void
 	 */
@@ -233,7 +233,7 @@ class WhatsAppChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa is_enabled false quando disabilitato
+	 * Tests is_enabled returns false when disabled
 	 *
 	 * @return void
 	 */
@@ -254,7 +254,7 @@ class WhatsAppChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa is_enabled false senza webhook_url
+	 * Tests is_enabled returns false without webhook_url
 	 *
 	 * @return void
 	 */
@@ -274,7 +274,7 @@ class WhatsAppChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa is_enabled false senza phone_number
+	 * Tests is_enabled returns false without phone_number
 	 *
 	 * @return void
 	 */
@@ -294,7 +294,7 @@ class WhatsAppChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa is_enabled false con phone_number non E.164
+	 * Tests is_enabled returns false with non-E.164 phone_number
 	 *
 	 * @return void
 	 */
@@ -315,7 +315,7 @@ class WhatsAppChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa is_enabled false con phone_number troppo corto
+	 * Tests is_enabled returns false with too short phone_number
 	 *
 	 * @return void
 	 */
@@ -336,7 +336,7 @@ class WhatsAppChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa is_enabled false con phone_number che inizia con +0
+	 * Tests is_enabled returns false with phone_number starting with +0
 	 *
 	 * @return void
 	 */
@@ -357,7 +357,7 @@ class WhatsAppChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa is_enabled true con phone_number E.164 lungo (15 cifre)
+	 * Tests is_enabled returns true with long E.164 phone_number (15 digits)
 	 *
 	 * @return void
 	 */
@@ -378,7 +378,7 @@ class WhatsAppChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa is_enabled false con phone_number troppo lungo (16 cifre)
+	 * Tests is_enabled returns false with too long phone_number (16 digits)
 	 *
 	 * @return void
 	 */
@@ -399,7 +399,7 @@ class WhatsAppChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa is_enabled false senza impostazioni
+	 * Tests is_enabled returns false without settings
 	 *
 	 * @return void
 	 */
@@ -417,7 +417,7 @@ class WhatsAppChannelTest extends TestCase
 	// ---------------------------------------------------
 
 	/**
-	 * Testa invio WhatsApp con successo incluso phone number nel body
+	 * Tests WhatsApp send with success including phone number in body
 	 *
 	 * @return void
 	 */
@@ -469,7 +469,7 @@ class WhatsAppChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa invio WhatsApp con fallimento
+	 * Tests WhatsApp send with failure
 	 *
 	 * @return void
 	 */
@@ -507,7 +507,7 @@ class WhatsAppChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa invio WhatsApp con header Bearer auth quando api_token configurato
+	 * Tests WhatsApp send with Bearer auth header when api_token is configured
 	 *
 	 * @return void
 	 */
@@ -556,7 +556,7 @@ class WhatsAppChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa invio WhatsApp senza header auth quando api_token non configurato
+	 * Tests WhatsApp send without auth header when api_token is not configured
 	 *
 	 * @return void
 	 */

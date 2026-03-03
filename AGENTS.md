@@ -63,7 +63,7 @@ Production-grade WordPress plugin for operational monitoring with health checks,
 
 Milestones M1-M6 completed (Core Checks + Storage + Cron + Error Log + Redis + Alerting + DiskCheck + VersionsCheck + DashboardWidget + E2E Testing + WordPress.org Readiness + HealthScreen UI). 574 unit tests, 1336 assertions. 322 integration tests, 655 assertions (single-site) / 684 assertions (multisite). Coverage: 100% classes, methods, lines (unit + integration + multisite combined). 46 E2E scenarios x 3 viewports = 138 test executions (Playwright + wp-env). PHPCS 100% clean, PHPStan level 6: 0 errors. 31 source files, 55 PHP test files (31 unit + 24 integration), 5 E2E spec files, 2 CSS files. Plugin WordPress.org ready with uninstall.php, readme.txt, ABSPATH guards. HealthScreen with card grid, summary banner, and dedicated CSS. See `DEVELOPMENT_PLAN.md` and `CHANGELOG.md` for up-to-date status.
 
-## Current Baseline (v0.6.1)
+## Current Baseline (v0.6.2)
 
 Architecture points to preserve:
 
@@ -85,7 +85,7 @@ Architecture points to preserve:
 16. Dashboard widget in `src/Admin/DashboardWidget.php` registered in `Plugin::init()` with capability check and worst-status logic.
 17. Health screen UI with `register_hooks()`, guarded `enqueue_styles()`, `SCREEN_ID`, overall-status priority map, card-grid + summary banner CSS.
 18. Disk check thresholds (`WARNING_THRESHOLD = 20`, `CRITICAL_THRESHOLD = 10`) and wrappers for testability.
-19. Versions check with `RECOMMENDED_PHP_VERSION = '8.1'`; core updates critical, plugin/theme updates warning.
+19. Versions check with `RECOMMENDED_PHP_VERSION = '8.3'`; core updates critical, plugin/theme updates warning.
 20. Local quality gates: `composer test`, `composer phpcs`, `composer analyse` (PHPStan level 6 with `phpstan.neon`).
 21. CI in `.github/workflows/ci.yml`: dedicated PHPCS, PHPStan, PHPUnit matrix (PHP 7.4-8.5, coverage on 8.3), E2E Playwright (Chromium, desktop-only in CI, wp-env, `timeout-minutes: 15`). Codecov with separate flags `unit`/`integration` (`codecov.yml`, `CODECOV_TOKEN` secret).
 22. E2E Testing: Playwright + `@wordpress/env` in Docker. 46 scenarios x 3 viewports locally (desktop/tablet/mobile), desktop-only in CI (46 tests, ~8 min). CI: 1 worker, timeout 60s, login timeout 30s, health check wait, `line` + `github` reporter. Centralized selectors in `tests/e2e/helpers/selectors.ts`. Login helpers for admin/subscriber/editor. `bin/e2e-setup.sh` creates test users.

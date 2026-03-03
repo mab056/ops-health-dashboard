@@ -1,9 +1,9 @@
 <?php
 /**
- * Unit Test per ErrorLogCheck
+ * Unit Test for ErrorLogCheck
  *
- * Test unitario con Brain\Monkey per ErrorLogCheck.
- * Usa Mockery partial mock per le operazioni filesystem.
+ * Unit test with Brain\Monkey for ErrorLogCheck.
+ * Uses Mockery partial mock for filesystem operations.
  *
  * @package OpsHealthDashboard\Tests\Unit\Checks
  */
@@ -21,13 +21,13 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class ErrorLogCheckTest
  *
- * Unit test per ErrorLogCheck.
+ * Unit test for ErrorLogCheck.
  */
 class ErrorLogCheckTest extends TestCase {
 	use MockeryPHPUnitIntegration;
 
 	/**
-	 * Setup per ogni test
+	 * Setup for each test
 	 */
 	protected function setUp(): void {
 		parent::setUp();
@@ -35,7 +35,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Teardown dopo ogni test
+	 * Teardown after each test
 	 */
 	protected function tearDown(): void {
 		\Brain\Monkey\tearDown();
@@ -43,7 +43,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Crea un mock di RedactionInterface
+	 * Creates a RedactionInterface mock
 	 *
 	 * @return \Mockery\MockInterface
 	 */
@@ -61,9 +61,9 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Crea un partial mock di ErrorLogCheck con metodi filesystem mockati
+	 * Creates a partial mock of ErrorLogCheck with mocked filesystem methods
 	 *
-	 * @param \Mockery\MockInterface $redaction Mock del servizio di redazione.
+	 * @param \Mockery\MockInterface $redaction Redaction service mock.
 	 * @return \Mockery\MockInterface
 	 */
 	private function create_check_mock( $redaction ) {
@@ -77,7 +77,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che ErrorLogCheck può essere istanziato
+	 * Tests that ErrorLogCheck can be instantiated
 	 */
 	public function test_error_log_check_can_be_instantiated() {
 		$redaction = $this->create_redaction_mock();
@@ -86,7 +86,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che ErrorLogCheck implementa CheckInterface
+	 * Tests that ErrorLogCheck implements CheckInterface
 	 */
 	public function test_error_log_check_implements_interface() {
 		$redaction = $this->create_redaction_mock();
@@ -95,7 +95,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get_id() ritorna 'error_log'
+	 * Tests that get_id() returns 'error_log'
 	 */
 	public function test_get_id_returns_error_log() {
 		$redaction = $this->create_redaction_mock();
@@ -104,7 +104,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get_name() ritorna il nome corretto
+	 * Tests that get_name() returns the correct name
 	 */
 	public function test_get_name_returns_correct_name() {
 		$redaction = $this->create_redaction_mock();
@@ -119,7 +119,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che is_enabled() ritorna true
+	 * Tests that is_enabled() returns true
 	 */
 	public function test_is_enabled_returns_true() {
 		$redaction = $this->create_redaction_mock();
@@ -128,7 +128,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna warning quando il log non è configurato
+	 * Tests that run() returns warning when the log is not configured
 	 */
 	public function test_run_returns_warning_when_log_not_configured() {
 		$redaction = $this->create_redaction_mock();
@@ -150,7 +150,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna ok quando il log è configurato ma il file non esiste ancora
+	 * Tests that run() returns ok when the log is configured but the file does not exist yet
 	 */
 	public function test_run_returns_ok_when_log_configured_but_file_not_exists() {
 		$redaction = $this->create_redaction_mock();
@@ -180,7 +180,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna warning quando il log non è leggibile
+	 * Tests that run() returns warning when the log is not readable
 	 */
 	public function test_run_returns_warning_when_log_not_readable() {
 		$redaction = $this->create_redaction_mock();
@@ -210,7 +210,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna warning quando il log è un symlink
+	 * Tests that run() returns warning when the log is a symlink
 	 */
 	public function test_run_returns_warning_when_log_is_symlink() {
 		$redaction = $this->create_redaction_mock();
@@ -240,7 +240,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna ok quando il log è vuoto
+	 * Tests that run() returns ok when the log is empty
 	 */
 	public function test_run_returns_ok_when_log_empty() {
 		$redaction = $this->create_redaction_mock();
@@ -270,7 +270,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna ok quando non ci sono errori
+	 * Tests that run() returns ok when there are no errors
 	 */
 	public function test_run_returns_ok_when_no_errors() {
 		$redaction = $this->create_redaction_mock();
@@ -307,7 +307,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna warning per i warning PHP
+	 * Tests that run() returns warning for PHP warnings
 	 */
 	public function test_run_returns_warning_for_warnings() {
 		$redaction = $this->create_redaction_mock();
@@ -344,7 +344,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna critical per errori fatali
+	 * Tests that run() returns critical for fatal errors
 	 */
 	public function test_run_returns_critical_for_fatal_errors() {
 		$redaction = $this->create_redaction_mock();
@@ -380,7 +380,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna critical per parse error
+	 * Tests that run() returns critical for parse errors
 	 */
 	public function test_run_returns_critical_for_parse_errors() {
 		$redaction = $this->create_redaction_mock();
@@ -416,7 +416,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() conta correttamente gli errori per severità
+	 * Tests that run() correctly counts errors by severity
 	 */
 	public function test_run_counts_errors_by_severity() {
 		$redaction = $this->create_redaction_mock();
@@ -461,7 +461,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() include campioni redatti
+	 * Tests that run() includes redacted samples
 	 */
 	public function test_run_includes_redacted_samples() {
 		$redaction = Mockery::mock( RedactionInterface::class );
@@ -507,7 +507,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() limita i campioni a 5
+	 * Tests that run() limits samples to 5
 	 */
 	public function test_run_limits_samples_to_five() {
 		$redaction = $this->create_redaction_mock();
@@ -545,7 +545,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() misura la durata
+	 * Tests that run() measures the duration
 	 */
 	public function test_run_measures_duration() {
 		$redaction = $this->create_redaction_mock();
@@ -568,7 +568,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ha tutte le chiavi richieste nel risultato
+	 * Tests that run() has all required keys in the result
 	 */
 	public function test_run_result_has_required_keys() {
 		$redaction = $this->create_redaction_mock();
@@ -592,7 +592,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() include i conteggi nei dettagli
+	 * Tests that run() includes counts in details
 	 */
 	public function test_run_details_contain_counts() {
 		$redaction = $this->create_redaction_mock();
@@ -635,7 +635,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() include la dimensione del file nei dettagli
+	 * Tests that run() includes the file size in details
 	 */
 	public function test_run_details_contain_file_size() {
 		$redaction = $this->create_redaction_mock();
@@ -671,7 +671,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() usa i18n per i messaggi
+	 * Tests that run() uses i18n for messages
 	 */
 	public function test_run_message_uses_i18n() {
 		$redaction = $this->create_redaction_mock();
@@ -694,7 +694,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() non espone il path raw del log
+	 * Tests that run() does not expose the raw log path
 	 */
 	public function test_run_does_not_expose_raw_log_path() {
 		$redaction = $this->create_redaction_mock();
@@ -729,7 +729,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run() ritorna warning per deprecated
+	 * Tests that run() returns warning for deprecated
 	 */
 	public function test_run_returns_warning_for_deprecated() {
 		$redaction = $this->create_redaction_mock();
@@ -765,9 +765,9 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che critical samples hanno priorità sui warning nei campioni
+	 * Tests that critical samples have priority over warning in samples
 	 *
-	 * Con 3 critical e 10 warning, i 5 campioni devono includere tutti i 3 critical.
+	 * With 3 critical and 10 warning, the 5 samples must include all 3 critical.
 	 */
 	public function test_run_prioritizes_critical_over_warning_in_samples() {
 		$redaction = $this->create_redaction_mock();
@@ -808,7 +808,7 @@ class ErrorLogCheckTest extends TestCase {
 
 		$this->assertCount( 5, $samples );
 
-		// Tutti e 3 i critical devono essere presenti.
+		// All 3 critical samples must be present.
 		$critical_count = 0;
 		foreach ( $samples as $sample ) {
 			if ( false !== strpos( $sample, 'Fatal error' ) ) {
@@ -819,7 +819,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che la classe NON è final
+	 * Tests that the class is NOT final
 	 */
 	public function test_class_is_not_final() {
 		$reflection = new \ReflectionClass( ErrorLogCheck::class );
@@ -827,7 +827,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Tests that NO static methods exist
 	 */
 	public function test_no_static_methods() {
 		$reflection = new \ReflectionClass( ErrorLogCheck::class );
@@ -844,7 +844,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono proprietà static
+	 * Tests that NO static properties exist
 	 */
 	public function test_no_static_properties() {
 		$reflection = new \ReflectionClass( ErrorLogCheck::class );
@@ -858,13 +858,13 @@ class ErrorLogCheckTest extends TestCase {
 	// -------------------------------------------------------------------
 
 	/**
-	 * Crea un partial mock che mocka solo resolve_log_path.
-	 * Gli altri metodi protetti (validate_log_file, read_tail, get_file_size) eseguono per davvero.
+	 * Creates a partial mock that only mocks resolve_log_path.
+	 * The other protected methods (validate_log_file, read_tail, get_file_size) run for real.
 	 *
-	 * @param \Mockery\MockInterface $redaction Mock del servizio di redazione.
-	 * @param string                 $log_path  Path da restituire come resolve_log_path.
-	 * @param int                    $max_lines Massimo righe da leggere (default 100).
-	 * @param int                    $max_bytes Massimo byte da leggere (default 512KB).
+	 * @param \Mockery\MockInterface $redaction Redaction service mock.
+	 * @param string                 $log_path  Path to return as resolve_log_path.
+	 * @param int                    $max_lines Maximum lines to read (default 100).
+	 * @param int                    $max_bytes Maximum bytes to read (default 512KB).
 	 * @return \Mockery\MockInterface
 	 */
 	private function create_fs_check( $redaction, string $log_path, int $max_lines = 100, int $max_bytes = 524288 ) {
@@ -877,7 +877,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa validate_log_file con symlink → warning
+	 * Tests validate_log_file with symlink -> warning
 	 */
 	public function test_validate_symlink_returns_warning() {
 		$tmp_file = tempnam( sys_get_temp_dir(), 'ops_test_' );
@@ -899,7 +899,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa validate_log_file con file inesistente → ok (configurato ma non ancora creato)
+	 * Tests validate_log_file with nonexistent file -> ok (configured but not yet created)
 	 */
 	public function test_validate_missing_file_returns_ok() {
 		$redaction = $this->create_redaction_mock();
@@ -914,7 +914,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa validate_log_file con file non leggibile → warning
+	 * Tests validate_log_file with unreadable file -> warning
 	 */
 	public function test_validate_unreadable_file_returns_warning() {
 		if ( 0 === posix_getuid() ) {
@@ -939,7 +939,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa read_tail con file vuoto → ok (log vuoto)
+	 * Tests read_tail with empty file -> ok (empty log)
 	 */
 	public function test_read_tail_returns_empty_for_empty_file() {
 		$tmp_file = tempnam( sys_get_temp_dir(), 'ops_test_' );
@@ -958,7 +958,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa read_tail con file contenente righe di log → analisi corretta
+	 * Tests read_tail with file containing log lines -> correct analysis
 	 */
 	public function test_read_tail_returns_lines_from_real_file() {
 		$tmp_file = tempnam( sys_get_temp_dir(), 'ops_test_' );
@@ -986,7 +986,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa read_tail rispetta max_lines
+	 * Tests read_tail respects max_lines
 	 */
 	public function test_read_tail_respects_max_lines() {
 		$tmp_file = tempnam( sys_get_temp_dir(), 'ops_test_' );
@@ -1013,16 +1013,16 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa read_tail scarta prima riga parziale quando fa seek
+	 * Tests read_tail discards partial first line when seeking
 	 */
 	public function test_read_tail_discards_partial_first_line_on_offset() {
 		$tmp_file = tempnam( sys_get_temp_dir(), 'ops_test_' );
-		// Crea un file più grande di max_bytes (100 bytes).
+		// Creates a file larger than max_bytes (100 bytes).
 		$content = str_repeat( 'A', 50 ) . "\n" . "[09-Feb-2026] PHP Warning: real line\n";
 		file_put_contents( $tmp_file, $content );
 
 		$redaction = $this->create_redaction_mock();
-		// max_bytes = 40 → seek al fondo, prima riga parziale scartata.
+		// max_bytes = 40 -> seek to end, partial first line discarded.
 		$check = $this->create_fs_check( $redaction, $tmp_file, 100, 40 );
 
 		Functions\expect( '__' )->andReturnFirstArg();
@@ -1034,31 +1034,31 @@ class ErrorLogCheckTest extends TestCase {
 
 		unlink( $tmp_file );
 
-		// Deve analizzare solo la riga completa, non il frammento parziale.
+		// Must analyze only the complete line, not the partial fragment.
 		$this->assertArrayHasKey( 'lines_analyzed', $result['details'] );
 		$this->assertLessThanOrEqual( 2, $result['details']['lines_analyzed'] );
 	}
 
 	/**
-	 * Testa resolve_log_path quando WP_DEBUG_LOG=true ma WP_CONTENT_DIR non è definito
-	 * e ini_get('error_log') ritorna vuoto → "not configured".
+	 * Tests resolve_log_path when WP_DEBUG_LOG=true but WP_CONTENT_DIR is not defined
+	 * and ini_get('error_log') returns empty -> "not configured".
 	 *
-	 * Copre TUTTE le righe di resolve_log_path(): il branch defined, is_string,
-	 * il fallthrough verso ini_get, e il return finale.
+	 * Covers ALL lines of resolve_log_path(): the defined branch, is_string,
+	 * the fallthrough to ini_get, and the final return.
 	 */
 	public function test_resolve_log_path_not_configured() {
-		// Definisci WP_DEBUG_LOG se non già definito (permanente nel processo,
-		// ma tutti gli altri test mockano resolve_log_path quindi non impatta).
+		// Define WP_DEBUG_LOG if not already defined (permanent in the process,
+		// but all other tests mock resolve_log_path so it does not impact).
 		if ( ! defined( 'WP_DEBUG_LOG' ) ) {
 			define( 'WP_DEBUG_LOG', true );
 		}
 
 		$redaction = $this->create_redaction_mock();
-		// Istanza reale — resolve_log_path esegue per davvero.
+		// Real instance -- resolve_log_path runs for real.
 		$check = new ErrorLogCheck( $redaction );
 
-		// ini_get('error_log') ritorna '' nell'ambiente PHPUnit CLI.
-		// WP_CONTENT_DIR non è definito → fallthrough completo.
+		// ini_get('error_log') returns '' in the PHPUnit CLI environment.
+		// WP_CONTENT_DIR is not defined -> complete fallthrough.
 		Functions\expect( '__' )->andReturnFirstArg();
 
 		$result = $check->run();
@@ -1068,7 +1068,7 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa get_file_size su file reale
+	 * Tests get_file_size on a real file
 	 */
 	public function test_get_file_size_returns_formatted_string() {
 		$tmp_file = tempnam( sys_get_temp_dir(), 'ops_test_' );
@@ -1088,19 +1088,19 @@ class ErrorLogCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che collect_samples usa solo critical quando riempie tutti gli slot
+	 * Tests that collect_samples uses only critical when all slots are full
 	 *
-	 * Copre la riga 460: branch `$remaining <= 0` in collect_samples().
+	 * Covers line 460: branch `$remaining <= 0` in collect_samples().
 	 */
 	public function test_run_collects_only_critical_samples_when_slots_full() {
 		$redaction = $this->create_redaction_mock();
 
-		// max_samples = 2 per forzare la situazione.
+		// max_samples = 2 to force the situation.
 		$check = Mockery::mock( ErrorLogCheck::class, [ $redaction, 100, 524288, 2 ] )
 			->makePartial()
 			->shouldAllowMockingProtectedMethods();
 
-		// 3 righe fatal (più di max_samples=2), nessuna warning.
+		// 3 fatal lines (more than max_samples=2), no warnings.
 		$lines = [
 			'[10-Feb-2026] PHP Fatal error: Out of memory in /var/www/file.php on line 1',
 			'[10-Feb-2026] PHP Fatal error: Out of memory in /var/www/file.php on line 2',
@@ -1117,7 +1117,7 @@ class ErrorLogCheckTest extends TestCase {
 		$result = $check->run();
 
 		$this->assertEquals( 'critical', $result['status'] );
-		// Solo 2 campioni (max_samples), tutti critical, nessun warning.
+		// Only 2 samples (max_samples), all critical, no warnings.
 		$this->assertCount( 2, $result['details']['recent_samples'] );
 	}
 }

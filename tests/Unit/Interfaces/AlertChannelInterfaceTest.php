@@ -1,8 +1,8 @@
 <?php
 /**
- * Test per AlertChannelInterface
+ * Test for AlertChannelInterface
  *
- * Verifica che il contratto dell'interfaccia AlertChannel sia corretto.
+ * Verifies that the AlertChannel interface contract is correct.
  *
  * @package OpsHealthDashboard\Tests\Unit\Interfaces
  */
@@ -15,12 +15,12 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class AlertChannelInterfaceTest
  *
- * Test per l'interfaccia AlertChannelInterface.
+ * Test for the AlertChannelInterface interface.
  */
 class AlertChannelInterfaceTest extends TestCase {
 
 	/**
-	 * Verifica che l'interfaccia è un'interfaccia
+	 * Verifies that it is an interface
 	 *
 	 * @return void
 	 */
@@ -30,7 +30,7 @@ class AlertChannelInterfaceTest extends TestCase {
 	}
 
 	/**
-	 * Verifica che dichiara get_id
+	 * Verifies that it declares get_id
 	 *
 	 * @return void
 	 */
@@ -44,7 +44,7 @@ class AlertChannelInterfaceTest extends TestCase {
 	}
 
 	/**
-	 * Verifica che dichiara get_name
+	 * Verifies that it declares get_name
 	 *
 	 * @return void
 	 */
@@ -58,7 +58,7 @@ class AlertChannelInterfaceTest extends TestCase {
 	}
 
 	/**
-	 * Verifica che dichiara is_enabled
+	 * Verifies that it declares is_enabled
 	 *
 	 * @return void
 	 */
@@ -72,7 +72,7 @@ class AlertChannelInterfaceTest extends TestCase {
 	}
 
 	/**
-	 * Verifica che dichiara send
+	 * Verifies that it declares send
 	 *
 	 * @return void
 	 */

@@ -1,8 +1,8 @@
 <?php
 /**
- * Integration Test per WebhookChannel
+ * Integration Test for WebhookChannel
  *
- * Verifica invio alert webhook con HMAC, Storage reale e HTTP interceptato.
+ * Verifies webhook alert sending with HMAC, real Storage and intercepted HTTP.
  *
  * @package OpsHealthDashboard\Tests\Integration\Channels
  */
@@ -18,12 +18,12 @@ use WP_UnitTestCase;
 /**
  * Class WebhookChannelTest
  *
- * Integration test per WebhookChannel con WordPress reale.
+ * Integration test for WebhookChannel with real WordPress.
  */
 class WebhookChannelTest extends WP_UnitTestCase {
 
 	/**
-	 * Storage reale
+	 * Real storage
 	 *
 	 * @var Storage
 	 */
@@ -52,9 +52,9 @@ class WebhookChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Crea un payload di test
+	 * Creates a test payload
 	 *
-	 * @return array Payload alert.
+	 * @return array Alert payload.
 	 */
 	private function create_test_payload(): array {
 		return [
@@ -71,7 +71,7 @@ class WebhookChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Crea HttpClient testabile
+	 * Creates testable HttpClient
 	 *
 	 * @return TestableHttpClient
 	 */
@@ -80,7 +80,7 @@ class WebhookChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che la classe NON è final
+	 * Verifies that the class is NOT final
 	 *
 	 * @return void
 	 */
@@ -90,7 +90,7 @@ class WebhookChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Verifies that NO static methods exist
 	 *
 	 * @return void
 	 */
@@ -109,7 +109,7 @@ class WebhookChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che NON esistono proprietà static
+	 * Verifies that NO static properties exist
 	 *
 	 * @return void
 	 */
@@ -121,7 +121,7 @@ class WebhookChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa get_id
+	 * Tests get_id
 	 *
 	 * @return void
 	 */
@@ -132,7 +132,7 @@ class WebhookChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa get_name
+	 * Tests get_name
 	 *
 	 * @return void
 	 */
@@ -143,7 +143,7 @@ class WebhookChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled con URL configurato
+	 * Tests is_enabled with configured URL
 	 *
 	 * @return void
 	 */
@@ -164,7 +164,7 @@ class WebhookChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled quando disabilitato
+	 * Tests is_enabled when disabled
 	 *
 	 * @return void
 	 */
@@ -185,7 +185,7 @@ class WebhookChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled senza URL
+	 * Tests is_enabled without URL
 	 *
 	 * @return void
 	 */
@@ -206,7 +206,7 @@ class WebhookChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled con settings corrotti (non array)
+	 * Tests is_enabled with corrupted settings (non-array)
 	 *
 	 * @return void
 	 */
@@ -219,7 +219,7 @@ class WebhookChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa send con successo
+	 * Tests send success
 	 *
 	 * @return void
 	 */
@@ -255,7 +255,7 @@ class WebhookChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che send include header HMAC quando secret è configurato
+	 * Tests that send includes HMAC header when secret is configured
 	 *
 	 * @return void
 	 */
@@ -297,14 +297,14 @@ class WebhookChannelTest extends WP_UnitTestCase {
 
 		$this->assertArrayHasKey( 'X-OpsHealth-Signature', $captured_headers );
 
-		// Verifica che la firma corrisponda.
+		// Verify that the signature matches.
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 		$expected_signature = hash_hmac( 'sha256', json_encode( $payload ), $secret );
 		$this->assertEquals( $expected_signature, $captured_headers['X-OpsHealth-Signature'] );
 	}
 
 	/**
-	 * Testa send con errore HTTP
+	 * Tests send with HTTP error
 	 *
 	 * @return void
 	 */
@@ -334,7 +334,7 @@ class WebhookChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che send non include header signature senza secret
+	 * Tests that send does not include signature header without secret
 	 *
 	 * @return void
 	 */

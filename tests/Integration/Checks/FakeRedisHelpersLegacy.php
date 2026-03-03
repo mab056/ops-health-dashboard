@@ -13,22 +13,22 @@ namespace OpsHealthDashboard\Tests\Integration\Checks;
 use OpsHealthDashboard\Checks\RedisCheck;
 
 /**
- * Fake Redis che simula fallimento autenticazione
+ * Fake Redis that simulates authentication failure
  *
- * connect() riesce, auth() lancia eccezione.
+ * connect() succeeds, auth() throws exception.
  */
 class FakeRedisAuthFail extends \Redis {
 
 	/**
-	 * Simula connessione riuscita
+	 * Simulates successful connection
 	 *
-	 * @param string      $host           Host Redis.
-	 * @param int         $port           Porta Redis.
-	 * @param float       $timeout        Timeout connessione.
-	 * @param string|null $persistent_id  ID persistente.
-	 * @param int         $retry_interval Intervallo retry.
-	 * @param float       $read_timeout   Timeout lettura.
-	 * @param array|null  $context        Contesto.
+	 * @param string      $host           Redis host.
+	 * @param int         $port           Redis port.
+	 * @param float       $timeout        Connection timeout.
+	 * @param string|null $persistent_id  Persistent ID.
+	 * @param int         $retry_interval Retry interval.
+	 * @param float       $read_timeout   Read timeout.
+	 * @param array|null  $context        Context.
 	 * @return bool True.
 	 */
 	// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
@@ -45,18 +45,18 @@ class FakeRedisAuthFail extends \Redis {
 	}
 
 	/**
-	 * Simula fallimento autenticazione
+	 * Simulates authentication failure
 	 *
-	 * @param mixed $credentials Credenziali.
-	 * @return bool Mai raggiunto.
-	 * @throws \Exception Sempre.
+	 * @param mixed $credentials Credentials.
+	 * @return bool Never reached.
+	 * @throws \Exception Always.
 	 */
 	public function auth( $credentials ) {
 		throw new \Exception( 'WRONGPASS invalid password' );
 	}
 
 	/**
-	 * Simula chiusura connessione
+	 * Simulates connection close
 	 *
 	 * @return bool True.
 	 */
@@ -66,22 +66,22 @@ class FakeRedisAuthFail extends \Redis {
 }
 
 /**
- * Fake Redis che simula fallimento smoke test (set lancia eccezione)
+ * Fake Redis that simulates smoke test failure (set throws exception)
  *
- * connect() riesce, set() lancia eccezione.
+ * connect() succeeds, set() throws exception.
  */
 class FakeRedisSmokeTestFail extends \Redis {
 
 	/**
-	 * Simula connessione riuscita
+	 * Simulates successful connection
 	 *
-	 * @param string      $host           Host Redis.
-	 * @param int         $port           Porta Redis.
-	 * @param float       $timeout        Timeout connessione.
-	 * @param string|null $persistent_id  ID persistente.
-	 * @param int         $retry_interval Intervallo retry.
-	 * @param float       $read_timeout   Timeout lettura.
-	 * @param array|null  $context        Contesto.
+	 * @param string      $host           Redis host.
+	 * @param int         $port           Redis port.
+	 * @param float       $timeout        Connection timeout.
+	 * @param string|null $persistent_id  Persistent ID.
+	 * @param int         $retry_interval Retry interval.
+	 * @param float       $read_timeout   Read timeout.
+	 * @param array|null  $context        Context.
 	 * @return bool True.
 	 */
 	// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
@@ -98,23 +98,23 @@ class FakeRedisSmokeTestFail extends \Redis {
 	}
 
 	/**
-	 * Simula fallimento SET
+	 * Simulates SET failure
 	 *
-	 * @param string $key     Chiave.
-	 * @param mixed  $value   Valore.
-	 * @param mixed  $options Opzioni.
-	 * @return bool Mai raggiunto.
-	 * @throws \Exception Sempre.
+	 * @param string $key     Key.
+	 * @param mixed  $value   Value.
+	 * @param mixed  $options Options.
+	 * @return bool Never reached.
+	 * @throws \Exception Always.
 	 */
 	public function set( $key, $value, $options = null ) {
 		throw new \Exception( 'READONLY You cannot write' );
 	}
 
 	/**
-	 * Simula DEL
+	 * Simulates DEL
 	 *
-	 * @param mixed $key       Chiave.
-	 * @param mixed ...$otherKeys Altre chiavi.
+	 * @param mixed $key       Key.
+	 * @param mixed ...$otherKeys Other keys.
 	 * @return int 0.
 	 */
 	public function del( $key, ...$otherKeys ) {
@@ -122,7 +122,7 @@ class FakeRedisSmokeTestFail extends \Redis {
 	}
 
 	/**
-	 * Simula chiusura
+	 * Simulates close
 	 *
 	 * @return bool True.
 	 */
@@ -132,22 +132,22 @@ class FakeRedisSmokeTestFail extends \Redis {
 }
 
 /**
- * Fake Redis che simula GET mismatch
+ * Fake Redis that simulates GET mismatch
  *
- * connect() riesce, set() riesce, get() ritorna valore sbagliato.
+ * connect() succeeds, set() succeeds, get() returns wrong value.
  */
 class FakeRedisGetMismatch extends \Redis {
 
 	/**
-	 * Simula connessione riuscita
+	 * Simulates successful connection
 	 *
-	 * @param string      $host           Host Redis.
-	 * @param int         $port           Porta Redis.
-	 * @param float       $timeout        Timeout connessione.
-	 * @param string|null $persistent_id  ID persistente.
-	 * @param int         $retry_interval Intervallo retry.
-	 * @param float       $read_timeout   Timeout lettura.
-	 * @param array|null  $context        Contesto.
+	 * @param string      $host           Redis host.
+	 * @param int         $port           Redis port.
+	 * @param float       $timeout        Connection timeout.
+	 * @param string|null $persistent_id  Persistent ID.
+	 * @param int         $retry_interval Retry interval.
+	 * @param float       $read_timeout   Read timeout.
+	 * @param array|null  $context        Context.
 	 * @return bool True.
 	 */
 	// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
@@ -164,11 +164,11 @@ class FakeRedisGetMismatch extends \Redis {
 	}
 
 	/**
-	 * Simula SET riuscito
+	 * Simulates successful SET
 	 *
-	 * @param string $key     Chiave.
-	 * @param mixed  $value   Valore.
-	 * @param mixed  $options Opzioni.
+	 * @param string $key     Key.
+	 * @param mixed  $value   Value.
+	 * @param mixed  $options Options.
 	 * @return bool True.
 	 */
 	public function set( $key, $value, $options = null ) {
@@ -176,20 +176,20 @@ class FakeRedisGetMismatch extends \Redis {
 	}
 
 	/**
-	 * Simula GET con valore sbagliato
+	 * Simulates GET with wrong value
 	 *
-	 * @param string $key Chiave.
-	 * @return string Valore sbagliato.
+	 * @param string $key Key.
+	 * @return string Wrong value.
 	 */
 	public function get( $key ) {
 		return 'wrong_value';
 	}
 
 	/**
-	 * Simula DEL
+	 * Simulates DEL
 	 *
-	 * @param mixed $key       Chiave.
-	 * @param mixed ...$otherKeys Altre chiavi.
+	 * @param mixed $key       Key.
+	 * @param mixed ...$otherKeys Other keys.
 	 * @return int 1.
 	 */
 	public function del( $key, ...$otherKeys ) {
@@ -197,7 +197,7 @@ class FakeRedisGetMismatch extends \Redis {
 	}
 
 	/**
-	 * Simula chiusura
+	 * Simulates close
 	 *
 	 * @return bool True.
 	 */
@@ -207,22 +207,22 @@ class FakeRedisGetMismatch extends \Redis {
 }
 
 /**
- * Fake Redis che simula fallimento selezione database
+ * Fake Redis that simulates database selection failure
  *
- * connect() riesce, select() lancia eccezione.
+ * connect() succeeds, select() throws exception.
  */
 class FakeRedisDbSelectFail extends \Redis {
 
 	/**
-	 * Simula connessione riuscita
+	 * Simulates successful connection
 	 *
-	 * @param string      $host           Host Redis.
-	 * @param int         $port           Porta Redis.
-	 * @param float       $timeout        Timeout connessione.
-	 * @param string|null $persistent_id  ID persistente.
-	 * @param int         $retry_interval Intervallo retry.
-	 * @param float       $read_timeout   Timeout lettura.
-	 * @param array|null  $context        Contesto.
+	 * @param string      $host           Redis host.
+	 * @param int         $port           Redis port.
+	 * @param float       $timeout        Connection timeout.
+	 * @param string|null $persistent_id  Persistent ID.
+	 * @param int         $retry_interval Retry interval.
+	 * @param float       $read_timeout   Read timeout.
+	 * @param array|null  $context        Context.
 	 * @return bool True.
 	 */
 	// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
@@ -239,18 +239,18 @@ class FakeRedisDbSelectFail extends \Redis {
 	}
 
 	/**
-	 * Simula fallimento selezione database
+	 * Simulates database selection failure
 	 *
-	 * @param int $db Numero database.
-	 * @return bool Mai raggiunto.
-	 * @throws \Exception Sempre.
+	 * @param int $db Database number.
+	 * @return bool Never reached.
+	 * @throws \Exception Always.
 	 */
 	public function select( $db ) {
 		throw new \Exception( 'ERR DB index is out of range' );
 	}
 
 	/**
-	 * Simula chiusura
+	 * Simulates close
 	 *
 	 * @return bool True.
 	 */
@@ -260,22 +260,22 @@ class FakeRedisDbSelectFail extends \Redis {
 }
 
 /**
- * Fake Redis che simula SET che restituisce false
+ * Fake Redis that simulates SET returning false
  *
- * connect() riesce, set() restituisce false.
+ * connect() succeeds, set() returns false.
  */
 class FakeRedisSetFalse extends \Redis {
 
 	/**
-	 * Simula connessione riuscita
+	 * Simulates successful connection
 	 *
-	 * @param string      $host           Host Redis.
-	 * @param int         $port           Porta Redis.
-	 * @param float       $timeout        Timeout connessione.
-	 * @param string|null $persistent_id  ID persistente.
-	 * @param int         $retry_interval Intervallo retry.
-	 * @param float       $read_timeout   Timeout lettura.
-	 * @param array|null  $context        Contesto.
+	 * @param string      $host           Redis host.
+	 * @param int         $port           Redis port.
+	 * @param float       $timeout        Connection timeout.
+	 * @param string|null $persistent_id  Persistent ID.
+	 * @param int         $retry_interval Retry interval.
+	 * @param float       $read_timeout   Read timeout.
+	 * @param array|null  $context        Context.
 	 * @return bool True.
 	 */
 	// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
@@ -292,11 +292,11 @@ class FakeRedisSetFalse extends \Redis {
 	}
 
 	/**
-	 * Simula SET che restituisce false
+	 * Simulates SET returning false
 	 *
-	 * @param string $key     Chiave.
-	 * @param mixed  $value   Valore.
-	 * @param mixed  $options Opzioni.
+	 * @param string $key     Key.
+	 * @param mixed  $value   Value.
+	 * @param mixed  $options Options.
 	 * @return bool False.
 	 */
 	public function set( $key, $value, $options = null ) {
@@ -304,10 +304,10 @@ class FakeRedisSetFalse extends \Redis {
 	}
 
 	/**
-	 * Simula DEL
+	 * Simulates DEL
 	 *
-	 * @param mixed $key       Chiave.
-	 * @param mixed ...$otherKeys Altre chiavi.
+	 * @param mixed $key       Key.
+	 * @param mixed ...$otherKeys Other keys.
 	 * @return int 0.
 	 */
 	public function del( $key, ...$otherKeys ) {
@@ -315,7 +315,7 @@ class FakeRedisSetFalse extends \Redis {
 	}
 
 	/**
-	 * Simula chiusura
+	 * Simulates close
 	 *
 	 * @return bool True.
 	 */
@@ -325,22 +325,22 @@ class FakeRedisSetFalse extends \Redis {
 }
 
 /**
- * Fake Redis che simula risposta lenta
+ * Fake Redis that simulates slow response
  *
- * connect() riesce, set/get/del riescono ma con ritardo > 100ms.
+ * connect() succeeds, set/get/del succeed but with delay > 100ms.
  */
 class FakeRedisSlowResponse extends \Redis {
 
 	/**
-	 * Simula connessione riuscita
+	 * Simulates successful connection
 	 *
-	 * @param string      $host           Host Redis.
-	 * @param int         $port           Porta Redis.
-	 * @param float       $timeout        Timeout connessione.
-	 * @param string|null $persistent_id  ID persistente.
-	 * @param int         $retry_interval Intervallo retry.
-	 * @param float       $read_timeout   Timeout lettura.
-	 * @param array|null  $context        Contesto.
+	 * @param string      $host           Redis host.
+	 * @param int         $port           Redis port.
+	 * @param float       $timeout        Connection timeout.
+	 * @param string|null $persistent_id  Persistent ID.
+	 * @param int         $retry_interval Retry interval.
+	 * @param float       $read_timeout   Read timeout.
+	 * @param array|null  $context        Context.
 	 * @return bool True.
 	 */
 	// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
@@ -357,11 +357,11 @@ class FakeRedisSlowResponse extends \Redis {
 	}
 
 	/**
-	 * Simula SET lento (150ms)
+	 * Simulates slow SET (150ms)
 	 *
-	 * @param string $key     Chiave.
-	 * @param mixed  $value   Valore.
-	 * @param mixed  $options Opzioni.
+	 * @param string $key     Key.
+	 * @param mixed  $value   Value.
+	 * @param mixed  $options Options.
 	 * @return bool True.
 	 */
 	public function set( $key, $value, $options = null ) {
@@ -370,20 +370,20 @@ class FakeRedisSlowResponse extends \Redis {
 	}
 
 	/**
-	 * Simula GET corretto
+	 * Simulates correct GET
 	 *
-	 * @param string $key Chiave.
-	 * @return string Valore corretto.
+	 * @param string $key Key.
+	 * @return string Correct value.
 	 */
 	public function get( $key ) {
 		return RedisCheck::SMOKE_TEST_VALUE;
 	}
 
 	/**
-	 * Simula DEL
+	 * Simulates DEL
 	 *
-	 * @param mixed $key       Chiave.
-	 * @param mixed ...$otherKeys Altre chiavi.
+	 * @param mixed $key       Key.
+	 * @param mixed ...$otherKeys Other keys.
 	 * @return int 1.
 	 */
 	public function del( $key, ...$otherKeys ) {
@@ -391,7 +391,7 @@ class FakeRedisSlowResponse extends \Redis {
 	}
 
 	/**
-	 * Simula chiusura
+	 * Simulates close
 	 *
 	 * @return bool True.
 	 */
@@ -401,22 +401,22 @@ class FakeRedisSlowResponse extends \Redis {
 }
 
 /**
- * Fake Redis dove auth fallisce e close lancia eccezione
+ * Fake Redis where auth fails and close throws exception
  *
- * Copre il catch block in close_connection().
+ * Covers the catch block in close_connection().
  */
 class FakeRedisCloseFail extends \Redis {
 
 	/**
-	 * Simula connessione riuscita
+	 * Simulates successful connection
 	 *
-	 * @param string      $host           Host Redis.
-	 * @param int         $port           Porta Redis.
-	 * @param float       $timeout        Timeout connessione.
-	 * @param string|null $persistent_id  ID persistente.
-	 * @param int         $retry_interval Intervallo retry.
-	 * @param float       $read_timeout   Timeout lettura.
-	 * @param array|null  $context        Contesto.
+	 * @param string      $host           Redis host.
+	 * @param int         $port           Redis port.
+	 * @param float       $timeout        Connection timeout.
+	 * @param string|null $persistent_id  Persistent ID.
+	 * @param int         $retry_interval Retry interval.
+	 * @param float       $read_timeout   Read timeout.
+	 * @param array|null  $context        Context.
 	 * @return bool True.
 	 */
 	// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
@@ -433,21 +433,21 @@ class FakeRedisCloseFail extends \Redis {
 	}
 
 	/**
-	 * Simula fallimento autenticazione
+	 * Simulates authentication failure
 	 *
-	 * @param mixed $credentials Credenziali.
-	 * @return bool Mai raggiunto.
-	 * @throws \Exception Sempre.
+	 * @param mixed $credentials Credentials.
+	 * @return bool Never reached.
+	 * @throws \Exception Always.
 	 */
 	public function auth( $credentials ) {
 		throw new \Exception( 'Auth failed' );
 	}
 
 	/**
-	 * Simula chiusura che lancia eccezione
+	 * Simulates close that throws exception
 	 *
-	 * @return bool Mai raggiunto.
-	 * @throws \Exception Sempre.
+	 * @return bool Never reached.
+	 * @throws \Exception Always.
 	 */
 	public function close(): bool {
 		throw new \Exception( 'Close failed' );
@@ -455,22 +455,22 @@ class FakeRedisCloseFail extends \Redis {
 }
 
 /**
- * Fake Redis dove SET ritorna false e del lancia eccezione
+ * Fake Redis where SET returns false and del throws exception
  *
- * Copre il catch block in cleanup_and_close().
+ * Covers the catch block in cleanup_and_close().
  */
 class FakeRedisCleanupFail extends \Redis {
 
 	/**
-	 * Simula connessione riuscita
+	 * Simulates successful connection
 	 *
-	 * @param string      $host           Host Redis.
-	 * @param int         $port           Porta Redis.
-	 * @param float       $timeout        Timeout connessione.
-	 * @param string|null $persistent_id  ID persistente.
-	 * @param int         $retry_interval Intervallo retry.
-	 * @param float       $read_timeout   Timeout lettura.
-	 * @param array|null  $context        Contesto.
+	 * @param string      $host           Redis host.
+	 * @param int         $port           Redis port.
+	 * @param float       $timeout        Connection timeout.
+	 * @param string|null $persistent_id  Persistent ID.
+	 * @param int         $retry_interval Retry interval.
+	 * @param float       $read_timeout   Read timeout.
+	 * @param array|null  $context        Context.
 	 * @return bool True.
 	 */
 	// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
@@ -487,11 +487,11 @@ class FakeRedisCleanupFail extends \Redis {
 	}
 
 	/**
-	 * Simula SET che ritorna false
+	 * Simulates SET returning false
 	 *
-	 * @param string $key     Chiave.
-	 * @param mixed  $value   Valore.
-	 * @param mixed  $options Opzioni.
+	 * @param string $key     Key.
+	 * @param mixed  $value   Value.
+	 * @param mixed  $options Options.
 	 * @return bool False.
 	 */
 	public function set( $key, $value, $options = null ) {
@@ -499,22 +499,22 @@ class FakeRedisCleanupFail extends \Redis {
 	}
 
 	/**
-	 * Simula DEL che lancia eccezione
+	 * Simulates DEL that throws exception
 	 *
-	 * @param mixed $key       Chiave.
-	 * @param mixed ...$otherKeys Altre chiavi.
-	 * @return int Mai raggiunto.
-	 * @throws \Exception Sempre.
+	 * @param mixed $key       Key.
+	 * @param mixed ...$otherKeys Other keys.
+	 * @return int Never reached.
+	 * @throws \Exception Always.
 	 */
 	public function del( $key, ...$otherKeys ) {
 		throw new \Exception( 'DEL failed during cleanup' );
 	}
 
 	/**
-	 * Simula chiusura che lancia eccezione
+	 * Simulates close that throws exception
 	 *
-	 * @return bool Mai raggiunto.
-	 * @throws \Exception Sempre.
+	 * @return bool Never reached.
+	 * @throws \Exception Always.
 	 */
 	public function close(): bool {
 		throw new \Exception( 'Close failed during cleanup' );

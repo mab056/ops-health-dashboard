@@ -1,8 +1,8 @@
 <?php
 /**
- * Test per AlertManagerInterface
+ * Test for AlertManagerInterface
  *
- * Verifica che il contratto dell'interfaccia AlertManager sia corretto.
+ * Verifies that the AlertManager interface contract is correct.
  *
  * @package OpsHealthDashboard\Tests\Unit\Interfaces
  */
@@ -15,12 +15,12 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class AlertManagerInterfaceTest
  *
- * Test per l'interfaccia AlertManagerInterface.
+ * Test for the AlertManagerInterface interface.
  */
 class AlertManagerInterfaceTest extends TestCase {
 
 	/**
-	 * Verifica che l'interfaccia è un'interfaccia
+	 * Verifies that it is an interface
 	 *
 	 * @return void
 	 */
@@ -30,7 +30,7 @@ class AlertManagerInterfaceTest extends TestCase {
 	}
 
 	/**
-	 * Verifica che dichiara add_channel
+	 * Verifies that it declares add_channel
 	 *
 	 * @return void
 	 */
@@ -44,7 +44,7 @@ class AlertManagerInterfaceTest extends TestCase {
 	}
 
 	/**
-	 * Verifica che dichiara process
+	 * Verifies that it declares process
 	 *
 	 * @return void
 	 */

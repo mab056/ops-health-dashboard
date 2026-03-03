@@ -1,9 +1,9 @@
 <?php
 /**
- * Integration Test per AlertSettings Admin Page
+ * Integration Test for AlertSettings Admin Page
  *
- * Verifica form processing, nonce, capability, sanitizzazione e render
- * con WordPress reale.
+ * Verifies form processing, nonce, capability, sanitization and render
+ * with real WordPress.
  *
  * @package OpsHealthDashboard\Tests\Integration\Admin
  */
@@ -15,31 +15,31 @@ use OpsHealthDashboard\Services\Storage;
 use WP_UnitTestCase;
 
 /**
- * Sottoclasse testabile di AlertSettings
+ * Testable subclass of AlertSettings
  *
- * Override di do_exit() per evitare exit() nei test.
+ * Override of do_exit() to avoid exit() in tests.
  */
 class TestableAlertSettings extends AlertSettings {
 
 	/**
-	 * Override do_exit per testabilità
+	 * Override do_exit for testability
 	 *
 	 * @return void
 	 */
 	protected function do_exit(): void {
-		// No-op per testabilità.
+		// No-op for testability.
 	}
 }
 
 /**
  * Class AlertSettingsTest
  *
- * Integration test per AlertSettings con WordPress reale.
+ * Integration test for AlertSettings with real WordPress.
  */
 class AlertSettingsTest extends WP_UnitTestCase {
 
 	/**
-	 * Storage reale
+	 * Real storage
 	 *
 	 * @var Storage
 	 */
@@ -72,7 +72,7 @@ class AlertSettingsTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Crea istanza testabile
+	 * Creates testable instance
 	 *
 	 * @return TestableAlertSettings
 	 */
@@ -81,7 +81,7 @@ class AlertSettingsTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Configura utente admin
+	 * Sets up admin user
 	 *
 	 * @return void
 	 */
@@ -91,9 +91,9 @@ class AlertSettingsTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Configura POST con nonce valido e azione
+	 * Sets up POST with valid nonce and action
 	 *
-	 * @param array $extra Dati POST aggiuntivi.
+	 * @param array $extra Additional POST data.
 	 * @return void
 	 */
 	private function set_valid_post( array $extra = [] ): void {
@@ -109,7 +109,7 @@ class AlertSettingsTest extends WP_UnitTestCase {
 	// ─── Help tabs ────────────────────────────────────────────────
 
 	/**
-	 * Testa che add_help_tabs registra 3 tab sulla schermata alert settings
+	 * Verifies that add_help_tabs registers 3 tabs on the alert settings screen
 	 */
 	public function test_add_help_tabs_registers_tabs_on_alert_screen() {
 		$this->set_admin_user();
@@ -128,7 +128,7 @@ class AlertSettingsTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che add_help_tabs imposta la sidebar con link GitHub
+	 * Verifies that add_help_tabs sets the sidebar with GitHub link
 	 */
 	public function test_add_help_tabs_sets_sidebar_on_alert_screen() {
 		$this->set_admin_user();
@@ -144,7 +144,7 @@ class AlertSettingsTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che la classe NON è final
+	 * Verifies that the class is NOT final
 	 *
 	 * @return void
 	 */
@@ -154,7 +154,7 @@ class AlertSettingsTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Verifies that NO static methods exist
 	 *
 	 * @return void
 	 */
@@ -173,7 +173,7 @@ class AlertSettingsTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che NON esistono proprietà static
+	 * Verifies that NO static properties exist
 	 *
 	 * @return void
 	 */
@@ -185,7 +185,7 @@ class AlertSettingsTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che process_actions ritorna senza POST action
+	 * Verifies that process_actions returns without POST action
 	 *
 	 * @return void
 	 */
@@ -198,7 +198,7 @@ class AlertSettingsTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che process_actions ritorna con nonce invalido
+	 * Verifies that process_actions returns with invalid nonce
 	 *
 	 * @return void
 	 */
@@ -216,7 +216,7 @@ class AlertSettingsTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che process_actions ritorna senza capability
+	 * Verifies that process_actions returns without capability
 	 *
 	 * @return void
 	 */
@@ -234,7 +234,7 @@ class AlertSettingsTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che process_actions salva tutte le impostazioni dei canali
+	 * Verifies that process_actions saves all channel settings
 	 *
 	 * @return void
 	 */
@@ -283,7 +283,7 @@ class AlertSettingsTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che process_actions sanitizza URL con esc_url_raw reale
+	 * Verifies that process_actions sanitizes URLs with real esc_url_raw
 	 *
 	 * @return void
 	 */
@@ -305,13 +305,13 @@ class AlertSettingsTest extends WP_UnitTestCase {
 
 		$saved = $this->storage->get( 'alert_settings', [] );
 
-		// esc_url_raw rimuove schemi non sicuri.
+		// esc_url_raw removes unsafe schemes.
 		$this->assertStringNotContainsString( 'javascript', $saved['webhook']['url'] );
 		$this->assertEquals( 'https://valid.example.com/api', $saved['whatsapp']['webhook_url'] );
 	}
 
 	/**
-	 * Testa che process_actions converte cooldown con absint reale
+	 * Verifies that process_actions converts cooldown with real absint
 	 *
 	 * @return void
 	 */
@@ -327,12 +327,12 @@ class AlertSettingsTest extends WP_UnitTestCase {
 
 		$saved = $this->storage->get( 'alert_settings', [] );
 
-		// absint(-5) restituisce 5.
+		// absint(-5) returns 5.
 		$this->assertEquals( 5, $saved['cooldown_minutes'] );
 	}
 
 	/**
-	 * Testa che process_actions imposta il transient di successo
+	 * Verifies that process_actions sets the success transient
 	 *
 	 * @return void
 	 */
@@ -352,14 +352,14 @@ class AlertSettingsTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che canali disabilitati hanno enabled=false
+	 * Verifies that disabled channels have enabled=false
 	 *
 	 * @return void
 	 */
 	public function test_process_actions_disabled_channels_saved_as_false() {
 		$this->set_admin_user();
 
-		// Non inviamo checkbox enabled per nessun canale.
+		// Do not send enabled checkbox for any channel.
 		$this->set_valid_post();
 
 		add_filter( 'wp_redirect', '__return_false' );
@@ -377,7 +377,7 @@ class AlertSettingsTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che render output il form per admin
+	 * Verifies that render outputs the form for admin
 	 *
 	 * @return void
 	 */
@@ -401,7 +401,7 @@ class AlertSettingsTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che render mostra i valori salvati
+	 * Verifies that render shows saved values
 	 *
 	 * @return void
 	 */
@@ -437,7 +437,7 @@ class AlertSettingsTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che render mostra la notice e la cancella
+	 * Verifies that render shows the notice and deletes it
 	 *
 	 * @return void
 	 */
@@ -455,12 +455,12 @@ class AlertSettingsTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'Alert settings saved.', $output );
 		$this->assertStringContainsString( 'notice-success', $output );
 
-		// Il transient deve essere cancellato dopo il render.
+		// The transient must be deleted after render.
 		$this->assertFalse( get_transient( 'ops_health_alert_notice' ) );
 	}
 
 	/**
-	 * Testa che render nega accesso senza capability
+	 * Verifies that render denies access without capability
 	 *
 	 * @return void
 	 */
@@ -475,14 +475,14 @@ class AlertSettingsTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che process_actions preserva secret esistenti quando campi password vuoti
+	 * Verifies that process_actions preserves existing secrets when password fields are empty
 	 *
 	 * @return void
 	 */
 	public function test_process_actions_preserves_existing_secrets_when_empty() {
 		$this->set_admin_user();
 
-		// Salva impostazioni con secret esistenti.
+		// Save settings with existing secrets.
 		$this->storage->set(
 			'alert_settings',
 			[
@@ -505,7 +505,7 @@ class AlertSettingsTest extends WP_UnitTestCase {
 			]
 		);
 
-		// Invia POST con campi password vuoti (simula submit senza cambiare password).
+		// Submit POST with empty password fields (simulates submit without changing password).
 		$this->set_valid_post(
 			[
 				'webhook_enabled'       => '1',
@@ -528,21 +528,21 @@ class AlertSettingsTest extends WP_UnitTestCase {
 
 		$saved = $this->storage->get( 'alert_settings', [] );
 
-		// I secret esistenti devono essere preservati.
+		// Existing secrets must be preserved.
 		$this->assertEquals( 'existing-webhook-secret', $saved['webhook']['secret'] );
 		$this->assertEquals( 'existing-bot-token', $saved['telegram']['bot_token'] );
 		$this->assertEquals( 'existing-wa-token', $saved['whatsapp']['api_token'] );
 	}
 
 	/**
-	 * Testa che build_settings_from_post gestisce settings corrotti (non array)
+	 * Verifies that build_settings_from_post handles corrupted settings (non-array)
 	 *
 	 * @return void
 	 */
 	public function test_process_actions_handles_corrupted_existing_settings() {
 		$this->set_admin_user();
 
-		// Corrompi le impostazioni esistenti con un valore non-array.
+		// Corrupt existing settings with a non-array value.
 		$this->storage->set( 'alert_settings', 'corrupted-string' );
 
 		$this->set_valid_post(
@@ -559,21 +559,21 @@ class AlertSettingsTest extends WP_UnitTestCase {
 
 		$saved = $this->storage->get( 'alert_settings', [] );
 
-		// Deve salvare correttamente nonostante dati precedenti corrotti.
+		// Must save correctly despite previously corrupted data.
 		$this->assertIsArray( $saved );
 		$this->assertTrue( $saved['email']['enabled'] );
 		$this->assertEquals( 'admin@example.com', $saved['email']['recipients'] );
 	}
 
 	/**
-	 * Testa che render gestisce settings corrotti (non array)
+	 * Verifies that render handles corrupted settings (non-array)
 	 *
 	 * @return void
 	 */
 	public function test_render_handles_corrupted_settings() {
 		$this->set_admin_user();
 
-		// Corrompi le impostazioni.
+		// Corrupt settings.
 		$this->storage->set( 'alert_settings', 'corrupted-string' );
 
 		$screen = $this->create_screen();
@@ -582,7 +582,7 @@ class AlertSettingsTest extends WP_UnitTestCase {
 		$screen->render();
 		$output = ob_get_clean();
 
-		// Deve renderizzare il form senza errori.
+		// Must render the form without errors.
 		$this->assertStringContainsString( '<form', $output );
 	}
 }

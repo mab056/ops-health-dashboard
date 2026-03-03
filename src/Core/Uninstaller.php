@@ -1,10 +1,10 @@
 <?php
 /**
- * Gestore Disinstallazione Plugin
+ * Plugin Uninstall Handler
  *
- * Pulizia completa di tutte le opzioni, transient e cron hook
- * creati dal plugin quando viene cancellato da WordPress.
- * Supporta sia single-site che multisite network.
+ * Complete cleanup of all options, transients, and cron hooks
+ * created by the plugin when deleted from WordPress.
+ * Supports both single-site and multisite network.
  *
  * @package OpsHealthDashboard\Core
  */
@@ -22,32 +22,32 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class Uninstaller
  *
- * Rimuove tutti i dati del plugin dal database quando viene disinstallato.
- * Su multisite, itera tutti i blog della rete.
+ * Removes all plugin data from the database when uninstalled.
+ * On multisite, iterates all network blogs.
  */
 class Uninstaller {
 
 	/**
-	 * Istanza di $wpdb per query dirette
+	 * $wpdb instance for direct queries
 	 *
 	 * @var object
 	 */
 	private $wpdb;
 
 	/**
-	 * Costruttore
+	 * Constructor
 	 *
-	 * @param object $wpdb Istanza globale $wpdb di WordPress.
+	 * @param object $wpdb WordPress global $wpdb instance.
 	 */
 	public function __construct( $wpdb ) {
 		$this->wpdb = $wpdb;
 	}
 
 	/**
-	 * Esegue la pulizia completa del plugin
+	 * Performs complete plugin cleanup
 	 *
-	 * Su multisite itera su tutti i blog della rete.
-	 * Su single-site esegue la pulizia direttamente.
+	 * On multisite, iterates all network blogs.
+	 * On single-site, performs cleanup directly.
 	 *
 	 * @return void
 	 */
@@ -60,9 +60,9 @@ class Uninstaller {
 	}
 
 	/**
-	 * Pulizia network multisite
+	 * Multisite network cleanup
 	 *
-	 * Itera su tutti i blog della rete ed esegue la pulizia per ciascuno.
+	 * Iterates all network blogs and performs cleanup for each.
 	 *
 	 * @return void
 	 */
@@ -77,9 +77,9 @@ class Uninstaller {
 	}
 
 	/**
-	 * Pulizia singolo sito
+	 * Single site cleanup
 	 *
-	 * Rimuove opzioni, cron hook e transient dal database del sito corrente.
+	 * Removes options, cron hooks, and transients from the current site database.
 	 *
 	 * @return void
 	 */
@@ -90,7 +90,7 @@ class Uninstaller {
 	}
 
 	/**
-	 * Cancella tutte le opzioni del plugin
+	 * Deletes all plugin options
 	 *
 	 * @return void
 	 */
@@ -110,7 +110,7 @@ class Uninstaller {
 	}
 
 	/**
-	 * Cancella il cron hook del plugin
+	 * Clears the plugin cron hook
 	 *
 	 * @return void
 	 */
@@ -119,21 +119,21 @@ class Uninstaller {
 	}
 
 	/**
-	 * Cancella tutti i transient del plugin
+	 * Deletes all plugin transients
 	 *
-	 * Cancella i transient a nome fisso con delete_transient()
-	 * e quelli dinamici (cooldown per-check) via query $wpdb con LIKE.
+	 * Deletes fixed-name transients with delete_transient()
+	 * and dynamic ones (per-check cooldown) via $wpdb query with LIKE.
 	 *
 	 * @return void
 	 */
 	private function delete_transients(): void {
-		// Transient a nome fisso.
+		// Fixed-name transients.
 		delete_transient( 'ops_health_cron_check' );
 		delete_transient( 'ops_health_admin_notice' );
 		delete_transient( 'ops_health_alert_notice' );
 
-		// Transient di cooldown dinamici (uno per check ID).
-		// Usa $wpdb->options per il nome tabella corretto (rispetta table prefix).
+		// Dynamic cooldown transients (one per check ID).
+		// Uses $wpdb->options for the correct table name (respects table prefix).
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared

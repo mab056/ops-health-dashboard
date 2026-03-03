@@ -2,8 +2,8 @@
 /**
  * Dashboard Widget
  *
- * Widget per la dashboard di wp-admin che mostra lo stato globale
- * dei check di salute operativi con timing e link diretti.
+ * Widget for the wp-admin dashboard showing the overall status
+ * of operational health checks with timing and direct links.
  *
  * @package OpsHealthDashboard\Admin
  */
@@ -24,19 +24,19 @@ use OpsHealthDashboard\Interfaces\StorageInterface;
 /**
  * Class DashboardWidget
  *
- * Widget nella dashboard wp-admin con stato globale di salute.
+ * Widget in the wp-admin dashboard with overall health status.
  */
 class DashboardWidget {
 
 	/**
-	 * CheckRunner per ottenere i risultati
+	 * CheckRunner for retrieving results
 	 *
 	 * @var CheckRunnerInterface
 	 */
 	private $runner;
 
 	/**
-	 * Storage per leggere last_run_at
+	 * Storage for reading last_run_at
 	 *
 	 * @var StorageInterface
 	 */
@@ -45,8 +45,8 @@ class DashboardWidget {
 	/**
 	 * Constructor
 	 *
-	 * @param CheckRunnerInterface $runner  CheckRunner per i risultati.
-	 * @param StorageInterface     $storage Storage per dati di timing.
+	 * @param CheckRunnerInterface $runner  CheckRunner for retrieving results.
+	 * @param StorageInterface     $storage Storage for timing data.
 	 */
 	public function __construct( CheckRunnerInterface $runner, StorageInterface $storage ) {
 		$this->runner  = $runner;
@@ -54,7 +54,7 @@ class DashboardWidget {
 	}
 
 	/**
-	 * Registra gli hook WordPress
+	 * Registers WordPress hooks
 	 *
 	 * @return void
 	 */
@@ -64,9 +64,9 @@ class DashboardWidget {
 	}
 
 	/**
-	 * Carica gli stili del widget sulla pagina dashboard
+	 * Enqueues widget styles on the dashboard page
 	 *
-	 * Enqueue il CSS solo sulla schermata principale della dashboard wp-admin.
+	 * Enqueues CSS only on the main wp-admin dashboard screen.
 	 *
 	 * @return void
 	 */
@@ -90,7 +90,7 @@ class DashboardWidget {
 	}
 
 	/**
-	 * Aggiunge il widget alla dashboard
+	 * Adds the widget to the dashboard
 	 *
 	 * @return void
 	 */
@@ -107,7 +107,7 @@ class DashboardWidget {
 	}
 
 	/**
-	 * Renderizza il contenuto del widget
+	 * Renders the widget content
 	 *
 	 * @return void
 	 */
@@ -209,12 +209,12 @@ class DashboardWidget {
 	}
 
 	/**
-	 * Determina lo status globale (il peggiore vince)
+	 * Determines overall status (worst wins)
 	 *
-	 * Critical > warning > ok; risultati vuoti = unknown.
+	 * Critical > warning > ok; empty results = unknown.
 	 *
-	 * @param array $results Risultati dei check.
-	 * @return string Status globale.
+	 * @param array $results Check results.
+	 * @return string Overall status.
 	 */
 	private function determine_overall_status( array $results ): string {
 		if ( empty( $results ) ) {

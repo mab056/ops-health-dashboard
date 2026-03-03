@@ -1,8 +1,8 @@
 <?php
 /**
- * Integration Test per Admin Menu
+ * Integration Test for Admin Menu
  *
- * Test di integrazione con WordPress admin reale.
+ * Integration test with real WordPress admin.
  *
  * @package OpsHealthDashboard\Tests\Integration\Admin
  */
@@ -20,12 +20,12 @@ use WP_UnitTestCase;
 /**
  * Class MenuTest
  *
- * Integration test per Menu con WordPress reale.
+ * Integration test for Menu with real WordPress.
  */
 class MenuTest extends WP_UnitTestCase {
 
 	/**
-	 * Crea un'istanza di Menu con dipendenze reali
+	 * Creates a Menu instance with real dependencies
 	 *
 	 * @return Menu
 	 */
@@ -38,7 +38,7 @@ class MenuTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Crea un'istanza di Menu con AlertSettings
+	 * Creates a Menu instance with AlertSettings
 	 *
 	 * @return Menu
 	 */
@@ -52,7 +52,7 @@ class MenuTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che il menu può essere registrato
+	 * Verifies that the menu can be registered
 	 */
 	public function test_menu_can_be_registered() {
 		$menu = $this->create_menu();
@@ -62,7 +62,7 @@ class MenuTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che add_menu registra la pagina
+	 * Verifies that add_menu registers the page
 	 */
 	public function test_add_menu_registers_page() {
 		global $admin_page_hooks;
@@ -70,12 +70,12 @@ class MenuTest extends WP_UnitTestCase {
 		$menu = $this->create_menu();
 		$menu->add_menu();
 
-		// Verifica che la pagina è registrata.
+		// Verify that the page is registered.
 		$this->assertArrayHasKey( 'ops-health-dashboard', $admin_page_hooks );
 	}
 
 	/**
-	 * Testa che add_menu con AlertSettings registra il sottomenu
+	 * Verifies that add_menu with AlertSettings registers the submenu
 	 */
 	public function test_add_menu_with_alert_settings_registers_submenu() {
 		global $submenu;
@@ -94,7 +94,7 @@ class MenuTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che render_alert_settings delega ad AlertSettings
+	 * Verifies that render_alert_settings delegates to AlertSettings
 	 */
 	public function test_render_alert_settings_delegates_to_alert_settings() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
@@ -112,7 +112,7 @@ class MenuTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che render_alert_settings non fa nulla senza AlertSettings
+	 * Verifies that render_alert_settings does nothing without AlertSettings
 	 */
 	public function test_render_alert_settings_does_nothing_without_alert_settings() {
 		$menu = $this->create_menu();
@@ -125,7 +125,7 @@ class MenuTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che add_menu registra load hook per AlertSettings
+	 * Verifies that add_menu registers load hook for AlertSettings
 	 */
 	public function test_add_menu_registers_load_hook_for_alert_settings() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
@@ -134,7 +134,7 @@ class MenuTest extends WP_UnitTestCase {
 		$menu = $this->create_menu_with_alert_settings();
 		$menu->add_menu();
 
-		// Il load hook per la pagina submenu dovrebbe essere registrato.
+		// The load hook for the submenu page should be registered.
 		global $submenu;
 		$this->assertIsArray( $submenu );
 		$this->assertArrayHasKey( 'ops-health-dashboard', $submenu );

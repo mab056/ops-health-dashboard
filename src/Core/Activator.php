@@ -1,6 +1,6 @@
 <?php
 /**
- * Gestore Attivazione/Disattivazione Plugin
+ * Plugin Activation/Deactivation Handler
  *
  * @package OpsHealthDashboard\Core
  */
@@ -20,14 +20,14 @@ use OpsHealthDashboard\Services\Scheduler;
 /**
  * Class Activator
  *
- * Gestisce l'attivazione e la disattivazione del plugin.
+ * Manages plugin activation and deactivation.
  */
 class Activator {
 
 	/**
-	 * Gestore attivazione plugin
+	 * Plugin activation handler
 	 *
-	 * Configura il plugin alla prima attivazione.
+	 * Configures the plugin on first activation.
 	 *
 	 * @return void
 	 */
@@ -40,9 +40,9 @@ class Activator {
 			update_option( 'ops_health_version', OPS_HEALTH_DASHBOARD_VERSION );
 		}
 
-		// Registra l'intervallo custom e schedula il cron.
-		// Nota: filtro duplicato con Scheduler::register_hooks().
-		// Necessario qui perché Scheduler non è ancora bootstrappato durante attivazione.
+		// Registers the custom interval and schedules the cron.
+		// Note: filter duplicated with Scheduler::register_hooks().
+		// Required here because Scheduler is not yet bootstrapped during activation.
 		add_filter(
 			'cron_schedules',
 			function ( $schedules ) {
@@ -62,9 +62,9 @@ class Activator {
 	}
 
 	/**
-	 * Gestore disattivazione plugin
+	 * Plugin deactivation handler
 	 *
-	 * Pulizia alla disattivazione (ma preserva i dati).
+	 * Cleanup on deactivation (but preserves data).
 	 *
 	 * @return void
 	 */

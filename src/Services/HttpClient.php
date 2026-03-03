@@ -2,8 +2,8 @@
 /**
  * HTTP Client Service
  *
- * Client HTTP sicuro con protezione anti-SSRF per tutte le richieste in uscita.
- * Valida schema, risoluzione DNS, range IP e porte prima di ogni richiesta.
+ * Secure HTTP client with anti-SSRF protection for all outgoing requests.
+ * Validates scheme, DNS resolution, IP ranges, and ports before each request.
  *
  * @package OpsHealthDashboard\Services
  */
@@ -24,33 +24,33 @@ use OpsHealthDashboard\Interfaces\RedactionInterface;
 /**
  * Class HttpClient
  *
- * Implementazione del client HTTP con protezione anti-SSRF.
+ * HTTP client implementation with anti-SSRF protection.
  */
 class HttpClient implements HttpClientInterface {
 
 	/**
-	 * Timeout per le richieste HTTP in secondi
+	 * Timeout for HTTP requests in seconds
 	 *
 	 * @var int
 	 */
 	const TIMEOUT = 5;
 
 	/**
-	 * Schemi URL consentiti
+	 * Allowed URL schemes
 	 *
 	 * @var array
 	 */
 	const ALLOWED_SCHEMES = [ 'http', 'https' ];
 
 	/**
-	 * Porte consentite
+	 * Allowed ports
 	 *
 	 * @var array
 	 */
 	const ALLOWED_PORTS = [ 80, 443 ];
 
 	/**
-	 * Servizio di redazione per messaggi di errore
+	 * Redaction service for error messages
 	 *
 	 * @var RedactionInterface
 	 */
@@ -59,32 +59,32 @@ class HttpClient implements HttpClientInterface {
 	/**
 	 * Constructor
 	 *
-	 * @param RedactionInterface $redaction Servizio di redazione dati sensibili.
+	 * @param RedactionInterface $redaction Sensitive data redaction service.
 	 */
 	public function __construct( RedactionInterface $redaction ) {
 		$this->redaction = $redaction;
 	}
 
 	/**
-	 * Valida se un URL è sicuro per richieste in uscita (anti-SSRF)
+	 * Validates whether a URL is safe for outgoing requests (anti-SSRF)
 	 *
-	 * @param string $url URL da validare.
-	 * @return bool True se l'URL è sicuro.
+	 * @param string $url URL to validate.
+	 * @return bool True if the URL is safe.
 	 */
 	public function is_safe_url( string $url ): bool {
 		return null !== $this->validate_and_resolve( $url );
 	}
 
 	/**
-	 * Invia una richiesta HTTP POST
+	 * Sends an HTTP POST request
 	 *
-	 * Usa DNS pinning via CURLOPT_RESOLVE per prevenire attacchi
-	 * TOCTOU/DNS rebinding tra validazione e richiesta effettiva.
+	 * Uses DNS pinning via CURLOPT_RESOLVE to prevent TOCTOU/DNS rebinding
+	 * attacks between validation and the actual request.
 	 *
-	 * @param string       $url     URL di destinazione.
-	 * @param array|string $body    Dati del corpo: array (auto-serializzato JSON) o stringa pre-serializzata.
-	 * @param array        $headers Header HTTP aggiuntivi.
-	 * @return array Risultato con chiavi success, code, body, error.
+	 * @param string       $url     Destination URL.
+	 * @param array|string $body    Body data: array (auto-serialized to JSON) or pre-serialized string.
+	 * @param array        $headers Additional HTTP headers.
+	 * @return array Result with keys success, code, body, error.
 	 */
 	public function post( string $url, $body, array $headers = [] ): array {
 		$resolved = $this->validate_and_resolve( $url );
@@ -107,7 +107,7 @@ class HttpClient implements HttpClientInterface {
 		add_action( 'http_api_curl', $pin );
 
 		$args = [
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- wp_json_encode non disponibile in unit test.
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- wp_json_encode not available in unit test.
 			'body'        => is_string( $body ) ? $body : json_encode( $body ),
 			'headers'     => array_merge(
 				[ 'Content-Type' => 'application/json' ],
@@ -160,38 +160,38 @@ class HttpClient implements HttpClientInterface {
 	}
 
 	/**
-	 * Valida URL e risolve DNS, ritorna dati di connessione
+	 * Validates URL and resolves DNS, returns connection data
 	 *
-	 * Esegue tutte le verifiche anti-SSRF (schema, host, porta, DNS, IP privato)
-	 * e ritorna i dati necessari per il DNS pinning.
+	 * Performs all anti-SSRF checks (scheme, host, port, DNS, private IP)
+	 * and returns the data needed for DNS pinning.
 	 *
-	 * @param string $url URL da validare.
-	 * @return array|null Array con host, ip, port se valido, null altrimenti.
+	 * @param string $url URL to validate.
+	 * @return array|null Array with host, ip, port if valid, null otherwise.
 	 */
 	private function validate_and_resolve( string $url ) {
 		if ( '' === $url ) {
 			return null;
 		}
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- Usa parse_url nativa per evitare dipendenza WP.
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- Uses native parse_url to avoid WP dependency.
 		$parts = parse_url( $url );
 
 		if ( false === $parts || ! is_array( $parts ) ) {
 			return null;
 		}
 
-		// Verifica schema.
+		// Verify scheme.
 		$scheme = isset( $parts['scheme'] ) ? strtolower( $parts['scheme'] ) : '';
 		if ( ! in_array( $scheme, self::ALLOWED_SCHEMES, true ) ) {
 			return null;
 		}
 
-		// Verifica host presente.
+		// Verify host is present.
 		if ( ! isset( $parts['host'] ) || '' === $parts['host'] ) {
 			return null;
 		}
 
-		// Determina porta (default basato su schema).
+		// Determine port (default based on scheme).
 		$port = isset( $parts['port'] )
 			? (int) $parts['port']
 			: ( 'https' === $scheme ? 443 : 80 );
@@ -200,15 +200,15 @@ class HttpClient implements HttpClientInterface {
 			return null;
 		}
 
-		// Risolvi hostname e verifica IP.
+		// Resolve hostname and verify IP.
 		$ip = $this->resolve_host( $parts['host'] );
 
-		// gethostbyname ritorna l'hostname se non riesce a risolvere.
+		// gethostbyname returns the hostname if it cannot resolve.
 		if ( $ip === $parts['host'] && ! filter_var( $ip, FILTER_VALIDATE_IP ) ) {
 			return null;
 		}
 
-		// Verifica che l'IP non sia privato.
+		// Verify the IP is not private.
 		if ( $this->is_private_ip( $ip ) ) {
 			return null;
 		}
@@ -221,54 +221,54 @@ class HttpClient implements HttpClientInterface {
 	}
 
 	/**
-	 * Crea una closure per il DNS pinning via CURLOPT_RESOLVE
+	 * Creates a closure for DNS pinning via CURLOPT_RESOLVE
 	 *
-	 * Forza cURL a usare l'IP già validato, prevenendo DNS rebinding.
-	 * Estratto in metodo protetto per testabilità (Reflection pattern).
+	 * Forces cURL to use the already-validated IP, preventing DNS rebinding.
+	 * Extracted to protected method for testability (Reflection pattern).
 	 *
-	 * @param string $host Hostname da pinnare.
-	 * @param string $ip   IP risolto e validato.
-	 * @param int    $port Porta di destinazione.
-	 * @return \Closure Closure da passare a add_action('http_api_curl').
+	 * @param string $host Hostname to pin.
+	 * @param string $ip   Resolved and validated IP.
+	 * @param int    $port Destination port.
+	 * @return \Closure Closure to pass to add_action('http_api_curl').
 	 */
 	protected function create_dns_pin( string $host, string $ip, int $port ): \Closure {
 		return function ( $handle ) use ( $host, $ip, $port ) {
 			// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
 			// @codeCoverageIgnoreStart
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Necessario per DNS pinning anti-TOCTOU.
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Required for anti-TOCTOU DNS pinning.
 			curl_setopt( $handle, CURLOPT_RESOLVE, [ "{$host}:{$port}:{$ip}" ] );
 			// @codeCoverageIgnoreEnd
 		};
 	}
 
 	/**
-	 * Risolve un hostname in un indirizzo IP
+	 * Resolves a hostname to an IP address
 	 *
-	 * Estratto in metodo protetto per testabilità (partial mock pattern).
+	 * Extracted to protected method for testability (partial mock pattern).
 	 *
-	 * @param string $hostname Hostname da risolvere.
-	 * @return string Indirizzo IP risolto, o l'hostname se la risoluzione fallisce.
+	 * @param string $hostname Hostname to resolve.
+	 * @return string Resolved IP address, or the hostname if resolution fails.
 	 */
 	protected function resolve_host( string $hostname ): string {
 		return gethostbyname( $hostname );
 	}
 
 	/**
-	 * Verifica se un IP è in un range privato/riservato
+	 * Checks if an IP is in a private/reserved range
 	 *
-	 * Blocca: loopback (127.0.0.0/8), private (10/8, 172.16/12, 192.168/16),
-	 * link-local (169.254/16), e 0.0.0.0.
+	 * Blocks: loopback (127.0.0.0/8), private (10/8, 172.16/12, 192.168/16),
+	 * link-local (169.254/16), and 0.0.0.0.
 	 *
-	 * Nota: IPv6 e IP non validi sono trattati come non sicuri (safe-fail).
-	 * gethostbyname() di PHP restituisce solo IPv4, quindi IPv6 puro viene
-	 * rifiutato dal controllo FILTER_FLAG_IPV4 come misura precauzionale.
+	 * Note: IPv6 and invalid IPs are treated as unsafe (safe-fail).
+	 * PHP's gethostbyname() returns only IPv4, so pure IPv6 is rejected
+	 * by the FILTER_FLAG_IPV4 check as a precautionary measure.
 	 *
-	 * @param string $ip Indirizzo IP da verificare.
-	 * @return bool True se l'IP è privato/riservato o non IPv4.
+	 * @param string $ip IP address to check.
+	 * @return bool True if the IP is private/reserved or non-IPv4.
 	 */
 	private function is_private_ip( string $ip ): bool {
 		if ( ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
-			return true; // Non-IPv4 (incluso IPv6): tratta come non sicuro (safe-fail).
+			return true; // Non-IPv4 (including IPv6): treated as unsafe (safe-fail).
 		}
 
 		if ( '0.0.0.0' === $ip ) {

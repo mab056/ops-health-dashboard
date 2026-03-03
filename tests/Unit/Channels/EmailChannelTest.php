@@ -1,8 +1,8 @@
 <?php
 /**
- * Test per EmailChannel
+ * Test for EmailChannel
  *
- * Verifica l'invio di alert via email con wp_mail().
+ * Verifies sending alerts via email with wp_mail().
  *
  * @package OpsHealthDashboard\Tests\Unit\Channels
  */
@@ -21,7 +21,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class EmailChannelTest
  *
- * Test unitari per il canale di alert Email.
+ * Unit tests for the Email alert channel.
  */
 class EmailChannelTest extends TestCase {
 
@@ -48,9 +48,9 @@ class EmailChannelTest extends TestCase {
 	}
 
 	/**
-	 * Crea un mock di StorageInterface
+	 * Creates a mock of StorageInterface
 	 *
-	 * @param array $settings Impostazioni da ritornare.
+	 * @param array $settings Settings to return.
 	 * @return \Mockery\MockInterface|StorageInterface
 	 */
 	private function create_storage_mock( array $settings = [] ) {
@@ -62,9 +62,9 @@ class EmailChannelTest extends TestCase {
 	}
 
 	/**
-	 * Crea un payload di test
+	 * Creates a test payload
 	 *
-	 * @param array $overrides Chiavi da sovrascrivere.
+	 * @param array $overrides Keys to override.
 	 * @return array
 	 */
 	private function create_test_payload( array $overrides = [] ) {
@@ -86,7 +86,7 @@ class EmailChannelTest extends TestCase {
 	}
 
 	/**
-	 * Configura mock i18n
+	 * Configures i18n mocks
 	 *
 	 * @return void
 	 */
@@ -96,7 +96,7 @@ class EmailChannelTest extends TestCase {
 	}
 
 	/**
-	 * Configura mock is_email che valida formato email
+	 * Configures is_email mock that validates email format
 	 *
 	 * @return void
 	 */
@@ -113,7 +113,7 @@ class EmailChannelTest extends TestCase {
 	// ---------------------------------------------------
 
 	/**
-	 * Testa che la classe NON è final
+	 * Tests that the class is NOT final
 	 *
 	 * @return void
 	 */
@@ -123,7 +123,7 @@ class EmailChannelTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Tests that there are NO static methods
 	 *
 	 * @return void
 	 */
@@ -142,7 +142,7 @@ class EmailChannelTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono proprietà static
+	 * Tests that there are NO static properties
 	 *
 	 * @return void
 	 */
@@ -154,7 +154,7 @@ class EmailChannelTest extends TestCase {
 	}
 
 	/**
-	 * Testa che implementa AlertChannelInterface
+	 * Tests that implements AlertChannelInterface
 	 *
 	 * @return void
 	 */
@@ -171,7 +171,7 @@ class EmailChannelTest extends TestCase {
 	// ---------------------------------------------------
 
 	/**
-	 * Testa che get_id ritorna 'email'
+	 * Tests that get_id returns 'email'
 	 *
 	 * @return void
 	 */
@@ -181,7 +181,7 @@ class EmailChannelTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get_name ritorna stringa tradotta
+	 * Tests that get_name returns translated string
 	 *
 	 * @return void
 	 */
@@ -196,7 +196,7 @@ class EmailChannelTest extends TestCase {
 	// ---------------------------------------------------
 
 	/**
-	 * Testa is_enabled true con configurazione valida
+	 * Tests is_enabled returns true with valid configuration
 	 *
 	 * @return void
 	 */
@@ -212,7 +212,7 @@ class EmailChannelTest extends TestCase {
 	}
 
 	/**
-	 * Testa is_enabled false quando disabilitato
+	 * Tests is_enabled returns false when disabled
 	 *
 	 * @return void
 	 */
@@ -228,7 +228,7 @@ class EmailChannelTest extends TestCase {
 	}
 
 	/**
-	 * Testa is_enabled false con recipients vuoti
+	 * Tests is_enabled returns false with empty recipients
 	 *
 	 * @return void
 	 */
@@ -244,7 +244,7 @@ class EmailChannelTest extends TestCase {
 	}
 
 	/**
-	 * Testa is_enabled false senza impostazioni
+	 * Tests is_enabled returns false without settings
 	 *
 	 * @return void
 	 */
@@ -254,7 +254,7 @@ class EmailChannelTest extends TestCase {
 	}
 
 	/**
-	 * Testa is_enabled false senza chiave email
+	 * Tests is_enabled returns false without email key
 	 *
 	 * @return void
 	 */
@@ -269,7 +269,7 @@ class EmailChannelTest extends TestCase {
 	// ---------------------------------------------------
 
 	/**
-	 * Testa invio email con successo
+	 * Tests email send with success
 	 *
 	 * @return void
 	 */
@@ -308,7 +308,7 @@ class EmailChannelTest extends TestCase {
 	}
 
 	/**
-	 * Testa invio email con fallimento wp_mail
+	 * Tests email send with wp_mail failure
 	 *
 	 * @return void
 	 */
@@ -337,7 +337,7 @@ class EmailChannelTest extends TestCase {
 	}
 
 	/**
-	 * Testa che il subject contiene il nome del check e lo status
+	 * Tests that the subject contains the check name and the status
 	 *
 	 * @return void
 	 */
@@ -378,7 +378,7 @@ class EmailChannelTest extends TestCase {
 	}
 
 	/**
-	 * Testa che il body contiene tutti i campi del payload
+	 * Tests that the body contains all payload fields
 	 *
 	 * @return void
 	 */
@@ -421,7 +421,7 @@ class EmailChannelTest extends TestCase {
 	}
 
 	/**
-	 * Testa invio recovery alert
+	 * Tests recovery alert send
 	 *
 	 * @return void
 	 */
@@ -468,7 +468,7 @@ class EmailChannelTest extends TestCase {
 	}
 
 	/**
-	 * Testa invio con destinatari multipli
+	 * Tests send with multiple recipients
 	 *
 	 * @return void
 	 */
@@ -511,7 +511,7 @@ class EmailChannelTest extends TestCase {
 	}
 
 	/**
-	 * Testa che send() ritorna errore quando tutti i destinatari sono invalidi
+	 * Tests that send() returns error when all recipients are invalid
 	 *
 	 * @return void
 	 */
@@ -539,7 +539,7 @@ class EmailChannelTest extends TestCase {
 	}
 
 	/**
-	 * Testa che indirizzi email non validi sono filtrati da parse_recipients
+	 * Tests that invalid email addresses are filtered by parse_recipients
 	 *
 	 * @return void
 	 */

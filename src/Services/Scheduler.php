@@ -2,8 +2,8 @@
 /**
  * Scheduler Service
  *
- * Gestisce la schedulazione automatica dei check tramite WP-Cron.
- * Registra un evento ricorrente per eseguire i check ogni 15 minuti.
+ * Manages automatic check scheduling via WP-Cron.
+ * Registers a recurring event to run checks every 15 minutes.
  *
  * @package OpsHealthDashboard\Services
  */
@@ -24,33 +24,33 @@ use OpsHealthDashboard\Interfaces\CheckRunnerInterface;
 /**
  * Class Scheduler
  *
- * Servizio per schedulare l'esecuzione automatica dei check.
+ * Service for scheduling automatic check execution.
  */
 class Scheduler {
 
 	/**
-	 * Nome dell'hook cron
+	 * Cron hook name
 	 *
 	 * @var string
 	 */
 	const HOOK_NAME = 'ops_health_run_checks';
 
 	/**
-	 * Nome dell'intervallo cron
+	 * Cron interval name
 	 *
 	 * @var string
 	 */
 	const INTERVAL = 'every_15_minutes';
 
 	/**
-	 * CheckRunner per eseguire i check
+	 * CheckRunner for running checks
 	 *
 	 * @var CheckRunnerInterface
 	 */
 	private $runner;
 
 	/**
-	 * Alert manager per notifiche su cambiamenti di stato
+	 * Alert manager for state change notifications
 	 *
 	 * @var AlertManagerInterface|null
 	 */
@@ -59,8 +59,8 @@ class Scheduler {
 	/**
 	 * Constructor
 	 *
-	 * @param CheckRunnerInterface       $runner        CheckRunner per eseguire i check.
-	 * @param AlertManagerInterface|null $alert_manager Alert manager opzionale.
+	 * @param CheckRunnerInterface       $runner        CheckRunner for running checks.
+	 * @param AlertManagerInterface|null $alert_manager Optional alert manager.
 	 */
 	public function __construct( CheckRunnerInterface $runner, AlertManagerInterface $alert_manager = null ) {
 		$this->runner        = $runner;
@@ -68,9 +68,9 @@ class Scheduler {
 	}
 
 	/**
-	 * Registra gli hook WordPress
+	 * Registers WordPress hooks
 	 *
-	 * Self-healing: ri-schedula se l'evento cron è assente.
+	 * Self-healing: reschedules if the cron event is missing.
 	 *
 	 * @return void
 	 */
@@ -85,10 +85,10 @@ class Scheduler {
 	}
 
 	/**
-	 * Aggiunge l'intervallo custom 'every_15_minutes' ai cron schedules
+	 * Adds the custom 'every_15_minutes' interval to cron schedules
 	 *
-	 * @param array $schedules Array di schedules esistenti.
-	 * @return array Array con il nuovo schedule aggiunto.
+	 * @param array $schedules Array of existing schedules.
+	 * @return array Array with the new schedule added.
 	 */
 	public function add_custom_cron_interval( array $schedules ): array {
 		if ( ! isset( $schedules[ self::INTERVAL ] ) ) {
@@ -102,7 +102,7 @@ class Scheduler {
 	}
 
 	/**
-	 * Schedula l'evento cron se non esiste già
+	 * Schedules the cron event if it does not already exist
 	 *
 	 * @return void
 	 */
@@ -115,7 +115,7 @@ class Scheduler {
 	}
 
 	/**
-	 * Rimuove l'evento cron schedulato
+	 * Removes the scheduled cron event
 	 *
 	 * @return void
 	 */
@@ -128,19 +128,19 @@ class Scheduler {
 	}
 
 	/**
-	 * Verifica se l'evento è già schedulato
+	 * Checks if the event is already scheduled
 	 *
-	 * @return bool True se schedulato.
+	 * @return bool True if scheduled.
 	 */
 	public function is_scheduled(): bool {
 		return false !== wp_next_scheduled( self::HOOK_NAME );
 	}
 
 	/**
-	 * Esegue i check e processa alert (chiamato dal cron hook)
+	 * Runs checks and processes alerts (called by the cron hook)
 	 *
-	 * Quando alert_manager è presente, legge i risultati precedenti PRIMA
-	 * di eseguire run_all(), poi chiama process() per rilevare cambiamenti.
+	 * When alert_manager is present, reads previous results BEFORE
+	 * running run_all(), then calls process() to detect changes.
 	 *
 	 * @return void
 	 */

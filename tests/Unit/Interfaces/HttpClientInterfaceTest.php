@@ -1,8 +1,8 @@
 <?php
 /**
- * Test per HttpClientInterface
+ * Test for HttpClientInterface
  *
- * Verifica che il contratto dell'interfaccia HttpClient sia corretto.
+ * Verifies that the HttpClient interface contract is correct.
  *
  * @package OpsHealthDashboard\Tests\Unit\Interfaces
  */
@@ -15,12 +15,12 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class HttpClientInterfaceTest
  *
- * Test per l'interfaccia HttpClientInterface.
+ * Test for the HttpClientInterface interface.
  */
 class HttpClientInterfaceTest extends TestCase {
 
 	/**
-	 * Verifica che l'interfaccia dichiara is_safe_url
+	 * Verifies that the interface declares is_safe_url
 	 *
 	 * @return void
 	 */
@@ -34,7 +34,7 @@ class HttpClientInterfaceTest extends TestCase {
 	}
 
 	/**
-	 * Verifica che l'interfaccia dichiara post
+	 * Verifies that the interface declares post
 	 *
 	 * @return void
 	 */
@@ -48,7 +48,7 @@ class HttpClientInterfaceTest extends TestCase {
 	}
 
 	/**
-	 * Verifica che l'interfaccia è un'interfaccia
+	 * Verifies that it is an interface
 	 *
 	 * @return void
 	 */

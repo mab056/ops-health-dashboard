@@ -1,8 +1,8 @@
 <?php
 /**
- * Test per HttpClient Service
+ * Test for HttpClient Service
  *
- * Verifica la validazione anti-SSRF e le richieste HTTP sicure.
+ * Verifies anti-SSRF validation and secure HTTP requests.
  *
  * @package OpsHealthDashboard\Tests\Unit\Services
  */
@@ -21,7 +21,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class HttpClientTest
  *
- * Test unitari per il servizio HttpClient con protezione anti-SSRF.
+ * Unit tests for the HttpClient service with anti-SSRF protection.
  */
 class HttpClientTest extends TestCase {
 
@@ -48,7 +48,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Crea un mock di RedactionInterface
+	 * Creates a mock of RedactionInterface
 	 *
 	 * @return \Mockery\MockInterface|RedactionInterface
 	 */
@@ -64,10 +64,10 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Crea un HttpClient testabile con resolve_host mockato
+	 * Creates a testable HttpClient with mocked resolve_host
 	 *
-	 * @param RedactionInterface $redaction Servizio di redazione.
-	 * @param string             $resolved_ip IP restituito da resolve_host.
+	 * @param RedactionInterface $redaction Redaction service.
+	 * @param string             $resolved_ip IP returned by resolve_host.
 	 * @return \Mockery\MockInterface|HttpClient
 	 */
 	private function create_client_with_resolved_ip( $redaction, string $resolved_ip ) {
@@ -86,7 +86,7 @@ class HttpClientTest extends TestCase {
 	// ---------------------------------------------------
 
 	/**
-	 * Testa che la classe NON è final
+	 * Tests that the class is NOT final
 	 *
 	 * @return void
 	 */
@@ -96,7 +96,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Tests that there are NO static methods
 	 *
 	 * @return void
 	 */
@@ -115,7 +115,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono proprietà static
+	 * Tests that there are NO static properties
 	 *
 	 * @return void
 	 */
@@ -127,7 +127,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che la classe implementa HttpClientInterface
+	 * Tests that the class implements HttpClientInterface
 	 *
 	 * @return void
 	 */
@@ -143,21 +143,21 @@ class HttpClientTest extends TestCase {
 	// ---------------------------------------------------
 
 	/**
-	 * Testa che HTTPS è consentito
+	 * Tests that HTTPS is allowed
 	 *
 	 * @return void
 	 */
 	public function test_is_safe_url_allows_https() {
 		$client = $this->create_client_with_resolved_ip(
 			$this->create_redaction_mock(),
-			'93.184.216.34' // IP pubblico.
+			'93.184.216.34' // Public IP.
 		);
 
 		$this->assertTrue( $client->is_safe_url( 'https://example.com/webhook' ) );
 	}
 
 	/**
-	 * Testa che HTTP è consentito
+	 * Tests that HTTP is allowed
 	 *
 	 * @return void
 	 */
@@ -171,7 +171,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che file:// è rifiutato
+	 * Tests that file:// is rejected
 	 *
 	 * @return void
 	 */
@@ -181,7 +181,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che ftp:// è rifiutato
+	 * Tests that ftp:// is rejected
 	 *
 	 * @return void
 	 */
@@ -191,7 +191,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che gopher:// è rifiutato
+	 * Tests that gopher:// is rejected
 	 *
 	 * @return void
 	 */
@@ -201,7 +201,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che stringa vuota è rifiutata
+	 * Tests that empty string is rejected
 	 *
 	 * @return void
 	 */
@@ -211,7 +211,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che URL senza schema è rifiutato
+	 * Tests that URL without scheme is rejected
 	 *
 	 * @return void
 	 */
@@ -221,7 +221,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che URL malformato è rifiutato
+	 * Tests that malformed URL is rejected
 	 *
 	 * @return void
 	 */
@@ -231,11 +231,11 @@ class HttpClientTest extends TestCase {
 	}
 
 	// ---------------------------------------------------
-	// is_safe_url() - IP privati
+	// is_safe_url() - Private IPs
 	// ---------------------------------------------------
 
 	/**
-	 * Testa che localhost (127.0.0.1) è bloccato
+	 * Tests that localhost (127.0.0.1) is blocked
 	 *
 	 * @return void
 	 */
@@ -249,7 +249,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che 127.0.0.53 è bloccato
+	 * Tests that 127.0.0.53 is blocked
 	 *
 	 * @return void
 	 */
@@ -263,7 +263,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che 10.x.x.x è bloccato
+	 * Tests that 10.x.x.x is blocked
 	 *
 	 * @return void
 	 */
@@ -277,7 +277,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che 172.16.x.x è bloccato
+	 * Tests that 172.16.x.x is blocked
 	 *
 	 * @return void
 	 */
@@ -291,7 +291,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che 172.31.x.x è bloccato (fine del range /12)
+	 * Tests that 172.31.x.x is blocked (end of /12 range)
 	 *
 	 * @return void
 	 */
@@ -305,7 +305,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che 172.32.x.x NON è bloccato (fuori dal range /12)
+	 * Tests that 172.32.x.x is NOT blocked (outside /12 range)
 	 *
 	 * @return void
 	 */
@@ -319,7 +319,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che 192.168.x.x è bloccato
+	 * Tests that 192.168.x.x is blocked
 	 *
 	 * @return void
 	 */
@@ -333,7 +333,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che 169.254.x.x (link-local) è bloccato
+	 * Tests that 169.254.x.x (link-local) is blocked
 	 *
 	 * @return void
 	 */
@@ -347,7 +347,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che 0.0.0.0 è bloccato
+	 * Tests that 0.0.0.0 is blocked
 	 *
 	 * @return void
 	 */
@@ -361,7 +361,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che IP pubblico è consentito
+	 * Tests that public IP is allowed
 	 *
 	 * @return void
 	 */
@@ -375,11 +375,11 @@ class HttpClientTest extends TestCase {
 	}
 
 	// ---------------------------------------------------
-	// is_safe_url() - Porte
+	// is_safe_url() - Ports
 	// ---------------------------------------------------
 
 	/**
-	 * Testa che porta 443 è consentita
+	 * Tests that port 443 is allowed
 	 *
 	 * @return void
 	 */
@@ -393,7 +393,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che porta 80 è consentita
+	 * Tests that port 80 is allowed
 	 *
 	 * @return void
 	 */
@@ -407,7 +407,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che porta non standard è rifiutata
+	 * Tests that non-standard port is rejected
 	 *
 	 * @return void
 	 */
@@ -417,7 +417,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che porta 22 (SSH) è rifiutata
+	 * Tests that port 22 (SSH) is rejected
 	 *
 	 * @return void
 	 */
@@ -431,23 +431,23 @@ class HttpClientTest extends TestCase {
 	// ---------------------------------------------------
 
 	/**
-	 * Testa che DNS resolution failure è rifiutato
+	 * Tests that DNS resolution failure is rejected
 	 *
-	 * gethostbyname() ritorna l'hostname se non riesce a risolvere.
+	 * gethostbyname() returns the hostname if it cannot resolve.
 	 *
 	 * @return void
 	 */
 	public function test_is_safe_url_rejects_unresolvable_host() {
 		$client = $this->create_client_with_resolved_ip(
 			$this->create_redaction_mock(),
-			'nonexistent.example.invalid' // gethostbyname ritorna l'hostname se fallisce.
+			'nonexistent.example.invalid' // gethostbyname returns the hostname if it fails.
 		);
 
 		$this->assertFalse( $client->is_safe_url( 'https://nonexistent.example.invalid/webhook' ) );
 	}
 
 	/**
-	 * Testa che IPv6 è rifiutato (safe-fail, solo IPv4 supportato)
+	 * Tests that IPv6 is rejected (safe-fail, only IPv4 supported)
 	 *
 	 * @return void
 	 */
@@ -461,11 +461,11 @@ class HttpClientTest extends TestCase {
 	}
 
 	// ---------------------------------------------------
-	// post() - Successo
+	// post() - Success
 	// ---------------------------------------------------
 
 	/**
-	 * Testa POST con successo
+	 * Tests POST with success
 	 *
 	 * @return void
 	 */
@@ -508,7 +508,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa POST con headers personalizzati
+	 * Tests POST with custom headers
 	 *
 	 * @return void
 	 */
@@ -555,11 +555,11 @@ class HttpClientTest extends TestCase {
 	}
 
 	// ---------------------------------------------------
-	// post() - Errori
+	// post() - Errors
 	// ---------------------------------------------------
 
 	/**
-	 * Testa POST a URL non sicuro
+	 * Tests POST to unsafe URL
 	 *
 	 * @return void
 	 */
@@ -582,7 +582,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa POST con WP_Error
+	 * Tests POST with WP_Error
 	 *
 	 * @return void
 	 */
@@ -617,7 +617,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa POST con risposta non-2xx ritorna success:false
+	 * Tests POST with non-2xx response returns success:false
 	 *
 	 * @return void
 	 */
@@ -654,7 +654,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa POST con risposta 4xx ritorna success:false
+	 * Tests POST with 4xx response returns success:false
 	 *
 	 * @return void
 	 */
@@ -689,7 +689,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa POST con risposta 201 ritorna success:true
+	 * Tests POST with 201 response returns success:true
 	 *
 	 * @return void
 	 */
@@ -722,7 +722,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che errori sono redatti via RedactionInterface
+	 * Tests that errors are redacted via RedactionInterface
 	 *
 	 * @return void
 	 */
@@ -754,11 +754,11 @@ class HttpClientTest extends TestCase {
 	}
 
 	// ---------------------------------------------------
-	// post() - Body pre-serializzato (stringa)
+	// post() - Pre-serialized body (string)
 	// ---------------------------------------------------
 
 	/**
-	 * Testa POST con body stringa pre-serializzato (nessun re-encode)
+	 * Tests POST with pre-serialized string body (no re-encode)
 	 *
 	 * @return void
 	 */
@@ -800,7 +800,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa POST con body array viene JSON-encoded
+	 * Tests POST with array body is JSON-encoded
 	 *
 	 * @return void
 	 */
@@ -847,7 +847,7 @@ class HttpClientTest extends TestCase {
 	// ---------------------------------------------------
 
 	/**
-	 * Configura i mock per le funzioni i18n di WordPress
+	 * Configures the mocks for WordPress i18n functions
 	 *
 	 * @return void
 	 */
@@ -857,23 +857,23 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che URL con schema valido ma senza host è rifiutato
+	 * Tests that URL with valid scheme but without host is rejected
 	 *
-	 * Copre la riga 86: branch `!isset($parts['host']) || '' === $parts['host']`.
+	 * Covers line 86: branch `!isset($parts['host']) || '' === $parts['host']`.
 	 *
 	 * @return void
 	 */
 	public function test_is_safe_url_rejects_url_without_host() {
 		$client = new HttpClient( $this->create_redaction_mock() );
 
-		// 'http:path' ha schema 'http' ma nessun host.
+		// 'http:path' has scheme 'http' but no host.
 		$this->assertFalse( $client->is_safe_url( 'http:path' ) );
 	}
 
 	/**
-	 * Testa che resolve_host chiama gethostbyname
+	 * Tests that resolve_host calls gethostbyname
 	 *
-	 * Copre la riga 188: `return gethostbyname($hostname)`.
+	 * Covers line 188: `return gethostbyname($hostname)`.
 	 *
 	 * @return void
 	 */
@@ -893,9 +893,9 @@ class HttpClientTest extends TestCase {
 	// ---------------------------------------------------
 
 	/**
-	 * Testa che post() registra http_api_curl action per DNS pinning
+	 * Tests that post() registers http_api_curl action for DNS pinning
 	 *
-	 * Previene DNS rebinding (TOCTOU) tra validazione e richiesta.
+	 * Prevents DNS rebinding (TOCTOU) between validation and request.
 	 *
 	 * @return void
 	 */
@@ -930,7 +930,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che create_dns_pin() ritorna Closure valida
+	 * Tests that create_dns_pin() returns a valid Closure
 	 *
 	 * @return void
 	 */
@@ -946,7 +946,7 @@ class HttpClientTest extends TestCase {
 	}
 
 	/**
-	 * Testa che post() non registra DNS pin per URL non sicuri
+	 * Tests that post() does not register DNS pin for unsafe URLs
 	 *
 	 * @return void
 	 */

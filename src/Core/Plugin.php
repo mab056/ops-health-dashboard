@@ -1,6 +1,6 @@
 <?php
 /**
- * Classe principale del Plugin
+ * Main Plugin Class
  *
  * @package OpsHealthDashboard\Core
  */
@@ -18,28 +18,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class Plugin
  *
- * Orchestratore principale del plugin con dependency injection.
+ * Main plugin orchestrator with dependency injection.
  */
 class Plugin {
 
 	/**
-	 * Container per la dependency injection
+	 * Container for dependency injection
 	 *
 	 * @var Container
 	 */
 	private $container;
 
 	/**
-	 * Flag di inizializzazione
+	 * Initialization flag
 	 *
 	 * @var bool
 	 */
 	private $initialized = false;
 
 	/**
-	 * Costruttore
+	 * Constructor
 	 *
-	 * Riceve il container tramite dependency injection.
+	 * Receives the container via dependency injection.
 	 *
 	 * @param Container $container Container DI.
 	 */
@@ -48,9 +48,9 @@ class Plugin {
 	}
 
 	/**
-	 * Inizializza il plugin
+	 * Initializes the plugin
 	 *
-	 * Idempotente - sicuro da chiamare più volte.
+	 * Idempotent - safe to call multiple times.
 	 *
 	 * @return void
 	 */
@@ -59,23 +59,23 @@ class Plugin {
 			return;
 		}
 
-		// Registra il menu admin.
+		// Registers the admin menu.
 		$menu = $this->container->make( \OpsHealthDashboard\Admin\Menu::class );
 		$menu->register_hooks();
 
-		// Registra il dashboard widget.
+		// Registers the dashboard widget.
 		$widget = $this->container->make( \OpsHealthDashboard\Admin\DashboardWidget::class );
 		$widget->register_hooks();
 
-		// Registra gli stili della health screen.
+		// Registers health screen styles.
 		$health_screen = $this->container->make( \OpsHealthDashboard\Admin\HealthScreen::class );
 		$health_screen->register_hooks();
 
-		// Registra gli asset della pagina alert settings.
+		// Registers alert settings page assets.
 		$alert_settings = $this->container->make( \OpsHealthDashboard\Admin\AlertSettings::class );
 		$alert_settings->register_hooks();
 
-		// Registra lo scheduler WP-Cron.
+		// Registers the WP-Cron scheduler.
 		$scheduler = $this->container->make( \OpsHealthDashboard\Services\Scheduler::class );
 		$scheduler->register_hooks();
 
@@ -83,7 +83,7 @@ class Plugin {
 	}
 
 	/**
-	 * Ottiene l'istanza del container
+	 * Gets the container instance
 	 *
 	 * @return Container
 	 */

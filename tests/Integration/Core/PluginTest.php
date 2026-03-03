@@ -1,9 +1,9 @@
 <?php
 /**
- * Integration Test del Plugin con WordPress Test Suite
+ * Integration Test for the Plugin with WordPress Test Suite
  *
- * Verifica che Plugin funzioni con WordPress reale
- * (hook registration, idempotenza, container access).
+ * Verifies that Plugin works with real WordPress
+ * (hook registration, idempotency, container access).
  *
  * @package OpsHealthDashboard\Tests\Integration\Core
  */
@@ -19,12 +19,12 @@ use function OpsHealthDashboard\bootstrap;
 /**
  * Class PluginTest
  *
- * Integration test per Plugin.
+ * Integration test for Plugin.
  */
 class PluginTest extends WP_UnitTestCase {
 
 	/**
-	 * Testa che Plugin può essere istanziato
+	 * Tests that Plugin can be instantiated
 	 */
 	public function test_plugin_can_be_instantiated() {
 		$plugin = bootstrap();
@@ -32,7 +32,7 @@ class PluginTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che get_container() ritorna il Container
+	 * Tests that get_container() returns the Container
 	 */
 	public function test_get_container_returns_container() {
 		$plugin = bootstrap();
@@ -40,12 +40,12 @@ class PluginTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che init() registra l'hook admin_menu
+	 * Tests that init() registers the admin_menu hook
 	 */
 	public function test_init_registers_admin_menu_hook() {
 		$plugin = bootstrap();
 
-		// Rimuovi eventuali hook pre-registrati.
+		// Remove any pre-registered hooks.
 		remove_all_actions( 'admin_menu' );
 
 		$plugin->init();
@@ -58,12 +58,12 @@ class PluginTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che init() registra l'hook per il cron
+	 * Tests that init() registers the cron hook
 	 */
 	public function test_init_registers_cron_hook() {
 		$plugin = bootstrap();
 
-		// Rimuovi eventuali hook pre-registrati.
+		// Remove any pre-registered hooks.
 		remove_all_actions( 'ops_health_run_checks' );
 
 		$plugin->init();
@@ -76,12 +76,12 @@ class PluginTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che init() registra il filtro cron_schedules
+	 * Tests that init() registers the cron_schedules filter
 	 */
 	public function test_init_registers_cron_schedules_filter() {
 		$plugin = bootstrap();
 
-		// Rimuovi eventuali filtri pre-registrati.
+		// Remove any pre-registered filters.
 		remove_all_filters( 'cron_schedules' );
 
 		$plugin->init();
@@ -94,7 +94,7 @@ class PluginTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che init() è idempotente — hooks registrati una sola volta
+	 * Tests that init() is idempotent — hooks registered only once
 	 */
 	public function test_init_is_idempotent() {
 		$plugin = bootstrap();
@@ -107,12 +107,12 @@ class PluginTest extends WP_UnitTestCase {
 		$plugin->init();
 		$priority_second = has_action( 'admin_menu' );
 
-		// La priorità non cambia: non ha aggiunto hook doppi.
+		// The priority does not change: no duplicate hooks added.
 		$this->assertEquals( $priority_first, $priority_second, 'init() should be idempotent' );
 	}
 
 	/**
-	 * Testa che init() registra l'hook admin_enqueue_scripts
+	 * Tests that init() registers the admin_enqueue_scripts hook
 	 */
 	public function test_init_registers_admin_enqueue_scripts_hook() {
 		$plugin = bootstrap();
@@ -129,7 +129,7 @@ class PluginTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che la classe NON è final
+	 * Tests that the class is NOT final
 	 */
 	public function test_class_is_not_final() {
 		$reflection = new \ReflectionClass( Plugin::class );
@@ -137,7 +137,7 @@ class PluginTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Tests that NO static methods exist
 	 */
 	public function test_no_static_methods() {
 		$reflection = new \ReflectionClass( Plugin::class );
@@ -154,7 +154,7 @@ class PluginTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che NON esistono proprietà static
+	 * Tests that NO static properties exist
 	 */
 	public function test_no_static_properties() {
 		$reflection = new \ReflectionClass( Plugin::class );

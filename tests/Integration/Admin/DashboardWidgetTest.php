@@ -1,8 +1,8 @@
 <?php
 /**
- * Integration Test per DashboardWidget
+ * Integration Test for DashboardWidget
  *
- * Test di integrazione con WordPress reale.
+ * Integration test with real WordPress.
  *
  * @package OpsHealthDashboard\Tests\Integration\Admin
  */
@@ -20,12 +20,12 @@ use WP_UnitTestCase;
 /**
  * Class DashboardWidgetTest
  *
- * Integration test per DashboardWidget con WordPress reale.
+ * Integration test for DashboardWidget with real WordPress.
  */
 class DashboardWidgetTest extends WP_UnitTestCase {
 
 	/**
-	 * Testa che DashboardWidget si istanzia con CheckRunnerInterface
+	 * Verifies that DashboardWidget instantiates with CheckRunnerInterface
 	 */
 	public function test_instantiation() {
 		$storage = new Storage();
@@ -35,7 +35,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che register_hooks aggiunge l'action wp_dashboard_setup
+	 * Verifies that register_hooks adds the wp_dashboard_setup action
 	 */
 	public function test_register_hooks_adds_action() {
 		$storage = new Storage();
@@ -49,7 +49,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che add_widget registra il widget per utenti admin
+	 * Verifies that add_widget registers the widget for admin users
 	 */
 	public function test_add_widget_for_admin() {
 		global $wp_meta_boxes;
@@ -75,14 +75,14 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che add_widget non registra per utenti non admin
+	 * Verifies that add_widget does not register for non-admin users
 	 */
 	public function test_add_widget_denied_for_subscriber() {
 		global $wp_meta_boxes;
 
 		require_once ABSPATH . 'wp-admin/includes/dashboard.php';
 
-		// Rimuovi widget se già registrato da test precedenti.
+		// Remove widget if already registered by previous tests.
 		unset( $wp_meta_boxes['dashboard']['normal']['core']['ops_health_dashboard_widget'] );
 
 		$user_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
@@ -93,13 +93,13 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 		$widget  = new DashboardWidget( $runner, $storage );
 		$widget->add_widget();
 
-		// Verifica che il widget NON è stato registrato.
+		// Verify that the widget was NOT registered.
 		$registered = $wp_meta_boxes['dashboard']['normal']['core'] ?? [];
 		$this->assertArrayNotHasKey( 'ops_health_dashboard_widget', $registered );
 	}
 
 	/**
-	 * Testa che render produce output per admin senza risultati
+	 * Verifies that render produces output for admin without results
 	 */
 	public function test_render_empty_results_for_admin() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
@@ -117,7 +117,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che render non produce output per subscriber
+	 * Verifies that render produces no output for subscriber
 	 */
 	public function test_render_denied_for_subscriber() {
 		$user_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
@@ -135,13 +135,13 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che render mostra risultati quando disponibili
+	 * Verifies that render shows results when available
 	 */
 	public function test_render_with_stored_results() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
 		wp_set_current_user( $user_id );
 
-		// Salva risultati finti nello storage.
+		// Save fake results in storage.
 		$storage = new Storage();
 		$storage->set(
 			'latest_results',
@@ -170,7 +170,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che render include il link alla dashboard completa
+	 * Verifies that render includes the link to the full dashboard
 	 */
 	public function test_render_includes_dashboard_link() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
@@ -190,7 +190,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 	// ─── enqueue_styles ─────────────────────────────────────────────
 
 	/**
-	 * Testa che enqueue_styles registra il CSS sulla dashboard
+	 * Verifies that enqueue_styles registers the CSS on the dashboard
 	 */
 	public function test_enqueue_styles_registers_stylesheet_on_dashboard() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
@@ -208,7 +208,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che enqueue_styles NON registra il CSS per subscriber sulla dashboard
+	 * Verifies that enqueue_styles does NOT register the CSS for subscriber on the dashboard
 	 */
 	public function test_enqueue_styles_not_enqueued_for_subscriber_on_dashboard() {
 		$user_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
@@ -224,7 +224,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che enqueue_styles NON registra il CSS su altre schermate
+	 * Verifies that enqueue_styles does NOT register the CSS on other screens
 	 */
 	public function test_enqueue_styles_not_registered_on_other_screens() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
@@ -240,7 +240,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che register_hooks aggiunge l'action admin_enqueue_scripts
+	 * Verifies that register_hooks adds the admin_enqueue_scripts action
 	 */
 	public function test_register_hooks_adds_enqueue_action() {
 		$storage = new Storage();
@@ -256,7 +256,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 	// ─── Output escaping ────────────────────────────────────────────
 
 	/**
-	 * Testa che output è correttamente escaped (no tag non previsti)
+	 * Verifies that output is correctly escaped (no unexpected tags)
 	 */
 	public function test_render_output_is_escaped() {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );

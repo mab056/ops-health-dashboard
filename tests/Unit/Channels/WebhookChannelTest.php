@@ -1,8 +1,8 @@
 <?php
 /**
- * Test per WebhookChannel
+ * Test for WebhookChannel
  *
- * Verifica l'invio di alert via webhook HTTP POST con firma HMAC opzionale.
+ * Verifies sending alerts via webhook HTTP POST with optional HMAC signature.
  *
  * @package OpsHealthDashboard\Tests\Unit\Channels
  */
@@ -22,7 +22,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class WebhookChannelTest
  *
- * Test unitari per il canale di alert Webhook.
+ * Unit tests for the Webhook alert channel.
  */
 class WebhookChannelTest extends TestCase
 {
@@ -52,9 +52,9 @@ class WebhookChannelTest extends TestCase
 	}
 
 	/**
-	 * Crea un mock di StorageInterface
+	 * Creates a mock of StorageInterface
 	 *
-	 * @param array $settings Impostazioni da ritornare.
+	 * @param array $settings Settings to return.
 	 * @return \Mockery\MockInterface|StorageInterface
 	 */
 	private function create_storage_mock( array $settings = [] )
@@ -67,7 +67,7 @@ class WebhookChannelTest extends TestCase
 	}
 
 	/**
-	 * Crea un mock di HttpClientInterface
+	 * Creates a mock of HttpClientInterface
 	 *
 	 * @return \Mockery\MockInterface|HttpClientInterface
 	 */
@@ -77,9 +77,9 @@ class WebhookChannelTest extends TestCase
 	}
 
 	/**
-	 * Crea un payload di test
+	 * Creates a test payload
 	 *
-	 * @param array $overrides Chiavi da sovrascrivere.
+	 * @param array $overrides Keys to override.
 	 * @return array
 	 */
 	private function create_test_payload( array $overrides = [] )
@@ -102,7 +102,7 @@ class WebhookChannelTest extends TestCase
 	}
 
 	/**
-	 * Configura mock i18n
+	 * Configures i18n mocks
 	 *
 	 * @return void
 	 */
@@ -117,7 +117,7 @@ class WebhookChannelTest extends TestCase
 	// ---------------------------------------------------
 
 	/**
-	 * Testa che la classe NON e final
+	 * Tests that the class is NOT final
 	 *
 	 * @return void
 	 */
@@ -128,7 +128,7 @@ class WebhookChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Tests that there are NO static methods
 	 *
 	 * @return void
 	 */
@@ -148,7 +148,7 @@ class WebhookChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa che NON esistono proprieta static
+	 * Tests that there are NO static properties
 	 *
 	 * @return void
 	 */
@@ -161,7 +161,7 @@ class WebhookChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa che implementa AlertChannelInterface
+	 * Tests that implements AlertChannelInterface
 	 *
 	 * @return void
 	 */
@@ -179,7 +179,7 @@ class WebhookChannelTest extends TestCase
 	// ---------------------------------------------------
 
 	/**
-	 * Testa che get_id ritorna 'webhook'
+	 * Tests that get_id returns 'webhook'
 	 *
 	 * @return void
 	 */
@@ -193,7 +193,7 @@ class WebhookChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa che get_name ritorna stringa tradotta
+	 * Tests that get_name returns translated string
 	 *
 	 * @return void
 	 */
@@ -212,7 +212,7 @@ class WebhookChannelTest extends TestCase
 	// ---------------------------------------------------
 
 	/**
-	 * Testa is_enabled true con configurazione valida
+	 * Tests is_enabled returns true with valid configuration
 	 *
 	 * @return void
 	 */
@@ -232,7 +232,7 @@ class WebhookChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa is_enabled false quando disabilitato
+	 * Tests is_enabled returns false when disabled
 	 *
 	 * @return void
 	 */
@@ -252,7 +252,7 @@ class WebhookChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa is_enabled false con URL vuoto
+	 * Tests is_enabled returns false with empty URL
 	 *
 	 * @return void
 	 */
@@ -272,7 +272,7 @@ class WebhookChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa is_enabled false senza impostazioni
+	 * Tests is_enabled returns false without settings
 	 *
 	 * @return void
 	 */
@@ -286,7 +286,7 @@ class WebhookChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa is_enabled false senza chiave webhook
+	 * Tests is_enabled returns false without webhook key
 	 *
 	 * @return void
 	 */
@@ -305,7 +305,7 @@ class WebhookChannelTest extends TestCase
 	// ---------------------------------------------------
 
 	/**
-	 * Testa invio webhook con successo
+	 * Tests webhook send with success
 	 *
 	 * @return void
 	 */
@@ -347,7 +347,7 @@ class WebhookChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa invio webhook con fallimento
+	 * Tests webhook send with failure
 	 *
 	 * @return void
 	 */
@@ -389,11 +389,11 @@ class WebhookChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa invio webhook con firma HMAC quando secret configurato
+	 * Tests webhook send with HMAC signature when secret is configured
 	 *
-	 * La firma HMAC deve essere calcolata sullo stesso raw body
-	 * passato a HttpClient (stringa pre-serializzata), non su un
-	 * json_encode() separato.
+	 * The HMAC signature must be calculated on the same raw body
+	 * passed to HttpClient (pre-serialized string), not on a
+	 * separate json_encode().
 	 *
 	 * @return void
 	 */
@@ -419,8 +419,8 @@ class WebhookChannelTest extends TestCase
 				'https://hooks.example.com/alert',
 				Mockery::on(
 					function ( $body ) use ( $raw_body ) {
-						// Il body deve essere una stringa pre-serializzata,
-						// NON un array da ri-serializzare.
+						// The body must be a pre-serialized string,
+						// NOT an array to be re-serialized.
 						return is_string( $body ) && $body === $raw_body;
 					}
 				),
@@ -450,7 +450,7 @@ class WebhookChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa invio webhook senza firma quando secret non configurato
+	 * Tests webhook send without signature when secret is not configured
 	 *
 	 * @return void
 	 */

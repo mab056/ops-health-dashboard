@@ -1,8 +1,8 @@
 <?php
 /**
- * Integration Test per il flusso completo di alerting
+ * Integration Test for the complete alerting flow
  *
- * Test end-to-end: state change → dispatch → cooldown → recovery.
+ * End-to-end test: state change → dispatch → cooldown → recovery.
  *
  * @package OpsHealthDashboard\Tests\Integration
  */
@@ -21,26 +21,26 @@ use WP_UnitTestCase;
 /**
  * Class AlertingFlowTest
  *
- * Test di integrazione per il flusso completo di alerting.
+ * Integration test for the complete alerting flow.
  */
 class AlertingFlowTest extends WP_UnitTestCase {
 
 	/**
-	 * Storage per i test
+	 * Storage for tests
 	 *
 	 * @var Storage
 	 */
 	private $storage;
 
 	/**
-	 * Redaction per i test
+	 * Redaction for tests
 	 *
 	 * @var Redaction
 	 */
 	private $redaction;
 
 	/**
-	 * Setup per ogni test
+	 * Setup for each test
 	 */
 	public function setUp(): void {
 		parent::setUp();
@@ -54,7 +54,7 @@ class AlertingFlowTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Cleanup dopo ogni test
+	 * Cleanup after each test
 	 */
 	public function tearDown(): void {
 		$this->storage->delete( 'latest_results' );
@@ -65,7 +65,7 @@ class AlertingFlowTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che AlertManager rileva cambiamento di stato e logga alert
+	 * Tests that AlertManager detects state change and logs alert
 	 */
 	public function test_state_change_triggers_alert_log_entry() {
 		$this->storage->set( 'alert_settings', [
@@ -96,7 +96,7 @@ class AlertingFlowTest extends WP_UnitTestCase {
 
 		$results = $alert_manager->process( $current, $previous );
 
-		// EmailChannel tentato → dispatch e log creato.
+		// EmailChannel attempted → dispatch and log created.
 		$this->assertArrayHasKey( 'database', $results );
 
 		$log = $this->storage->get( 'alert_log', [] );
@@ -106,10 +106,10 @@ class AlertingFlowTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa flusso completo con EmailChannel abilitato
+	 * Tests full flow with EmailChannel enabled
 	 */
 	public function test_full_flow_with_email_channel() {
-		// Configura EmailChannel come abilitato.
+		// Configure EmailChannel as enabled.
 		$this->storage->set( 'alert_settings', [
 			'email' => [
 				'enabled'    => true,
@@ -138,11 +138,11 @@ class AlertingFlowTest extends WP_UnitTestCase {
 
 		$results = $alert_manager->process( $current, $previous );
 
-		// EmailChannel dovrebbe aver tentato l'invio.
+		// EmailChannel should have attempted sending.
 		$this->assertArrayHasKey( 'database', $results );
 		$this->assertArrayHasKey( 'email', $results['database'] );
 
-		// Verifica che il log è stato creato.
+		// Verify that the log was created.
 		$log = $this->storage->get( 'alert_log', [] );
 		$this->assertNotEmpty( $log );
 		$this->assertEquals( 'database', $log[0]['check_id'] );
@@ -151,7 +151,7 @@ class AlertingFlowTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che il cooldown blocca alert ripetuti
+	 * Tests that cooldown blocks repeated alerts
 	 */
 	public function test_cooldown_blocks_repeated_alerts() {
 		$this->storage->set( 'alert_settings', [
@@ -181,17 +181,17 @@ class AlertingFlowTest extends WP_UnitTestCase {
 			],
 		];
 
-		// Primo alert: dispatched.
+		// First alert: dispatched.
 		$results1 = $alert_manager->process( $current, $previous );
 		$this->assertArrayHasKey( 'database', $results1 );
 
-		// Secondo alert con stessa transizione: bloccato da cooldown.
+		// Second alert with same transition: blocked by cooldown.
 		$results2 = $alert_manager->process( $current, $previous );
 		$this->assertEmpty( $results2 );
 	}
 
 	/**
-	 * Testa che recovery bypassa il cooldown
+	 * Tests that recovery bypasses cooldown
 	 */
 	public function test_recovery_bypasses_cooldown() {
 		$this->storage->set( 'alert_settings', [
@@ -205,13 +205,13 @@ class AlertingFlowTest extends WP_UnitTestCase {
 		$alert_manager = new AlertManager( $this->storage, $this->redaction );
 		$alert_manager->add_channel( new EmailChannel( $this->storage ) );
 
-		// Primo alert: ok → critical.
+		// First alert: ok → critical.
 		$alert_manager->process(
 			[ 'database' => [ 'status' => 'critical', 'message' => 'Fail', 'name' => 'DB' ] ],
 			[ 'database' => [ 'status' => 'ok', 'message' => 'OK', 'name' => 'DB' ] ]
 		);
 
-		// Recovery: critical → ok (dovrebbe bypassare il cooldown).
+		// Recovery: critical → ok (should bypass cooldown).
 		$results = $alert_manager->process(
 			[ 'database' => [ 'status' => 'ok', 'message' => 'OK', 'name' => 'DB' ] ],
 			[ 'database' => [ 'status' => 'critical', 'message' => 'Fail', 'name' => 'DB' ] ]
@@ -219,7 +219,7 @@ class AlertingFlowTest extends WP_UnitTestCase {
 
 		$this->assertArrayHasKey( 'database', $results );
 
-		// Verifica log ha 2 entry: alert + recovery.
+		// Verify log has 2 entries: alert + recovery.
 		$log = $this->storage->get( 'alert_log', [] );
 		$this->assertCount( 2, $log );
 		$this->assertEquals( 'ok', $log[0]['status'] );
@@ -227,7 +227,7 @@ class AlertingFlowTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa nessun alert al primo avvio con stato ok
+	 * Tests no alert on first run with ok status
 	 */
 	public function test_no_alert_on_first_run_with_ok() {
 		$this->storage->set( 'alert_settings', [
@@ -240,7 +240,7 @@ class AlertingFlowTest extends WP_UnitTestCase {
 		$alert_manager = new AlertManager( $this->storage, $this->redaction );
 		$alert_manager->add_channel( new EmailChannel( $this->storage ) );
 
-		// Primo avvio: nessun risultato precedente, stato ok.
+		// First run: no previous results, ok status.
 		$results = $alert_manager->process(
 			[ 'database' => [ 'status' => 'ok', 'message' => 'OK', 'name' => 'DB' ] ],
 			[]
@@ -253,7 +253,7 @@ class AlertingFlowTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa alert al primo avvio con stato non-ok
+	 * Tests alert on first run with non-ok status
 	 */
 	public function test_alert_on_first_run_with_non_ok() {
 		$this->storage->set( 'alert_settings', [
@@ -275,7 +275,7 @@ class AlertingFlowTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa Scheduler con AlertManager in integrazione reale
+	 * Tests Scheduler with AlertManager in real integration
 	 */
 	public function test_scheduler_alert_manager_integration() {
 		$this->storage->set( 'alert_settings', [
@@ -292,7 +292,7 @@ class AlertingFlowTest extends WP_UnitTestCase {
 		global $wpdb;
 		$runner->add_check( new DatabaseCheck( $wpdb, $this->redaction ) );
 
-		// Simula precedente critical.
+		// Simulate previous critical.
 		$this->storage->set( 'latest_results', [
 			'database' => [
 				'status'  => 'critical',
@@ -304,7 +304,7 @@ class AlertingFlowTest extends WP_UnitTestCase {
 		$scheduler = new Scheduler( $runner, $alert_manager );
 		$scheduler->run_checks();
 
-		// Database in test env è ok → recovery alert.
+		// Database in test env is ok → recovery alert.
 		$log = $this->storage->get( 'alert_log', [] );
 		$this->assertIsArray( $log );
 
@@ -313,7 +313,7 @@ class AlertingFlowTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che AlertSettings salva e recupera impostazioni reali
+	 * Tests that AlertSettings saves and retrieves real settings
 	 */
 	public function test_alert_settings_persist_via_storage() {
 		$settings_data = [
@@ -340,7 +340,7 @@ class AlertingFlowTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa log alert limitato a 50 entry
+	 * Tests alert log capped at 50 entries
 	 */
 	public function test_alert_log_capped_at_max_entries() {
 		$this->storage->set( 'alert_settings', [
@@ -353,12 +353,12 @@ class AlertingFlowTest extends WP_UnitTestCase {
 		$alert_manager = new AlertManager( $this->storage, $this->redaction );
 		$alert_manager->add_channel( new EmailChannel( $this->storage ) );
 
-		// Genera 55 alert alternando stato.
+		// Generate 55 alerts alternating status.
 		for ( $i = 0; $i < 55; $i++ ) {
 			$status_a = ( 0 === $i % 2 ) ? 'ok' : 'critical';
 			$status_b = ( 0 === $i % 2 ) ? 'critical' : 'ok';
 
-			// Cancella cooldown per permettere invio.
+			// Clear cooldown to allow sending.
 			delete_transient( 'ops_health_alert_cooldown_database' );
 
 			$alert_manager->process(
@@ -372,7 +372,7 @@ class AlertingFlowTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che build_payload usa home_url() e bloginfo reali di WordPress
+	 * Tests that build_payload uses real WordPress home_url() and bloginfo
 	 */
 	public function test_build_payload_uses_real_home_url_and_bloginfo() {
 		$this->storage->set( 'alert_settings', [
@@ -401,7 +401,7 @@ class AlertingFlowTest extends WP_UnitTestCase {
 			[ 'database' => [ 'status' => 'ok', 'message' => 'OK', 'name' => 'DB' ] ]
 		);
 
-		// Il body dell'email dovrebbe contenere home_url() e bloginfo('name').
+		// The email body should contain home_url() and bloginfo('name').
 		$this->assertNotNull( $captured_mail );
 		$this->assertStringContainsString( home_url(), $captured_mail['message'] );
 
@@ -414,7 +414,7 @@ class AlertingFlowTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che cooldown usa DEFAULT_COOLDOWN quando minutes è zero
+	 * Tests that cooldown uses DEFAULT_COOLDOWN when minutes is zero
 	 */
 	public function test_cooldown_uses_default_when_minutes_zero() {
 		$this->storage->set( 'alert_settings', [
@@ -428,13 +428,13 @@ class AlertingFlowTest extends WP_UnitTestCase {
 		$alert_manager = new AlertManager( $this->storage, $this->redaction );
 		$alert_manager->add_channel( new EmailChannel( $this->storage ) );
 
-		// Primo alert: ok → critical.
+		// First alert: ok → critical.
 		$alert_manager->process(
 			[ 'database' => [ 'status' => 'critical', 'message' => 'Fail', 'name' => 'DB' ] ],
 			[ 'database' => [ 'status' => 'ok', 'message' => 'OK', 'name' => 'DB' ] ]
 		);
 
-		// Secondo alert: stessa transizione → bloccato da cooldown (DEFAULT_COOLDOWN).
+		// Second alert: same transition → blocked by cooldown (DEFAULT_COOLDOWN).
 		$results2 = $alert_manager->process(
 			[ 'database' => [ 'status' => 'critical', 'message' => 'Fail', 'name' => 'DB' ] ],
 			[ 'database' => [ 'status' => 'ok', 'message' => 'OK', 'name' => 'DB' ] ]
@@ -444,7 +444,7 @@ class AlertingFlowTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa detect_state_changes con risultato precedente senza chiave status
+	 * Tests detect_state_changes with previous result missing status key
 	 */
 	public function test_state_change_with_missing_previous_status_key() {
 		$this->storage->set( 'alert_settings', [
@@ -457,18 +457,18 @@ class AlertingFlowTest extends WP_UnitTestCase {
 		$alert_manager = new AlertManager( $this->storage, $this->redaction );
 		$alert_manager->add_channel( new EmailChannel( $this->storage ) );
 
-		// Risultato precedente senza chiave 'status' → prev_status = 'unknown'.
+		// Previous result without 'status' key → prev_status = 'unknown'.
 		$results = $alert_manager->process(
 			[ 'database' => [ 'status' => 'critical', 'message' => 'Fail', 'name' => 'DB' ] ],
 			[ 'database' => [ 'message' => 'No status key', 'name' => 'DB' ] ]
 		);
 
-		// Cambio unknown → critical: dovrebbe triggerare alert.
+		// Change unknown → critical: should trigger alert.
 		$this->assertArrayHasKey( 'database', $results );
 	}
 
 	/**
-	 * Testa log_alert con alert_log corrotto (non array)
+	 * Tests log_alert with corrupted alert_log (non-array)
 	 */
 	public function test_alert_log_handles_corrupted_storage() {
 		$this->storage->set( 'alert_settings', [
@@ -478,7 +478,7 @@ class AlertingFlowTest extends WP_UnitTestCase {
 			],
 		] );
 
-		// Corrompi il log impostando un valore non-array.
+		// Corrupt the log by setting a non-array value.
 		$this->storage->set( 'alert_log', 'corrupted-string' );
 
 		$alert_manager = new AlertManager( $this->storage, $this->redaction );
@@ -489,17 +489,17 @@ class AlertingFlowTest extends WP_UnitTestCase {
 			[ 'database' => [ 'status' => 'ok', 'message' => 'OK', 'name' => 'DB' ] ]
 		);
 
-		// Il log dovrebbe essere stato riscritto come array valido.
+		// The log should have been rewritten as a valid array.
 		$log = $this->storage->get( 'alert_log', [] );
 		$this->assertIsArray( $log );
 		$this->assertNotEmpty( $log );
 	}
 
 	/**
-	 * Testa che dispatch skippa canali disabilitati
+	 * Tests that dispatch skips disabled channels
 	 */
 	public function test_dispatch_skips_disabled_channels() {
-		// Email disabilitato, ma canale registrato.
+		// Email disabled, but channel registered.
 		$this->storage->set( 'alert_settings', [
 			'email' => [
 				'enabled'    => false,
@@ -515,12 +515,12 @@ class AlertingFlowTest extends WP_UnitTestCase {
 			[ 'database' => [ 'status' => 'ok', 'message' => 'OK', 'name' => 'DB' ] ]
 		);
 
-		// Nessun canale abilitato → nessun risultato di dispatch.
+		// No enabled channels → no dispatch results.
 		$this->assertEmpty( $results );
 	}
 
 	/**
-	 * Testa che log_alert redige errori dai canali falliti
+	 * Tests that log_alert redacts errors from failed channels
 	 */
 	public function test_alert_log_redacts_channel_errors() {
 		$this->storage->set( 'alert_settings', [
@@ -530,7 +530,7 @@ class AlertingFlowTest extends WP_UnitTestCase {
 			],
 		] );
 
-		// Forza wp_mail a fallire.
+		// Force wp_mail to fail.
 		add_filter(
 			'pre_wp_mail',
 			function () {
@@ -554,7 +554,7 @@ class AlertingFlowTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che dispatch_to_channels cattura Throwable da un canale che lancia eccezione
+	 * Tests that dispatch_to_channels catches Throwable from a channel that throws exception
 	 */
 	public function test_dispatch_catches_throwable_from_channel() {
 		$this->storage->set( 'alert_settings', [
@@ -568,7 +568,7 @@ class AlertingFlowTest extends WP_UnitTestCase {
 		$alert_manager->add_channel( new ThrowingChannel() );
 		$alert_manager->add_channel( new EmailChannel( $this->storage ) );
 
-		// Intercetta wp_mail per evitare invio reale.
+		// Intercept wp_mail to prevent real sending.
 		$captured_mail = null;
 		add_filter(
 			'pre_wp_mail',
@@ -585,17 +585,17 @@ class AlertingFlowTest extends WP_UnitTestCase {
 			[ 'database' => [ 'status' => 'ok', 'message' => 'OK', 'name' => 'DB' ] ]
 		);
 
-		// ThrowingChannel deve risultare fallito con il messaggio dell'eccezione.
+		// ThrowingChannel should have failed with the exception message.
 		$this->assertArrayHasKey( 'database', $results );
 		$this->assertArrayHasKey( 'throwing', $results['database'] );
 		$this->assertFalse( $results['database']['throwing']['success'] );
 		$this->assertEquals( 'Simulated channel failure', $results['database']['throwing']['error'] );
 
-		// EmailChannel deve comunque funzionare (isolamento per-canale).
+		// EmailChannel should still work (per-channel isolation).
 		$this->assertArrayHasKey( 'email', $results['database'] );
 		$this->assertTrue( $results['database']['email']['success'] );
 
-		// Il log deve contenere entrambi i canali.
+		// The log should contain both channels.
 		$log = $this->storage->get( 'alert_log', [] );
 		$this->assertNotEmpty( $log );
 		$this->assertContains( 'throwing', $log[0]['channels'] );
@@ -605,7 +605,7 @@ class AlertingFlowTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che nessun cambiamento di stato non genera alert
+	 * Tests that no state change does not generate alert
 	 */
 	public function test_same_status_does_not_trigger_alert() {
 		$this->storage->set( 'alert_settings', [
@@ -633,12 +633,12 @@ class AlertingFlowTest extends WP_UnitTestCase {
 }
 
 /**
- * Canale di alert che lancia eccezione per testare isolamento per-canale.
+ * Alert channel that throws exception to test per-channel isolation.
  */
 class ThrowingChannel implements \OpsHealthDashboard\Interfaces\AlertChannelInterface {
 
 	/**
-	 * Ottiene l'identificatore del canale
+	 * Gets the channel identifier
 	 *
 	 * @return string
 	 */
@@ -647,7 +647,7 @@ class ThrowingChannel implements \OpsHealthDashboard\Interfaces\AlertChannelInte
 	}
 
 	/**
-	 * Ottiene il nome del canale
+	 * Gets the channel name
 	 *
 	 * @return string
 	 */
@@ -656,7 +656,7 @@ class ThrowingChannel implements \OpsHealthDashboard\Interfaces\AlertChannelInte
 	}
 
 	/**
-	 * Sempre abilitato per scopo di test
+	 * Always enabled for testing purposes
 	 *
 	 * @return bool
 	 */
@@ -665,11 +665,11 @@ class ThrowingChannel implements \OpsHealthDashboard\Interfaces\AlertChannelInte
 	}
 
 	/**
-	 * Lancia sempre eccezione
+	 * Always throws exception
 	 *
-	 * @param array $payload Dati dell'alert.
-	 * @return array Mai raggiunto.
-	 * @throws \RuntimeException Sempre.
+	 * @param array $payload Alert data.
+	 * @return array Never reached.
+	 * @throws \RuntimeException Always.
 	 */
 	public function send( array $payload ): array {
 		throw new \RuntimeException( 'Simulated channel failure' );

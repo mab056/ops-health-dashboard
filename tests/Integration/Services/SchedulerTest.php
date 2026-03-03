@@ -1,8 +1,8 @@
 <?php
 /**
- * Integration Test per Scheduler
+ * Integration Test for Scheduler
  *
- * Test di integrazione con WP-Cron reale.
+ * Integration test with real WP-Cron.
  *
  * @package OpsHealthDashboard\Tests\Integration\Services
  */
@@ -22,26 +22,26 @@ use WP_UnitTestCase;
 /**
  * Class SchedulerTest
  *
- * Integration test per Scheduler con WordPress reale.
+ * Integration test for Scheduler with real WordPress.
  */
 class SchedulerTest extends WP_UnitTestCase {
 
 	/**
-	 * Scheduler per i test
+	 * Scheduler for tests
 	 *
 	 * @var Scheduler
 	 */
 	private $scheduler;
 
 	/**
-	 * Storage per i test
+	 * Storage for tests
 	 *
 	 * @var Storage
 	 */
 	private $storage;
 
 	/**
-	 * Setup per ogni test
+	 * Setup for each test
 	 */
 	public function setUp(): void {
 		parent::setUp();
@@ -54,12 +54,12 @@ class SchedulerTest extends WP_UnitTestCase {
 
 		$this->scheduler = new Scheduler( $runner );
 
-		// Cleanup cron precedenti.
+		// Cleanup previous cron events.
 		$this->scheduler->unschedule();
 	}
 
 	/**
-	 * Cleanup dopo ogni test
+	 * Cleanup after each test
 	 */
 	public function tearDown(): void {
 		$this->scheduler->unschedule();
@@ -67,7 +67,7 @@ class SchedulerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che schedule() registra un evento cron reale
+	 * Tests that schedule() registers a real cron event
 	 */
 	public function test_schedule_registers_real_cron_event() {
 		$this->assertFalse( $this->scheduler->is_scheduled(), 'Should not be scheduled initially' );
@@ -78,12 +78,12 @@ class SchedulerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa self-healing: register_hooks() ri-schedula se cron mancante
+	 * Tests self-healing: register_hooks() reschedules when cron is missing
 	 */
 	public function test_register_hooks_reschedules_when_cron_missing() {
 		$this->assertFalse( $this->scheduler->is_scheduled(), 'Should not be scheduled initially' );
 
-		// Assicura throttle scaduto per attivare self-healing.
+		// Ensure throttle expired to activate self-healing.
 		delete_transient( 'ops_health_cron_check' );
 		$this->scheduler->register_hooks();
 
@@ -91,7 +91,7 @@ class SchedulerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che unschedule() rimuove l'evento cron
+	 * Tests that unschedule() removes the cron event
 	 */
 	public function test_unschedule_removes_cron_event() {
 		$this->scheduler->register_hooks();
@@ -104,14 +104,14 @@ class SchedulerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che schedule() non registra duplicati
+	 * Tests that schedule() does not register duplicates
 	 */
 	public function test_schedule_does_not_register_duplicates() {
 		$this->scheduler->register_hooks();
 		$this->scheduler->schedule();
 		$first_timestamp = wp_next_scheduled( 'ops_health_run_checks' );
 
-		// Schedula di nuovo.
+		// Schedule again.
 		$this->scheduler->schedule();
 		$second_timestamp = wp_next_scheduled( 'ops_health_run_checks' );
 
@@ -119,7 +119,7 @@ class SchedulerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che il custom interval è registrato
+	 * Tests that the custom interval is registered
 	 */
 	public function test_custom_interval_is_registered() {
 		$this->scheduler->register_hooks();
@@ -131,14 +131,14 @@ class SchedulerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che run_checks() esegue i check realmente
+	 * Tests that run_checks() actually executes checks
 	 */
 	public function test_run_checks_executes_real_checks() {
 		$this->storage->delete( 'latest_results' );
 
 		$this->scheduler->run_checks();
 
-		// Verifica che i risultati sono stati salvati.
+		// Verify that results have been saved.
 		$results = $this->storage->get( 'latest_results' );
 
 		$this->assertIsArray( $results );
@@ -149,7 +149,7 @@ class SchedulerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che run_checks() con AlertManager processa alert su cambiamenti di stato
+	 * Tests that run_checks() with AlertManager processes alerts on state changes
 	 */
 	public function test_run_checks_with_alert_manager_processes_state_changes() {
 		$redaction     = new Redaction();
@@ -159,7 +159,7 @@ class SchedulerTest extends WP_UnitTestCase {
 		global $wpdb;
 		$runner->add_check( new DatabaseCheck( $wpdb, $redaction ) );
 
-		// Salva risultati "precedenti" fittizi con stato critical.
+		// Save fake "previous" results with critical status.
 		$this->storage->set( 'latest_results', [
 			'database' => [
 				'status'  => 'critical',
@@ -171,12 +171,12 @@ class SchedulerTest extends WP_UnitTestCase {
 		$scheduler = new Scheduler( $runner, $alert_manager );
 		$scheduler->run_checks();
 
-		// I risultati correnti dovrebbero essere salvati (database ok in test env).
+		// Current results should be saved (database ok in test env).
 		$results = $this->storage->get( 'latest_results' );
 		$this->assertIsArray( $results );
 		$this->assertArrayHasKey( 'database', $results );
 
-		// Verifica che alert_log è stato creato (recovery: critical→ok).
+		// Verify that alert_log was created (recovery: critical→ok).
 		$log = $this->storage->get( 'alert_log', [] );
 		$this->assertIsArray( $log );
 
@@ -186,19 +186,19 @@ class SchedulerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa backward compatibility: Scheduler senza AlertManager funziona come prima
+	 * Tests backward compatibility: Scheduler without AlertManager works as before
 	 */
 	public function test_backward_compatibility_without_alert_manager() {
 		$this->storage->delete( 'latest_results' );
 
-		// Scheduler creato senza AlertManager (come prima di M4).
+		// Scheduler created without AlertManager (as before M4).
 		$this->scheduler->run_checks();
 
 		$results = $this->storage->get( 'latest_results' );
 		$this->assertIsArray( $results );
 		$this->assertArrayHasKey( 'database', $results );
 
-		// Nessun alert_log dovrebbe essere creato.
+		// No alert_log should be created.
 		$log = $this->storage->get( 'alert_log', [] );
 		$this->assertEmpty( $log );
 
@@ -207,7 +207,7 @@ class SchedulerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che run_checks() continua se AlertManager lancia eccezione
+	 * Tests that run_checks() continues when AlertManager throws exception
 	 */
 	public function test_run_checks_continues_when_alert_manager_throws() {
 		$throwing_manager = new ThrowingAlertManager();
@@ -217,7 +217,7 @@ class SchedulerTest extends WP_UnitTestCase {
 		global $wpdb;
 		$runner->add_check( new DatabaseCheck( $wpdb, $redaction ) );
 
-		// Salva risultati precedenti per triggerare un cambiamento di stato.
+		// Save previous results to trigger a state change.
 		$this->storage->set(
 			'latest_results',
 			[
@@ -232,7 +232,7 @@ class SchedulerTest extends WP_UnitTestCase {
 		$scheduler = new Scheduler( $runner, $throwing_manager );
 		$scheduler->run_checks();
 
-		// I risultati correnti DEVONO essere salvati nonostante l'eccezione.
+		// Current results MUST be saved despite the exception.
 		$results = $this->storage->get( 'latest_results' );
 		$this->assertIsArray( $results );
 		$this->assertArrayHasKey( 'database', $results );
@@ -243,7 +243,7 @@ class SchedulerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che run_checks() con AlertManager non alerta al primo avvio con ok
+	 * Tests that run_checks() with AlertManager does not alert on first run with ok
 	 */
 	public function test_run_checks_no_alert_on_first_run_with_ok_status() {
 		$redaction     = new Redaction();
@@ -253,13 +253,13 @@ class SchedulerTest extends WP_UnitTestCase {
 		global $wpdb;
 		$runner->add_check( new DatabaseCheck( $wpdb, $redaction ) );
 
-		// Nessun risultato precedente (primo avvio).
+		// No previous results (first run).
 		$this->storage->delete( 'latest_results' );
 
 		$scheduler = new Scheduler( $runner, $alert_manager );
 		$scheduler->run_checks();
 
-		// Primo avvio con ok: nessun alert.
+		// First run with ok: no alert.
 		$log = $this->storage->get( 'alert_log', [] );
 		$this->assertEmpty( $log, 'No alert expected on first run with ok status' );
 
@@ -269,26 +269,26 @@ class SchedulerTest extends WP_UnitTestCase {
 }
 
 /**
- * AlertManager che lancia eccezione per testare resilienza del cron.
+ * AlertManager that throws exception to test cron resilience.
  */
 class ThrowingAlertManager implements AlertManagerInterface {
 
 	/**
-	 * Non usato in questo test.
+	 * Not used in this test.
 	 *
-	 * @param AlertChannelInterface $channel Canale da aggiungere.
+	 * @param AlertChannelInterface $channel Channel to add.
 	 * @return void
 	 */
 	public function add_channel( AlertChannelInterface $channel ): void {
 	}
 
 	/**
-	 * Lancia sempre eccezione.
+	 * Always throws exception.
 	 *
-	 * @param array $current_results  Risultati correnti.
-	 * @param array $previous_results Risultati precedenti.
-	 * @return array Mai raggiunto.
-	 * @throws \RuntimeException Sempre.
+	 * @param array $current_results  Current results.
+	 * @param array $previous_results Previous results.
+	 * @return array Never reached.
+	 * @throws \RuntimeException Always.
 	 */
 	public function process( array $current_results, array $previous_results ): array {
 		throw new \RuntimeException( 'Simulated alert failure' );

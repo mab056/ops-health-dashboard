@@ -2,8 +2,8 @@
 /**
  * Database Check
  *
- * Verifica la connessione e le performance del database WordPress.
- * Esegue una query semplice (SELECT 1) e misura il tempo di risposta.
+ * Verifies the WordPress database connection and performance.
+ * Executes a simple query (SELECT 1) and measures response time.
  *
  * @package OpsHealthDashboard\Checks
  */
@@ -24,26 +24,26 @@ use OpsHealthDashboard\Interfaces\RedactionInterface;
 /**
  * Class DatabaseCheck
  *
- * Check per la salute del database WordPress.
+ * WordPress database health check.
  */
 class DatabaseCheck implements CheckInterface {
 
 	/**
-	 * Soglia per query lenta in secondi
+	 * Slow query threshold in seconds
 	 *
 	 * @var float
 	 */
 	const SLOW_QUERY_THRESHOLD = 0.5;
 
 	/**
-	 * Istanza wpdb iniettata
+	 * Injected wpdb instance
 	 *
 	 * @var \wpdb
 	 */
 	private $wpdb;
 
 	/**
-	 * Servizio di redazione dati sensibili
+	 * Sensitive data redaction service
 	 *
 	 * @var RedactionInterface
 	 */
@@ -52,8 +52,8 @@ class DatabaseCheck implements CheckInterface {
 	/**
 	 * Constructor
 	 *
-	 * @param \wpdb              $wpdb      Istanza wpdb per le query.
-	 * @param RedactionInterface $redaction Servizio di redazione dati sensibili.
+	 * @param \wpdb              $wpdb      wpdb instance for queries.
+	 * @param RedactionInterface $redaction Sensitive data redaction service.
 	 */
 	public function __construct( \wpdb $wpdb, RedactionInterface $redaction ) {
 		$this->wpdb      = $wpdb;
@@ -61,20 +61,20 @@ class DatabaseCheck implements CheckInterface {
 	}
 
 	/**
-	 * Esegue il check del database
+	 * Runs the database check
 	 *
-	 * @return array Risultati del check.
+	 * @return array Check results.
 	 */
 	public function run(): array {
 		$start = microtime( true );
 
-		// Esegue una query semplice per testare la connessione.
+		// Executes a simple query to test the connection.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$result = $this->wpdb->query( 'SELECT 1' );
 
 		$duration = microtime( true ) - $start;
 
-		// Verifica il risultato.
+		// Verify the result.
 		if ( false === $result || ! empty( $this->wpdb->last_error ) ) {
 			$error_msg = ! empty( $this->wpdb->last_error )
 				? $this->redaction->redact( $this->wpdb->last_error )
@@ -106,27 +106,27 @@ class DatabaseCheck implements CheckInterface {
 	}
 
 	/**
-	 * Ottiene l'ID del check
+	 * Gets the check ID
 	 *
-	 * @return string ID del check.
+	 * @return string Check ID.
 	 */
 	public function get_id(): string {
 		return 'database';
 	}
 
 	/**
-	 * Ottiene il nome del check
+	 * Gets the check name
 	 *
-	 * @return string Nome del check.
+	 * @return string Check name.
 	 */
 	public function get_name(): string {
 		return __( 'Database Connection', 'ops-health-dashboard' );
 	}
 
 	/**
-	 * Verifica se il check è abilitato
+	 * Checks if the check is enabled
 	 *
-	 * @return bool True se abilitato.
+	 * @return bool True if enabled.
 	 */
 	public function is_enabled(): bool {
 		return true;

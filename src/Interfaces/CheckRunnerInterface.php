@@ -2,8 +2,8 @@
 /**
  * CheckRunner Interface
  *
- * Contratto per il servizio di esecuzione dei check di salute.
- * Consente disaccoppiamento tra CheckRunner e i suoi consumatori.
+ * Contract for the health check execution service.
+ * Enables decoupling between CheckRunner and its consumers.
  *
  * @package OpsHealthDashboard\Interfaces
  */
@@ -21,34 +21,34 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Interface CheckRunnerInterface
  *
- * Definisce i metodi per l'esecuzione e gestione dei check di salute.
+ * Defines the methods for running and managing health checks.
  */
 interface CheckRunnerInterface {
 
 	/**
-	 * Aggiunge un check al runner
+	 * Adds a check to the runner
 	 *
-	 * @param CheckInterface $check Check da aggiungere.
+	 * @param CheckInterface $check Check to add.
 	 * @return void
 	 */
 	public function add_check( CheckInterface $check ): void;
 
 	/**
-	 * Esegue tutti i check abilitati
+	 * Runs all enabled checks
 	 *
-	 * @return array Array associativo con i risultati per ogni check (chiave = ID check).
+	 * @return array Associative array with results for each check (key = check ID).
 	 */
 	public function run_all(): array;
 
 	/**
-	 * Ottiene gli ultimi risultati dallo storage
+	 * Gets the latest results from storage
 	 *
-	 * @return array Ultimi risultati dei check.
+	 * @return array Latest check results.
 	 */
 	public function get_latest_results(): array;
 
 	/**
-	 * Cancella i risultati dallo storage
+	 * Clears results from storage
 	 *
 	 * @return void
 	 */

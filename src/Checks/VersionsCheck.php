@@ -2,9 +2,9 @@
 /**
  * Versions Check
  *
- * Controlla le versioni di WordPress, PHP e aggiornamenti disponibili
- * per core, plugin e temi. Graceful degradation se le funzioni di
- * aggiornamento non sono disponibili.
+ * Checks WordPress and PHP versions and available updates
+ * for core, plugins, and themes. Graceful degradation if
+ * update functions are not available.
  *
  * @package OpsHealthDashboard\Checks
  */
@@ -24,21 +24,21 @@ use OpsHealthDashboard\Interfaces\CheckInterface;
 /**
  * Class VersionsCheck
  *
- * Check per versioni software e aggiornamenti disponibili.
+ * Software version and available updates check.
  */
 class VersionsCheck implements CheckInterface {
 
 	/**
-	 * Versione PHP raccomandata
+	 * Recommended PHP version
 	 *
 	 * @var string
 	 */
 	const RECOMMENDED_PHP_VERSION = '8.3';
 
 	/**
-	 * Esegue il check delle versioni
+	 * Runs the versions check
 	 *
-	 * @return array Risultati del check.
+	 * @return array Check results.
 	 */
 	public function run(): array {
 		$start = microtime( true );
@@ -156,38 +156,38 @@ class VersionsCheck implements CheckInterface {
 	}
 
 	/**
-	 * Ottiene l'ID del check
+	 * Gets the check ID
 	 *
-	 * @return string ID del check.
+	 * @return string Check ID.
 	 */
 	public function get_id(): string {
 		return 'versions';
 	}
 
 	/**
-	 * Ottiene il nome del check
+	 * Gets the check name
 	 *
-	 * @return string Nome del check.
+	 * @return string Check name.
 	 */
 	public function get_name(): string {
 		return __( 'Versions', 'ops-health-dashboard' );
 	}
 
 	/**
-	 * Verifica se il check è abilitato
+	 * Checks if the check is enabled
 	 *
-	 * Sempre abilitato: le informazioni di versione sono sempre disponibili.
+	 * Always enabled: version information is always available.
 	 *
-	 * @return bool Sempre true.
+	 * @return bool Always true.
 	 */
 	public function is_enabled(): bool {
 		return true;
 	}
 
 	/**
-	 * Ottiene la versione di WordPress
+	 * Gets the WordPress version
 	 *
-	 * @return string Versione WordPress.
+	 * @return string WordPress version.
 	 */
 	protected function get_wp_version(): string {
 		global $wp_version;
@@ -195,18 +195,18 @@ class VersionsCheck implements CheckInterface {
 	}
 
 	/**
-	 * Ottiene la versione di PHP
+	 * Gets the PHP version
 	 *
-	 * @return string Versione PHP.
+	 * @return string PHP version.
 	 */
 	protected function get_php_version(): string {
 		return PHP_VERSION;
 	}
 
 	/**
-	 * Carica le funzioni di aggiornamento WordPress
+	 * Loads WordPress update functions
 	 *
-	 * Necessario perché non sono caricate in contesto cron.
+	 * Required because they are not loaded in cron context.
 	 *
 	 * @return void
 	 */
@@ -220,9 +220,9 @@ class VersionsCheck implements CheckInterface {
 	}
 
 	/**
-	 * Ottiene gli aggiornamenti core disponibili
+	 * Gets available core updates
 	 *
-	 * @return array Aggiornamenti core.
+	 * @return array Core updates.
 	 */
 	protected function get_core_updates(): array {
 		$updates = get_core_updates();
@@ -230,9 +230,9 @@ class VersionsCheck implements CheckInterface {
 	}
 
 	/**
-	 * Ottiene gli aggiornamenti plugin disponibili
+	 * Gets available plugin updates
 	 *
-	 * @return array Aggiornamenti plugin.
+	 * @return array Plugin updates.
 	 */
 	protected function get_plugin_updates(): array {
 		$updates = get_plugin_updates();
@@ -241,9 +241,9 @@ class VersionsCheck implements CheckInterface {
 	}
 
 	/**
-	 * Ottiene gli aggiornamenti tema disponibili
+	 * Gets available theme updates
 	 *
-	 * @return array Aggiornamenti tema.
+	 * @return array Theme updates.
 	 */
 	protected function get_theme_updates(): array {
 		$updates = get_theme_updates();
@@ -252,10 +252,10 @@ class VersionsCheck implements CheckInterface {
 	}
 
 	/**
-	 * Filtra gli aggiornamenti core reali (esclude 'latest' e 'development')
+	 * Filters real core updates (excludes 'latest' and 'development')
 	 *
-	 * @param array $updates Aggiornamenti core grezzi.
-	 * @return array Aggiornamenti reali.
+	 * @param array $updates Raw core updates.
+	 * @return array Real updates.
 	 */
 	private function filter_real_updates( array $updates ): array {
 		return array_filter(
@@ -270,13 +270,13 @@ class VersionsCheck implements CheckInterface {
 	}
 
 	/**
-	 * Determina lo status del check
+	 * Determines the check status
 	 *
-	 * @param bool   $has_core_update   Se c'è un aggiornamento core.
-	 * @param bool   $has_plugin_update Se ci sono aggiornamenti plugin.
-	 * @param bool   $has_theme_update  Se ci sono aggiornamenti tema.
-	 * @param string $php_version       Versione PHP corrente.
-	 * @return string Status del check.
+	 * @param bool   $has_core_update   Whether there is a core update.
+	 * @param bool   $has_plugin_update Whether there are plugin updates.
+	 * @param bool   $has_theme_update  Whether there are theme updates.
+	 * @param string $php_version       Current PHP version.
+	 * @return string Check status.
 	 */
 	private function determine_status(
 		bool $has_core_update,
@@ -300,13 +300,13 @@ class VersionsCheck implements CheckInterface {
 	}
 
 	/**
-	 * Costruisce l'array di risultato standard
+	 * Builds the standard result array
 	 *
-	 * @param string $status   Stato del check.
-	 * @param string $message  Messaggio descrittivo.
-	 * @param array  $details  Dettagli aggiuntivi.
-	 * @param float  $duration Durata dell'esecuzione.
-	 * @return array Risultato formattato.
+	 * @param string $status   Check status.
+	 * @param string $message  Descriptive message.
+	 * @param array  $details  Additional details.
+	 * @param float  $duration Execution duration.
+	 * @return array Formatted result.
 	 */
 	private function build_result( string $status, string $message, array $details, float $duration ): array {
 		return [

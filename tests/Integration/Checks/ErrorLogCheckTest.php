@@ -1,8 +1,8 @@
 <?php
 /**
- * Integration Test per ErrorLogCheck
+ * Integration Test for ErrorLogCheck
  *
- * Test di integrazione con filesystem e WordPress reale.
+ * Integration test with filesystem and real WordPress.
  *
  * @package OpsHealthDashboard\Tests\Integration\Checks
  */
@@ -17,19 +17,19 @@ use WP_UnitTestCase;
 /**
  * Class ErrorLogCheckTest
  *
- * Integration test per ErrorLogCheck con WordPress reale.
+ * Integration test for ErrorLogCheck with real WordPress.
  */
 class ErrorLogCheckTest extends WP_UnitTestCase {
 
 	/**
-	 * File di log temporaneo per i test
+	 * Temporary log file for tests
 	 *
 	 * @var string
 	 */
 	private $temp_log_file;
 
 	/**
-	 * Setup per ogni test
+	 * Setup for each test
 	 */
 	public function setUp(): void {
 		parent::setUp();
@@ -37,21 +37,21 @@ class ErrorLogCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Path del symlink temporaneo (se creato)
+	 * Temporary symlink path (if created)
 	 *
 	 * @var string
 	 */
 	private $temp_symlink = '';
 
 	/**
-	 * Teardown dopo ogni test
+	 * Teardown after each test
 	 */
 	public function tearDown(): void {
 		if ( '' !== $this->temp_symlink && is_link( $this->temp_symlink ) ) {
 			unlink( $this->temp_symlink );
 		}
 		if ( file_exists( $this->temp_log_file ) ) {
-			// Ripristina permessi se modificati.
+			// Restore permissions if modified.
 			chmod( $this->temp_log_file, 0644 );
 			unlink( $this->temp_log_file );
 		}
@@ -59,7 +59,7 @@ class ErrorLogCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Crea un ErrorLogCheck con il file temporaneo
+	 * Creates an ErrorLogCheck with the temporary file
 	 *
 	 * @return ErrorLogCheck
 	 */
@@ -70,7 +70,7 @@ class ErrorLogCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che ErrorLogCheck può eseguire senza crash
+	 * Verifies that ErrorLogCheck can run without crash
 	 */
 	public function test_error_log_check_runs_successfully() {
 		$check  = $this->create_check_with_temp_log();
@@ -84,10 +84,10 @@ class ErrorLogCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che il risultato ha una struttura valida
+	 * Verifies that the result has a valid structure
 	 */
 	public function test_error_log_check_returns_valid_structure() {
-		// Scrivi contenuto nel log di test.
+		// Write content to the test log.
 		file_put_contents(
 			$this->temp_log_file,
 			"[08-Feb-2026 12:00:00 UTC] PHP Warning: test warning\n"
@@ -102,17 +102,17 @@ class ErrorLogCheckTest extends WP_UnitTestCase {
 		$this->assertIsArray( $result['details'] );
 		$this->assertIsFloat( $result['duration'] );
 
-		// Verifica struttura dettagli.
+		// Verify details structure.
 		$this->assertArrayHasKey( 'counts', $result['details'] );
 		$this->assertArrayHasKey( 'lines_analyzed', $result['details'] );
 		$this->assertArrayHasKey( 'recent_samples', $result['details'] );
 	}
 
 	/**
-	 * Testa il check end-to-end con servizio Redaction reale
+	 * Tests end-to-end check with real Redaction service
 	 */
 	public function test_error_log_check_with_real_redaction() {
-		// Scrivi contenuto con dati sensibili.
+		// Write content with sensitive data.
 		$content = sprintf(
 			"[08-Feb-2026 12:00:00 UTC] PHP Fatal error: in %swp-config.php on line 10\n"
 			. "[08-Feb-2026 12:01:00 UTC] PHP Warning: for admin@example.com\n",
@@ -123,32 +123,32 @@ class ErrorLogCheckTest extends WP_UnitTestCase {
 		$check  = $this->create_check_with_temp_log();
 		$result = $check->run();
 
-		// Deve essere critical per il fatal error.
+		// Must be critical due to the fatal error.
 		$this->assertEquals( 'critical', $result['status'] );
 
-		// I campioni devono essere redatti.
+		// Samples must be redacted.
 		$samples_json = json_encode( $result['details']['recent_samples'] );
 		$this->assertStringNotContainsString( ABSPATH, $samples_json );
 		$this->assertStringNotContainsString( 'admin@example.com', $samples_json );
 	}
 
 	/**
-	 * Testa che gestisce file di log mancante con grazia
+	 * Verifies that missing log file is handled gracefully
 	 */
 	public function test_error_log_check_handles_missing_log_gracefully() {
-		// Rimuovi il file temporaneo.
+		// Remove the temporary file.
 		unlink( $this->temp_log_file );
 
 		$check  = $this->create_check_with_temp_log();
 		$result = $check->run();
 
-		// Non deve crashare, deve tornare ok (file configurato ma non ancora creato).
+		// Must not crash, should return ok (file configured but not yet created).
 		$this->assertEquals( 'ok', $result['status'] );
 		$this->assertStringContainsString( 'does not exist yet', strtolower( $result['message'] ) );
 	}
 
 	/**
-	 * Testa che implementa CheckInterface
+	 * Verifies that it implements CheckInterface
 	 */
 	public function test_implements_check_interface() {
 		$redaction = new Redaction( ABSPATH, WP_CONTENT_DIR );
@@ -157,10 +157,10 @@ class ErrorLogCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che un file di log vuoto (0 byte) restituisce ok
+	 * Verifies that an empty log file (0 bytes) returns ok
 	 */
 	public function test_error_log_check_returns_ok_for_empty_file() {
-		// Il file esiste ma è vuoto (tempnam crea file vuoto).
+		// File exists but is empty (tempnam creates empty file).
 		file_put_contents( $this->temp_log_file, '' );
 
 		$check  = $this->create_check_with_temp_log();
@@ -171,7 +171,7 @@ class ErrorLogCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che un symlink viene rifiutato per sicurezza
+	 * Verifies that a symlink is rejected for security
 	 */
 	public function test_error_log_check_returns_warning_for_symlink() {
 		$this->temp_symlink = sys_get_temp_dir() . '/ops_health_test_symlink_' . uniqid();
@@ -186,7 +186,7 @@ class ErrorLogCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che un file non leggibile restituisce warning
+	 * Verifies that an unreadable file returns warning
 	 */
 	public function test_error_log_check_returns_warning_for_unreadable_file() {
 		if ( function_exists( 'posix_getuid' ) && 0 === posix_getuid() ) {
@@ -204,7 +204,7 @@ class ErrorLogCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che solo warning/deprecated producono status warning
+	 * Verifies that only warning/deprecated produce warning status
 	 */
 	public function test_error_log_check_warning_status_for_warnings_only() {
 		$content = "[08-Feb-2026 12:00:00 UTC] PHP Warning: something went wrong\n"
@@ -221,7 +221,7 @@ class ErrorLogCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che solo notice producono status ok
+	 * Verifies that only notices produce ok status
 	 */
 	public function test_error_log_check_ok_status_for_notices_only() {
 		$content = "[08-Feb-2026 12:00:00 UTC] PHP Notice: undefined variable\n"
@@ -236,7 +236,7 @@ class ErrorLogCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che get_id(), get_name() e is_enabled() funzionano correttamente
+	 * Verifies that get_id(), get_name() and is_enabled() work correctly
 	 */
 	public function test_check_interface_accessors() {
 		$check = $this->create_check_with_temp_log();
@@ -248,26 +248,26 @@ class ErrorLogCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che resolve_log_path() con WP_DEBUG_LOG=true usa WP_CONTENT_DIR/debug.log
+	 * Verifies that resolve_log_path() with WP_DEBUG_LOG=true uses WP_CONTENT_DIR/debug.log
 	 *
-	 * Copre le righe 182, 184, 194, 195 di resolve_log_path().
+	 * Covers lines 182, 184, 194, 195 of resolve_log_path().
 	 */
 	public function test_error_log_check_with_real_resolve_log_path() {
 		$redaction = new Redaction( ABSPATH, WP_CONTENT_DIR );
 		$check     = new ErrorLogCheck( $redaction );
 		$result    = $check->run();
 
-		// WP_DEBUG_LOG=true nel test env → resolve_log_path ritorna WP_CONTENT_DIR/debug.log.
-		// Il file probabilmente non esiste, quindi "ok" con "does not exist".
-		// Oppure esiste: in entrambi i casi, non deve crashare.
+		// WP_DEBUG_LOG=true in the test env -> resolve_log_path returns WP_CONTENT_DIR/debug.log.
+		// The file probably does not exist, so "ok" with "does not exist".
+		// Or it exists: in both cases, it must not crash.
 		$this->assertIsArray( $result );
 		$this->assertContains( $result['status'], [ 'ok', 'warning', 'critical' ] );
 	}
 
 	/**
-	 * Testa che resolve_log_path() vuoto ritorna warning "not configured"
+	 * Verifies that empty resolve_log_path() returns warning "not configured"
 	 *
-	 * Copre le righe 84-89 di run().
+	 * Covers lines 84-89 of run().
 	 */
 	public function test_error_log_check_returns_warning_when_log_not_configured() {
 		$redaction = new Redaction( ABSPATH, WP_CONTENT_DIR );
@@ -280,9 +280,9 @@ class ErrorLogCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che righe non-PHP-error vengono classificate come 'other'
+	 * Verifies that non-PHP-error lines are classified as 'other'
 	 *
-	 * Copre la riga 377 di classify_line().
+	 * Covers line 377 of classify_line().
 	 */
 	public function test_error_log_check_classifies_non_php_lines_as_other() {
 		$content = "Stack trace:\n"
@@ -294,15 +294,15 @@ class ErrorLogCheckTest extends WP_UnitTestCase {
 		$check  = $this->create_check_with_temp_log();
 		$result = $check->run();
 
-		// 3 righe 'other' + 1 warning.
+		// 3 'other' lines + 1 warning.
 		$this->assertEquals( 3, $result['details']['counts']['other'] );
 		$this->assertEquals( 1, $result['details']['counts']['warning'] );
 	}
 
 	/**
-	 * Testa che collect_samples include campioni warning quando non ci sono abbastanza critical
+	 * Verifies that collect_samples includes warning samples when not enough critical ones
 	 *
-	 * Copre la riga 461 di collect_samples().
+	 * Covers line 461 of collect_samples().
 	 */
 	public function test_error_log_check_collects_mixed_samples() {
 		$content = "[08-Feb-2026 12:00:00 UTC] PHP Fatal error: out of memory\n"
@@ -320,12 +320,12 @@ class ErrorLogCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che collect_samples riempie tutti gli slot con critical quando abbondanti
+	 * Verifies that collect_samples fills all slots with critical when abundant
 	 *
-	 * Copre la riga 465 di collect_samples() (ramo else del ternario: remaining=0).
+	 * Covers line 465 of collect_samples() (else branch of ternary: remaining=0).
 	 */
 	public function test_error_log_check_samples_all_critical_when_many_fatals() {
-		// Scrivi 6 fatal errors → max_samples=5, tutti gli slot sono critical, $remaining=0.
+		// Write 6 fatal errors -> max_samples=5, all slots are critical, $remaining=0.
 		$lines = [];
 		for ( $i = 0; $i < 6; $i++ ) {
 			$lines[] = sprintf(
@@ -334,7 +334,7 @@ class ErrorLogCheckTest extends WP_UnitTestCase {
 				$i
 			);
 		}
-		// Aggiungi anche warning che NON devono apparire nei campioni.
+		// Also add warnings that must NOT appear in samples.
 		$lines[] = '[08-Feb-2026 12:06:00 UTC] PHP Warning: should not be in samples';
 		file_put_contents( $this->temp_log_file, implode( "\n", $lines ) . "\n" );
 
@@ -342,17 +342,17 @@ class ErrorLogCheckTest extends WP_UnitTestCase {
 		$result = $check->run();
 
 		$this->assertEquals( 'critical', $result['status'] );
-		// Tutti e 5 i campioni devono essere fatal, nessun warning.
+		// All 5 samples must be fatal, no warnings.
 		$this->assertCount( 5, $result['details']['recent_samples'] );
 	}
 
 	/**
-	 * Testa che max_lines limita il numero di righe analizzate
+	 * Verifies that max_lines limits the number of lines analyzed
 	 *
-	 * Copre la riga 312 di read_tail() (array_slice per max_lines).
+	 * Covers line 312 of read_tail() (array_slice for max_lines).
 	 */
 	public function test_error_log_check_applies_max_lines_limit() {
-		// Scrivi 20 righe nel log.
+		// Write 20 lines to the log.
 		$lines = [];
 		for ( $i = 0; $i < 20; $i++ ) {
 			$lines[] = sprintf(
@@ -364,21 +364,21 @@ class ErrorLogCheckTest extends WP_UnitTestCase {
 		file_put_contents( $this->temp_log_file, implode( "\n", $lines ) . "\n" );
 
 		$redaction = new Redaction( ABSPATH, WP_CONTENT_DIR );
-		// max_lines=3, max_bytes grande per leggere tutto il file.
+		// max_lines=3, large max_bytes to read the entire file.
 		$check  = new TestableErrorLogCheck( $redaction, $this->temp_log_file, 3, 524288 );
 		$result = $check->run();
 
-		// Deve aver analizzato esattamente 3 righe.
+		// Must have analyzed exactly 3 lines.
 		$this->assertEquals( 3, $result['details']['lines_analyzed'] );
 	}
 
 	/**
-	 * Testa la lettura di file grandi con seek e scarto prima riga
+	 * Tests reading large files with seek and first line discard
 	 *
-	 * Usa max_bytes piccolo per forzare il seek nel file.
+	 * Uses small max_bytes to force seek in the file.
 	 */
 	public function test_error_log_check_handles_large_file_with_seek() {
-		// Genera contenuto più grande di max_bytes (256 byte).
+		// Generate content larger than max_bytes (256 bytes).
 		$lines = [];
 		for ( $i = 0; $i < 20; $i++ ) {
 			$lines[] = sprintf(
@@ -389,34 +389,34 @@ class ErrorLogCheckTest extends WP_UnitTestCase {
 		}
 		$content = implode( "\n", $lines ) . "\n";
 
-		// Verifica che il contenuto sia abbastanza grande.
+		// Verify that the content is large enough.
 		$this->assertGreaterThan( 256, strlen( $content ) );
 
 		file_put_contents( $this->temp_log_file, $content );
 
 		$redaction = new Redaction( ABSPATH, WP_CONTENT_DIR );
-		// max_lines=5, max_bytes=256 per forzare seek + slice.
+		// max_lines=5, max_bytes=256 to force seek + slice.
 		$check  = new TestableErrorLogCheck( $redaction, $this->temp_log_file, 5, 256 );
 		$result = $check->run();
 
 		$this->assertIsArray( $result );
 		$this->assertContains( $result['status'], [ 'ok', 'warning', 'critical' ] );
 
-		// Deve aver analizzato un sottoinsieme di righe (max 5 per max_lines).
+		// Must have analyzed a subset of lines (max 5 per max_lines).
 		$this->assertLessThanOrEqual( 5, $result['details']['lines_analyzed'] );
 		$this->assertGreaterThan( 0, $result['details']['lines_analyzed'] );
 	}
 }
 
 /**
- * Sottoclasse testabile per iniettare il path del file di log
+ * Testable subclass to inject the log file path
  *
- * Sovrascrive resolve_log_path() per usare un file temporaneo.
+ * Overrides resolve_log_path() to use a temporary file.
  */
 class TestableErrorLogCheck extends ErrorLogCheck {
 
 	/**
-	 * Path del file di log di test
+	 * Test log file path
 	 *
 	 * @var string
 	 */
@@ -425,11 +425,11 @@ class TestableErrorLogCheck extends ErrorLogCheck {
 	/**
 	 * Constructor
 	 *
-	 * @param \OpsHealthDashboard\Interfaces\RedactionInterface $redaction   Servizio di redazione.
-	 * @param string                                            $log_path    Path del file di log di test.
-	 * @param int                                               $max_lines   Massimo righe da leggere.
-	 * @param int                                               $max_bytes   Massimo byte da leggere.
-	 * @param int                                               $max_samples Massimo campioni.
+	 * @param \OpsHealthDashboard\Interfaces\RedactionInterface $redaction   Redaction service.
+	 * @param string                                            $log_path    Test log file path.
+	 * @param int                                               $max_lines   Maximum lines to read.
+	 * @param int                                               $max_bytes   Maximum bytes to read.
+	 * @param int                                               $max_samples Maximum samples.
 	 */
 	public function __construct(
 		\OpsHealthDashboard\Interfaces\RedactionInterface $redaction,
@@ -443,9 +443,9 @@ class TestableErrorLogCheck extends ErrorLogCheck {
 	}
 
 	/**
-	 * Sovrascrive resolve_log_path per usare il file di test
+	 * Overrides resolve_log_path to use the test file
 	 *
-	 * @return string Path del file di log di test.
+	 * @return string Test log file path.
 	 */
 	protected function resolve_log_path(): string {
 		return $this->test_log_path;
@@ -453,16 +453,16 @@ class TestableErrorLogCheck extends ErrorLogCheck {
 }
 
 /**
- * Sottoclasse che simula log non configurato
+ * Subclass that simulates unconfigured log
  *
- * resolve_log_path() ritorna stringa vuota (nessun log configurato).
+ * resolve_log_path() returns empty string (no log configured).
  */
 class EmptyPathErrorLogCheck extends ErrorLogCheck {
 
 	/**
-	 * Ritorna path vuoto (log non configurato)
+	 * Returns empty path (log not configured)
 	 *
-	 * @return string Stringa vuota.
+	 * @return string Empty string.
 	 */
 	protected function resolve_log_path(): string {
 		return '';

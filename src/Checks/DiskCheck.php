@@ -2,8 +2,8 @@
 /**
  * Disk Space Check
  *
- * Verifica lo spazio disco disponibile con soglie configurabili.
- * Graceful degradation: se disk_free_space/disk_total_space sono disabilitati.
+ * Verifies available disk space with configurable thresholds.
+ * Graceful degradation: if disk_free_space/disk_total_space are disabled.
  *
  * @package OpsHealthDashboard\Checks
  */
@@ -24,26 +24,26 @@ use OpsHealthDashboard\Interfaces\RedactionInterface;
 /**
  * Class DiskCheck
  *
- * Check per lo spazio disco con soglie percentuali.
+ * Disk space check with percentage thresholds.
  */
 class DiskCheck implements CheckInterface {
 
 	/**
-	 * Soglia percentuale per warning (sotto questo valore → warning)
+	 * Percentage threshold for warning (below this value → warning)
 	 *
 	 * @var int
 	 */
 	const WARNING_THRESHOLD = 20;
 
 	/**
-	 * Soglia percentuale per critical (sotto questo valore → critical)
+	 * Percentage threshold for critical (below this value → critical)
 	 *
 	 * @var int
 	 */
 	const CRITICAL_THRESHOLD = 10;
 
 	/**
-	 * Servizio di redazione dati sensibili
+	 * Sensitive data redaction service
 	 *
 	 * @var RedactionInterface
 	 */
@@ -52,16 +52,16 @@ class DiskCheck implements CheckInterface {
 	/**
 	 * Constructor
 	 *
-	 * @param RedactionInterface $redaction Servizio di redazione dati sensibili.
+	 * @param RedactionInterface $redaction Sensitive data redaction service.
 	 */
 	public function __construct( RedactionInterface $redaction ) {
 		$this->redaction = $redaction;
 	}
 
 	/**
-	 * Esegue il check dello spazio disco
+	 * Runs the disk space check
 	 *
-	 * @return array Risultati del check.
+	 * @return array Check results.
 	 */
 	public function run(): array {
 		$start = microtime( true );
@@ -111,72 +111,72 @@ class DiskCheck implements CheckInterface {
 	}
 
 	/**
-	 * Ottiene l'ID del check
+	 * Gets the check ID
 	 *
-	 * @return string ID del check.
+	 * @return string Check ID.
 	 */
 	public function get_id(): string {
 		return 'disk';
 	}
 
 	/**
-	 * Ottiene il nome del check
+	 * Gets the check name
 	 *
-	 * @return string Nome del check.
+	 * @return string Check name.
 	 */
 	public function get_name(): string {
 		return __( 'Disk Space', 'ops-health-dashboard' );
 	}
 
 	/**
-	 * Verifica se il check è abilitato
+	 * Checks if the check is enabled
 	 *
-	 * Ritorna false se disk_free_space o disk_total_space sono
-	 * disabilitati via php.ini disable_functions.
+	 * Returns false if disk_free_space or disk_total_space are
+	 * disabled via php.ini disable_functions.
 	 *
-	 * @return bool True se abilitato.
+	 * @return bool True if enabled.
 	 */
 	public function is_enabled(): bool {
 		return function_exists( 'disk_free_space' ) && function_exists( 'disk_total_space' );
 	}
 
 	/**
-	 * Ottiene il path del disco da controllare
+	 * Gets the disk path to check
 	 *
-	 * @return string Path WordPress root.
+	 * @return string WordPress root path.
 	 */
 	protected function get_disk_path(): string {
 		return defined( 'ABSPATH' ) ? ABSPATH : '/';
 	}
 
 	/**
-	 * Ottiene lo spazio libero su disco
+	 * Gets free disk space
 	 *
-	 * @param string $path Path da controllare.
-	 * @return float|false Spazio libero in bytes o false in caso di errore.
+	 * @param string $path Path to check.
+	 * @return float|false Free space in bytes or false on error.
 	 */
 	protected function get_free_space( string $path ) {
 		return disk_free_space( $path );
 	}
 
 	/**
-	 * Ottiene lo spazio totale su disco
+	 * Gets total disk space
 	 *
-	 * @param string $path Path da controllare.
-	 * @return float|false Spazio totale in bytes o false in caso di errore.
+	 * @param string $path Path to check.
+	 * @return float|false Total space in bytes or false on error.
 	 */
 	protected function get_total_space( string $path ) {
 		return disk_total_space( $path );
 	}
 
 	/**
-	 * Costruisce l'array di risultato standard
+	 * Builds the standard result array
 	 *
-	 * @param string $status   Stato del check.
-	 * @param string $message  Messaggio descrittivo.
-	 * @param array  $details  Dettagli aggiuntivi.
-	 * @param float  $duration Durata dell'esecuzione.
-	 * @return array Risultato formattato.
+	 * @param string $status   Check status.
+	 * @param string $message  Descriptive message.
+	 * @param array  $details  Additional details.
+	 * @param float  $duration Execution duration.
+	 * @return array Formatted result.
 	 */
 	private function build_result( string $status, string $message, array $details, float $duration ): array {
 		return [

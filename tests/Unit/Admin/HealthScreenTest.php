@@ -1,8 +1,8 @@
 <?php
 /**
- * Unit Test per HealthScreen
+ * Unit Test for HealthScreen
  *
- * Test unitario con Brain\Monkey per HealthScreen.
+ * Unit test with Brain\Monkey per HealthScreen.
  *
  * @package OpsHealthDashboard\Tests\Unit\Admin
  */
@@ -20,13 +20,13 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class HealthScreenTest
  *
- * Unit test per HealthScreen.
+ * Unit test for HealthScreen.
  */
 class HealthScreenTest extends TestCase {
 	use MockeryPHPUnitIntegration;
 
 	/**
-	 * Setup per ogni test
+	 * Setup for each test
 	 */
 	protected function setUp(): void {
 		parent::setUp();
@@ -34,7 +34,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Teardown dopo ogni test
+	 * Teardown after each test
 	 */
 	protected function tearDown(): void {
 		unset( $_POST['ops_health_action'], $_POST['_ops_health_nonce'] );
@@ -43,9 +43,9 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Crea un mock StorageInterface per i test
+	 * Creates a mock StorageInterface for the tests
 	 *
-	 * @param int $last_run_at Valore di last_run_at da restituire.
+	 * @param int $last_run_at Value of last_run_at to return.
 	 * @return \Mockery\MockInterface
 	 */
 	private function create_storage_mock( int $last_run_at = 0 ) {
@@ -57,7 +57,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che HealthScreen può essere istanziato con dipendenze
+	 * Tests that HealthScreen can be instantiated with dependencies
 	 */
 	public function test_health_screen_can_be_instantiated() {
 		$runner  = Mockery::mock( CheckRunnerInterface::class );
@@ -68,7 +68,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che render() mostra i risultati dei check
+	 * Tests that render() shows the check results
 	 */
 	public function test_render_shows_check_results() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -99,7 +99,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che render() mostra messaggio "no checks" quando non ci sono risultati
+	 * Tests that render() shows "no checks" message when there are no results
 	 */
 	public function test_render_shows_no_checks_message_when_empty() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -121,7 +121,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che render() blocca utenti senza capability
+	 * Tests that render() blocks users without capability
 	 */
 	public function test_render_blocks_unauthorized_users() {
 		$runner  = Mockery::mock( CheckRunnerInterface::class );
@@ -152,7 +152,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che render() gestisce risultati senza chiavi status/message
+	 * Tests that render() handles results without status/message keys
 	 */
 	public function test_render_handles_result_with_missing_keys() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -179,7 +179,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Helper: mock comuni per render con bottoni
+	 * Helper: common mocks for render con bottoni
 	 *
 	 * @return void
 	 */
@@ -242,7 +242,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che render() contiene il bottone Run Now
+	 * Tests that render() contains the Run Now button
 	 */
 	public function test_render_contains_run_now_button() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -261,7 +261,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che render() contiene il bottone Clear Cache
+	 * Tests that render() contains the Clear Cache button
 	 */
 	public function test_render_contains_clear_cache_button() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -280,7 +280,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che render() contiene i campi nonce per sicurezza
+	 * Tests that render() contains the nonce fields for security
 	 */
 	public function test_render_contains_nonce_fields() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -299,7 +299,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Helper: crea un mock parziale di HealthScreen con do_exit() disabilitato
+	 * Helper: creates a partial mock of HealthScreen with do_exit() disabled
 	 *
 	 * @param \Mockery\MockInterface $runner  CheckRunner mock.
 	 * @param \Mockery\MockInterface $storage Storage mock.
@@ -320,7 +320,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Helper: mock comuni per process_actions
+	 * Helper: common mocks for process_actions
 	 *
 	 * @return void
 	 */
@@ -342,7 +342,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che process_actions() ritorna subito senza POST action
+	 * Tests that process_actions() returns early without POST action
 	 */
 	public function test_process_actions_returns_early_without_post_action() {
 		$runner  = Mockery::mock( CheckRunnerInterface::class );
@@ -359,7 +359,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che process_actions() ritorna subito con nonce invalido
+	 * Tests that process_actions() returns early with invalid nonce
 	 */
 	public function test_process_actions_returns_early_with_invalid_nonce() {
 		$runner  = Mockery::mock( CheckRunnerInterface::class );
@@ -385,7 +385,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che process_actions() ritorna subito senza capability
+	 * Tests that process_actions() returns early without capability
 	 */
 	public function test_process_actions_returns_early_without_capability() {
 		$runner  = Mockery::mock( CheckRunnerInterface::class );
@@ -414,7 +414,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che process_actions() esegue run_all con action run_now
+	 * Tests that process_actions() runs run_all with action run_now
 	 */
 	public function test_process_actions_runs_checks_on_run_now() {
 		$runner  = Mockery::mock( CheckRunnerInterface::class );
@@ -456,7 +456,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che process_actions() esegue clear_results con action clear_cache
+	 * Tests that process_actions() runs clear_results with action clear_cache
 	 */
 	public function test_process_actions_clears_cache_on_clear_cache() {
 		$runner  = Mockery::mock( CheckRunnerInterface::class );
@@ -496,7 +496,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che render() mostra notice quando transient presente
+	 * Tests that render() shows notice when transient is set
 	 */
 	public function test_render_shows_notice_when_transient_set() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -560,7 +560,7 @@ class HealthScreenTest extends TestCase {
 	// ─── register_hooks ────────────────────────────────────────────
 
 	/**
-	 * Testa che register_hooks registra l'hook admin_enqueue_scripts
+	 * Tests that register_hooks registers the admin_enqueue_scripts hook
 	 */
 	public function test_register_hooks_adds_admin_enqueue_scripts() {
 		$runner  = Mockery::mock( CheckRunnerInterface::class );
@@ -586,7 +586,7 @@ class HealthScreenTest extends TestCase {
 	// ─── enqueue_styles ────────────────────────────────────────────
 
 	/**
-	 * Testa che SCREEN_ID ha il valore corretto
+	 * Tests that SCREEN_ID has the correct value
 	 */
 	public function test_screen_id_constant_value() {
 		$this->assertSame(
@@ -596,7 +596,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che enqueue_styles carica il CSS sulla schermata health
+	 * Tests that enqueue_styles loads the CSS on the health screen
 	 */
 	public function test_enqueue_styles_on_health_screen() {
 		if ( ! defined( 'OPS_HEALTH_DASHBOARD_FILE' ) ) {
@@ -633,7 +633,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che enqueue_styles NON carica il CSS su altre schermate
+	 * Tests that enqueue_styles does NOT load the CSS on other screens
 	 */
 	public function test_enqueue_styles_skips_other_screen() {
 		$screen_obj     = new \stdClass();
@@ -652,7 +652,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che enqueue_styles gestisce screen null
+	 * Tests that enqueue_styles handles null screen
 	 */
 	public function test_enqueue_styles_handles_null_screen() {
 		Functions\expect( 'get_current_screen' )
@@ -670,7 +670,7 @@ class HealthScreenTest extends TestCase {
 	// ─── determine_overall_status ──────────────────────────────────
 
 	/**
-	 * Testa che overall status per risultati vuoti è 'unknown'
+	 * Tests that overall status for empty results is 'unknown'
 	 */
 	public function test_overall_status_empty_is_unknown() {
 		$runner  = Mockery::mock( CheckRunnerInterface::class );
@@ -684,7 +684,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che overall status con tutti ok è 'ok'
+	 * Tests that overall status with all ok is 'ok'
 	 */
 	public function test_overall_status_all_ok() {
 		$runner  = Mockery::mock( CheckRunnerInterface::class );
@@ -702,7 +702,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che overall status worst wins (critical > ok)
+	 * Tests that overall status worst wins (critical > ok)
 	 */
 	public function test_overall_status_worst_wins() {
 		$runner  = Mockery::mock( CheckRunnerInterface::class );
@@ -720,7 +720,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che overall status con status mancante usa default
+	 * Tests that overall status with missing status uses default
 	 */
 	public function test_overall_status_missing_status_field() {
 		$runner  = Mockery::mock( CheckRunnerInterface::class );
@@ -740,7 +740,7 @@ class HealthScreenTest extends TestCase {
 	// ─── render (HTML) ────────────────────────────────────────────
 
 	/**
-	 * Testa che render non contiene inline styles
+	 * Tests that render does not contain inline styles
 	 */
 	public function test_render_has_no_inline_styles() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -759,7 +759,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che render mostra il banner di stato quando ci sono risultati
+	 * Tests that render shows the status banner when there are results
 	 */
 	public function test_render_shows_summary_banner_with_results() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -786,7 +786,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che render nasconde il banner quando non ci sono risultati
+	 * Tests that render hides the banner when there are no results
 	 */
 	public function test_render_hides_summary_when_no_results() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -807,7 +807,7 @@ class HealthScreenTest extends TestCase {
 	// ─── v0.6.2: Summary banner enhancements ──────────────────────
 
 	/**
-	 * Testa che il banner mostra il conteggio dei check problematici
+	 * Tests that the banner shows the count of affected checks
 	 */
 	public function test_render_shows_affected_count_in_banner() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -842,7 +842,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che il banner non mostra affected count quando tutti OK
+	 * Tests that the banner does not show affected count when all OK
 	 */
 	public function test_render_hides_affected_when_all_ok() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -869,7 +869,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che il banner mostra la lista dei check problematici
+	 * Tests that the banner shows the list of affected checks
 	 */
 	public function test_render_shows_affected_check_names_in_banner() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -898,7 +898,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che il banner mostra last run quando timestamp disponibile
+	 * Tests that the banner shows last run when timestamp is available
 	 */
 	public function test_render_shows_last_run_time() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -926,7 +926,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che il banner mostra next run quando schedulato
+	 * Tests that the banner shows next run when scheduled
 	 */
 	public function test_render_shows_next_run_time() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -1007,7 +1007,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che il banner nasconde timing quando non disponibile
+	 * Tests that the banner hides timing when not available
 	 */
 	public function test_render_hides_timing_when_no_data() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -1034,7 +1034,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che il banner contiene il link alle Alert Settings
+	 * Tests that the banner contains the link to Alert Settings
 	 */
 	public function test_render_shows_alert_settings_link() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -1062,7 +1062,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che il banner usa notice-error per stato critical
+	 * Tests that the banner uses notice-error for critical status
 	 */
 	public function test_render_uses_notice_error_for_critical() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -1091,7 +1091,7 @@ class HealthScreenTest extends TestCase {
 	// ─── v0.6.2: Cards with badges and anchors ─────────────────────
 
 	/**
-	 * Testa che le card hanno un ID attributo per anchor
+	 * Tests that the cards have an ID attribute for anchor
 	 */
 	public function test_render_card_has_id_attribute() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -1118,7 +1118,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che le card contengono status badge
+	 * Tests that the cards contain status badge
 	 */
 	public function test_render_card_contains_badge() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -1146,7 +1146,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che le card contengono icona di stato
+	 * Tests that the cards contain status icon
 	 */
 	public function test_render_card_contains_status_icon() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -1174,7 +1174,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che le card mostrano "Checked X ago" quando timestamp disponibile
+	 * Tests that the cards show "Checked X ago" when timestamp is available
 	 */
 	public function test_render_card_shows_checked_timestamp() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -1204,7 +1204,7 @@ class HealthScreenTest extends TestCase {
 	// ─── v0.6.2: Expandable details ───────────────────────────────
 
 	/**
-	 * Testa che i dettagli espandibili sono presenti quando il check ha details
+	 * Tests that expandable details are present when the check has details
 	 */
 	public function test_render_check_details_shows_details_element() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -1233,7 +1233,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che i dettagli non compaiono quando vuoti e senza duration
+	 * Tests that details do not appear when empty and without duration
 	 */
 	public function test_render_check_details_hidden_when_empty() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -1260,7 +1260,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che i dettagli mostrano la duration in millisecondi
+	 * Tests that details show the duration in milliseconds
 	 */
 	public function test_render_check_details_shows_duration_ms() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -1288,7 +1288,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che i dettagli database mostrano query_time
+	 * Tests that database details show query_time
 	 */
 	public function test_render_database_details() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -1316,7 +1316,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che i dettagli error_log mostrano severity counts
+	 * Tests that error_log details show severity counts
 	 */
 	public function test_render_error_log_details_shows_severity_counts() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -1354,7 +1354,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che i dettagli redis mostrano response_time
+	 * Tests that redis details show response_time
 	 */
 	public function test_render_redis_details_shows_response_time() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -1382,7 +1382,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che i dettagli disk mostrano percentuale e capacità
+	 * Tests that disk details show percentage and capacity
 	 */
 	public function test_render_disk_details_shows_free_space() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -1419,7 +1419,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che i dettagli versions mostrano WP/PHP versions
+	 * Tests that versions details show WP/PHP versions
 	 */
 	public function test_render_versions_details_shows_versions() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -1453,7 +1453,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che i dettagli versions mostrano gli update disponibili
+	 * Tests that versions details show the available updates
 	 */
 	public function test_render_versions_details_shows_updates_list() {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
@@ -1489,7 +1489,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che dettagli per check sconosciuto non produce output
+	 * Tests that details for unknown check produces no output
 	 */
 	public function test_render_specific_details_ignores_unknown_check() {
 		$runner  = Mockery::mock( CheckRunnerInterface::class );
@@ -1509,7 +1509,7 @@ class HealthScreenTest extends TestCase {
 	// ─── get_status_icon ──────────────────────────────────────────
 
 	/**
-	 * Testa che get_status_icon restituisce le icone corrette
+	 * Tests that get_status_icon returns the correct icons
 	 */
 	public function test_get_status_icon_returns_correct_icons() {
 		$runner  = Mockery::mock( CheckRunnerInterface::class );
@@ -1529,7 +1529,7 @@ class HealthScreenTest extends TestCase {
 	// ─── get_affected_checks ──────────────────────────────────────
 
 	/**
-	 * Testa che get_affected_checks filtra solo check non-OK
+	 * Tests that get_affected_checks filters only non-OK checks
 	 */
 	public function test_get_affected_checks_filters_non_ok() {
 		$runner  = Mockery::mock( CheckRunnerInterface::class );
@@ -1555,7 +1555,7 @@ class HealthScreenTest extends TestCase {
 	// ─── Help tabs ───────────────────────────────────────────────
 
 	/**
-	 * Testa che add_help_tabs registra 3 tab
+	 * Tests that add_help_tabs registers 3 tabs
 	 */
 	public function test_add_help_tabs_registers_three_tabs() {
 		$runner  = Mockery::mock( CheckRunnerInterface::class );
@@ -1581,7 +1581,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che add_help_tabs usa gli ID corretti
+	 * Tests that add_help_tabs uses the correct IDs
 	 */
 	public function test_add_help_tabs_tab_ids_are_correct() {
 		$runner  = Mockery::mock( CheckRunnerInterface::class );
@@ -1615,7 +1615,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che add_help_tabs imposta la sidebar con GitHub e Alert Settings
+	 * Tests that add_help_tabs sets the sidebar with GitHub and Alert Settings
 	 */
 	public function test_add_help_tabs_sets_sidebar() {
 		$runner  = Mockery::mock( CheckRunnerInterface::class );
@@ -1647,7 +1647,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che add_help_tabs gestisce screen null senza errori
+	 * Tests that add_help_tabs handles null screen without errors
 	 */
 	public function test_add_help_tabs_handles_null_screen() {
 		$runner  = Mockery::mock( CheckRunnerInterface::class );
@@ -1664,7 +1664,7 @@ class HealthScreenTest extends TestCase {
 	// ─── Pattern enforcement ───────────────────────────────────────
 
 	/**
-	 * Testa che la classe NON è final
+	 * Tests that the class is NOT final
 	 */
 	public function test_class_is_not_final() {
 		$reflection = new \ReflectionClass( HealthScreen::class );
@@ -1672,7 +1672,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Tests that there are NO static methods
 	 */
 	public function test_no_static_methods() {
 		$reflection = new \ReflectionClass( HealthScreen::class );
@@ -1689,7 +1689,7 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono proprietà static
+	 * Tests that there are NO static properties
 	 */
 	public function test_no_static_properties() {
 		$reflection = new \ReflectionClass( HealthScreen::class );

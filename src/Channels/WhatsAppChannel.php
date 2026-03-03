@@ -2,8 +2,8 @@
 /**
  * WhatsApp Alert Channel
  *
- * Canale di alert che invia notifiche via webhook generico per WhatsApp.
- * Compatibile con provider come Twilio, Meta, Vonage.
+ * Alert channel that sends notifications via generic webhook for WhatsApp.
+ * Compatible with providers such as Twilio, Meta, Vonage.
  *
  * @package OpsHealthDashboard\Channels
  */
@@ -25,19 +25,19 @@ use OpsHealthDashboard\Interfaces\StorageInterface;
 /**
  * Class WhatsAppChannel
  *
- * Implementazione del canale WhatsApp per gli alert.
+ * WhatsApp channel implementation for alerts.
  */
 class WhatsAppChannel implements AlertChannelInterface {
 
 	/**
-	 * Storage per le impostazioni
+	 * Storage for settings
 	 *
 	 * @var StorageInterface
 	 */
 	private $storage;
 
 	/**
-	 * Client HTTP
+	 * HTTP client
 	 *
 	 * @var HttpClientInterface
 	 */
@@ -46,8 +46,8 @@ class WhatsAppChannel implements AlertChannelInterface {
 	/**
 	 * Constructor
 	 *
-	 * @param StorageInterface    $storage     Storage per le impostazioni.
-	 * @param HttpClientInterface $http_client Client HTTP sicuro.
+	 * @param StorageInterface    $storage     Storage for settings.
+	 * @param HttpClientInterface $http_client Secure HTTP client.
 	 */
 	public function __construct( StorageInterface $storage, HttpClientInterface $http_client ) {
 		$this->storage     = $storage;
@@ -55,7 +55,7 @@ class WhatsAppChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Ottiene l'identificatore del canale
+	 * Gets the channel identifier
 	 *
 	 * @return string
 	 */
@@ -64,7 +64,7 @@ class WhatsAppChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Ottiene il nome del canale
+	 * Gets the channel name
 	 *
 	 * @return string
 	 */
@@ -73,7 +73,7 @@ class WhatsAppChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Verifica se il canale è abilitato
+	 * Checks if the channel is enabled
 	 *
 	 * @return bool
 	 */
@@ -86,22 +86,22 @@ class WhatsAppChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Valida un numero di telefono in formato E.164
+	 * Validates a phone number in E.164 format
 	 *
-	 * Formato accettato: + seguito da 7 a 15 cifre (es. +391234567890).
+	 * Accepted format: + followed by 7 to 15 digits (e.g. +391234567890).
 	 *
-	 * @param string $phone Numero di telefono da validare.
-	 * @return bool True se valido.
+	 * @param string $phone Phone number to validate.
+	 * @return bool True if valid.
 	 */
 	private function is_valid_phone( string $phone ): bool {
 		return 1 === preg_match( '/^\+[1-9]\d{6,14}$/', $phone );
 	}
 
 	/**
-	 * Invia un alert via WhatsApp webhook
+	 * Sends an alert via WhatsApp webhook
 	 *
-	 * @param array $payload Dati dell'alert.
-	 * @return array Risultato con chiavi success e error.
+	 * @param array $payload Alert data.
+	 * @return array Result with success and error keys.
 	 */
 	public function send( array $payload ): array {
 		$settings    = $this->get_channel_settings();
@@ -133,10 +133,10 @@ class WhatsAppChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Formatta il messaggio per WhatsApp
+	 * Formats the message for WhatsApp
 	 *
-	 * @param array $payload Dati dell'alert.
-	 * @return string Messaggio testuale.
+	 * @param array $payload Alert data.
+	 * @return string Text message.
 	 */
 	private function format_message( array $payload ): string {
 		$check_name  = $payload['check_name'] ?? $payload['check_id'] ?? 'Unknown';
@@ -161,7 +161,7 @@ class WhatsAppChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Ottiene le impostazioni del canale
+	 * Gets the channel settings
 	 *
 	 * @return array
 	 */

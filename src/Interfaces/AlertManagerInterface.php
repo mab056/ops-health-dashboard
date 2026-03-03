@@ -2,9 +2,9 @@
 /**
  * Alert Manager Interface
  *
- * Contratto per l'orchestratore degli alert.
- * Gestisce la rilevazione dei cambiamenti di stato,
- * il cooldown e il dispatch ai canali.
+ * Contract for the alert orchestrator.
+ * Manages state change detection,
+ * cooldown, and dispatch to channels.
  *
  * @package OpsHealthDashboard\Interfaces
  */
@@ -22,27 +22,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Interface AlertManagerInterface
  *
- * Definisce il contratto per la gestione centralizzata degli alert.
+ * Defines the contract for centralized alert management.
  */
 interface AlertManagerInterface {
 
 	/**
-	 * Aggiunge un canale di notifica
+	 * Adds a notification channel
 	 *
-	 * @param AlertChannelInterface $channel Canale da aggiungere.
+	 * @param AlertChannelInterface $channel Channel to add.
 	 * @return void
 	 */
 	public function add_channel( AlertChannelInterface $channel ): void;
 
 	/**
-	 * Processa i risultati dei check e invia alert sui cambiamenti di stato
+	 * Processes check results and sends alerts on state changes
 	 *
-	 * Confronta i risultati correnti con i precedenti, rileva transizioni di stato,
-	 * verifica i cooldown e invia notifiche ai canali abilitati.
+	 * Compares current results with previous ones, detects state transitions,
+	 * verifies cooldowns, and sends notifications to enabled channels.
 	 *
-	 * @param array $current_results  Risultati correnti da run_all().
-	 * @param array $previous_results Risultati precedenti (può essere vuoto al primo avvio).
-	 * @return array Array dei risultati di invio alert.
+	 * @param array $current_results  Current results from run_all().
+	 * @param array $previous_results Previous results (can be empty on first run).
+	 * @return array Array of alert dispatch results.
 	 */
 	public function process( array $current_results, array $previous_results ): array;
 }

@@ -2,8 +2,8 @@
 /**
  * Redaction Service
  *
- * Sanitizza testi rimuovendo dati sensibili come credenziali,
- * path di sistema, email, indirizzi IP e token.
+ * Sanitizes text by removing sensitive data such as credentials,
+ * system paths, emails, IP addresses, and tokens.
  *
  * @package OpsHealthDashboard\Services
  */
@@ -23,19 +23,19 @@ use OpsHealthDashboard\Interfaces\RedactionInterface;
 /**
  * Class Redaction
  *
- * Servizio di redazione dati sensibili.
+ * Sensitive data redaction service.
  */
 class Redaction implements RedactionInterface {
 
 	/**
-	 * WordPress ABSPATH per sostituzione path
+	 * WordPress ABSPATH for path replacement
 	 *
 	 * @var string
 	 */
 	private $abspath;
 
 	/**
-	 * WordPress WP_CONTENT_DIR per sostituzione path
+	 * WordPress WP_CONTENT_DIR for path replacement
 	 *
 	 * @var string
 	 */
@@ -53,32 +53,32 @@ class Redaction implements RedactionInterface {
 	}
 
 	/**
-	 * Applica la redazione a un singolo testo
+	 * Applies redaction to a single text
 	 *
-	 * Applica sequenzialmente tutti i pattern di redazione.
-	 * L'ordine è importante: path specifici prima di quelli generici.
+	 * Applies all redaction patterns sequentially.
+	 * Order matters: specific paths before generic ones.
 	 *
-	 * @param string $text Testo da sanitizzare.
-	 * @return string Testo con dati sensibili rimossi.
+	 * @param string $text Text to sanitize.
+	 * @return string Text with sensitive data removed.
 	 */
 	public function redact( string $text ): string {
 		if ( '' === $text ) {
 			return $text;
 		}
 
-		// 1. Path replacement (più specifici prima).
+		// 1. Path replacement (most specific first).
 		$text = $this->redact_paths( $text );
 
-		// 2. Credenziali DB e WordPress salts.
+		// 2. DB credentials and WordPress salts.
 		$text = $this->redact_credentials( $text );
 
 		// 3. API key, token, bearer.
 		$text = $this->redact_tokens( $text );
 
-		// 4. Password in URL e campi generici.
+		// 4. Password in URL and generic fields.
 		$text = $this->redact_passwords( $text );
 
-		// 5. PII: email e IP.
+		// 5. PII: email and IP.
 		$text = $this->redact_pii( $text );
 
 		// 6. Home directory.
@@ -88,31 +88,31 @@ class Redaction implements RedactionInterface {
 	}
 
 	/**
-	 * Applica la redazione a un array di righe
+	 * Applies redaction to an array of lines
 	 *
-	 * @param array $lines Array di stringhe da sanitizzare.
-	 * @return array Array di stringhe sanitizzate.
+	 * @param array $lines Array of strings to sanitize.
+	 * @return array Array of sanitized strings.
 	 */
 	public function redact_lines( array $lines ): array {
 		return array_map( [ $this, 'redact' ], $lines );
 	}
 
 	/**
-	 * Redige i path di sistema
+	 * Redacts system paths
 	 *
-	 * WP_CONTENT_DIR viene sostituito prima di ABSPATH perché è più specifico
-	 * e spesso è un sotto-path di ABSPATH.
+	 * WP_CONTENT_DIR is replaced before ABSPATH because it is more specific
+	 * and is often a sub-path of ABSPATH.
 	 *
-	 * @param string $text Testo da sanitizzare.
-	 * @return string Testo con path redatti.
+	 * @param string $text Text to sanitize.
+	 * @return string Text with redacted paths.
 	 */
 	private function redact_paths( string $text ): string {
-		// WP_CONTENT_DIR prima (più specifico, più lungo).
+		// WP_CONTENT_DIR first (more specific, longer).
 		if ( '' !== $this->content_dir ) {
 			$text = str_replace( $this->content_dir, '[WP_CONTENT]', $text );
 		}
 
-		// ABSPATH dopo.
+		// ABSPATH after.
 		if ( '' !== $this->abspath ) {
 			$text = str_replace( $this->abspath, '[ABSPATH]/', $text );
 		}
@@ -121,14 +121,14 @@ class Redaction implements RedactionInterface {
 	}
 
 	/**
-	 * Redige credenziali DB e WordPress salts
+	 * Redacts DB credentials and WordPress salts
 	 *
-	 * @param string $text Testo da sanitizzare.
-	 * @return string Testo con credenziali redatte.
+	 * @param string $text Text to sanitize.
+	 * @return string Text with redacted credentials.
 	 */
 	private function redact_credentials( string $text ): string {
 		// DB credentials: DB_PASSWORD, DB_USER, DB_NAME, DB_HOST.
-		// Gestisce sia define('DB_PASSWORD', 'value') sia DB_PASSWORD = 'value'.
+		// Handles both define('DB_PASSWORD', 'value') and DB_PASSWORD = 'value'.
 		$text = preg_replace(
 			"/(DB_PASSWORD|DB_USER|DB_NAME|DB_HOST)(['\"]?\s*[,=]\s*['\"])[^'\"]*(['\"])/i",
 			'$1$2[REDACTED]$3',
@@ -148,10 +148,10 @@ class Redaction implements RedactionInterface {
 	}
 
 	/**
-	 * Redige API key, token e bearer
+	 * Redacts API keys, tokens, and bearer
 	 *
-	 * @param string $text Testo da sanitizzare.
-	 * @return string Testo con token redatti.
+	 * @param string $text Text to sanitize.
+	 * @return string Text with redacted tokens.
 	 */
 	private function redact_tokens( string $text ): string {
 		// API key, secret, token patterns.
@@ -174,21 +174,21 @@ class Redaction implements RedactionInterface {
 	}
 
 	/**
-	 * Redige password in URL e campi generici
+	 * Redacts passwords in URLs and generic fields
 	 *
-	 * @param string $text Testo da sanitizzare.
-	 * @return string Testo con password redatte.
+	 * @param string $text Text to sanitize.
+	 * @return string Text with redacted passwords.
 	 */
 	private function redact_passwords( string $text ): string {
-		// Password in URL (es: mysql://user:pass@host).
-		// Usa [^\s]+ (greedy) per gestire password con @ — backtrack trova l'ultimo @.
+		// Password in URL (e.g.: mysql://user:pass@host).
+		// Uses [^\s]+ (greedy) to handle passwords with @ — backtracking finds the last @.
 		$text = preg_replace(
 			'/(:\/\/[^:\/\s]+:)[^\s]+(@)/',
 			'$1[REDACTED]$2',
 			$text
 		);
 
-		// Campi password generici.
+		// Generic password fields.
 		$text = preg_replace(
 			'/(password|passwd|pwd)\s*[=:]\s*[\'"]?[^\s\'\"]+[\'"]?/i',
 			'$1=[REDACTED]',
@@ -199,10 +199,10 @@ class Redaction implements RedactionInterface {
 	}
 
 	/**
-	 * Redige dati personali: email e indirizzi IP
+	 * Redacts personal data: emails and IP addresses
 	 *
-	 * @param string $text Testo da sanitizzare.
-	 * @return string Testo con PII redatti.
+	 * @param string $text Text to sanitize.
+	 * @return string Text with redacted PII.
 	 */
 	private function redact_pii( string $text ): string {
 		// Email.
@@ -212,14 +212,14 @@ class Redaction implements RedactionInterface {
 			$text
 		);
 
-		// IPv4 (con validazione ottetti 0-255).
+		// IPv4 (with octet validation 0-255).
 		$text = preg_replace(
 			'/\b(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\b/',
 			'[IP_REDACTED]',
 			$text
 		);
 
-		// IPv6 (minimo 5 gruppi per evitare falsi positivi su timestamp).
+		// IPv6 (minimum 5 groups to avoid false positives on timestamps).
 		$text = preg_replace(
 			'/\b([0-9a-fA-F]{1,4}:){4,7}[0-9a-fA-F]{1,4}\b/',
 			'[IP_REDACTED]',
@@ -230,10 +230,10 @@ class Redaction implements RedactionInterface {
 	}
 
 	/**
-	 * Redige i path delle directory home
+	 * Redacts home directory paths
 	 *
-	 * @param string $text Testo da sanitizzare.
-	 * @return string Testo con home directory redatte.
+	 * @param string $text Text to sanitize.
+	 * @return string Text with redacted home directories.
 	 */
 	private function redact_home_dirs( string $text ): string {
 		return preg_replace(

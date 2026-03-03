@@ -1,8 +1,8 @@
 <?php
 /**
- * Test per AlertManager Service
+ * Test for AlertManager Service
  *
- * Verifica rilevazione cambiamenti di stato, cooldown e dispatch ai canali.
+ * Verifies state change detection, cooldown and dispatch to channels.
  *
  * @package OpsHealthDashboard\Tests\Unit\Services
  */
@@ -23,7 +23,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class AlertManagerTest
  *
- * Test unitari per il servizio AlertManager.
+ * Unit tests for the AlertManager service.
  */
 class AlertManagerTest extends TestCase {
 
@@ -50,7 +50,7 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Crea un mock di StorageInterface
+	 * Creates a mock of StorageInterface
 	 *
 	 * @return \Mockery\MockInterface|StorageInterface
 	 */
@@ -69,7 +69,7 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Crea un mock di RedactionInterface
+	 * Creates a mock of RedactionInterface
 	 *
 	 * @return \Mockery\MockInterface|RedactionInterface
 	 */
@@ -85,10 +85,10 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Crea un mock di AlertChannelInterface
+	 * Creates a mock of AlertChannelInterface
 	 *
-	 * @param bool $enabled Se il canale è abilitato.
-	 * @param bool $success Se l'invio ha successo.
+	 * @param bool $enabled Whether the channel is enabled.
+	 * @param bool $success Whether the send succeeds.
 	 * @return \Mockery\MockInterface|AlertChannelInterface
 	 */
 	private function create_channel_mock( bool $enabled = true, bool $success = true ) {
@@ -103,9 +103,9 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Crea risultati di check per i test
+	 * Creates check results for tests
 	 *
-	 * @param string $status Status del check.
+	 * @param string $status Check status.
 	 * @return array
 	 */
 	private function create_check_result( string $status ) {
@@ -119,9 +119,9 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Configura mock per transient di cooldown
+	 * Configures mocks for cooldown transient
 	 *
-	 * @param bool $in_cooldown Se il cooldown è attivo.
+	 * @param bool $in_cooldown Whether cooldown is active.
 	 * @return void
 	 */
 	private function mock_cooldown( bool $in_cooldown = false ) {
@@ -131,7 +131,7 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Configura mock i18n e utilità
+	 * Configures i18n and utility mocks
 	 *
 	 * @return void
 	 */
@@ -147,7 +147,7 @@ class AlertManagerTest extends TestCase {
 	// ---------------------------------------------------
 
 	/**
-	 * Testa che la classe NON è final
+	 * Tests that the class is NOT final
 	 *
 	 * @return void
 	 */
@@ -157,7 +157,7 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Tests that there are NO static methods
 	 *
 	 * @return void
 	 */
@@ -176,7 +176,7 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono proprietà static
+	 * Tests that there are NO static properties
 	 *
 	 * @return void
 	 */
@@ -188,7 +188,7 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che implementa AlertManagerInterface
+	 * Tests that implements AlertManagerInterface
 	 *
 	 * @return void
 	 */
@@ -207,7 +207,7 @@ class AlertManagerTest extends TestCase {
 	// ---------------------------------------------------
 
 	/**
-	 * Testa add_channel aggiunge un canale
+	 * Tests add_channel adds a channel
 	 *
 	 * @return void
 	 */
@@ -218,17 +218,17 @@ class AlertManagerTest extends TestCase {
 		);
 		$channel = $this->create_channel_mock();
 
-		// Non deve lanciare eccezioni.
+		// Must not throw exceptions.
 		$manager->add_channel( $channel );
 		$this->assertInstanceOf( AlertManager::class, $manager );
 	}
 
 	// ---------------------------------------------------
-	// process() - Nessun cambiamento
+	// process() - No change
 	// ---------------------------------------------------
 
 	/**
-	 * Testa process senza cambiamenti di stato (ok->ok)
+	 * Tests process without state changes (ok->ok)
 	 *
 	 * @return void
 	 */
@@ -253,7 +253,7 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Testa process senza cambiamenti di stato (critical->critical)
+	 * Tests process without state changes (critical->critical)
 	 *
 	 * @return void
 	 */
@@ -278,11 +278,11 @@ class AlertManagerTest extends TestCase {
 	}
 
 	// ---------------------------------------------------
-	// process() - Rilevazione cambiamenti
+	// process() - Change detection
 	// ---------------------------------------------------
 
 	/**
-	 * Testa process rileva ok->critical e invia alert
+	 * Tests process detects ok->critical and sends alert
 	 *
 	 * @return void
 	 */
@@ -309,7 +309,7 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Testa process rileva ok->warning
+	 * Tests process detects ok->warning
 	 *
 	 * @return void
 	 */
@@ -336,7 +336,7 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Testa process rileva warning->critical
+	 * Tests process detects warning->critical
 	 *
 	 * @return void
 	 */
@@ -367,7 +367,7 @@ class AlertManagerTest extends TestCase {
 	// ---------------------------------------------------
 
 	/**
-	 * Testa recovery alert critical->ok
+	 * Tests recovery alert critical->ok
 	 *
 	 * @return void
 	 */
@@ -401,7 +401,7 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Testa recovery alert warning->ok
+	 * Tests recovery alert warning->ok
 	 *
 	 * @return void
 	 */
@@ -439,7 +439,7 @@ class AlertManagerTest extends TestCase {
 	// ---------------------------------------------------
 
 	/**
-	 * Testa primo avvio con tutti ok non manda alert
+	 * Tests first run with all ok does not send alert
 	 *
 	 * @return void
 	 */
@@ -463,7 +463,7 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Testa primo avvio con critical manda alert
+	 * Tests first run with critical sends alert
 	 *
 	 * @return void
 	 */
@@ -493,7 +493,7 @@ class AlertManagerTest extends TestCase {
 	// ---------------------------------------------------
 
 	/**
-	 * Testa che cooldown impedisce alert ripetuti
+	 * Tests that cooldown prevents repeated alerts
 	 *
 	 * @return void
 	 */
@@ -518,7 +518,7 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che recovery bypassa il cooldown
+	 * Tests that recovery bypasses the cooldown
 	 *
 	 * @return void
 	 */
@@ -545,11 +545,11 @@ class AlertManagerTest extends TestCase {
 	}
 
 	// ---------------------------------------------------
-	// process() - Canali multipli
+	// process() - Multiple channels
 	// ---------------------------------------------------
 
 	/**
-	 * Testa dispatch a canali multipli abilitati
+	 * Tests dispatch to multiple enabled channels
 	 *
 	 * @return void
 	 */
@@ -585,7 +585,7 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che canali disabilitati sono saltati
+	 * Tests that disabled channels are skipped
 	 *
 	 * @return void
 	 */
@@ -619,7 +619,7 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che fallimento canale non blocca altri canali
+	 * Tests that channel failure does not block other channels
 	 *
 	 * @return void
 	 */
@@ -655,7 +655,7 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che eccezione in un canale non blocca gli altri canali
+	 * Tests that exception in a channel does not block other channels
 	 *
 	 * @return void
 	 */
@@ -700,9 +700,9 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che cooldown è impostato anche quando tutti i canali falliscono
+	 * Tests that cooldown is set even when all channels fail
 	 *
-	 * Previene alert spam su failure ripetuti.
+	 * Prevents alert spam on repeated failures.
 	 *
 	 * @return void
 	 */
@@ -741,7 +741,7 @@ class AlertManagerTest extends TestCase {
 	// ---------------------------------------------------
 
 	/**
-	 * Testa che il payload contiene tutti i campi richiesti
+	 * Tests that the payload contains all required fields
 	 *
 	 * @return void
 	 */
@@ -792,7 +792,7 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che recovery payload ha is_recovery=true
+	 * Tests that recovery payload has is_recovery=true
 	 *
 	 * @return void
 	 */
@@ -831,11 +831,11 @@ class AlertManagerTest extends TestCase {
 	}
 
 	// ---------------------------------------------------
-	// process() - Log e storage
+	// process() - Log and storage
 	// ---------------------------------------------------
 
 	/**
-	 * Testa che il log viene salvato nello storage
+	 * Tests that the log is saved to storage
 	 *
 	 * @return void
 	 */
@@ -864,7 +864,7 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che log è limitato a MAX_LOG_ENTRIES
+	 * Tests that log is limited to MAX_LOG_ENTRIES
 	 *
 	 * @return void
 	 */
@@ -909,7 +909,7 @@ class AlertManagerTest extends TestCase {
 	// ---------------------------------------------------
 
 	/**
-	 * Testa process con risultati vuoti
+	 * Tests process with empty results
 	 *
 	 * @return void
 	 */
@@ -926,7 +926,7 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Testa cooldown personalizzato da settings
+	 * Tests custom cooldown from settings
 	 *
 	 * @return void
 	 */
@@ -951,7 +951,7 @@ class AlertManagerTest extends TestCase {
 			->with(
 				Mockery::type( 'string' ),
 				Mockery::any(),
-				1800 // 30 minuti in secondi.
+				1800 // 30 minutes in seconds.
 			)
 			->andReturn( true );
 
@@ -964,7 +964,7 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che critical->warning genera alert (peggioramento parziale)
+	 * Tests that critical->warning generates alert (partial degradation)
 	 *
 	 * @return void
 	 */
@@ -991,9 +991,9 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che previous result senza chiave 'status' usa STATUS_UNKNOWN
+	 * Tests that previous result without 'status' key uses STATUS_UNKNOWN
 	 *
-	 * Copre la riga 172: fallback a STATUS_UNKNOWN in detect_state_changes().
+	 * Covers line 172: fallback to STATUS_UNKNOWN in detect_state_changes().
 	 *
 	 * @return void
 	 */
@@ -1010,7 +1010,7 @@ class AlertManagerTest extends TestCase {
 		$this->mock_cooldown( false );
 		$this->mock_i18n_and_utils();
 
-		// Result precedente senza chiave 'status'.
+		// Previous result without 'status' key.
 		$current  = [ 'database' => $this->create_check_result( 'critical' ) ];
 		$previous = [ 'database' => [ 'message' => 'old result without status' ] ];
 
@@ -1019,9 +1019,9 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che cooldown_minutes = 0 usa DEFAULT_COOLDOWN
+	 * Tests that cooldown_minutes = 0 uses DEFAULT_COOLDOWN
 	 *
-	 * Copre la riga 236: fallback a DEFAULT_COOLDOWN in get_cooldown_seconds().
+	 * Covers line 236: fallback to DEFAULT_COOLDOWN in get_cooldown_seconds().
 	 *
 	 * @return void
 	 */
@@ -1059,9 +1059,9 @@ class AlertManagerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che log non array viene resettato a array vuoto
+	 * Tests that non-array log is reset to empty array
 	 *
-	 * Copre la riga 296: reset di $log quando non è un array.
+	 * Covers line 296: reset of $log when it is not an array.
 	 *
 	 * @return void
 	 */
@@ -1070,7 +1070,7 @@ class AlertManagerTest extends TestCase {
 		$storage->shouldReceive( 'get' )
 			->with( 'alert_settings', Mockery::any() )
 			->andReturn( [ 'cooldown_minutes' => 60 ] );
-		// alert_log ritorna una stringa (non array).
+		// alert_log returns a string (not array).
 		$storage->shouldReceive( 'get' )
 			->with( 'alert_log', Mockery::any() )
 			->andReturn( 'not-an-array' );

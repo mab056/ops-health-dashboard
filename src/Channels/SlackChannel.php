@@ -2,8 +2,8 @@
 /**
  * Slack Alert Channel
  *
- * Canale di alert che invia notifiche via Slack Incoming Webhook.
- * Usa il formato Block Kit con colori per lo stato.
+ * Alert channel that sends notifications via Slack Incoming Webhook.
+ * Uses Block Kit format with status colors.
  *
  * @package OpsHealthDashboard\Channels
  */
@@ -25,12 +25,12 @@ use OpsHealthDashboard\Interfaces\StorageInterface;
 /**
  * Class SlackChannel
  *
- * Implementazione del canale Slack per gli alert.
+ * Slack channel implementation for alerts.
  */
 class SlackChannel implements AlertChannelInterface {
 
 	/**
-	 * Mappa colori per lo stato
+	 * Status color map
 	 *
 	 * @var array
 	 */
@@ -41,14 +41,14 @@ class SlackChannel implements AlertChannelInterface {
 	];
 
 	/**
-	 * Storage per le impostazioni
+	 * Storage for settings
 	 *
 	 * @var StorageInterface
 	 */
 	private $storage;
 
 	/**
-	 * Client HTTP
+	 * HTTP client
 	 *
 	 * @var HttpClientInterface
 	 */
@@ -57,8 +57,8 @@ class SlackChannel implements AlertChannelInterface {
 	/**
 	 * Constructor
 	 *
-	 * @param StorageInterface    $storage     Storage per le impostazioni.
-	 * @param HttpClientInterface $http_client Client HTTP sicuro.
+	 * @param StorageInterface    $storage     Storage for settings.
+	 * @param HttpClientInterface $http_client Secure HTTP client.
 	 */
 	public function __construct( StorageInterface $storage, HttpClientInterface $http_client ) {
 		$this->storage     = $storage;
@@ -66,7 +66,7 @@ class SlackChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Ottiene l'identificatore del canale
+	 * Gets the channel identifier
 	 *
 	 * @return string
 	 */
@@ -75,7 +75,7 @@ class SlackChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Ottiene il nome del canale
+	 * Gets the channel name
 	 *
 	 * @return string
 	 */
@@ -84,7 +84,7 @@ class SlackChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Verifica se il canale è abilitato
+	 * Checks if the channel is enabled
 	 *
 	 * @return bool
 	 */
@@ -94,10 +94,10 @@ class SlackChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Invia un alert via Slack
+	 * Sends an alert via Slack
 	 *
-	 * @param array $payload Dati dell'alert.
-	 * @return array Risultato con chiavi success e error.
+	 * @param array $payload Alert data.
+	 * @return array Result with success and error keys.
 	 */
 	public function send( array $payload ): array {
 		$settings    = $this->get_channel_settings();
@@ -120,12 +120,12 @@ class SlackChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Escapa i caratteri speciali di mrkdwn per Slack
+	 * Escapes special mrkdwn characters for Slack
 	 *
-	 * Previene iniezione di formattazione mrkdwn in valori utente.
+	 * Prevents mrkdwn formatting injection in user values.
 	 *
-	 * @param string $text Testo da escapare.
-	 * @return string Testo escapato.
+	 * @param string $text Text to escape.
+	 * @return string Escaped text.
 	 */
 	private function escape_mrkdwn( string $text ): string {
 		return str_replace(
@@ -136,10 +136,10 @@ class SlackChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Formatta il payload per Slack Block Kit
+	 * Formats the payload for Slack Block Kit
 	 *
-	 * @param array $payload Dati dell'alert.
-	 * @return array Payload Slack.
+	 * @param array $payload Alert data.
+	 * @return array Slack payload.
 	 */
 	private function format_slack_payload( array $payload ): array {
 		$check_name  = $payload['check_name'] ?? $payload['check_id'] ?? 'Unknown';
@@ -192,7 +192,7 @@ class SlackChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Ottiene le impostazioni del canale
+	 * Gets the channel settings
 	 *
 	 * @return array
 	 */

@@ -1,9 +1,9 @@
 <?php
 /**
- * Integration Test dell'Uninstaller con WordPress Test Suite
+ * Integration Test for the Uninstaller with WordPress Test Suite
  *
- * Test di integrazione reali che verificano la pulizia completa
- * dei dati del plugin dal database WordPress.
+ * Real integration tests that verify complete cleanup
+ * of plugin data from the WordPress database.
  *
  * @package OpsHealthDashboard\Tests\Integration\Core
  */
@@ -17,12 +17,12 @@ use WP_UnitTestCase;
 /**
  * Class UninstallerTest
  *
- * Integration test per Uninstaller con WordPress reale.
+ * Integration test for Uninstaller with real WordPress.
  */
 class UninstallerTest extends WP_UnitTestCase {
 
 	/**
-	 * Cleanup dopo ogni test
+	 * Cleanup after each test
 	 */
 	public function tearDown(): void {
 		delete_option( 'ops_health_activated_at' );
@@ -38,7 +38,7 @@ class UninstallerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che la classe NON è final
+	 * Tests that the class is NOT final
 	 */
 	public function test_class_is_not_final() {
 		$reflection = new \ReflectionClass( Uninstaller::class );
@@ -46,7 +46,7 @@ class UninstallerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Tests that NO static methods exist
 	 */
 	public function test_no_static_methods() {
 		$reflection = new \ReflectionClass( Uninstaller::class );
@@ -63,7 +63,7 @@ class UninstallerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che NON esistono proprietà static
+	 * Tests that NO static properties exist
 	 */
 	public function test_no_static_properties() {
 		$reflection = new \ReflectionClass( Uninstaller::class );
@@ -73,30 +73,30 @@ class UninstallerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che uninstall() cancella tutte le opzioni del plugin
+	 * Tests that uninstall() deletes all plugin options
 	 */
 	public function test_uninstall_deletes_all_options() {
 		global $wpdb;
 
-		// Crea le opzioni del plugin.
+		// Create plugin options.
 		update_option( 'ops_health_activated_at', time() );
 		update_option( 'ops_health_version', '0.6.0' );
 		update_option( 'ops_health_latest_results', [ 'test' => 'data' ] );
 		update_option( 'ops_health_alert_settings', [ 'enabled' => true ] );
 		update_option( 'ops_health_alert_log', [ [ 'time' => time() ] ] );
 
-		// Verifica che le opzioni esistano.
+		// Verify that the options exist.
 		$this->assertNotFalse( get_option( 'ops_health_activated_at' ) );
 		$this->assertNotFalse( get_option( 'ops_health_version' ) );
 		$this->assertNotFalse( get_option( 'ops_health_latest_results' ) );
 		$this->assertNotFalse( get_option( 'ops_health_alert_settings' ) );
 		$this->assertNotFalse( get_option( 'ops_health_alert_log' ) );
 
-		// Esegui la disinstallazione.
+		// Run the uninstallation.
 		$uninstaller = new Uninstaller( $wpdb );
 		$uninstaller->uninstall();
 
-		// Verifica che tutte le opzioni siano state cancellate.
+		// Verify that all options have been deleted.
 		$this->assertFalse( get_option( 'ops_health_activated_at' ), 'ops_health_activated_at should be deleted' );
 		$this->assertFalse( get_option( 'ops_health_version' ), 'ops_health_version should be deleted' );
 		$this->assertFalse( get_option( 'ops_health_latest_results' ), 'ops_health_latest_results should be deleted' );
@@ -105,74 +105,74 @@ class UninstallerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che uninstall() cancella il cron event
+	 * Tests that uninstall() clears the cron event
 	 */
 	public function test_uninstall_clears_cron_event() {
 		global $wpdb;
 
-		// Schedula il cron hook.
+		// Schedule the cron hook.
 		wp_schedule_event( time(), 'hourly', 'ops_health_run_checks' );
 		$this->assertNotFalse( wp_next_scheduled( 'ops_health_run_checks' ) );
 
-		// Esegui la disinstallazione.
+		// Run the uninstallation.
 		$uninstaller = new Uninstaller( $wpdb );
 		$uninstaller->uninstall();
 
-		// Verifica che il cron sia stato cancellato.
+		// Verify that the cron has been cleared.
 		$this->assertFalse( wp_next_scheduled( 'ops_health_run_checks' ), 'Cron should be cleared' );
 	}
 
 	/**
-	 * Testa che uninstall() cancella i transient fissi
+	 * Tests that uninstall() deletes fixed transients
 	 */
 	public function test_uninstall_deletes_fixed_transients() {
 		global $wpdb;
 
-		// Crea i transient.
+		// Create the transients.
 		set_transient( 'ops_health_cron_check', '1', HOUR_IN_SECONDS );
 		set_transient( 'ops_health_admin_notice', 'done', 30 );
 		set_transient( 'ops_health_alert_notice', 'saved', 30 );
 
-		// Verifica che i transient esistano.
+		// Verify that the transients exist.
 		$this->assertNotFalse( get_transient( 'ops_health_cron_check' ) );
 		$this->assertNotFalse( get_transient( 'ops_health_admin_notice' ) );
 		$this->assertNotFalse( get_transient( 'ops_health_alert_notice' ) );
 
-		// Esegui la disinstallazione.
+		// Run the uninstallation.
 		$uninstaller = new Uninstaller( $wpdb );
 		$uninstaller->uninstall();
 
-		// Verifica che i transient siano stati cancellati.
+		// Verify that the transients have been deleted.
 		$this->assertFalse( get_transient( 'ops_health_cron_check' ), 'ops_health_cron_check should be deleted' );
 		$this->assertFalse( get_transient( 'ops_health_admin_notice' ), 'ops_health_admin_notice should be deleted' );
 		$this->assertFalse( get_transient( 'ops_health_alert_notice' ), 'ops_health_alert_notice should be deleted' );
 	}
 
 	/**
-	 * Testa che uninstall() cancella i transient di cooldown dinamici
+	 * Tests that uninstall() deletes dynamic cooldown transients
 	 */
 	public function test_uninstall_deletes_cooldown_transients() {
 		global $wpdb;
 
-		// Crea transient di cooldown per diversi check.
+		// Create cooldown transients for different checks.
 		set_transient( 'ops_health_alert_cooldown_database', '1', 3600 );
 		set_transient( 'ops_health_alert_cooldown_error_log', '1', 3600 );
 		set_transient( 'ops_health_alert_cooldown_redis', '1', 3600 );
 		set_transient( 'ops_health_alert_cooldown_disk', '1', 3600 );
 		set_transient( 'ops_health_alert_cooldown_versions', '1', 3600 );
 
-		// Verifica che i transient esistano.
+		// Verify that the transients exist.
 		$this->assertNotFalse( get_transient( 'ops_health_alert_cooldown_database' ) );
 		$this->assertNotFalse( get_transient( 'ops_health_alert_cooldown_redis' ) );
 
-		// Esegui la disinstallazione.
+		// Run the uninstallation.
 		$uninstaller = new Uninstaller( $wpdb );
 		$uninstaller->uninstall();
 
-		// Flush object cache: $wpdb->query() bypassa il layer cache di WP.
+		// Flush object cache: $wpdb->query() bypasses the WP cache layer.
 		wp_cache_flush();
 
-		// Verifica che i transient di cooldown siano stati cancellati.
+		// Verify that the cooldown transients have been deleted.
 		$this->assertFalse( get_transient( 'ops_health_alert_cooldown_database' ), 'database cooldown should be deleted' );
 		$this->assertFalse( get_transient( 'ops_health_alert_cooldown_error_log' ), 'error_log cooldown should be deleted' );
 		$this->assertFalse( get_transient( 'ops_health_alert_cooldown_redis' ), 'redis cooldown should be deleted' );
@@ -181,44 +181,44 @@ class UninstallerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che uninstall() è sicuro quando non ci sono dati
+	 * Tests that uninstall() is safe when no data exists
 	 */
 	public function test_uninstall_is_safe_when_no_data_exists() {
 		global $wpdb;
 
-		// Pulizia esplicita per evitare residui da altri test.
+		// Explicit cleanup to avoid residuals from other tests.
 		delete_option( 'ops_health_activated_at' );
 		wp_clear_scheduled_hook( 'ops_health_run_checks' );
 		delete_transient( 'ops_health_cron_check' );
 
-		// Verifica pre-condizione: nessun dato del plugin.
+		// Verify pre-condition: no plugin data.
 		$this->assertFalse( get_option( 'ops_health_activated_at' ) );
 		$this->assertFalse( wp_next_scheduled( 'ops_health_run_checks' ) );
 		$this->assertFalse( get_transient( 'ops_health_cron_check' ) );
 
-		// Non deve generare errori.
+		// Should not generate errors.
 		$uninstaller = new Uninstaller( $wpdb );
 		$uninstaller->uninstall();
 
-		// Post-condition: tutto ancora false (nessun errore generato).
+		// Post-condition: everything still false (no errors generated).
 		$this->assertFalse( get_option( 'ops_health_activated_at' ) );
 	}
 
 	/**
-	 * Testa che uninstall() preserva le opzioni non del plugin
+	 * Tests that uninstall() preserves non-plugin options
 	 */
 	public function test_uninstall_preserves_non_plugin_options() {
 		global $wpdb;
 
-		// Crea una opzione non del plugin e una del plugin.
+		// Create a non-plugin option and a plugin option.
 		update_option( 'some_other_plugin_option', 'keep_me' );
 		update_option( 'ops_health_version', '0.6.0' );
 
-		// Esegui la disinstallazione.
+		// Run the uninstallation.
 		$uninstaller = new Uninstaller( $wpdb );
 		$uninstaller->uninstall();
 
-		// L'opzione del plugin è cancellata, l'altra preservata.
+		// The plugin option is deleted, the other preserved.
 		$this->assertFalse( get_option( 'ops_health_version' ) );
 		$this->assertEquals( 'keep_me', get_option( 'some_other_plugin_option' ) );
 
@@ -227,20 +227,20 @@ class UninstallerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che uninstall() preserva i transient non del plugin
+	 * Tests that uninstall() preserves non-plugin transients
 	 */
 	public function test_uninstall_preserves_non_plugin_transients() {
 		global $wpdb;
 
-		// Crea un transient non del plugin e uno del plugin.
+		// Create a non-plugin transient and a plugin transient.
 		set_transient( 'some_other_transient', 'keep_me', 3600 );
 		set_transient( 'ops_health_cron_check', '1', 3600 );
 
-		// Esegui la disinstallazione.
+		// Run the uninstallation.
 		$uninstaller = new Uninstaller( $wpdb );
 		$uninstaller->uninstall();
 
-		// Il transient del plugin è cancellato, l'altro preservato.
+		// The plugin transient is deleted, the other preserved.
 		$this->assertFalse( get_transient( 'ops_health_cron_check' ) );
 		$this->assertEquals( 'keep_me', get_transient( 'some_other_transient' ) );
 
@@ -249,7 +249,7 @@ class UninstallerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa il ciclo completo activate → uninstall
+	 * Tests the full activate → uninstall cycle
 	 */
 	public function test_full_activate_then_uninstall_cycle() {
 		global $wpdb;
@@ -258,31 +258,31 @@ class UninstallerTest extends WP_UnitTestCase {
 			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.6.0' );
 		}
 
-		// Attiva il plugin.
+		// Activate the plugin.
 		$activator = new Activator();
 		$activator->activate();
 
-		// Verifica che i dati di attivazione esistano.
+		// Verify that the activation data exists.
 		$this->assertNotFalse( get_option( 'ops_health_activated_at' ) );
 		$this->assertNotFalse( get_option( 'ops_health_version' ) );
 		$this->assertNotFalse( wp_next_scheduled( 'ops_health_run_checks' ) );
 
-		// Disinstalla.
+		// Uninstall.
 		$uninstaller = new Uninstaller( $wpdb );
 		$uninstaller->uninstall();
 
-		// Verifica pulizia completa.
+		// Verify complete cleanup.
 		$this->assertFalse( get_option( 'ops_health_activated_at' ) );
 		$this->assertFalse( get_option( 'ops_health_version' ) );
 		$this->assertFalse( wp_next_scheduled( 'ops_health_run_checks' ) );
 	}
 
 	// ---------------------------------------------------
-	// Multisite support (richiede WP_TESTS_MULTISITE=1)
+	// Multisite support (requires WP_TESTS_MULTISITE=1)
 	// ---------------------------------------------------
 
 	/**
-	 * Testa che su multisite uninstall() pulisce tutti i blog della rete
+	 * Tests that on multisite uninstall() cleans all blogs in the network
 	 */
 	public function test_uninstall_on_multisite_cleans_all_sites() {
 		if ( ! is_multisite() ) {
@@ -291,13 +291,13 @@ class UninstallerTest extends WP_UnitTestCase {
 
 		global $wpdb;
 
-		// Crea blog aggiuntivi nella rete.
+		// Create additional blogs in the network.
 		$blog_id_2 = self::factory()->blog->create();
 		$blog_id_3 = self::factory()->blog->create();
 
 		$blogs = [ get_current_blog_id(), $blog_id_2, $blog_id_3 ];
 
-		// Imposta dati del plugin su ogni blog.
+		// Set plugin data on each blog.
 		foreach ( $blogs as $blog_id ) {
 			switch_to_blog( $blog_id );
 			update_option( 'ops_health_activated_at', time() );
@@ -310,11 +310,11 @@ class UninstallerTest extends WP_UnitTestCase {
 			restore_current_blog();
 		}
 
-		// Esegui la disinstallazione.
+		// Run the uninstallation.
 		$uninstaller = new Uninstaller( $wpdb );
 		$uninstaller->uninstall();
 
-		// Verifica pulizia su ogni blog.
+		// Verify cleanup on each blog.
 		foreach ( $blogs as $blog_id ) {
 			switch_to_blog( $blog_id );
 			$this->assertFalse( get_option( 'ops_health_activated_at' ), "Blog $blog_id: activated_at should be deleted" );
@@ -329,7 +329,7 @@ class UninstallerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che su multisite i transient di cooldown vengono cancellati su tutti i blog
+	 * Tests that on multisite cooldown transients are deleted on all blogs
 	 */
 	public function test_uninstall_on_multisite_cleans_cooldown_transients() {
 		if ( ! is_multisite() ) {
@@ -342,7 +342,7 @@ class UninstallerTest extends WP_UnitTestCase {
 
 		$blogs = [ get_current_blog_id(), $blog_id_2 ];
 
-		// Imposta cooldown transient su ogni blog.
+		// Set cooldown transients on each blog.
 		foreach ( $blogs as $blog_id ) {
 			switch_to_blog( $blog_id );
 			set_transient( 'ops_health_alert_cooldown_database', '1', 3600 );
@@ -350,11 +350,11 @@ class UninstallerTest extends WP_UnitTestCase {
 			restore_current_blog();
 		}
 
-		// Esegui la disinstallazione.
+		// Run the uninstallation.
 		$uninstaller = new Uninstaller( $wpdb );
 		$uninstaller->uninstall();
 
-		// Verifica pulizia su ogni blog.
+		// Verify cleanup on each blog.
 		foreach ( $blogs as $blog_id ) {
 			switch_to_blog( $blog_id );
 			wp_cache_flush();
@@ -365,7 +365,7 @@ class UninstallerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che su multisite le opzioni di altri plugin vengono preservate
+	 * Tests that on multisite other plugin options are preserved
 	 */
 	public function test_uninstall_on_multisite_preserves_non_plugin_data() {
 		if ( ! is_multisite() ) {
@@ -376,7 +376,7 @@ class UninstallerTest extends WP_UnitTestCase {
 
 		$blog_id_2 = self::factory()->blog->create();
 
-		// Imposta dati del plugin e di un altro plugin su entrambi i blog.
+		// Set plugin data and another plugin's data on both blogs.
 		$blogs = [ get_current_blog_id(), $blog_id_2 ];
 		foreach ( $blogs as $blog_id ) {
 			switch_to_blog( $blog_id );
@@ -385,11 +385,11 @@ class UninstallerTest extends WP_UnitTestCase {
 			restore_current_blog();
 		}
 
-		// Esegui la disinstallazione.
+		// Run the uninstallation.
 		$uninstaller = new Uninstaller( $wpdb );
 		$uninstaller->uninstall();
 
-		// Verifica che solo i dati del plugin sono cancellati.
+		// Verify that only plugin data is deleted.
 		foreach ( $blogs as $blog_id ) {
 			switch_to_blog( $blog_id );
 			$this->assertFalse( get_option( 'ops_health_version' ), "Blog $blog_id: plugin option should be deleted" );
@@ -400,24 +400,24 @@ class UninstallerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che i transient con cooldown prefix custom vengono cancellati
+	 * Tests that transients with custom cooldown prefix are deleted
 	 */
 	public function test_uninstall_deletes_cooldown_with_custom_check_ids() {
 		global $wpdb;
 
-		// Simula un check custom con ID diverso dai 5 standard.
+		// Simulate a custom check with ID different from the 5 standard ones.
 		set_transient( 'ops_health_alert_cooldown_custom_check', '1', 3600 );
 
 		$this->assertNotFalse( get_transient( 'ops_health_alert_cooldown_custom_check' ) );
 
-		// Esegui la disinstallazione.
+		// Run the uninstallation.
 		$uninstaller = new Uninstaller( $wpdb );
 		$uninstaller->uninstall();
 
-		// Flush object cache: $wpdb->query() bypassa il layer cache di WP.
+		// Flush object cache: $wpdb->query() bypasses the WP cache layer.
 		wp_cache_flush();
 
-		// Anche il transient custom con il prefisso corretto viene cancellato.
+		// Even the custom transient with the correct prefix is deleted.
 		$this->assertFalse( get_transient( 'ops_health_alert_cooldown_custom_check' ), 'Custom cooldown transient should be deleted' );
 	}
 }

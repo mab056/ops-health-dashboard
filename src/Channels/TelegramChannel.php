@@ -2,8 +2,8 @@
 /**
  * Telegram Alert Channel
  *
- * Canale di alert che invia notifiche via Telegram Bot API.
- * Usa il metodo sendMessage con parse_mode HTML.
+ * Alert channel that sends notifications via Telegram Bot API.
+ * Uses the sendMessage method with HTML parse_mode.
  *
  * @package OpsHealthDashboard\Channels
  */
@@ -25,26 +25,26 @@ use OpsHealthDashboard\Interfaces\StorageInterface;
 /**
  * Class TelegramChannel
  *
- * Implementazione del canale Telegram per gli alert.
+ * Telegram channel implementation for alerts.
  */
 class TelegramChannel implements AlertChannelInterface {
 
 	/**
-	 * URL base dell'API Telegram Bot
+	 * Telegram Bot API base URL
 	 *
 	 * @var string
 	 */
 	const API_BASE_URL = 'https://api.telegram.org/bot';
 
 	/**
-	 * Storage per le impostazioni
+	 * Storage for settings
 	 *
 	 * @var StorageInterface
 	 */
 	private $storage;
 
 	/**
-	 * Client HTTP
+	 * HTTP client
 	 *
 	 * @var HttpClientInterface
 	 */
@@ -53,8 +53,8 @@ class TelegramChannel implements AlertChannelInterface {
 	/**
 	 * Constructor
 	 *
-	 * @param StorageInterface    $storage     Storage per le impostazioni.
-	 * @param HttpClientInterface $http_client Client HTTP sicuro.
+	 * @param StorageInterface    $storage     Storage for settings.
+	 * @param HttpClientInterface $http_client Secure HTTP client.
 	 */
 	public function __construct( StorageInterface $storage, HttpClientInterface $http_client ) {
 		$this->storage     = $storage;
@@ -62,7 +62,7 @@ class TelegramChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Ottiene l'identificatore del canale
+	 * Gets the channel identifier
 	 *
 	 * @return string
 	 */
@@ -71,7 +71,7 @@ class TelegramChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Ottiene il nome del canale
+	 * Gets the channel name
 	 *
 	 * @return string
 	 */
@@ -80,9 +80,9 @@ class TelegramChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Verifica se il canale è abilitato
+	 * Checks if the channel is enabled
 	 *
-	 * Richiede bot_token e chat_id configurati.
+	 * Requires configured bot_token and chat_id.
 	 *
 	 * @return bool
 	 */
@@ -94,10 +94,10 @@ class TelegramChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Invia un alert via Telegram Bot API
+	 * Sends an alert via Telegram Bot API
 	 *
-	 * @param array $payload Dati dell'alert.
-	 * @return array Risultato con chiavi success e error.
+	 * @param array $payload Alert data.
+	 * @return array Result with success and error keys.
 	 */
 	public function send( array $payload ): array {
 		$settings = $this->get_channel_settings();
@@ -125,20 +125,20 @@ class TelegramChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Costruisce l'URL dell'API Telegram
+	 * Builds the Telegram API URL
 	 *
-	 * @param string $bot_token Token del bot.
-	 * @return string URL completo per sendMessage.
+	 * @param string $bot_token Bot token.
+	 * @return string Full URL for sendMessage.
 	 */
 	private function build_api_url( string $bot_token ): string {
 		return self::API_BASE_URL . $bot_token . '/sendMessage';
 	}
 
 	/**
-	 * Formatta il messaggio per Telegram (HTML)
+	 * Formats the message for Telegram (HTML)
 	 *
-	 * @param array $payload Dati dell'alert.
-	 * @return string Messaggio HTML.
+	 * @param array $payload Alert data.
+	 * @return string HTML message.
 	 */
 	private function format_message( array $payload ): string {
 		$check_name  = $payload['check_name'] ?? $payload['check_id'] ?? 'Unknown';
@@ -175,10 +175,10 @@ class TelegramChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Ottiene l'emoji per lo status
+	 * Gets the emoji for the status
 	 *
-	 * @param string $status Status del check.
-	 * @return string Emoji corrispondente.
+	 * @param string $status Check status.
+	 * @return string Corresponding emoji.
 	 */
 	private function get_status_emoji( string $status ): string {
 		$map = [
@@ -191,7 +191,7 @@ class TelegramChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Ottiene le impostazioni del canale
+	 * Gets the channel settings
 	 *
 	 * @return array
 	 */

@@ -2,8 +2,8 @@
 /**
  * Alert Channel Interface
  *
- * Contratto per i canali di notifica degli alert.
- * Ogni canale (Email, Slack, Telegram, ecc.) implementa questa interfaccia.
+ * Contract for alert notification channels.
+ * Each channel (Email, Slack, Telegram, etc.) implements this interface.
  *
  * @package OpsHealthDashboard\Interfaces
  */
@@ -21,40 +21,40 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Interface AlertChannelInterface
  *
- * Definisce il contratto per l'invio di notifiche attraverso un canale specifico.
+ * Defines the contract for sending notifications through a specific channel.
  */
 interface AlertChannelInterface {
 
 	/**
-	 * Ottiene l'identificatore del canale
+	 * Gets the channel identifier
 	 *
-	 * @return string ID del canale (es. 'email', 'slack', 'telegram').
+	 * @return string Channel ID (e.g. 'email', 'slack', 'telegram').
 	 */
 	public function get_id(): string;
 
 	/**
-	 * Ottiene il nome visualizzabile del canale
+	 * Gets the channel display name
 	 *
-	 * @return string Nome leggibile.
+	 * @return string Human-readable name.
 	 */
 	public function get_name(): string;
 
 	/**
-	 * Verifica se il canale è abilitato e configurato
+	 * Checks if the channel is enabled and configured
 	 *
-	 * @return bool True se il canale è attivo.
+	 * @return bool True if the channel is active.
 	 */
 	public function is_enabled(): bool;
 
 	/**
-	 * Invia una notifica di alert
+	 * Sends an alert notification
 	 *
-	 * @param array $payload Dati dell'alert con chiavi:
+	 * @param array $payload Alert data with keys:
 	 *     check_id, check_name, previous_status, current_status,
 	 *     message, details, timestamp, site_url, site_name, is_recovery.
 	 * @return array {
-	 *     @type bool        $success Se l'invio è riuscito.
-	 *     @type string|null $error   Messaggio di errore se fallito.
+	 *     @type bool        $success Whether the send was successful.
+	 *     @type string|null $error   Error message if failed.
 	 * }
 	 */
 	public function send( array $payload ): array;

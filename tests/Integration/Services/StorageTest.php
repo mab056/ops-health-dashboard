@@ -1,8 +1,8 @@
 <?php
 /**
- * Integration Test per Storage Service
+ * Integration Test for Storage Service
  *
- * Test di integrazione con WordPress Options API reale.
+ * Integration test with real WordPress Options API.
  *
  * @package OpsHealthDashboard\Tests\Integration\Services
  */
@@ -15,21 +15,21 @@ use WP_UnitTestCase;
 /**
  * Class StorageTest
  *
- * Integration test per Storage con WordPress reale.
+ * Integration test for Storage with real WordPress.
  */
 class StorageTest extends WP_UnitTestCase {
 
 	/**
-	 * Testa che Storage può salvare e recuperare valori reali
+	 * Tests that Storage can save and retrieve real values
 	 */
 	public function test_storage_can_save_and_retrieve_values() {
 		$storage = new Storage();
 
-		// Salva un valore.
+		// Save a value.
 		$result = $storage->set( 'test_integration', 'integration_value' );
 		$this->assertTrue( $result, 'Set should return true' );
 
-		// Recupera il valore.
+		// Retrieve the value.
 		$value = $storage->get( 'test_integration' );
 		$this->assertEquals( 'integration_value', $value, 'Retrieved value should match' );
 
@@ -38,18 +38,18 @@ class StorageTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che Storage può verificare l'esistenza di chiavi
+	 * Tests that Storage can check key existence
 	 */
 	public function test_storage_can_check_existence() {
 		$storage = new Storage();
 
-		// Verifica che la chiave non esiste prima.
+		// Verify that the key does not exist initially.
 		$this->assertFalse( $storage->has( 'test_existence' ), 'Key should not exist initially' );
 
-		// Salva un valore.
+		// Save a value.
 		$storage->set( 'test_existence', 'some_value' );
 
-		// Verifica che ora esiste.
+		// Verify that it now exists.
 		$this->assertTrue( $storage->has( 'test_existence' ), 'Key should exist after set' );
 
 		// Cleanup.
@@ -57,36 +57,36 @@ class StorageTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che Storage può cancellare valori
+	 * Tests that Storage can delete values
 	 */
 	public function test_storage_can_delete_values() {
 		$storage = new Storage();
 
-		// Salva un valore.
+		// Save a value.
 		$storage->set( 'test_delete', 'to_be_deleted' );
 		$this->assertTrue( $storage->has( 'test_delete' ), 'Key should exist before delete' );
 
-		// Cancella il valore.
+		// Delete the value.
 		$result = $storage->delete( 'test_delete' );
 		$this->assertTrue( $result, 'Delete should return true' );
 
-		// Verifica che non esiste più.
+		// Verify that it no longer exists.
 		$this->assertFalse( $storage->has( 'test_delete' ), 'Key should not exist after delete' );
 	}
 
 	/**
-	 * Testa che Storage ritorna default quando la chiave non esiste
+	 * Tests that Storage returns default when the key does not exist
 	 */
 	public function test_storage_returns_default_for_missing_keys() {
 		$storage = new Storage();
 
-		// Verifica che ritorna il default.
+		// Verify that it returns the default.
 		$value = $storage->get( 'nonexistent_key', 'default_value' );
 		$this->assertEquals( 'default_value', $value, 'Should return default for missing key' );
 	}
 
 	/**
-	 * Testa che Storage può salvare array e oggetti serializzati
+	 * Tests that Storage can save arrays and serialized objects
 	 */
 	public function test_storage_can_save_complex_data() {
 		$storage = new Storage();
@@ -100,10 +100,10 @@ class StorageTest extends WP_UnitTestCase {
 			),
 		);
 
-		// Salva dati complessi.
+		// Save complex data.
 		$storage->set( 'test_complex', $complex_data );
 
-		// Recupera e verifica.
+		// Retrieve and verify.
 		$retrieved = $storage->get( 'test_complex' );
 		$this->assertEquals( $complex_data, $retrieved, 'Complex data should match' );
 
@@ -112,15 +112,15 @@ class StorageTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che Storage usa il prefisso corretto
+	 * Tests that Storage uses the correct prefix
 	 */
 	public function test_storage_uses_correct_prefix() {
 		$storage = new Storage();
 
-		// Salva con Storage.
+		// Save with Storage.
 		$storage->set( 'prefix_test', 'value' );
 
-		// Verifica che WordPress ha la chiave con prefisso.
+		// Verify that WordPress has the key with prefix.
 		$value = get_option( 'ops_health_prefix_test' );
 		$this->assertEquals( 'value', $value, 'Option should exist with prefix' );
 

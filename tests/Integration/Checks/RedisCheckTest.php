@@ -1,9 +1,9 @@
 <?php
 /**
- * Integration Test per RedisCheck
+ * Integration Test for RedisCheck
  *
- * Test di integrazione con WordPress reale.
- * Usa TestableRedisCheck per controllare i metodi protetti.
+ * Integration test with real WordPress.
+ * Uses TestableRedisCheck to control protected methods.
  *
  * @package OpsHealthDashboard\Tests\Integration\Checks
  */
@@ -18,12 +18,12 @@ use WP_UnitTestCase;
 /**
  * Class RedisCheckTest
  *
- * Integration test per RedisCheck con WordPress reale.
+ * Integration test for RedisCheck with real WordPress.
  */
 class RedisCheckTest extends WP_UnitTestCase {
 
 	/**
-	 * Testa che RedisCheck implementa CheckInterface
+	 * Verifies that RedisCheck implements CheckInterface
 	 */
 	public function test_redis_check_implements_interface() {
 		$redaction = new Redaction( ABSPATH, WP_CONTENT_DIR );
@@ -32,7 +32,7 @@ class RedisCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che RedisCheck esegue senza crash
+	 * Verifies that RedisCheck runs without crash
 	 */
 	public function test_redis_check_runs_without_crash() {
 		$redaction = new Redaction( ABSPATH, WP_CONTENT_DIR );
@@ -47,7 +47,7 @@ class RedisCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che RedisCheck ritorna una struttura valida
+	 * Verifies that RedisCheck returns a valid structure
 	 */
 	public function test_redis_check_returns_valid_structure() {
 		$redaction = new Redaction( ABSPATH, WP_CONTENT_DIR );
@@ -62,7 +62,7 @@ class RedisCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa graceful degradation quando l'estensione non è caricata
+	 * Tests graceful degradation when extension is not loaded
 	 */
 	public function test_redis_check_graceful_when_no_extension() {
 		$redaction = new Redaction( ABSPATH, WP_CONTENT_DIR );
@@ -74,7 +74,7 @@ class RedisCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa graceful degradation quando la connessione fallisce
+	 * Tests graceful degradation when connection fails
 	 */
 	public function test_redis_check_graceful_when_connection_fails() {
 		$redaction = new Redaction( ABSPATH, WP_CONTENT_DIR );
@@ -86,20 +86,20 @@ class RedisCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che host viene redatto con il servizio Redaction reale
+	 * Tests that host is redacted with the real Redaction service
 	 */
 	public function test_redis_check_with_real_redaction() {
 		$redaction = new Redaction( ABSPATH, WP_CONTENT_DIR );
 		$check     = new RedisCheck( $redaction );
 		$result    = $check->run();
 
-		// Indipendentemente dallo stato, ABSPATH non deve apparire.
+		// Regardless of status, ABSPATH must not appear.
 		$as_string = json_encode( $result );
 		$this->assertStringNotContainsString( ABSPATH, $as_string );
 	}
 
 	/**
-	 * Testa graceful degradation quando l'autenticazione fallisce
+	 * Tests graceful degradation when authentication fails
 	 *
 	 * @requires extension redis
 	 */
@@ -113,7 +113,7 @@ class RedisCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa graceful degradation quando lo smoke test lancia eccezione
+	 * Tests graceful degradation when smoke test throws exception
 	 *
 	 * @requires extension redis
 	 */
@@ -127,7 +127,7 @@ class RedisCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa graceful degradation quando GET restituisce valore diverso
+	 * Tests graceful degradation when GET returns different value
 	 *
 	 * @requires extension redis
 	 */
@@ -141,7 +141,7 @@ class RedisCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che get_id(), get_name() e is_enabled() funzionano correttamente
+	 * Verifies that get_id(), get_name() and is_enabled() work correctly
 	 */
 	public function test_check_interface_accessors() {
 		$redaction = new Redaction( ABSPATH, WP_CONTENT_DIR );
@@ -154,7 +154,7 @@ class RedisCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa il successo completo quando Redis è disponibile
+	 * Tests full success when Redis is available
 	 *
 	 * @group redis
 	 * @requires extension redis
@@ -179,7 +179,7 @@ class RedisCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa graceful degradation quando la selezione database fallisce
+	 * Tests graceful degradation when database selection fails
 	 *
 	 * @requires extension redis
 	 */
@@ -193,7 +193,7 @@ class RedisCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa graceful degradation quando SET restituisce false
+	 * Tests graceful degradation when SET returns false
 	 *
 	 * @requires extension redis
 	 */
@@ -207,7 +207,7 @@ class RedisCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che Redis restituisce warning per risposta lenta (> 100ms)
+	 * Tests that Redis returns warning for slow response (> 100ms)
 	 *
 	 * @requires extension redis
 	 */
@@ -222,9 +222,9 @@ class RedisCheckTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che close_connection ignora eccezione da close()
+	 * Tests that close_connection ignores exception from close()
 	 *
-	 * Copre la riga 282 di close_connection().
+	 * Covers line 282 of close_connection().
 	 *
 	 * @requires extension redis
 	 */
@@ -233,15 +233,15 @@ class RedisCheckTest extends WP_UnitTestCase {
 		$check     = new CloseFailRedisCheck( $redaction );
 		$result    = $check->run();
 
-		// Auth fallisce → close_connection viene chiamato, close() lancia eccezione → ignorata.
+		// Auth fails -> close_connection is called, close() throws exception -> ignored.
 		$this->assertEquals( 'warning', $result['status'] );
 		$this->assertStringContainsString( 'authentication', strtolower( $result['message'] ) );
 	}
 
 	/**
-	 * Testa che cleanup_and_close ignora eccezione da del()
+	 * Tests that cleanup_and_close ignores exception from del()
 	 *
-	 * Copre la riga 297 di cleanup_and_close().
+	 * Covers line 297 of cleanup_and_close().
 	 *
 	 * @requires extension redis
 	 */
@@ -250,28 +250,28 @@ class RedisCheckTest extends WP_UnitTestCase {
 		$check     = new CleanupFailRedisCheck( $redaction );
 		$result    = $check->run();
 
-		// SET ritorna false → cleanup_and_close → del() lancia eccezione → ignorata.
+		// SET returns false -> cleanup_and_close -> del() throws exception -> ignored.
 		$this->assertEquals( 'warning', $result['status'] );
 		$this->assertStringContainsString( 'SET returned false', $result['message'] );
 	}
 }
 
 /**
- * Sottoclasse testabile per controllare i metodi protetti
+ * Testable subclass to control protected methods
  *
- * Permette di simulare l'assenza dell'estensione Redis e fallimenti di connessione.
+ * Allows simulating absence of the Redis extension and connection failures.
  */
 class TestableRedisCheck extends RedisCheck {
 
 	/**
-	 * Se l'estensione è "caricata"
+	 * Whether the extension is "loaded"
 	 *
 	 * @var bool
 	 */
 	private $extension_loaded;
 
 	/**
-	 * Eccezione da lanciare durante la creazione dell'istanza Redis
+	 * Exception to throw during Redis instance creation
 	 *
 	 * @var \Exception|null
 	 */
@@ -280,9 +280,9 @@ class TestableRedisCheck extends RedisCheck {
 	/**
 	 * Constructor
 	 *
-	 * @param \OpsHealthDashboard\Interfaces\RedactionInterface $redaction         Servizio di redazione.
-	 * @param bool                                               $extension_loaded  Se simulare estensione caricata.
-	 * @param \Exception|null                                    $connect_exception Eccezione per simulare fallimento.
+	 * @param \OpsHealthDashboard\Interfaces\RedactionInterface $redaction         Redaction service.
+	 * @param bool                                               $extension_loaded  Whether to simulate loaded extension.
+	 * @param \Exception|null                                    $connect_exception Exception to simulate failure.
 	 */
 	public function __construct(
 		\OpsHealthDashboard\Interfaces\RedactionInterface $redaction,
@@ -295,19 +295,19 @@ class TestableRedisCheck extends RedisCheck {
 	}
 
 	/**
-	 * Override per controllare il rilevamento estensione
+	 * Override to control extension detection
 	 *
-	 * @return bool Valore configurato nel costruttore.
+	 * @return bool Value configured in constructor.
 	 */
 	protected function is_extension_loaded(): bool {
 		return $this->extension_loaded;
 	}
 
 	/**
-	 * Override per simulare fallimenti di connessione
+	 * Override to simulate connection failures
 	 *
-	 * @return \Redis Istanza Redis (o lancia eccezione).
-	 * @throws \Exception Se configurato per fallire.
+	 * @return \Redis Redis instance (or throws exception).
+	 * @throws \Exception If configured to fail.
 	 */
 	protected function create_redis_instance(): \Redis {
 		if ( null !== $this->connect_exception ) {
@@ -317,9 +317,9 @@ class TestableRedisCheck extends RedisCheck {
 	}
 }
 
-// Carica helper FakeRedis con firme compatibili con la versione PHP corrente.
-// Le classi FakeRedis* estendono \Redis, quindi richiedono ext-redis.
-// PHP 8.0+ phpredis dichiara union return types; PHP 7.4 no.
+// Load FakeRedis helpers with signatures compatible with the current PHP version.
+// FakeRedis* classes extend \Redis, so they require ext-redis.
+// PHP 8.0+ phpredis declares union return types; PHP 7.4 does not.
 if ( extension_loaded( 'redis' ) ) {
 	if ( PHP_VERSION_ID >= 80000 ) {
 		require_once __DIR__ . '/FakeRedisHelpers.php';
@@ -329,14 +329,14 @@ if ( extension_loaded( 'redis' ) ) {
 }
 
 /**
- * RedisCheck testabile che usa FakeRedisAuthFail
+ * Testable RedisCheck that uses FakeRedisAuthFail
  *
- * Simula connessione riuscita ma autenticazione fallita.
+ * Simulates successful connection but failed authentication.
  */
 class AuthFailRedisCheck extends RedisCheck {
 
 	/**
-	 * Estensione sempre caricata
+	 * Extension always loaded
 	 *
 	 * @return bool True.
 	 */
@@ -345,7 +345,7 @@ class AuthFailRedisCheck extends RedisCheck {
 	}
 
 	/**
-	 * Crea FakeRedis con auth fallita
+	 * Creates FakeRedis with failed auth
 	 *
 	 * @return \Redis FakeRedisAuthFail.
 	 */
@@ -354,9 +354,9 @@ class AuthFailRedisCheck extends RedisCheck {
 	}
 
 	/**
-	 * Config con password per triggerare auth
+	 * Config with password to trigger auth
 	 *
-	 * @return array Config Redis.
+	 * @return array Redis config.
 	 */
 	protected function get_redis_config(): array {
 		return [
@@ -369,12 +369,12 @@ class AuthFailRedisCheck extends RedisCheck {
 }
 
 /**
- * RedisCheck testabile che usa FakeRedisSmokeTestFail
+ * Testable RedisCheck that uses FakeRedisSmokeTestFail
  */
 class SmokeFailRedisCheck extends RedisCheck {
 
 	/**
-	 * Estensione sempre caricata
+	 * Extension always loaded
 	 *
 	 * @return bool True.
 	 */
@@ -383,7 +383,7 @@ class SmokeFailRedisCheck extends RedisCheck {
 	}
 
 	/**
-	 * Crea FakeRedis con smoke test fallito
+	 * Creates FakeRedis with failed smoke test
 	 *
 	 * @return \Redis FakeRedisSmokeTestFail.
 	 */
@@ -392,9 +392,9 @@ class SmokeFailRedisCheck extends RedisCheck {
 	}
 
 	/**
-	 * Config senza password (no auth path)
+	 * Config without password (no auth path)
 	 *
-	 * @return array Config Redis.
+	 * @return array Redis config.
 	 */
 	protected function get_redis_config(): array {
 		return [
@@ -407,12 +407,12 @@ class SmokeFailRedisCheck extends RedisCheck {
 }
 
 /**
- * RedisCheck testabile che usa FakeRedisGetMismatch
+ * Testable RedisCheck that uses FakeRedisGetMismatch
  */
 class MismatchRedisCheck extends RedisCheck {
 
 	/**
-	 * Estensione sempre caricata
+	 * Extension always loaded
 	 *
 	 * @return bool True.
 	 */
@@ -421,7 +421,7 @@ class MismatchRedisCheck extends RedisCheck {
 	}
 
 	/**
-	 * Crea FakeRedis con GET mismatch
+	 * Creates FakeRedis with GET mismatch
 	 *
 	 * @return \Redis FakeRedisGetMismatch.
 	 */
@@ -430,9 +430,9 @@ class MismatchRedisCheck extends RedisCheck {
 	}
 
 	/**
-	 * Config senza password (no auth path)
+	 * Config without password (no auth path)
 	 *
-	 * @return array Config Redis.
+	 * @return array Redis config.
 	 */
 	protected function get_redis_config(): array {
 		return [
@@ -445,14 +445,14 @@ class MismatchRedisCheck extends RedisCheck {
 }
 
 /**
- * RedisCheck testabile che usa FakeRedisDbSelectFail
+ * Testable RedisCheck that uses FakeRedisDbSelectFail
  *
- * Configura database=1 per triggerare il percorso di selezione.
+ * Configures database=1 to trigger the selection path.
  */
 class DbSelectFailRedisCheck extends RedisCheck {
 
 	/**
-	 * Estensione sempre caricata
+	 * Extension always loaded
 	 *
 	 * @return bool True.
 	 */
@@ -461,7 +461,7 @@ class DbSelectFailRedisCheck extends RedisCheck {
 	}
 
 	/**
-	 * Crea FakeRedis con select fallita
+	 * Creates FakeRedis with failed select
 	 *
 	 * @return \Redis FakeRedisDbSelectFail.
 	 */
@@ -470,9 +470,9 @@ class DbSelectFailRedisCheck extends RedisCheck {
 	}
 
 	/**
-	 * Config con database=1 per triggerare select
+	 * Config with database=1 to trigger select
 	 *
-	 * @return array Config Redis.
+	 * @return array Redis config.
 	 */
 	protected function get_redis_config(): array {
 		return [
@@ -485,12 +485,12 @@ class DbSelectFailRedisCheck extends RedisCheck {
 }
 
 /**
- * RedisCheck testabile che usa FakeRedisSetFalse
+ * Testable RedisCheck that uses FakeRedisSetFalse
  */
 class SetFalseRedisCheck extends RedisCheck {
 
 	/**
-	 * Estensione sempre caricata
+	 * Extension always loaded
 	 *
 	 * @return bool True.
 	 */
@@ -499,7 +499,7 @@ class SetFalseRedisCheck extends RedisCheck {
 	}
 
 	/**
-	 * Crea FakeRedis con SET false
+	 * Creates FakeRedis with SET false
 	 *
 	 * @return \Redis FakeRedisSetFalse.
 	 */
@@ -508,9 +508,9 @@ class SetFalseRedisCheck extends RedisCheck {
 	}
 
 	/**
-	 * Config senza password (no auth path)
+	 * Config without password (no auth path)
 	 *
-	 * @return array Config Redis.
+	 * @return array Redis config.
 	 */
 	protected function get_redis_config(): array {
 		return [
@@ -523,12 +523,12 @@ class SetFalseRedisCheck extends RedisCheck {
 }
 
 /**
- * RedisCheck testabile che usa FakeRedisSlowResponse
+ * Testable RedisCheck that uses FakeRedisSlowResponse
  */
 class SlowResponseRedisCheck extends RedisCheck {
 
 	/**
-	 * Estensione sempre caricata
+	 * Extension always loaded
 	 *
 	 * @return bool True.
 	 */
@@ -537,7 +537,7 @@ class SlowResponseRedisCheck extends RedisCheck {
 	}
 
 	/**
-	 * Crea FakeRedis con risposta lenta
+	 * Creates FakeRedis with slow response
 	 *
 	 * @return \Redis FakeRedisSlowResponse.
 	 */
@@ -546,9 +546,9 @@ class SlowResponseRedisCheck extends RedisCheck {
 	}
 
 	/**
-	 * Config senza password (no auth path)
+	 * Config without password (no auth path)
 	 *
-	 * @return array Config Redis.
+	 * @return array Redis config.
 	 */
 	protected function get_redis_config(): array {
 		return [
@@ -561,14 +561,14 @@ class SlowResponseRedisCheck extends RedisCheck {
 }
 
 /**
- * RedisCheck testabile che usa FakeRedisCloseFail
+ * Testable RedisCheck that uses FakeRedisCloseFail
  *
- * Auth fallisce + close() lancia eccezione → copre catch in close_connection.
+ * Auth fails + close() throws exception -> covers catch in close_connection.
  */
 class CloseFailRedisCheck extends RedisCheck {
 
 	/**
-	 * Estensione sempre caricata
+	 * Extension always loaded
 	 *
 	 * @return bool True.
 	 */
@@ -577,7 +577,7 @@ class CloseFailRedisCheck extends RedisCheck {
 	}
 
 	/**
-	 * Crea FakeRedis con close fallita
+	 * Creates FakeRedis with failed close
 	 *
 	 * @return \Redis FakeRedisCloseFail.
 	 */
@@ -586,9 +586,9 @@ class CloseFailRedisCheck extends RedisCheck {
 	}
 
 	/**
-	 * Config con password per triggerare auth
+	 * Config with password to trigger auth
 	 *
-	 * @return array Config Redis.
+	 * @return array Redis config.
 	 */
 	protected function get_redis_config(): array {
 		return [
@@ -601,14 +601,14 @@ class CloseFailRedisCheck extends RedisCheck {
 }
 
 /**
- * RedisCheck testabile che usa FakeRedisCleanupFail
+ * Testable RedisCheck that uses FakeRedisCleanupFail
  *
- * SET ritorna false → cleanup_and_close → del() e close() lanciano eccezione.
+ * SET returns false -> cleanup_and_close -> del() and close() throw exception.
  */
 class CleanupFailRedisCheck extends RedisCheck {
 
 	/**
-	 * Estensione sempre caricata
+	 * Extension always loaded
 	 *
 	 * @return bool True.
 	 */
@@ -617,7 +617,7 @@ class CleanupFailRedisCheck extends RedisCheck {
 	}
 
 	/**
-	 * Crea FakeRedis con cleanup fallito
+	 * Creates FakeRedis with failed cleanup
 	 *
 	 * @return \Redis FakeRedisCleanupFail.
 	 */
@@ -626,9 +626,9 @@ class CleanupFailRedisCheck extends RedisCheck {
 	}
 
 	/**
-	 * Config senza password (no auth path)
+	 * Config without password (no auth path)
 	 *
-	 * @return array Config Redis.
+	 * @return array Redis config.
 	 */
 	protected function get_redis_config(): array {
 		return [

@@ -2,8 +2,8 @@
 /**
  * Alert Settings Admin Page
  *
- * Pagina admin per configurare i canali di alert e il cooldown.
- * Segue il pattern PRG (Post-Redirect-Get) con transient per le notice.
+ * Admin page for configuring alert channels and cooldown.
+ * Follows the PRG (Post-Redirect-Get) pattern with transients for notices.
  *
  * @package OpsHealthDashboard\Admin
  */
@@ -23,19 +23,19 @@ use OpsHealthDashboard\Interfaces\StorageInterface;
 /**
  * Class AlertSettings
  *
- * Gestisce la pagina di configurazione degli alert.
+ * Manages the alert configuration page.
  */
 class AlertSettings {
 
 	/**
-	 * Screen ID per la pagina alert settings
+	 * Screen ID for the alert settings page
 	 *
 	 * @var string
 	 */
 	const SCREEN_ID = 'ops-health_page_ops-health-alert-settings';
 
 	/**
-	 * Storage per leggere/salvare le impostazioni
+	 * Storage for reading/saving settings
 	 *
 	 * @var StorageInterface
 	 */
@@ -44,14 +44,14 @@ class AlertSettings {
 	/**
 	 * Constructor
 	 *
-	 * @param StorageInterface $storage Storage per le impostazioni.
+	 * @param StorageInterface $storage Storage for settings.
 	 */
 	public function __construct( StorageInterface $storage ) {
 		$this->storage = $storage;
 	}
 
 	/**
-	 * Registra gli hook WordPress
+	 * Registers WordPress hooks
 	 *
 	 * @return void
 	 */
@@ -60,9 +60,9 @@ class AlertSettings {
 	}
 
 	/**
-	 * Carica JS e CSS sulla pagina alert settings
+	 * Enqueues JS and CSS on the alert settings page
 	 *
-	 * Enqueue solo sulla schermata corretta per admin autorizzati.
+	 * Enqueues only on the correct screen for authorized admins.
 	 *
 	 * @return void
 	 */
@@ -129,9 +129,9 @@ class AlertSettings {
 	}
 
 	/**
-	 * Aggiunge la tab Overview all'help screen
+	 * Adds the Overview tab to the help screen
 	 *
-	 * @param \WP_Screen $screen Schermata corrente.
+	 * @param \WP_Screen $screen Current screen.
 	 * @return void
 	 */
 	private function add_alert_overview_help_tab( $screen ): void {
@@ -156,9 +156,9 @@ class AlertSettings {
 	}
 
 	/**
-	 * Aggiunge la tab Channels all'help screen
+	 * Adds the Channels tab to the help screen
 	 *
-	 * @param \WP_Screen $screen Schermata corrente.
+	 * @param \WP_Screen $screen Current screen.
 	 * @return void
 	 */
 	private function add_alert_channels_help_tab( $screen ): void {
@@ -192,9 +192,9 @@ class AlertSettings {
 	}
 
 	/**
-	 * Aggiunge la tab Configuration all'help screen
+	 * Adds the Configuration tab to the help screen
 	 *
-	 * @param \WP_Screen $screen Schermata corrente.
+	 * @param \WP_Screen $screen Current screen.
 	 * @return void
 	 */
 	private function add_alert_config_help_tab( $screen ): void {
@@ -221,9 +221,9 @@ class AlertSettings {
 	}
 
 	/**
-	 * Processa le azioni del form (salvataggio impostazioni)
+	 * Processes form actions (settings save)
 	 *
-	 * Verifica nonce e capability prima di salvare.
+	 * Verifies nonce and capability before saving.
 	 *
 	 * @return void
 	 */
@@ -262,9 +262,9 @@ class AlertSettings {
 	}
 
 	/**
-	 * Termina l'esecuzione dello script
+	 * Terminates script execution
 	 *
-	 * Estratto in metodo protetto per testabilità.
+	 * Extracted to protected method for testability.
 	 *
 	 * @return void
 	 * @codeCoverageIgnore
@@ -274,7 +274,7 @@ class AlertSettings {
 	}
 
 	/**
-	 * Renderizza la pagina delle impostazioni alert
+	 * Renders the alert settings page
 	 *
 	 * @return void
 	 */
@@ -511,14 +511,14 @@ class AlertSettings {
 	}
 
 	/**
-	 * Renderizza l'apertura di una sezione canale collassabile
+	 * Renders the opening of a collapsible channel section
 	 *
-	 * Ogni sezione è un elemento details/summary con badge di stato.
-	 * Il contenuto (form-table) segue nella chiamata, chiuso da </details>.
+	 * Each section is a details/summary element with a status badge.
+	 * The content (form-table) follows in the caller, closed by </details>.
 	 *
-	 * @param string $channel_id ID del canale.
-	 * @param string $label      Label del canale.
-	 * @param bool   $is_enabled Se il canale è abilitato.
+	 * @param string $channel_id Channel ID.
+	 * @param string $label      Channel label.
+	 * @param bool   $is_enabled Whether the channel is enabled.
 	 * @return void
 	 */
 	private function render_channel_section(
@@ -551,11 +551,11 @@ class AlertSettings {
 	}
 
 	/**
-	 * Costruisce l'array delle impostazioni dal POST
+	 * Builds the settings array from POST
 	 *
-	 * Chiamato solo dopo verifica nonce e capability in process_actions().
+	 * Called only after nonce and capability verification in process_actions().
 	 *
-	 * @return array Impostazioni sanitizzate.
+	 * @return array Sanitized settings.
 	 */
 	private function build_settings_from_post(): array {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verified in process_actions().

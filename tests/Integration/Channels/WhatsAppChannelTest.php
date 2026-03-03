@@ -1,9 +1,9 @@
 <?php
 /**
- * Integration Test per WhatsAppChannel
+ * Integration Test for WhatsAppChannel
  *
- * Verifica invio alert WhatsApp con validazione E.164,
- * Storage reale e HTTP interceptato.
+ * Verifies WhatsApp alert sending with E.164 validation,
+ * real Storage and intercepted HTTP.
  *
  * @package OpsHealthDashboard\Tests\Integration\Channels
  */
@@ -19,12 +19,12 @@ use WP_UnitTestCase;
 /**
  * Class WhatsAppChannelTest
  *
- * Integration test per WhatsAppChannel con WordPress reale.
+ * Integration test for WhatsAppChannel with real WordPress.
  */
 class WhatsAppChannelTest extends WP_UnitTestCase {
 
 	/**
-	 * Storage reale
+	 * Real storage
 	 *
 	 * @var Storage
 	 */
@@ -53,9 +53,9 @@ class WhatsAppChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Crea un payload di test
+	 * Creates a test payload
 	 *
-	 * @return array Payload alert.
+	 * @return array Alert payload.
 	 */
 	private function create_test_payload(): array {
 		return [
@@ -72,7 +72,7 @@ class WhatsAppChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Crea HttpClient testabile
+	 * Creates testable HttpClient
 	 *
 	 * @return TestableHttpClient
 	 */
@@ -81,7 +81,7 @@ class WhatsAppChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che la classe NON è final
+	 * Verifies that the class is NOT final
 	 *
 	 * @return void
 	 */
@@ -91,7 +91,7 @@ class WhatsAppChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Verifies that NO static methods exist
 	 *
 	 * @return void
 	 */
@@ -110,7 +110,7 @@ class WhatsAppChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che NON esistono proprietà static
+	 * Verifies that NO static properties exist
 	 *
 	 * @return void
 	 */
@@ -122,7 +122,7 @@ class WhatsAppChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa get_id
+	 * Tests get_id
 	 *
 	 * @return void
 	 */
@@ -133,7 +133,7 @@ class WhatsAppChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa get_name
+	 * Tests get_name
 	 *
 	 * @return void
 	 */
@@ -144,7 +144,7 @@ class WhatsAppChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled con telefono E.164 valido e URL
+	 * Tests is_enabled with valid E.164 phone and URL
 	 *
 	 * @return void
 	 */
@@ -166,7 +166,7 @@ class WhatsAppChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled quando disabilitato
+	 * Tests is_enabled when disabled
 	 *
 	 * @return void
 	 */
@@ -188,7 +188,7 @@ class WhatsAppChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled senza webhook URL
+	 * Tests is_enabled without webhook URL
 	 *
 	 * @return void
 	 */
@@ -210,7 +210,7 @@ class WhatsAppChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled con telefono non valido (non E.164)
+	 * Tests is_enabled with invalid phone (not E.164)
 	 *
 	 * @return void
 	 */
@@ -232,7 +232,7 @@ class WhatsAppChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled senza telefono
+	 * Tests is_enabled without phone
 	 *
 	 * @return void
 	 */
@@ -254,7 +254,7 @@ class WhatsAppChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa is_enabled con settings corrotti (non array)
+	 * Tests is_enabled with corrupted settings (non-array)
 	 *
 	 * @return void
 	 */
@@ -267,7 +267,7 @@ class WhatsAppChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa send con successo
+	 * Tests send success
 	 *
 	 * @return void
 	 */
@@ -304,7 +304,7 @@ class WhatsAppChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che send include header Bearer token
+	 * Tests that send includes Bearer token header
 	 *
 	 * @return void
 	 */
@@ -347,7 +347,7 @@ class WhatsAppChannelTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa send con errore HTTP
+	 * Tests send with HTTP error
 	 *
 	 * @return void
 	 */

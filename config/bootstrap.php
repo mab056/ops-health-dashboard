@@ -1,9 +1,9 @@
 <?php
 /**
- * Configurazione Bootstrap del Plugin
+ * Plugin Bootstrap Configuration
  *
- * Crea e configura il container DI, restituisce l'istanza del Plugin.
- * NO pattern singleton, NO factory static.
+ * Creates and configures the DI container, returns the Plugin instance.
+ * NO singleton pattern, NO static factory.
  *
  * @package OpsHealthDashboard
  */
@@ -22,22 +22,22 @@ use OpsHealthDashboard\Core\Container;
 use OpsHealthDashboard\Core\Plugin;
 
 /**
- * Funzione di bootstrap
+ * Bootstrap function
  *
- * Crea il container, configura i binding, restituisce l'istanza del plugin.
- * Chiamata dal file principale del plugin sull'hook 'plugins_loaded'.
+ * Creates the container, configures bindings, returns the plugin instance.
+ * Called from the main plugin file on the 'plugins_loaded' hook.
  *
- * @return Plugin Istanza del plugin con container configurato.
+ * @return Plugin Plugin instance with configured container.
  */
 function bootstrap(): Plugin {
-	// Crea una nuova istanza del container.
+	// Create a new container instance.
 	$container = new Container();
 
-	// Registra l'istanza wpdb nel container.
+	// Register the wpdb instance in the container.
 	global $wpdb;
 	$container->instance( 'wpdb', $wpdb );
 
-	// Configura i binding per i servizi (shared instances).
+	// Configure service bindings (shared instances).
 	$container->share(
 		Interfaces\StorageInterface::class,
 		// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
@@ -46,7 +46,7 @@ function bootstrap(): Plugin {
 		}
 	);
 
-	// Servizio di redazione dati sensibili.
+	// Sensitive data redaction service.
 	$container->share(
 		Interfaces\RedactionInterface::class,
 		// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
@@ -58,7 +58,7 @@ function bootstrap(): Plugin {
 		}
 	);
 
-	// Client HTTP con protezione anti-SSRF.
+	// HTTP client with anti-SSRF protection.
 	$container->share(
 		Interfaces\HttpClientInterface::class,
 		function ( $c ) {
@@ -75,7 +75,7 @@ function bootstrap(): Plugin {
 				$c->make( Interfaces\StorageInterface::class ),
 				$c->make( Interfaces\RedactionInterface::class )
 			);
-			// Registra i check disponibili.
+			// Register available checks.
 			$runner->add_check(
 				new Checks\DatabaseCheck(
 					$c->make( 'wpdb' ),
@@ -102,7 +102,7 @@ function bootstrap(): Plugin {
 		}
 	);
 
-	// Alert Manager con canali di notifica.
+	// Alert Manager with notification channels.
 	$container->share(
 		Interfaces\AlertManagerInterface::class,
 		function ( $c ) {
@@ -130,7 +130,7 @@ function bootstrap(): Plugin {
 		}
 	);
 
-	// Scheduler con AlertManager integrato.
+	// Scheduler with integrated AlertManager.
 	$container->share(
 		Services\Scheduler::class,
 		function ( $c ) {
@@ -141,7 +141,7 @@ function bootstrap(): Plugin {
 		}
 	);
 
-	// Configura i binding per l'interfaccia admin.
+	// Configure bindings for the admin interface.
 	$container->share(
 		Admin\HealthScreen::class,
 		function ( $c ) {
@@ -152,7 +152,7 @@ function bootstrap(): Plugin {
 		}
 	);
 
-	// Pagina alert settings.
+	// Alert settings page.
 	$container->share(
 		Admin\AlertSettings::class,
 		function ( $c ) {
@@ -162,7 +162,7 @@ function bootstrap(): Plugin {
 		}
 	);
 
-	// Dashboard widget per stato globale.
+	// Dashboard widget for overall status.
 	$container->share(
 		Admin\DashboardWidget::class,
 		function ( $c ) {
@@ -173,7 +173,7 @@ function bootstrap(): Plugin {
 		}
 	);
 
-	// Menu admin con AlertSettings submenu.
+	// Admin menu with AlertSettings submenu.
 	$container->share(
 		Admin\Menu::class,
 		function ( $c ) {
@@ -184,6 +184,6 @@ function bootstrap(): Plugin {
 		}
 	);
 
-	// Crea e restituisce l'istanza del plugin.
+	// Create and return the plugin instance.
 	return new Plugin( $container );
 }

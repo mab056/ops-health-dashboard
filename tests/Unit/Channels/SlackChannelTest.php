@@ -1,8 +1,8 @@
 <?php
 /**
- * Test per SlackChannel
+ * Test for SlackChannel
  *
- * Verifica l'invio di alert via Slack Incoming Webhook con Block Kit.
+ * Verifies sending alerts via Slack Incoming Webhook with Block Kit.
  *
  * @package OpsHealthDashboard\Tests\Unit\Channels
  */
@@ -22,7 +22,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class SlackChannelTest
  *
- * Test unitari per il canale di alert Slack.
+ * Unit tests for the Slack alert channel.
  */
 class SlackChannelTest extends TestCase
 {
@@ -52,9 +52,9 @@ class SlackChannelTest extends TestCase
 	}
 
 	/**
-	 * Crea un mock di StorageInterface
+	 * Creates a mock of StorageInterface
 	 *
-	 * @param array $settings Impostazioni da ritornare.
+	 * @param array $settings Settings to return.
 	 * @return \Mockery\MockInterface|StorageInterface
 	 */
 	private function create_storage_mock( array $settings = [] )
@@ -67,7 +67,7 @@ class SlackChannelTest extends TestCase
 	}
 
 	/**
-	 * Crea un mock di HttpClientInterface
+	 * Creates a mock of HttpClientInterface
 	 *
 	 * @return \Mockery\MockInterface|HttpClientInterface
 	 */
@@ -77,9 +77,9 @@ class SlackChannelTest extends TestCase
 	}
 
 	/**
-	 * Crea un payload di test
+	 * Creates a test payload
 	 *
-	 * @param array $overrides Chiavi da sovrascrivere.
+	 * @param array $overrides Keys to override.
 	 * @return array
 	 */
 	private function create_test_payload( array $overrides = [] )
@@ -102,7 +102,7 @@ class SlackChannelTest extends TestCase
 	}
 
 	/**
-	 * Configura mock i18n
+	 * Configures i18n mocks
 	 *
 	 * @return void
 	 */
@@ -117,7 +117,7 @@ class SlackChannelTest extends TestCase
 	// ---------------------------------------------------
 
 	/**
-	 * Testa che la classe NON e final
+	 * Tests that the class is NOT final
 	 *
 	 * @return void
 	 */
@@ -128,7 +128,7 @@ class SlackChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Tests that there are NO static methods
 	 *
 	 * @return void
 	 */
@@ -148,7 +148,7 @@ class SlackChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa che NON esistono proprieta static
+	 * Tests that there are NO static properties
 	 *
 	 * @return void
 	 */
@@ -161,7 +161,7 @@ class SlackChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa che implementa AlertChannelInterface
+	 * Tests that implements AlertChannelInterface
 	 *
 	 * @return void
 	 */
@@ -179,7 +179,7 @@ class SlackChannelTest extends TestCase
 	// ---------------------------------------------------
 
 	/**
-	 * Testa che get_id ritorna 'slack'
+	 * Tests that get_id returns 'slack'
 	 *
 	 * @return void
 	 */
@@ -193,7 +193,7 @@ class SlackChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa che get_name ritorna stringa tradotta
+	 * Tests that get_name returns translated string
 	 *
 	 * @return void
 	 */
@@ -212,7 +212,7 @@ class SlackChannelTest extends TestCase
 	// ---------------------------------------------------
 
 	/**
-	 * Testa is_enabled true con configurazione valida
+	 * Tests is_enabled returns true with valid configuration
 	 *
 	 * @return void
 	 */
@@ -232,7 +232,7 @@ class SlackChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa is_enabled false quando disabilitato
+	 * Tests is_enabled returns false when disabled
 	 *
 	 * @return void
 	 */
@@ -252,7 +252,7 @@ class SlackChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa is_enabled false con webhook_url vuoto
+	 * Tests is_enabled returns false with empty webhook_url
 	 *
 	 * @return void
 	 */
@@ -272,7 +272,7 @@ class SlackChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa is_enabled false senza impostazioni
+	 * Tests is_enabled returns false without settings
 	 *
 	 * @return void
 	 */
@@ -286,7 +286,7 @@ class SlackChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa is_enabled false senza chiave slack
+	 * Tests is_enabled returns false without slack key
 	 *
 	 * @return void
 	 */
@@ -305,7 +305,7 @@ class SlackChannelTest extends TestCase
 	// ---------------------------------------------------
 
 	/**
-	 * Testa invio Slack con successo
+	 * Tests Slack send with success
 	 *
 	 * @return void
 	 */
@@ -352,7 +352,7 @@ class SlackChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa invio Slack con fallimento
+	 * Tests Slack send with failure
 	 *
 	 * @return void
 	 */
@@ -389,7 +389,7 @@ class SlackChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa che il payload Slack per status critical usa colore rosso
+	 * Tests that the Slack payload for critical status uses red color
 	 *
 	 * @return void
 	 */
@@ -436,7 +436,7 @@ class SlackChannelTest extends TestCase
 		$this->assertArrayHasKey( 'attachments', $captured_body );
 		$this->assertEquals( '#FF0000', $captured_body['attachments'][0]['color'] );
 
-		// Verifica che il titolo contiene [Alert] e il check name.
+		// Verify that the title contains [Alert] and the check name.
 		$header_text = $captured_body['blocks'][0]['text']['text'];
 		$this->assertStringContainsString( '[Alert]', $header_text );
 		$this->assertStringContainsString( 'Database Connection', $header_text );
@@ -444,7 +444,7 @@ class SlackChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa che il payload Slack per recovery usa colore verde e [Recovered]
+	 * Tests that the Slack payload for recovery uses green color and [Recovered]
 	 *
 	 * @return void
 	 */
@@ -496,17 +496,17 @@ class SlackChannelTest extends TestCase
 
 		$this->assertNotNull( $captured_body );
 
-		// Recovery: colore verde.
+		// Recovery: green color.
 		$this->assertEquals( '#36A64F', $captured_body['attachments'][0]['color'] );
 
-		// Titolo contiene [Recovered].
+		// Title contains [Recovered].
 		$header_text = $captured_body['blocks'][0]['text']['text'];
 		$this->assertStringContainsString( '[Recovered]', $header_text );
 		$this->assertStringContainsString( 'OK', $header_text );
 	}
 
 	/**
-	 * Testa che i caratteri speciali mrkdwn sono escapati nel messaggio
+	 * Tests that mrkdwn special characters are escaped in the message
 	 *
 	 * @return void
 	 */
@@ -568,7 +568,7 @@ class SlackChannelTest extends TestCase
 	}
 
 	/**
-	 * Testa che uno status non mappato usa colore grigio di fallback
+	 * Tests that an unmapped status uses gray fallback color
 	 *
 	 * @return void
 	 */

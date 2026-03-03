@@ -25,7 +25,7 @@ define( 'OPS_HEALTH_DASHBOARD_FILE', __FILE__ );
 define( 'OPS_HEALTH_DASHBOARD_PATH', plugin_dir_path( __FILE__ ) );
 define( 'OPS_HEALTH_DASHBOARD_URL', plugin_dir_url( __FILE__ ) );
 
-// Carica l'autoloader di Composer.
+// Load the Composer autoloader.
 if ( ! file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 	add_action(
 		'admin_notices',
@@ -44,11 +44,11 @@ if ( ! file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 }
 require_once __DIR__ . '/vendor/autoload.php';
 
-// Carica la configurazione di bootstrap.
+// Load the bootstrap configuration.
 require_once __DIR__ . '/config/bootstrap.php';
 
 /**
- * Hook di attivazione.
+ * Activation hook.
  */
 register_activation_hook(
 	__FILE__,
@@ -59,7 +59,7 @@ register_activation_hook(
 );
 
 /**
- * Hook di disattivazione.
+ * Deactivation hook.
  */
 register_deactivation_hook(
 	__FILE__,
@@ -70,10 +70,10 @@ register_deactivation_hook(
 );
 
 /**
- * Inizializza il plugin.
+ * Initialize the plugin.
  *
- * Bootstrap crea il container, configura i binding, restituisce l'istanza del
- * plugin.
+ * Bootstrap creates the container, configures bindings, returns the plugin
+ * instance.
  */
 add_action(
 	'plugins_loaded',

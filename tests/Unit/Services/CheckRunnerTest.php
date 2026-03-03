@@ -1,8 +1,8 @@
 <?php
 /**
- * Unit Test per CheckRunner
+ * Unit Test for CheckRunner
  *
- * Test unitario con Brain\Monkey per CheckRunner.
+ * Unit test with Brain\Monkey per CheckRunner.
  *
  * @package OpsHealthDashboard\Tests\Unit\Services
  */
@@ -21,13 +21,13 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class CheckRunnerTest
  *
- * Unit test per CheckRunner.
+ * Unit test for CheckRunner.
  */
 class CheckRunnerTest extends TestCase {
 	use MockeryPHPUnitIntegration;
 
 	/**
-	 * Setup per ogni test
+	 * Setup for each test
 	 */
 	protected function setUp(): void {
 		parent::setUp();
@@ -35,7 +35,7 @@ class CheckRunnerTest extends TestCase {
 	}
 
 	/**
-	 * Teardown dopo ogni test
+	 * Teardown after each test
 	 */
 	protected function tearDown(): void {
 		Monkey\tearDown();
@@ -43,7 +43,7 @@ class CheckRunnerTest extends TestCase {
 	}
 
 	/**
-	 * Crea un mock RedactionInterface per i test
+	 * Creates a mock RedactionInterface for the tests
 	 *
 	 * @return \Mockery\MockInterface
 	 */
@@ -57,7 +57,7 @@ class CheckRunnerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che CheckRunner può essere istanziato con dipendenze
+	 * Tests that CheckRunner can be instantiated with dependencies
 	 */
 	public function test_check_runner_can_be_instantiated() {
 		$storage   = Mockery::mock( StorageInterface::class );
@@ -68,7 +68,7 @@ class CheckRunnerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che add_check() aggiunge un check e viene eseguito in run_all()
+	 * Tests that add_check() adds a check and it is executed in run_all()
 	 */
 	public function test_add_check_adds_check() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -94,7 +94,7 @@ class CheckRunnerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run_all() esegue tutti i check abilitati
+	 * Tests that run_all() executes all enabled checks
 	 */
 	public function test_run_all_executes_enabled_checks() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -128,7 +128,7 @@ class CheckRunnerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run_all() salta i check disabilitati
+	 * Tests that run_all() skips disabled checks
 	 */
 	public function test_run_all_skips_disabled_checks() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -150,7 +150,7 @@ class CheckRunnerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run_all() gestisce multiple checks
+	 * Tests that run_all() handles multiple checks
 	 */
 	public function test_run_all_handles_multiple_checks() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -193,7 +193,7 @@ class CheckRunnerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run_all() salva i risultati nello storage
+	 * Tests that run_all() saves the results to storage
 	 */
 	public function test_run_all_saves_results_to_storage() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -222,12 +222,12 @@ class CheckRunnerTest extends TestCase {
 		$runner->add_check( $check );
 		$results = $runner->run_all();
 
-		// Verifica che il risultato sia stato salvato nello storage.
+		// Verify that the result was saved to storage.
 		$this->assertArrayHasKey( 'check1', $results );
 	}
 
 	/**
-	 * Testa che get_latest_results() recupera i risultati dallo storage
+	 * Tests that get_latest_results() retrieves the results from storage
 	 */
 	public function test_get_latest_results_retrieves_from_storage() {
 		$stored_results = [
@@ -251,7 +251,7 @@ class CheckRunnerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run_all() gestisce eccezioni nei check senza crash
+	 * Tests that run_all() handles exceptions in checks without crash
 	 */
 	public function test_run_all_handles_check_exceptions() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -286,7 +286,7 @@ class CheckRunnerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get_latest_results() ritorna array vuoto se storage ritorna non-array
+	 * Tests that get_latest_results() returns empty array if storage returns non-array
 	 */
 	public function test_get_latest_results_returns_empty_array_for_non_array() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -304,7 +304,7 @@ class CheckRunnerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che clear_results() cancella i risultati dallo storage
+	 * Tests that clear_results() deletes the results from storage
 	 */
 	public function test_clear_results_deletes_from_storage() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -321,7 +321,7 @@ class CheckRunnerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run_all() salva il timestamp last_run_at nello storage
+	 * Tests that run_all() saves the last_run_at timestamp to storage
 	 */
 	public function test_run_all_stores_last_run_at_timestamp() {
 		$before  = time();
@@ -342,7 +342,7 @@ class CheckRunnerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che clear_results() cancella anche last_run_at dallo storage
+	 * Tests that clear_results() also deletes last_run_at from storage
 	 */
 	public function test_clear_results_deletes_last_run_at() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -360,7 +360,7 @@ class CheckRunnerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che la classe NON è final
+	 * Tests that the class is NOT final
 	 */
 	public function test_class_is_not_final() {
 		$reflection = new \ReflectionClass( CheckRunner::class );
@@ -368,7 +368,7 @@ class CheckRunnerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Tests that there are NO static methods
 	 */
 	public function test_no_static_methods() {
 		$reflection = new \ReflectionClass( CheckRunner::class );
@@ -385,7 +385,7 @@ class CheckRunnerTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono proprietà static
+	 * Tests that there are NO static properties
 	 */
 	public function test_no_static_properties() {
 		$reflection = new \ReflectionClass( CheckRunner::class );

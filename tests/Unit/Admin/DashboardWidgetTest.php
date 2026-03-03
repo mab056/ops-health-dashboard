@@ -1,8 +1,8 @@
 <?php
 /**
- * Unit Test per DashboardWidget
+ * Unit Test for DashboardWidget
  *
- * Test unitario con Brain\Monkey per DashboardWidget.
+ * Unit test with Brain\Monkey per DashboardWidget.
  *
  * @package OpsHealthDashboard\Tests\Unit\Admin
  */
@@ -21,13 +21,13 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class DashboardWidgetTest
  *
- * Unit test per DashboardWidget.
+ * Unit test for DashboardWidget.
  */
 class DashboardWidgetTest extends TestCase {
 	use MockeryPHPUnitIntegration;
 
 	/**
-	 * Setup per ogni test
+	 * Setup for each test
 	 */
 	protected function setUp(): void {
 		parent::setUp();
@@ -35,7 +35,7 @@ class DashboardWidgetTest extends TestCase {
 	}
 
 	/**
-	 * Teardown per ogni test
+	 * Teardown for each test
 	 */
 	protected function tearDown(): void {
 		Monkey\tearDown();
@@ -43,7 +43,7 @@ class DashboardWidgetTest extends TestCase {
 	}
 
 	/**
-	 * Crea un mock di CheckRunnerInterface
+	 * Creates a mock of CheckRunnerInterface
 	 *
 	 * @return \Mockery\MockInterface|CheckRunnerInterface
 	 */
@@ -52,9 +52,9 @@ class DashboardWidgetTest extends TestCase {
 	}
 
 	/**
-	 * Crea un mock di StorageInterface
+	 * Creates a mock of StorageInterface
 	 *
-	 * @param int $last_run_at Timestamp last run (0 = mai eseguito).
+	 * @param int $last_run_at Timestamp last run (0 = never run).
 	 * @return \Mockery\MockInterface|StorageInterface
 	 */
 	private function create_storage_mock( int $last_run_at = 0 ) {
@@ -66,7 +66,7 @@ class DashboardWidgetTest extends TestCase {
 	}
 
 	/**
-	 * Configura i mock comuni per il rendering
+	 * Configures the common mocks for rendering
 	 */
 	private function mock_render_functions(): void {
 		Functions\when( '__' )->returnArg();
@@ -84,7 +84,7 @@ class DashboardWidgetTest extends TestCase {
 	// ─── Pattern Enforcement ──────────────────────────────────────────
 
 	/**
-	 * Testa che la classe NON è final
+	 * Tests that the class is NOT final
 	 */
 	public function test_class_is_not_final() {
 		$reflection = new \ReflectionClass( DashboardWidget::class );
@@ -92,7 +92,7 @@ class DashboardWidgetTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Tests that there are NO static methods
 	 */
 	public function test_no_static_methods() {
 		$reflection = new \ReflectionClass( DashboardWidget::class );
@@ -109,7 +109,7 @@ class DashboardWidgetTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono proprietà static
+	 * Tests that there are NO static properties
 	 */
 	public function test_no_static_properties() {
 		$reflection = new \ReflectionClass( DashboardWidget::class );
@@ -122,7 +122,7 @@ class DashboardWidgetTest extends TestCase {
 	// ─── Instantiation ───────────────────────────────────────────────
 
 	/**
-	 * Testa che DashboardWidget si istanzia con CheckRunnerInterface e StorageInterface
+	 * Tests that DashboardWidget instantiates with CheckRunnerInterface and StorageInterface
 	 */
 	public function test_instantiates_with_runner_and_storage() {
 		$runner  = $this->create_runner_mock();
@@ -134,7 +134,7 @@ class DashboardWidgetTest extends TestCase {
 	// ─── register_hooks ─────────────────────────────────────────────
 
 	/**
-	 * Testa che register_hooks registra l'hook wp_dashboard_setup
+	 * Tests that register_hooks registers the wp_dashboard_setup hook
 	 */
 	public function test_register_hooks_adds_dashboard_setup() {
 		$runner  = $this->create_runner_mock();
@@ -158,7 +158,7 @@ class DashboardWidgetTest extends TestCase {
 	}
 
 	/**
-	 * Testa che register_hooks registra l'hook admin_enqueue_scripts
+	 * Tests that register_hooks registers the admin_enqueue_scripts hook
 	 */
 	public function test_register_hooks_adds_admin_enqueue_scripts() {
 		$runner  = $this->create_runner_mock();
@@ -184,7 +184,7 @@ class DashboardWidgetTest extends TestCase {
 	// ─── enqueue_styles ─────────────────────────────────────────────
 
 	/**
-	 * Testa che enqueue_styles carica il CSS sulla dashboard per admin
+	 * Tests that enqueue_styles loads the CSS on the dashboard for admin
 	 */
 	public function test_enqueue_styles_on_dashboard_screen() {
 		if ( ! defined( 'OPS_HEALTH_DASHBOARD_FILE' ) ) {
@@ -226,7 +226,7 @@ class DashboardWidgetTest extends TestCase {
 	}
 
 	/**
-	 * Testa che enqueue_styles NON carica il CSS per utenti senza manage_options
+	 * Tests that enqueue_styles does NOT load the CSS for users without manage_options
 	 */
 	public function test_enqueue_styles_skips_for_non_admin_user() {
 		Functions\expect( 'current_user_can' )
@@ -239,12 +239,12 @@ class DashboardWidgetTest extends TestCase {
 		$widget  = new DashboardWidget( $runner, $storage );
 		$widget->enqueue_styles();
 
-		// wp_enqueue_style non deve essere chiamato.
+		// wp_enqueue_style must not be called.
 		$this->assertInstanceOf( DashboardWidget::class, $widget );
 	}
 
 	/**
-	 * Testa che enqueue_styles NON carica il CSS su schermate non-dashboard
+	 * Tests that enqueue_styles does NOT load the CSS on non-dashboard screens
 	 */
 	public function test_enqueue_styles_skips_non_dashboard_screen() {
 		$screen     = new \stdClass();
@@ -264,12 +264,12 @@ class DashboardWidgetTest extends TestCase {
 		$widget  = new DashboardWidget( $runner, $storage );
 		$widget->enqueue_styles();
 
-		// wp_enqueue_style non deve essere chiamato.
+		// wp_enqueue_style must not be called.
 		$this->assertInstanceOf( DashboardWidget::class, $widget );
 	}
 
 	/**
-	 * Testa che enqueue_styles gestisce screen null
+	 * Tests that enqueue_styles handles null screen
 	 */
 	public function test_enqueue_styles_handles_null_screen() {
 		Functions\expect( 'current_user_can' )
@@ -286,14 +286,14 @@ class DashboardWidgetTest extends TestCase {
 		$widget  = new DashboardWidget( $runner, $storage );
 		$widget->enqueue_styles();
 
-		// wp_enqueue_style non deve essere chiamato.
+		// wp_enqueue_style must not be called.
 		$this->assertInstanceOf( DashboardWidget::class, $widget );
 	}
 
 	// ─── add_widget ─────────────────────────────────────────────────
 
 	/**
-	 * Testa che add_widget verifica la capability
+	 * Tests that add_widget checks the capability
 	 */
 	public function test_add_widget_checks_capability() {
 		Functions\when( '__' )->returnArg();
@@ -306,12 +306,12 @@ class DashboardWidgetTest extends TestCase {
 		$storage = $this->create_storage_mock();
 		$widget  = new DashboardWidget( $runner, $storage );
 
-		// Non deve chiamare wp_add_dashboard_widget.
+		// Must not call wp_add_dashboard_widget.
 		$widget->add_widget();
 	}
 
 	/**
-	 * Testa che add_widget aggiunge il widget per utenti autorizzati
+	 * Tests that add_widget adds the widget for authorized users
 	 */
 	public function test_add_widget_adds_widget_for_admin() {
 		Functions\when( '__' )->returnArg();
@@ -344,7 +344,7 @@ class DashboardWidgetTest extends TestCase {
 	// ─── render ─────────────────────────────────────────────────────
 
 	/**
-	 * Testa che render verifica la capability
+	 * Tests that render checks the capability
 	 */
 	public function test_render_checks_capability() {
 		Functions\expect( 'current_user_can' )
@@ -364,7 +364,7 @@ class DashboardWidgetTest extends TestCase {
 	}
 
 	/**
-	 * Testa che render mostra messaggio quando non ci sono risultati
+	 * Tests that render shows message when there are no results
 	 */
 	public function test_render_empty_results_message() {
 		$this->mock_render_functions();
@@ -382,7 +382,7 @@ class DashboardWidgetTest extends TestCase {
 	}
 
 	/**
-	 * Testa che render mostra lo stato per ogni check
+	 * Tests that render shows the status for each check
 	 */
 	public function test_render_shows_check_results() {
 		$this->mock_render_functions();
@@ -416,7 +416,7 @@ class DashboardWidgetTest extends TestCase {
 	}
 
 	/**
-	 * Testa che render mostra lo stato globale Healthy
+	 * Tests that render shows the Healthy overall status
 	 */
 	public function test_render_shows_healthy_overall_status() {
 		$this->mock_render_functions();
@@ -442,7 +442,7 @@ class DashboardWidgetTest extends TestCase {
 	}
 
 	/**
-	 * Testa che render mostra lo stato globale Critical (worst wins)
+	 * Tests that render shows the Critical overall status (worst wins)
 	 */
 	public function test_render_shows_critical_overall_status() {
 		$this->mock_render_functions();
@@ -473,7 +473,7 @@ class DashboardWidgetTest extends TestCase {
 	}
 
 	/**
-	 * Testa che render include il link alla dashboard completa
+	 * Tests that render includes the link to the full dashboard
 	 */
 	public function test_render_includes_dashboard_link() {
 		$this->mock_render_functions();
@@ -499,7 +499,7 @@ class DashboardWidgetTest extends TestCase {
 	}
 
 	/**
-	 * Testa che render usa escaping su tutti gli output
+	 * Tests that render uses escaping on all output
 	 */
 	public function test_render_uses_escaping() {
 		Functions\when( '__' )->returnArg();
@@ -541,7 +541,7 @@ class DashboardWidgetTest extends TestCase {
 	}
 
 	/**
-	 * Testa che render include la classe CSS footer
+	 * Tests that render includes the footer CSS class
 	 */
 	public function test_render_includes_footer_class() {
 		$this->mock_render_functions();
@@ -569,7 +569,7 @@ class DashboardWidgetTest extends TestCase {
 	// ─── determine_overall_status ───────────────────────────────────
 
 	/**
-	 * Testa che overall status per risultati vuoti è 'unknown'
+	 * Tests that overall status for empty results is 'unknown'
 	 */
 	public function test_overall_status_empty_is_unknown() {
 		$runner  = $this->create_runner_mock();
@@ -584,7 +584,7 @@ class DashboardWidgetTest extends TestCase {
 	}
 
 	/**
-	 * Testa che overall status prende il peggiore (critical > warning > ok)
+	 * Tests that overall status takes the worst (critical > warning > ok)
 	 */
 	public function test_overall_status_worst_wins() {
 		$runner  = $this->create_runner_mock();
@@ -606,7 +606,7 @@ class DashboardWidgetTest extends TestCase {
 	}
 
 	/**
-	 * Testa che overall status per tutti ok è 'ok'
+	 * Tests that overall status for all ok is 'ok'
 	 */
 	public function test_overall_status_all_ok() {
 		$runner  = $this->create_runner_mock();
@@ -624,7 +624,7 @@ class DashboardWidgetTest extends TestCase {
 	}
 
 	/**
-	 * Testa che overall status gestisce risultati senza campo status
+	 * Tests that overall status handles results without status field
 	 */
 	public function test_overall_status_missing_status_field() {
 		$runner  = $this->create_runner_mock();
@@ -637,14 +637,14 @@ class DashboardWidgetTest extends TestCase {
 		$results = [
 			'a' => [ 'message' => 'no status' ],
 		];
-		// Senza status, trattato come unknown → risultato unknown.
+		// Without status, treated as unknown → result is unknown.
 		$this->assertEquals( 'unknown', $reflection->invoke( $widget, $results ) );
 	}
 
 	// ─── Edge Cases Coverage ────────────────────────────────────────
 
 	/**
-	 * Testa render con risultato che ha status non riconosciuto (fallback unknown)
+	 * Tests render with result that has unrecognized status (fallback unknown)
 	 */
 	public function test_render_with_unrecognized_status() {
 		$this->mock_render_functions();
@@ -666,13 +666,13 @@ class DashboardWidgetTest extends TestCase {
 		$widget->render();
 		$output = ob_get_clean();
 
-		// Overall status non riconosciuto → label "Unknown".
+		// Unrecognized overall status → label "Unknown".
 		$this->assertStringContainsString( 'Unknown', $output );
 		$this->assertStringContainsString( 'Custom Check', $output );
 	}
 
 	/**
-	 * Testa render con risultato senza campo name (fallback ucfirst check_id)
+	 * Tests render with result without name field (fallback ucfirst check_id)
 	 */
 	public function test_render_with_missing_name_field() {
 		$this->mock_render_functions();
@@ -699,7 +699,7 @@ class DashboardWidgetTest extends TestCase {
 	}
 
 	/**
-	 * Testa overall status con solo status non riconosciuti e ok
+	 * Tests overall status with only unrecognized statuses and ok
 	 */
 	public function test_overall_status_unrecognized_with_ok() {
 		$runner  = $this->create_runner_mock();
@@ -713,14 +713,14 @@ class DashboardWidgetTest extends TestCase {
 			'a' => [ 'status' => 'unrecognized' ],
 			'b' => [ 'status' => 'ok' ],
 		];
-		// 'ok' ha priority 1, 'unrecognized' ha priority 0 → ok vince.
+		// 'ok' has priority 1, 'unrecognized' has priority 0 → ok wins.
 		$this->assertEquals( 'ok', $reflection->invoke( $widget, $results ) );
 	}
 
 	// ─── v0.6.2: Clickable check names ─────────────────────────────
 
 	/**
-	 * Testa che i nomi dei check sono link con ancora alla dashboard
+	 * Tests that check names are links with anchor to the dashboard
 	 */
 	public function test_check_names_are_links_with_anchor() {
 		$this->mock_render_functions();
@@ -747,7 +747,7 @@ class DashboardWidgetTest extends TestCase {
 	}
 
 	/**
-	 * Testa che ogni check ha link con ancora corretta
+	 * Tests that each check has a link with correct anchor
 	 */
 	public function test_each_check_has_correct_anchor() {
 		$this->mock_render_functions();
@@ -779,7 +779,7 @@ class DashboardWidgetTest extends TestCase {
 	// ─── v0.6.2: Timing display ────────────────────────────────────
 
 	/**
-	 * Testa che il timing viene mostrato quando last_run_at è disponibile
+	 * Tests that timing is shown when last_run_at is available
 	 */
 	public function test_timing_shown_when_last_run_at_available() {
 		$this->mock_render_functions();
@@ -805,7 +805,7 @@ class DashboardWidgetTest extends TestCase {
 	}
 
 	/**
-	 * Testa che il timing NON viene mostrato quando last_run_at è 0
+	 * Tests that timing is NOT shown when last_run_at is 0
 	 */
 	public function test_timing_hidden_when_no_last_run() {
 		$this->mock_render_functions();
@@ -830,7 +830,7 @@ class DashboardWidgetTest extends TestCase {
 	}
 
 	/**
-	 * Testa che il timing include "ago" nel testo
+	 * Tests that timing includes "ago" in the text
 	 */
 	public function test_timing_includes_ago_text() {
 		$this->mock_render_functions();

@@ -1,15 +1,15 @@
 <?php
 /**
- * Gestore Disinstallazione Plugin
+ * Plugin Uninstall Handler
  *
- * Pulizia completa dei dati del plugin quando viene cancellato
- * tramite la pagina plugin di WordPress admin.
- * Supporta single-site e multisite network.
+ * Complete cleanup of plugin data when deleted via the WordPress
+ * admin plugins page.
+ * Supports single-site and multisite network.
  *
  * @package OpsHealthDashboard
  */
 
-// Verifica che WordPress stia eseguendo la disinstallazione.
+// Verify that WordPress is performing the uninstall.
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
@@ -18,11 +18,11 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 global $wpdb;
 
 if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
-	// Autoloader disponibile: usa la classe Uninstaller (gestisce multisite).
+	// Autoloader available: use the Uninstaller class (handles multisite).
 	require_once __DIR__ . '/vendor/autoload.php';
 	( new \OpsHealthDashboard\Core\Uninstaller( $wpdb ) )->uninstall();
 } elseif ( is_multisite() ) {
-	// Fallback inline multisite: itera su tutti i blog della rete.
+	// Inline multisite fallback: iterate all network blogs.
 	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 	$ops_health_blog_ids = get_sites( [ 'fields' => 'ids' ] );
 	foreach ( $ops_health_blog_ids as $ops_health_blog_id ) {
@@ -31,18 +31,18 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 		restore_current_blog();
 	}
 } else {
-	// Fallback inline single-site.
+	// Inline single-site fallback.
 	ops_health_uninstall_single_site( $wpdb );
 }
 
 /**
- * Pulizia dati plugin per un singolo sito (fallback inline)
+ * Plugin data cleanup for a single site (inline fallback)
  *
- * @param object $wpdb Istanza globale $wpdb.
+ * @param object $wpdb Global $wpdb instance.
  * @return void
  */
 function ops_health_uninstall_single_site( $wpdb ) {
-	// Opzioni.
+	// Options.
 	delete_option( 'ops_health_activated_at' );
 	delete_option( 'ops_health_version' );
 	delete_option( 'ops_health_latest_results' );
@@ -52,12 +52,12 @@ function ops_health_uninstall_single_site( $wpdb ) {
 	// Cron.
 	wp_clear_scheduled_hook( 'ops_health_run_checks' );
 
-	// Transient fissi.
+	// Fixed transients.
 	delete_transient( 'ops_health_cron_check' );
 	delete_transient( 'ops_health_admin_notice' );
 	delete_transient( 'ops_health_alert_notice' );
 
-	// Transient di cooldown dinamici.
+	// Dynamic cooldown transients.
 	// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
 	// phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching
 	// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared

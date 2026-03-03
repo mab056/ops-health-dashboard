@@ -1,27 +1,27 @@
 <?php
 /**
- * File di bootstrap PHPUnit per i test di Ops Health Dashboard.
+ * PHPUnit bootstrap file for Ops Health Dashboard tests.
  *
- * Bootstrap "smart" che carica l'ambiente appropriato:
- * - Brain\Monkey per unit tests (veloce, isolato)
- * - WordPress Test Suite per integration tests (reale, completo)
+ * Smart bootstrap that loads the appropriate environment:
+ * - Brain\Monkey for unit tests (fast, isolated)
+ * - WordPress Test Suite for integration tests (real, complete)
  *
  * @package OpsHealthDashboard
  */
 
-// Definisce ABSPATH per i guard di accesso diretto nei file sorgente.
-// Unit test non caricano WordPress, serve per evitare exit() nei file src/.
+// Defines ABSPATH for direct access guards in source files.
+// Unit tests do not load WordPress, this is needed to avoid exit() in src/ files.
 if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', '/tmp/wordpress/' );
 }
 
-// Carica le dipendenze di Composer.
+// Load Composer dependencies.
 require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 
-// Determina se stiamo eseguendo integration tests guardando la suite PHPUnit.
+// Determine if we are running integration tests by looking at the PHPUnit suite.
 $is_integration_test = false;
 
-// Controlla gli argomenti della riga di comando.
+// Check command line arguments.
 if ( isset( $_SERVER['argv'] ) ) {
 	$argv = $_SERVER['argv'];
 	$argc = count( $argv );
@@ -36,15 +36,15 @@ if ( isset( $_SERVER['argv'] ) ) {
 	}
 }
 
-// Se sono integration tests, carica WordPress Test Suite.
+// If integration tests, load WordPress Test Suite.
 if ( $is_integration_test ) {
-	// Posizione della test suite di WordPress.
+	// WordPress test suite location.
 	$_tests_dir = getenv( 'WP_TESTS_DIR' );
 	if ( ! $_tests_dir ) {
 		$_tests_dir = '/tmp/wordpress-tests-lib';
 	}
 
-	// Verifica che la test suite esista.
+	// Verify that the test suite exists.
 	if ( ! file_exists( $_tests_dir . '/includes/functions.php' ) ) {
 		echo "\n";
 		echo "ERROR: WordPress Test Suite not found at: $_tests_dir\n";
@@ -53,11 +53,11 @@ if ( $is_integration_test ) {
 		exit( 1 );
 	}
 
-	// Fornisce accesso alla funzione tests_add_filter().
+	// Provides access to the tests_add_filter() function.
 	require_once $_tests_dir . '/includes/functions.php';
 
 	/**
-	 * Carica manualmente il plugin da testare.
+	 * Manually loads the plugin being tested.
 	 */
 	function _manually_load_plugin() {
 		require dirname( __DIR__ ) . '/ops-health-dashboard.php';
@@ -65,12 +65,12 @@ if ( $is_integration_test ) {
 
 	tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
-	// Supporto multisite via variabile d'ambiente.
+	// Multisite support via environment variable.
 	if ( getenv( 'WP_TESTS_MULTISITE' ) ) {
 		define( 'WP_TESTS_MULTISITE', true );
 	}
 
-	// Avvia l'ambiente di testing di WP.
+	// Start the WP testing environment.
 	require $_tests_dir . '/includes/bootstrap.php';
 }
-// Altrimenti, unit tests usano solo Brain\Monkey (caricato da Composer autoload).
+// Otherwise, unit tests use only Brain\Monkey (loaded via Composer autoload).

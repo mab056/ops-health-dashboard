@@ -2,8 +2,8 @@
 /**
  * Check Runner Service
  *
- * Orchestratore che coordina l'esecuzione di tutti i check di salute.
- * Gestisce l'esecuzione, aggregazione e storage dei risultati.
+ * Orchestrator that coordinates the execution of all health checks.
+ * Manages execution, aggregation, and storage of results.
  *
  * @package OpsHealthDashboard\Services
  */
@@ -26,26 +26,26 @@ use OpsHealthDashboard\Interfaces\StorageInterface;
 /**
  * Class CheckRunner
  *
- * Servizio per eseguire e gestire i check di salute.
+ * Service for running and managing health checks.
  */
 class CheckRunner implements CheckRunnerInterface {
 
 	/**
-	 * Storage per salvare i risultati
+	 * Storage for saving results
 	 *
 	 * @var StorageInterface
 	 */
 	private $storage;
 
 	/**
-	 * Servizio di redazione per sanitizzare messaggi di eccezione
+	 * Redaction service for sanitizing exception messages
 	 *
 	 * @var RedactionInterface
 	 */
 	private $redaction;
 
 	/**
-	 * Array di check registrati
+	 * Array of registered checks
 	 *
 	 * @var CheckInterface[]
 	 */
@@ -54,8 +54,8 @@ class CheckRunner implements CheckRunnerInterface {
 	/**
 	 * Constructor
 	 *
-	 * @param StorageInterface   $storage   Storage per i risultati.
-	 * @param RedactionInterface $redaction Servizio di redazione dati sensibili.
+	 * @param StorageInterface   $storage   Storage for results.
+	 * @param RedactionInterface $redaction Sensitive data redaction service.
 	 */
 	public function __construct( StorageInterface $storage, RedactionInterface $redaction ) {
 		$this->storage   = $storage;
@@ -63,9 +63,9 @@ class CheckRunner implements CheckRunnerInterface {
 	}
 
 	/**
-	 * Aggiunge un check al runner
+	 * Adds a check to the runner
 	 *
-	 * @param CheckInterface $check Check da aggiungere.
+	 * @param CheckInterface $check Check to add.
 	 * @return void
 	 */
 	public function add_check( CheckInterface $check ): void {
@@ -73,15 +73,15 @@ class CheckRunner implements CheckRunnerInterface {
 	}
 
 	/**
-	 * Esegue tutti i check abilitati
+	 * Runs all enabled checks
 	 *
-	 * @return array Array associativo con i risultati per ogni check (chiave = ID check).
+	 * @return array Associative array with results for each check (key = check ID).
 	 */
 	public function run_all(): array {
 		$results = [];
 
 		foreach ( $this->checks as $check ) {
-			// Salta i check disabilitati.
+			// Skip disabled checks.
 			if ( ! $check->is_enabled() ) {
 				continue;
 			}
@@ -107,7 +107,7 @@ class CheckRunner implements CheckRunnerInterface {
 			}
 		}
 
-		// Salva i risultati e il timestamp nello storage.
+		// Save results and timestamp to storage.
 		$this->storage->set( 'latest_results', $results );
 		$this->storage->set( 'last_run_at', time() );
 
@@ -115,7 +115,7 @@ class CheckRunner implements CheckRunnerInterface {
 	}
 
 	/**
-	 * Cancella i risultati dallo storage
+	 * Clears results from storage
 	 *
 	 * @return void
 	 */
@@ -125,9 +125,9 @@ class CheckRunner implements CheckRunnerInterface {
 	}
 
 	/**
-	 * Ottiene gli ultimi risultati dallo storage
+	 * Gets the latest results from storage
 	 *
-	 * @return array Ultimi risultati dei check.
+	 * @return array Latest check results.
 	 */
 	public function get_latest_results(): array {
 		$results = $this->storage->get( 'latest_results', [] );

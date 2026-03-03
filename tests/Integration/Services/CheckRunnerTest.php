@@ -1,8 +1,8 @@
 <?php
 /**
- * Integration Test per CheckRunner
+ * Integration Test for CheckRunner
  *
- * Test di integrazione con check e storage reali.
+ * Integration test with real checks and storage.
  *
  * @package OpsHealthDashboard\Tests\Integration\Services
  */
@@ -19,26 +19,26 @@ use WP_UnitTestCase;
 /**
  * Class CheckRunnerTest
  *
- * Integration test per CheckRunner con WordPress reale.
+ * Integration test for CheckRunner with real WordPress.
  */
 class CheckRunnerTest extends WP_UnitTestCase {
 
 	/**
-	 * Storage per i test
+	 * Storage for tests
 	 *
 	 * @var Storage
 	 */
 	private $storage;
 
 	/**
-	 * CheckRunner con DatabaseCheck già aggiunto
+	 * CheckRunner with DatabaseCheck already added
 	 *
 	 * @var CheckRunner
 	 */
 	private $runner;
 
 	/**
-	 * Setup per ogni test
+	 * Setup for each test
 	 */
 	public function setUp(): void {
 		parent::setUp();
@@ -49,12 +49,12 @@ class CheckRunnerTest extends WP_UnitTestCase {
 		global $wpdb;
 		$this->runner->add_check( new DatabaseCheck( $wpdb, $redaction ) );
 
-		// Pulisci i risultati precedenti.
+		// Clean up previous results.
 		$this->storage->delete( 'latest_results' );
 	}
 
 	/**
-	 * Cleanup dopo ogni test
+	 * Cleanup after each test
 	 */
 	public function tearDown(): void {
 		$this->storage->delete( 'latest_results' );
@@ -62,7 +62,7 @@ class CheckRunnerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che CheckRunner esegue check reali
+	 * Tests that CheckRunner executes real checks
 	 */
 	public function test_check_runner_executes_real_checks() {
 		$results = $this->runner->run_all();
@@ -74,12 +74,12 @@ class CheckRunnerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che CheckRunner salva i risultati nello storage
+	 * Tests that CheckRunner saves results to storage
 	 */
 	public function test_check_runner_saves_results_to_storage() {
 		$this->runner->run_all();
 
-		// Recupera i risultati dallo storage.
+		// Retrieve results from storage.
 		$stored_results = $this->storage->get( 'latest_results' );
 
 		$this->assertIsArray( $stored_results );
@@ -87,12 +87,12 @@ class CheckRunnerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che get_latest_results() recupera i risultati salvati
+	 * Tests that get_latest_results() retrieves saved results
 	 */
 	public function test_get_latest_results_retrieves_saved_results() {
 		$this->runner->run_all();
 
-		// Crea un nuovo runner e recupera i risultati.
+		// Create a new runner and retrieve the results.
 		$redaction  = new Redaction();
 		$new_runner = new CheckRunner( $this->storage, $redaction );
 		$results    = $new_runner->get_latest_results();
@@ -102,24 +102,24 @@ class CheckRunnerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che CheckRunner gestisce multiple esecuzioni
+	 * Tests that CheckRunner handles multiple executions
 	 */
 	public function test_check_runner_handles_multiple_executions() {
-		// Prima esecuzione.
+		// First execution.
 		$results1 = $this->runner->run_all();
 		$this->assertArrayHasKey( 'database', $results1 );
 
-		// Seconda esecuzione (dovrebbe sovrascrivere).
+		// Second execution (should overwrite).
 		$results2 = $this->runner->run_all();
 		$this->assertArrayHasKey( 'database', $results2 );
 
-		// I risultati salvati dovrebbero essere quelli della seconda esecuzione.
+		// The saved results should be from the second execution.
 		$stored = $this->runner->get_latest_results();
 		$this->assertEquals( $results2, $stored );
 	}
 
 	/**
-	 * Testa che run_all() salta i check disabilitati
+	 * Tests that run_all() skips disabled checks
 	 */
 	public function test_run_all_skips_disabled_check() {
 		$this->runner->add_check( new DisabledCheck() );
@@ -131,7 +131,7 @@ class CheckRunnerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che run_all() cattura eccezioni dai check
+	 * Tests that run_all() catches exceptions from checks
 	 */
 	public function test_run_all_catches_check_exception() {
 		$storage   = new Storage();
@@ -147,7 +147,7 @@ class CheckRunnerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che run_all() redige i messaggi di eccezione
+	 * Tests that run_all() redacts exception messages
 	 */
 	public function test_run_all_redacts_exception_message() {
 		$storage   = new Storage();
@@ -162,12 +162,12 @@ class CheckRunnerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Testa che clear_results() rimuove i dati dallo storage
+	 * Tests that clear_results() removes data from storage
 	 */
 	public function test_clear_results_removes_stored_data() {
 		$this->runner->run_all();
 
-		// Verifica che i risultati esistano.
+		// Verify that results exist.
 		$this->assertNotEmpty( $this->runner->get_latest_results() );
 
 		$this->runner->clear_results();
@@ -177,16 +177,16 @@ class CheckRunnerTest extends WP_UnitTestCase {
 }
 
 /**
- * Check disabilitato per test
+ * Disabled check for testing
  *
- * Implementa CheckInterface con is_enabled() = false.
+ * Implements CheckInterface with is_enabled() = false.
  */
 class DisabledCheck implements CheckInterface {
 
 	/**
-	 * Esegue il check
+	 * Runs the check
 	 *
-	 * @return array Risultati.
+	 * @return array Results.
 	 */
 	public function run(): array {
 		return [
@@ -198,7 +198,7 @@ class DisabledCheck implements CheckInterface {
 	}
 
 	/**
-	 * ID del check
+	 * Check ID
 	 *
 	 * @return string ID.
 	 */
@@ -207,16 +207,16 @@ class DisabledCheck implements CheckInterface {
 	}
 
 	/**
-	 * Nome del check
+	 * Check name
 	 *
-	 * @return string Nome.
+	 * @return string Name.
 	 */
 	public function get_name(): string {
 		return 'Disabled Check';
 	}
 
 	/**
-	 * Check disabilitato
+	 * Disabled check
 	 *
 	 * @return bool False.
 	 */
@@ -226,24 +226,24 @@ class DisabledCheck implements CheckInterface {
 }
 
 /**
- * Check che lancia eccezione per test
+ * Check that throws exception for testing
  *
- * Implementa CheckInterface con run() che lancia RuntimeException.
+ * Implements CheckInterface with run() that throws RuntimeException.
  */
 class FailingCheck implements CheckInterface {
 
 	/**
-	 * Esegue il check (lancia eccezione)
+	 * Runs the check (throws exception)
 	 *
-	 * @return array Mai raggiunto.
-	 * @throws \RuntimeException Sempre.
+	 * @return array Never reached.
+	 * @throws \RuntimeException Always.
 	 */
 	public function run(): array {
 		throw new \RuntimeException( 'Sensitive error at ' . ABSPATH . 'wp-config.php' );
 	}
 
 	/**
-	 * ID del check
+	 * Check ID
 	 *
 	 * @return string ID.
 	 */
@@ -252,16 +252,16 @@ class FailingCheck implements CheckInterface {
 	}
 
 	/**
-	 * Nome del check
+	 * Check name
 	 *
-	 * @return string Nome.
+	 * @return string Name.
 	 */
 	public function get_name(): string {
 		return 'Failing Check';
 	}
 
 	/**
-	 * Check abilitato
+	 * Enabled check
 	 *
 	 * @return bool True.
 	 */

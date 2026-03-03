@@ -2,8 +2,8 @@
 /**
  * Alert Manager Service
  *
- * Orchestratore centrale degli alert. Rileva cambiamenti di stato,
- * gestisce cooldown e dispatch ai canali di notifica.
+ * Central alert orchestrator. Detects state changes,
+ * manages cooldown, and dispatches to notification channels.
  *
  * @package OpsHealthDashboard\Services
  */
@@ -26,26 +26,26 @@ use OpsHealthDashboard\Interfaces\StorageInterface;
 /**
  * Class AlertManager
  *
- * Gestisce la rilevazione dei cambiamenti di stato e l'invio degli alert.
+ * Manages state change detection and alert dispatch.
  */
 class AlertManager implements AlertManagerInterface {
 
 	/**
-	 * Cooldown di default in secondi (60 minuti)
+	 * Default cooldown in seconds (60 minutes)
 	 *
 	 * @var int
 	 */
 	const DEFAULT_COOLDOWN = 3600;
 
 	/**
-	 * Numero massimo di entry nel log degli alert
+	 * Maximum number of entries in the alert log
 	 *
 	 * @var int
 	 */
 	const MAX_LOG_ENTRIES = 50;
 
 	/**
-	 * Prefisso per i transient di cooldown
+	 * Prefix for cooldown transients
 	 *
 	 * @var string
 	 */
@@ -73,28 +73,28 @@ class AlertManager implements AlertManagerInterface {
 	const STATUS_CRITICAL = 'critical';
 
 	/**
-	 * Status: sconosciuto
+	 * Status: unknown
 	 *
 	 * @var string
 	 */
 	const STATUS_UNKNOWN = 'unknown';
 
 	/**
-	 * Storage per leggere/salvare stato e log
+	 * Storage for reading/saving state and log
 	 *
 	 * @var StorageInterface
 	 */
 	private $storage;
 
 	/**
-	 * Servizio di redazione
+	 * Redaction service
 	 *
 	 * @var RedactionInterface
 	 */
 	private $redaction;
 
 	/**
-	 * Canali di notifica registrati
+	 * Registered notification channels
 	 *
 	 * @var AlertChannelInterface[]
 	 */
@@ -103,8 +103,8 @@ class AlertManager implements AlertManagerInterface {
 	/**
 	 * Constructor
 	 *
-	 * @param StorageInterface   $storage   Storage per stato e log.
-	 * @param RedactionInterface $redaction Servizio di redazione.
+	 * @param StorageInterface   $storage   Storage for state and log.
+	 * @param RedactionInterface $redaction Redaction service.
 	 */
 	public function __construct( StorageInterface $storage, RedactionInterface $redaction ) {
 		$this->storage   = $storage;
@@ -112,9 +112,9 @@ class AlertManager implements AlertManagerInterface {
 	}
 
 	/**
-	 * Aggiunge un canale di notifica
+	 * Adds a notification channel
 	 *
-	 * @param AlertChannelInterface $channel Canale da aggiungere.
+	 * @param AlertChannelInterface $channel Channel to add.
 	 * @return void
 	 */
 	public function add_channel( AlertChannelInterface $channel ): void {
@@ -122,11 +122,11 @@ class AlertManager implements AlertManagerInterface {
 	}
 
 	/**
-	 * Processa i risultati e invia alert sui cambiamenti di stato
+	 * Processes results and sends alerts on state changes
 	 *
-	 * @param array $current_results  Risultati correnti da run_all().
-	 * @param array $previous_results Risultati precedenti.
-	 * @return array Array dei risultati di invio alert.
+	 * @param array $current_results  Current results from run_all().
+	 * @param array $previous_results Previous results.
+	 * @return array Array of alert dispatch results.
 	 */
 	public function process( array $current_results, array $previous_results ): array {
 		$all_results   = [];
@@ -136,15 +136,15 @@ class AlertManager implements AlertManagerInterface {
 		foreach ( $changes as $check_id => $change ) {
 			$is_recovery = self::STATUS_OK === $change['current_status'];
 
-			// Recovery bypassa il cooldown.
+			// Recovery bypasses cooldown.
 			if ( ! $is_recovery && $this->is_in_cooldown( $check_id ) ) {
 				continue;
 			}
 
 			$payload = $this->build_payload( $check_id, $change );
 
-			// Imposta cooldown PRIMA del dispatch per prevenire alert spam
-			// anche se tutti i canali falliscono.
+			// Set cooldown BEFORE dispatch to prevent alert spam
+			// even if all channels fail.
 			if ( ! $is_recovery ) {
 				$this->set_cooldown( $check_id, $cooldown_secs );
 			}
@@ -162,11 +162,11 @@ class AlertManager implements AlertManagerInterface {
 	}
 
 	/**
-	 * Rileva i cambiamenti di stato tra risultati correnti e precedenti
+	 * Detects state changes between current and previous results
 	 *
-	 * @param array $current  Risultati correnti.
-	 * @param array $previous Risultati precedenti.
-	 * @return array Cambiamenti rilevati (check_id => dati).
+	 * @param array $current  Current results.
+	 * @param array $previous Previous results.
+	 * @return array Detected changes (check_id => data).
 	 */
 	private function detect_state_changes( array $current, array $previous ): array {
 		$changes = [];
@@ -179,16 +179,16 @@ class AlertManager implements AlertManagerInterface {
 					? $previous[ $check_id ]['status']
 					: self::STATUS_UNKNOWN;
 			} else {
-				// Primo avvio: alerta solo se non ok.
+				// First run: alert only if not ok.
 				$prev_status = null;
 			}
 
-			// Nessun cambiamento: salta.
+			// No change: skip.
 			if ( $current_status === $prev_status ) {
 				continue;
 			}
 
-			// Primo avvio con ok: nessun alert.
+			// First run with ok: no alert.
 			if ( null === $prev_status && self::STATUS_OK === $current_status ) {
 				continue;
 			}
@@ -204,10 +204,10 @@ class AlertManager implements AlertManagerInterface {
 	}
 
 	/**
-	 * Verifica se un check è in cooldown
+	 * Checks if a check is in cooldown
 	 *
-	 * @param string $check_id ID del check.
-	 * @return bool True se in cooldown.
+	 * @param string $check_id Check ID.
+	 * @return bool True if in cooldown.
 	 */
 	private function is_in_cooldown( string $check_id ): bool {
 		$transient_key = self::COOLDOWN_TRANSIENT_PREFIX . $check_id;
@@ -215,10 +215,10 @@ class AlertManager implements AlertManagerInterface {
 	}
 
 	/**
-	 * Imposta il cooldown per un check
+	 * Sets the cooldown for a check
 	 *
-	 * @param string $check_id ID del check.
-	 * @param int    $seconds  Durata in secondi.
+	 * @param string $check_id Check ID.
+	 * @param int    $seconds  Duration in seconds.
 	 * @return void
 	 */
 	private function set_cooldown( string $check_id, int $seconds ): void {
@@ -227,9 +227,9 @@ class AlertManager implements AlertManagerInterface {
 	}
 
 	/**
-	 * Ottiene il cooldown configurato in secondi
+	 * Gets the configured cooldown in seconds
 	 *
-	 * @return int Secondi di cooldown.
+	 * @return int Cooldown seconds.
 	 */
 	private function get_cooldown_seconds(): int {
 		$settings = $this->storage->get( 'alert_settings', [] );
@@ -245,11 +245,11 @@ class AlertManager implements AlertManagerInterface {
 	}
 
 	/**
-	 * Costruisce il payload dell'alert
+	 * Builds the alert payload
 	 *
-	 * @param string $check_id ID del check.
-	 * @param array  $change   Dati del cambiamento.
-	 * @return array Payload strutturato.
+	 * @param string $check_id Check ID.
+	 * @param array  $change   Change data.
+	 * @return array Structured payload.
 	 */
 	private function build_payload( string $check_id, array $change ): array {
 		$result          = $change['result'];
@@ -271,10 +271,10 @@ class AlertManager implements AlertManagerInterface {
 	}
 
 	/**
-	 * Invia il payload a tutti i canali abilitati
+	 * Sends the payload to all enabled channels
 	 *
-	 * @param array $payload Payload dell'alert.
-	 * @return array Risultati di invio per canale.
+	 * @param array $payload Alert payload.
+	 * @return array Dispatch results per channel.
 	 */
 	private function dispatch_to_channels( array $payload ): array {
 		$results = [];
@@ -298,10 +298,10 @@ class AlertManager implements AlertManagerInterface {
 	}
 
 	/**
-	 * Registra l'alert nel log (limitato a MAX_LOG_ENTRIES)
+	 * Logs the alert (limited to MAX_LOG_ENTRIES)
 	 *
-	 * @param array $payload Payload dell'alert.
-	 * @param array $results Risultati di invio.
+	 * @param array $payload Alert payload.
+	 * @param array $results Dispatch results.
 	 * @return void
 	 */
 	private function log_alert( array $payload, array $results ): void {
@@ -311,7 +311,7 @@ class AlertManager implements AlertManagerInterface {
 			$log = [];
 		}
 
-		// Redige eventuali messaggi di errore dai canali.
+		// Redact any error messages from channels.
 		$redacted_errors = [];
 		foreach ( $results as $channel_id => $r ) {
 			if ( ! empty( $r['error'] ) ) {
@@ -337,7 +337,7 @@ class AlertManager implements AlertManagerInterface {
 
 		array_unshift( $log, $entry );
 
-		// Limita a MAX_LOG_ENTRIES.
+		// Limit to MAX_LOG_ENTRIES.
 		$log = array_slice( $log, 0, self::MAX_LOG_ENTRIES );
 
 		$this->storage->set( 'alert_log', $log );

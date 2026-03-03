@@ -1,9 +1,9 @@
 <?php
 /**
- * Unit Test per VersionsCheck
+ * Unit Test for VersionsCheck
  *
- * Test unitario con Brain\Monkey per VersionsCheck.
- * Usa Mockery partial mock per i metodi protetti.
+ * Unit test with Brain\Monkey for VersionsCheck.
+ * Uses Mockery partial mock for protected methods.
  *
  * @package OpsHealthDashboard\Tests\Unit\Checks
  */
@@ -21,13 +21,13 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class VersionsCheckTest
  *
- * Unit test per VersionsCheck.
+ * Unit test for VersionsCheck.
  */
 class VersionsCheckTest extends TestCase {
 	use MockeryPHPUnitIntegration;
 
 	/**
-	 * Setup per ogni test
+	 * Setup for each test
 	 */
 	protected function setUp(): void {
 		parent::setUp();
@@ -35,7 +35,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Teardown per ogni test
+	 * Teardown after each test
 	 */
 	protected function tearDown(): void {
 		Monkey\tearDown();
@@ -43,7 +43,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Crea un mock parziale di VersionsCheck con metodi protetti mockabili
+	 * Creates a partial mock of VersionsCheck with mockable protected methods
 	 *
 	 * @return \Mockery\MockInterface|VersionsCheck
 	 */
@@ -54,7 +54,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Configura i mock di i18n WordPress
+	 * Sets up WordPress i18n mocks
 	 */
 	private function mock_i18n(): void {
 		Functions\when( '__' )->returnArg();
@@ -62,14 +62,14 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Configura il mock per un check con tutte le versioni e aggiornamenti
+	 * Sets up the mock for a check with all versions and updates
 	 *
-	 * @param \Mockery\MockInterface $check           Mock del check.
-	 * @param string                 $wp_version      Versione WordPress.
-	 * @param string                 $php_version     Versione PHP.
-	 * @param array                  $core_updates    Aggiornamenti core.
-	 * @param array                  $plugin_updates  Aggiornamenti plugin.
-	 * @param array                  $theme_updates   Aggiornamenti tema.
+	 * @param \Mockery\MockInterface $check           Check mock.
+	 * @param string                 $wp_version      WordPress version.
+	 * @param string                 $php_version     PHP version.
+	 * @param array                  $core_updates    Core updates.
+	 * @param array                  $plugin_updates  Plugin updates.
+	 * @param array                  $theme_updates   Theme updates.
 	 */
 	private function setup_versions(
 		$check,
@@ -96,7 +96,7 @@ class VersionsCheckTest extends TestCase {
 	// ─── Pattern Enforcement ──────────────────────────────────────────
 
 	/**
-	 * Testa che la classe NON è final
+	 * Tests that the class is NOT final
 	 */
 	public function test_class_is_not_final() {
 		$reflection = new \ReflectionClass( VersionsCheck::class );
@@ -104,7 +104,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Tests that NO static methods exist
 	 */
 	public function test_no_static_methods() {
 		$reflection = new \ReflectionClass( VersionsCheck::class );
@@ -121,7 +121,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono proprietà static
+	 * Tests that NO static properties exist
 	 */
 	public function test_no_static_properties() {
 		$reflection = new \ReflectionClass( VersionsCheck::class );
@@ -134,7 +134,7 @@ class VersionsCheckTest extends TestCase {
 	// ─── Interface Contract ───────────────────────────────────────────
 
 	/**
-	 * Testa che VersionsCheck implementa CheckInterface
+	 * Tests that VersionsCheck implements CheckInterface
 	 */
 	public function test_implements_check_interface() {
 		$check = new VersionsCheck();
@@ -142,7 +142,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get_id ritorna 'versions'
+	 * Tests that get_id returns 'versions'
 	 */
 	public function test_get_id_returns_versions() {
 		$check = new VersionsCheck();
@@ -150,7 +150,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get_name ritorna il nome del check
+	 * Tests that get_name returns the check name
 	 */
 	public function test_get_name_returns_name() {
 		$this->mock_i18n();
@@ -160,7 +160,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che is_enabled ritorna sempre true
+	 * Tests that is_enabled always returns true
 	 */
 	public function test_is_enabled_returns_true() {
 		$check = new VersionsCheck();
@@ -168,7 +168,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che run ritorna un array con la struttura corretta
+	 * Tests that run returns an array with the correct structure
 	 */
 	public function test_run_returns_valid_structure() {
 		$this->mock_i18n();
@@ -187,13 +187,13 @@ class VersionsCheckTest extends TestCase {
 	// ─── Happy Path ──────────────────────────────────────────────────
 
 	/**
-	 * Testa che tutto aggiornato e PHP recente restituisce 'ok'
+	 * Tests that all up to date and recent PHP returns 'ok'
 	 */
 	public function test_all_up_to_date_returns_ok() {
 		$this->mock_i18n();
 		$check = $this->create_check_mock();
 
-		// Core "latest" (nessun aggiornamento).
+		// Core "latest" (no updates).
 		$latest        = new \stdClass();
 		$latest->response = 'latest';
 		$this->setup_versions( $check, '6.7', '8.3.0', [ $latest ], [], [] );
@@ -204,7 +204,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che tutto aggiornato con array vuoto di core_updates restituisce ok
+	 * Tests that all up to date with empty core_updates array returns ok
 	 */
 	public function test_empty_core_updates_returns_ok() {
 		$this->mock_i18n();
@@ -217,7 +217,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa message OK contiene 'up to date'
+	 * Tests OK message contains 'up to date'
 	 */
 	public function test_ok_message_content() {
 		$this->mock_i18n();
@@ -232,7 +232,7 @@ class VersionsCheckTest extends TestCase {
 	// ─── Status Determination ────────────────────────────────────────
 
 	/**
-	 * Testa che core update disponibile restituisce 'critical'
+	 * Tests that available core update returns 'critical'
 	 */
 	public function test_core_update_returns_critical() {
 		$this->mock_i18n();
@@ -249,7 +249,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che plugin updates disponibili restituisce 'warning'
+	 * Tests that available plugin updates returns 'warning'
 	 */
 	public function test_plugin_updates_returns_warning() {
 		$this->mock_i18n();
@@ -266,7 +266,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che theme updates disponibili restituisce 'warning'
+	 * Tests that available theme updates returns 'warning'
 	 */
 	public function test_theme_updates_returns_warning() {
 		$this->mock_i18n();
@@ -282,7 +282,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che PHP obsoleto restituisce 'warning'
+	 * Tests that outdated PHP returns 'warning'
 	 */
 	public function test_old_php_returns_warning() {
 		$this->mock_i18n();
@@ -295,7 +295,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che core update ha priorità su plugin/theme update (critical > warning)
+	 * Tests that core update takes priority over plugin/theme update (critical > warning)
 	 */
 	public function test_core_update_takes_priority_over_plugin() {
 		$this->mock_i18n();
@@ -319,7 +319,7 @@ class VersionsCheckTest extends TestCase {
 	// ─── Details ─────────────────────────────────────────────────────
 
 	/**
-	 * Testa che i dettagli contengono le informazioni di versione
+	 * Tests that details contain version information
 	 */
 	public function test_details_contain_version_info() {
 		$this->mock_i18n();
@@ -337,7 +337,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che updates_available è un array
+	 * Tests that updates_available is an array
 	 */
 	public function test_details_updates_available_is_array() {
 		$this->mock_i18n();
@@ -351,7 +351,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che updates_available riporta gli aggiornamenti disponibili
+	 * Tests that updates_available reports the available updates
 	 */
 	public function test_details_updates_lists_available_updates() {
 		$this->mock_i18n();
@@ -371,7 +371,7 @@ class VersionsCheckTest extends TestCase {
 		$updates = $result['details']['updates_available'];
 
 		$this->assertNotEmpty( $updates );
-		// Dovrebbe contenere riferimento al core update.
+		// Should contain reference to the core update.
 		$joined = implode( ' ', $updates );
 		$this->assertStringContainsString( '6.8', $joined );
 	}
@@ -379,7 +379,7 @@ class VersionsCheckTest extends TestCase {
 	// ─── Edge Cases ─────────────────────────────────────────────────
 
 	/**
-	 * Testa che core_updates con 'latest' response viene filtrato
+	 * Tests that core_updates with 'latest' response is filtered
 	 */
 	public function test_core_updates_latest_is_filtered() {
 		$this->mock_i18n();
@@ -396,7 +396,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa graceful degradation quando load_update_functions fallisce
+	 * Tests graceful degradation when load_update_functions fails
 	 */
 	public function test_graceful_when_update_functions_fail() {
 		$this->mock_i18n();
@@ -409,7 +409,7 @@ class VersionsCheckTest extends TestCase {
 
 		$result = $check->run();
 
-		// Non deve crashare, ritorna warning perché update check non completato.
+		// Must not crash, returns warning because update check not completed.
 		$this->assertEquals( 'warning', $result['status'] );
 		$this->assertStringContainsString( 'Unable to check', $result['message'] );
 		$this->assertArrayHasKey( 'wp_version', $result['details'] );
@@ -417,7 +417,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa graceful degradation quando get_core_updates fallisce (dopo load)
+	 * Tests graceful degradation when get_core_updates fails (after load)
 	 */
 	public function test_graceful_when_get_core_updates_throws() {
 		$this->mock_i18n();
@@ -436,7 +436,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che core_updates con risposta 'development' viene filtrato
+	 * Tests that core_updates with 'development' response is filtered
 	 */
 	public function test_core_updates_development_is_filtered() {
 		$this->mock_i18n();
@@ -454,7 +454,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che PHP esattamente alla versione raccomandata restituisce ok
+	 * Tests that PHP at exactly the recommended version returns ok
 	 */
 	public function test_php_at_recommended_version_returns_ok() {
 		$this->mock_i18n();
@@ -467,7 +467,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che PHP sotto la versione raccomandata ma sopra 8.0 restituisce warning
+	 * Tests that PHP below the recommended version but above 8.0 returns warning
 	 */
 	public function test_php_below_recommended_returns_warning() {
 		$this->mock_i18n();
@@ -482,7 +482,7 @@ class VersionsCheckTest extends TestCase {
 	// ─── Duration ────────────────────────────────────────────────────
 
 	/**
-	 * Testa che la durata è un float positivo
+	 * Tests that the duration is a positive float
 	 */
 	public function test_duration_is_positive_float() {
 		$this->mock_i18n();
@@ -498,7 +498,7 @@ class VersionsCheckTest extends TestCase {
 	// ─── Constants ───────────────────────────────────────────────────
 
 	/**
-	 * Testa che la costante RECOMMENDED_PHP_VERSION è definita
+	 * Tests that the RECOMMENDED_PHP_VERSION constant is defined
 	 */
 	public function test_recommended_php_version_constant() {
 		$this->assertEquals( '8.3', VersionsCheck::RECOMMENDED_PHP_VERSION );
@@ -507,7 +507,7 @@ class VersionsCheckTest extends TestCase {
 	// ─── Protected Methods ──────────────────────────────────────────
 
 	/**
-	 * Testa che get_wp_version è un metodo protetto
+	 * Tests that get_wp_version is a protected method
 	 */
 	public function test_get_wp_version_is_protected() {
 		$reflection = new \ReflectionMethod( VersionsCheck::class, 'get_wp_version' );
@@ -515,7 +515,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get_php_version è un metodo protetto
+	 * Tests that get_php_version is a protected method
 	 */
 	public function test_get_php_version_is_protected() {
 		$reflection = new \ReflectionMethod( VersionsCheck::class, 'get_php_version' );
@@ -523,7 +523,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che load_update_functions è un metodo protetto
+	 * Tests that load_update_functions is a protected method
 	 */
 	public function test_load_update_functions_is_protected() {
 		$reflection = new \ReflectionMethod( VersionsCheck::class, 'load_update_functions' );
@@ -531,7 +531,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get_core_updates è un metodo protetto
+	 * Tests that get_core_updates is a protected method
 	 */
 	public function test_get_core_updates_is_protected() {
 		$reflection = new \ReflectionMethod( VersionsCheck::class, 'get_core_updates' );
@@ -539,7 +539,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get_plugin_updates è un metodo protetto
+	 * Tests that get_plugin_updates is a protected method
 	 */
 	public function test_get_plugin_updates_is_protected() {
 		$reflection = new \ReflectionMethod( VersionsCheck::class, 'get_plugin_updates' );
@@ -547,7 +547,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get_theme_updates è un metodo protetto
+	 * Tests that get_theme_updates is a protected method
 	 */
 	public function test_get_theme_updates_is_protected() {
 		$reflection = new \ReflectionMethod( VersionsCheck::class, 'get_theme_updates' );
@@ -557,7 +557,7 @@ class VersionsCheckTest extends TestCase {
 	// ─── Reflection-based Coverage for Protected Methods ────────────
 
 	/**
-	 * Testa che get_php_version ritorna PHP_VERSION
+	 * Tests that get_php_version returns PHP_VERSION
 	 */
 	public function test_get_php_version_returns_current_version() {
 		$check      = new VersionsCheck();
@@ -568,7 +568,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get_wp_version ritorna il valore della globale $wp_version
+	 * Tests that get_wp_version returns the value of the $wp_version global
 	 */
 	public function test_get_wp_version_returns_global() {
 		global $wp_version;
@@ -584,10 +584,10 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get_wp_version ritorna stringa vuota se globale non definita
+	 * Tests that get_wp_version returns empty string if global is not defined
 	 */
 	public function test_get_wp_version_returns_empty_when_undefined() {
-		// Assicura che la globale non sia definita.
+		// Ensure the global is not defined.
 		unset( $GLOBALS['wp_version'] );
 
 		$check      = new VersionsCheck();
@@ -598,23 +598,23 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che load_update_functions non lancia quando la funzione esiste
+	 * Tests that load_update_functions does not throw when the function exists
 	 */
 	public function test_load_update_functions_when_function_exists() {
-		// Brain\Monkey mock rende get_core_updates visibile a function_exists().
+		// Brain\Monkey mock makes get_core_updates visible to function_exists().
 		Functions\when( 'get_core_updates' )->justReturn( [] );
 
 		$check      = new VersionsCheck();
 		$reflection = new \ReflectionMethod( VersionsCheck::class, 'load_update_functions' );
 		$reflection->setAccessible( true );
 
-		// function_exists('get_core_updates') è true → skip require_once.
+		// function_exists('get_core_updates') is true -> skip require_once.
 		$reflection->invoke( $check );
 		$this->assertTrue( true );
 	}
 
 	/**
-	 * Testa che get_core_updates invoca la funzione WP e gestisce array
+	 * Tests that get_core_updates invokes the WP function and handles array
 	 */
 	public function test_get_core_updates_returns_array() {
 		$expected = [ (object) [ 'response' => 'latest' ] ];
@@ -630,7 +630,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get_core_updates gestisce valore non-array (false)
+	 * Tests that get_core_updates handles non-array value (false)
 	 */
 	public function test_get_core_updates_handles_non_array() {
 		Functions\when( 'get_core_updates' )->justReturn( false );
@@ -645,7 +645,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get_plugin_updates invoca la funzione WP
+	 * Tests that get_plugin_updates invokes the WP function
 	 */
 	public function test_get_plugin_updates_returns_array() {
 		Functions\when( 'get_plugin_updates' )->justReturn( [] );
@@ -659,7 +659,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che get_theme_updates invoca la funzione WP
+	 * Tests that get_theme_updates invokes the WP function
 	 */
 	public function test_get_theme_updates_returns_array() {
 		Functions\when( 'get_theme_updates' )->justReturn( [] );
@@ -675,7 +675,7 @@ class VersionsCheckTest extends TestCase {
 	// ─── Update Check Failed + Old PHP ─────────────────────────────
 
 	/**
-	 * Testa update_check_failed con PHP obsoleto aggiunge messaggio PHP
+	 * Tests update_check_failed with outdated PHP adds PHP message
 	 */
 	public function test_update_check_failed_with_old_php() {
 		$this->mock_i18n();
@@ -694,7 +694,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa warning message con plugin updates + old PHP (doppio messaggio)
+	 * Tests warning message with plugin updates + old PHP (double message)
 	 */
 	public function test_warning_message_with_plugin_updates_and_old_php() {
 		$this->mock_i18n();
@@ -722,7 +722,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che theme updates producono messaggio corretto
+	 * Tests that theme updates produce correct message
 	 */
 	public function test_theme_update_message_content() {
 		$this->mock_i18n();
@@ -747,7 +747,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa che core update senza campo version gestisce gracefully
+	 * Tests that core update without version field handles gracefully
 	 */
 	public function test_core_update_without_version_field() {
 		$this->mock_i18n();
@@ -755,7 +755,7 @@ class VersionsCheckTest extends TestCase {
 
 		$update           = new \stdClass();
 		$update->response = 'upgrade';
-		// Nessun campo version.
+		// No version field.
 		$this->setup_versions( $check, '6.7', '8.3.0', [ $update ], [], [] );
 
 		$result = $check->run();
@@ -765,7 +765,7 @@ class VersionsCheckTest extends TestCase {
 	}
 
 	/**
-	 * Testa filter_real_updates con update senza campo response
+	 * Tests filter_real_updates with update without response field
 	 */
 	public function test_filter_real_updates_without_response() {
 		$this->mock_i18n();
@@ -773,12 +773,12 @@ class VersionsCheckTest extends TestCase {
 		$check = $this->create_check_mock();
 
 		$no_response = new \stdClass();
-		// Nessun campo response.
+		// No response field.
 		$this->setup_versions( $check, '6.7', '8.3.0', [ $no_response ], [], [] );
 
 		$result = $check->run();
 
-		// Update senza response viene filtrato → ok.
+		// Update without response is filtered -> ok.
 		$this->assertEquals( 'ok', $result['status'] );
 	}
 }

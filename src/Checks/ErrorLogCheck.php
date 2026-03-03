@@ -2,8 +2,8 @@
 /**
  * Error Log Check
  *
- * Verifica il log degli errori PHP, aggrega per severità e
- * redige i dati sensibili prima di restituire i risultati.
+ * Verifies the PHP error log, aggregates by severity, and
+ * redacts sensitive data before returning results.
  *
  * @package OpsHealthDashboard\Checks
  */
@@ -24,33 +24,33 @@ use OpsHealthDashboard\Interfaces\RedactionInterface;
 /**
  * Class ErrorLogCheck
  *
- * Check per il riepilogo sicuro del log degli errori.
+ * Safe error log summary check.
  */
 class ErrorLogCheck implements CheckInterface {
 
 	/**
-	 * Servizio di redazione dati sensibili
+	 * Sensitive data redaction service
 	 *
 	 * @var RedactionInterface
 	 */
 	private $redaction;
 
 	/**
-	 * Numero massimo di righe da leggere dal fondo del file
+	 * Maximum number of lines to read from the end of the file
 	 *
 	 * @var int
 	 */
 	private $max_lines;
 
 	/**
-	 * Numero massimo di byte da leggere dal fondo del file
+	 * Maximum number of bytes to read from the end of the file
 	 *
 	 * @var int
 	 */
 	private $max_bytes;
 
 	/**
-	 * Numero massimo di campioni da includere nei risultati
+	 * Maximum number of samples to include in results
 	 *
 	 * @var int
 	 */
@@ -59,10 +59,10 @@ class ErrorLogCheck implements CheckInterface {
 	/**
 	 * Constructor
 	 *
-	 * @param RedactionInterface $redaction   Servizio di redazione.
-	 * @param int                $max_lines   Massimo righe da leggere (default 100).
-	 * @param int                $max_bytes   Massimo byte da leggere (default 512KB).
-	 * @param int                $max_samples Massimo campioni da includere (default 5).
+	 * @param RedactionInterface $redaction   Redaction service.
+	 * @param int                $max_lines   Maximum lines to read (default 100).
+	 * @param int                $max_bytes   Maximum bytes to read (default 512KB).
+	 * @param int                $max_samples Maximum samples to include (default 5).
 	 */
 	public function __construct(
 		RedactionInterface $redaction,
@@ -77,14 +77,14 @@ class ErrorLogCheck implements CheckInterface {
 	}
 
 	/**
-	 * Esegue il check del log degli errori
+	 * Runs the error log check
 	 *
-	 * @return array Risultati del check.
+	 * @return array Check results.
 	 */
 	public function run(): array {
 		$start = microtime( true );
 
-		// 1. Risolvi il path del log.
+		// 1. Resolve the log path.
 		$log_path = $this->resolve_log_path();
 
 		if ( '' === $log_path ) {
@@ -96,7 +96,7 @@ class ErrorLogCheck implements CheckInterface {
 			);
 		}
 
-		// 2. Valida il file.
+		// 2. Validate the file.
 		$validation = $this->validate_log_file( $log_path );
 
 		if ( ! $validation['valid'] ) {
@@ -108,7 +108,7 @@ class ErrorLogCheck implements CheckInterface {
 			);
 		}
 
-		// 3. Leggi le ultime righe.
+		// 3. Read the last lines.
 		$lines = $this->read_tail( $log_path );
 
 		if ( empty( $lines ) ) {
@@ -120,17 +120,17 @@ class ErrorLogCheck implements CheckInterface {
 			);
 		}
 
-		// 4. Analizza e aggrega.
+		// 4. Analyze and aggregate.
 		$parsed = $this->parse_lines( $lines );
 
-		// 5. Determina lo stato.
+		// 5. Determine the status.
 		$status  = $this->determine_status( $parsed['counts'] );
 		$message = $this->build_message( $status, $parsed['counts'], count( $lines ) );
 
-		// 6. Colleziona campioni redatti.
+		// 6. Collect redacted samples.
 		$samples = $this->collect_samples( $parsed['severity_lines'] );
 
-		// 7. File size formattato.
+		// 7. Formatted file size.
 		$file_size = $this->get_file_size( $log_path );
 
 		return $this->build_result(
@@ -148,41 +148,41 @@ class ErrorLogCheck implements CheckInterface {
 	}
 
 	/**
-	 * Ottiene l'ID del check
+	 * Gets the check ID
 	 *
-	 * @return string ID del check.
+	 * @return string Check ID.
 	 */
 	public function get_id(): string {
 		return 'error_log';
 	}
 
 	/**
-	 * Ottiene il nome del check
+	 * Gets the check name
 	 *
-	 * @return string Nome del check.
+	 * @return string Check name.
 	 */
 	public function get_name(): string {
 		return __( 'Error Log Summary', 'ops-health-dashboard' );
 	}
 
 	/**
-	 * Verifica se il check è abilitato
+	 * Checks if the check is enabled
 	 *
-	 * @return bool True se abilitato.
+	 * @return bool True if enabled.
 	 */
 	public function is_enabled(): bool {
 		return true;
 	}
 
 	/**
-	 * Risolve il path del file di log degli errori
+	 * Resolves the error log file path
 	 *
-	 * Controlla WP_DEBUG_LOG:
-	 * - stringa = path custom
-	 * - true = wp-content/debug.log (comportamento WordPress standard)
-	 * - false/non definito = fallback a ini_get('error_log')
+	 * Checks WP_DEBUG_LOG:
+	 * - string = custom path
+	 * - true = wp-content/debug.log (standard WordPress behavior)
+	 * - false/undefined = fallback to ini_get('error_log')
 	 *
-	 * @return string Path del file di log, stringa vuota se non trovato.
+	 * @return string Log file path, empty string if not found.
 	 */
 	protected function resolve_log_path(): string {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
@@ -190,14 +190,14 @@ class ErrorLogCheck implements CheckInterface {
 			// WP_DEBUG_LOG can be string path or bool; WP stubs type it as bool only.
 			$debug_log = WP_DEBUG_LOG;
 
-			// Stringa = path custom (WP stubs incorrectly type WP_DEBUG_LOG as bool).
+			// String = custom path (WP stubs incorrectly type WP_DEBUG_LOG as bool).
 			// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar -- PHPStan directive
 			// @phpstan-ignore function.impossibleType, booleanAnd.alwaysFalse
 			if ( is_string( $debug_log ) && '' !== $debug_log ) {
 				return $debug_log; // @codeCoverageIgnore
 			}
 
-			// true = WordPress scrive in wp-content/debug.log.
+			// true = WordPress writes to wp-content/debug.log.
 			if ( true === $debug_log && defined( 'WP_CONTENT_DIR' ) ) {
 				return WP_CONTENT_DIR . '/debug.log'; // @codeCoverageIgnore
 			}
@@ -212,17 +212,17 @@ class ErrorLogCheck implements CheckInterface {
 	}
 
 	/**
-	 * Valida il file di log
+	 * Validates the log file
 	 *
-	 * Verifica esistenza, leggibilità e assenza di symlink.
+	 * Checks existence, readability, and absence of symlinks.
 	 *
-	 * @param string $path Path del file da validare.
+	 * @param string $path File path to validate.
 	 * @return array {
-	 *     Risultato della validazione.
+	 *     Validation result.
 	 *
-	 *     @type bool   $valid   True se il file è valido.
-	 *     @type string $status  Stato in caso di errore.
-	 *     @type string $message Messaggio in caso di errore.
+	 *     @type bool   $valid   True if the file is valid.
+	 *     @type string $status  Status on error.
+	 *     @type string $message Message on error.
 	 * }
 	 */
 	protected function validate_log_file( string $path ): array {
@@ -257,12 +257,12 @@ class ErrorLogCheck implements CheckInterface {
 	}
 
 	/**
-	 * Legge le ultime righe del file
+	 * Reads the last lines of the file
 	 *
-	 * Usa seek al fondo del file per leggere solo gli ultimi max_bytes.
+	 * Uses seek to the end of the file to read only the last max_bytes.
 	 *
-	 * @param string $path Path del file.
-	 * @return array Array di righe lette.
+	 * @param string $path File path.
+	 * @return array Array of read lines.
 	 */
 	protected function read_tail( string $path ): array {
 		$file_size = filesize( $path );
@@ -278,14 +278,14 @@ class ErrorLogCheck implements CheckInterface {
 			return []; // @codeCoverageIgnore
 		}
 
-		// Lock condiviso per evitare lettura durante scrittura.
+		// Shared lock to prevent reading during writing.
 		if ( ! flock( $handle, LOCK_SH ) ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 			fclose( $handle ); // @codeCoverageIgnore
 			return []; // @codeCoverageIgnore
 		}
 
-		// Seek alla posizione di partenza.
+		// Seek to the starting position.
 		$offset = max( 0, $file_size - $this->max_bytes );
 		if ( $offset > 0 ) {
 			fseek( $handle, $offset );
@@ -304,17 +304,17 @@ class ErrorLogCheck implements CheckInterface {
 
 		$lines = explode( "\n", $content );
 
-		// Scarta la prima riga se abbiamo seekato (potrebbe essere parziale).
+		// Discard the first line if we seeked (may be partial).
 		if ( $offset > 0 && count( $lines ) > 1 ) {
 			array_shift( $lines );
 		}
 
-		// Rimuovi righe vuote dal fondo.
+		// Remove empty lines from the end.
 		while ( ! empty( $lines ) && '' === trim( end( $lines ) ) ) {
 			array_pop( $lines );
 		}
 
-		// Prendi solo le ultime max_lines righe.
+		// Take only the last max_lines lines.
 		if ( count( $lines ) > $this->max_lines ) {
 			$lines = array_slice( $lines, -$this->max_lines );
 		}
@@ -323,14 +323,14 @@ class ErrorLogCheck implements CheckInterface {
 	}
 
 	/**
-	 * Analizza le righe e classifica per severità
+	 * Parses lines and classifies by severity
 	 *
-	 * @param array $lines Array di righe del log.
+	 * @param array $lines Array of log lines.
 	 * @return array {
-	 *     Risultati dell'analisi.
+	 *     Analysis results.
 	 *
-	 *     @type array $counts         Conteggi per severità.
-	 *     @type array $severity_lines Righe indicizzate per severità.
+	 *     @type array $counts         Counts by severity.
+	 *     @type array $severity_lines Lines indexed by severity.
 	 * }
 	 */
 	private function parse_lines( array $lines ): array {
@@ -355,7 +355,7 @@ class ErrorLogCheck implements CheckInterface {
 				++$counts[ $severity ];
 			}
 
-			// Raccogli righe per campioni.
+			// Collect lines for samples.
 			if ( 'fatal' === $severity || 'parse' === $severity ) {
 				$severity_lines['critical'][] = $line;
 			} elseif ( 'warning' === $severity || 'deprecated' === $severity || 'strict' === $severity ) {
@@ -370,11 +370,11 @@ class ErrorLogCheck implements CheckInterface {
 	}
 
 	/**
-	 * Classifica una singola riga per severità
+	 * Classifies a single line by severity
 	 *
-	 * Usa un singolo preg_match con alternazione per efficienza.
+	 * Uses a single preg_match with alternation for efficiency.
 	 *
-	 * @param string $line Riga del log.
+	 * @param string $line Log line.
 	 * @return string Severità: fatal, parse, warning, notice, deprecated, strict, other.
 	 */
 	private function classify_line( string $line ): string {
@@ -398,10 +398,10 @@ class ErrorLogCheck implements CheckInterface {
 	}
 
 	/**
-	 * Determina lo stato in base ai conteggi
+	 * Determines the status based on counts
 	 *
-	 * @param array $counts Conteggi per severità.
-	 * @return string Stato: ok, warning, critical.
+	 * @param array $counts Counts by severity.
+	 * @return string Status: ok, warning, critical.
 	 */
 	private function determine_status( array $counts ): string {
 		if ( $counts['fatal'] > 0 || $counts['parse'] > 0 ) {
@@ -416,12 +416,12 @@ class ErrorLogCheck implements CheckInterface {
 	}
 
 	/**
-	 * Costruisce il messaggio di stato
+	 * Builds the status message
 	 *
-	 * @param string $status      Stato determinato.
-	 * @param array  $counts      Conteggi per severità.
-	 * @param int    $total_lines Totale righe analizzate.
-	 * @return string Messaggio localizzato.
+	 * @param string $status      Determined status.
+	 * @param array  $counts      Counts by severity.
+	 * @param int    $total_lines Total lines analyzed.
+	 * @return string Localized message.
 	 */
 	private function build_message( string $status, array $counts, int $total_lines ): string {
 		if ( 'critical' === $status ) {
@@ -452,15 +452,15 @@ class ErrorLogCheck implements CheckInterface {
 	}
 
 	/**
-	 * Colleziona campioni redatti per i risultati
+	 * Collects redacted samples for results
 	 *
-	 * Prende le righe critiche/warning più recenti e le redige.
+	 * Takes the most recent critical/warning lines and redacts them.
 	 *
-	 * @param array $severity_lines Righe raggruppate per severità.
-	 * @return array Campioni redatti (massimo max_samples).
+	 * @param array $severity_lines Lines grouped by severity.
+	 * @return array Redacted samples (maximum max_samples).
 	 */
 	private function collect_samples( array $severity_lines ): array {
-		// Priorità: critical prima, poi riempi gli slot rimanenti con warning.
+		// Priority: critical first, then fill remaining slots with warning.
 		$critical  = array_slice( $severity_lines['critical'], -$this->max_samples );
 		$remaining = $this->max_samples - count( $critical );
 		$warnings  = $remaining > 0
@@ -468,15 +468,15 @@ class ErrorLogCheck implements CheckInterface {
 			: [];
 		$samples   = array_merge( $critical, $warnings );
 
-		// Redigi tutti i campioni.
+		// Redact all samples.
 		return $this->redaction->redact_lines( $samples );
 	}
 
 	/**
-	 * Ottiene la dimensione formattata del file
+	 * Gets the formatted file size
 	 *
-	 * @param string $path Path del file.
-	 * @return string Dimensione formattata.
+	 * @param string $path File path.
+	 * @return string Formatted size.
 	 */
 	protected function get_file_size( string $path ): string {
 		$size = filesize( $path );
@@ -489,13 +489,13 @@ class ErrorLogCheck implements CheckInterface {
 	}
 
 	/**
-	 * Costruisce l'array di risultato standard
+	 * Builds the standard result array
 	 *
-	 * @param string $status   Stato del check.
-	 * @param string $message  Messaggio descrittivo.
-	 * @param array  $details  Dettagli aggiuntivi.
-	 * @param float  $duration Durata dell'esecuzione.
-	 * @return array Risultato formattato.
+	 * @param string $status   Check status.
+	 * @param string $message  Descriptive message.
+	 * @param array  $details  Additional details.
+	 * @param float  $duration Execution duration.
+	 * @return array Formatted result.
 	 */
 	private function build_result( string $status, string $message, array $details, float $duration ): array {
 		return [

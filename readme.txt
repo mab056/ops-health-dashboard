@@ -14,7 +14,7 @@ Production-grade WordPress plugin for operational monitoring with automated heal
 
 Ops Health Dashboard provides an operational monitoring dashboard in wp-admin with automated health checks and configurable alerting (email, webhook, Slack, Telegram, WhatsApp), so you know what's happening *before* something breaks.
 
-= Health Check =
+= Health Checks =
 
 * **Database** — Connectivity and query performance
 * **Error Log** — Safe aggregation with automatic sensitive data redaction
@@ -43,7 +43,7 @@ Ops Health Dashboard provides an operational monitoring dashboard in wp-admin wi
 
 * WP-Cron (default: every 15 minutes)
 * Manual trigger via "Run Now" button
-* Automatic alerts only on status change
+* Automatic alerts only on status changes
 
 = Architecture =
 
@@ -86,6 +86,11 @@ No. All health check results are processed through a redaction service that auto
 
 == Changelog ==
 
+= 0.6.2 =
+* Refreshed Health Dashboard UI with summary banner, status badges, and expandable check details
+* Added Alert Settings collapsible channel sections with conditional field enable/disable
+* Added "Last run" timing metadata and deep links from Dashboard Widget to Health Dashboard cards
+
 = 0.6.1 =
 * Fixed WebhookChannel HMAC signature: body is now serialized once and signed on the pre-serialized string
 * Added multisite support in Uninstaller (iterates all blogs on network uninstall)
@@ -121,6 +126,9 @@ No. All health check results are processed through a redaction service that auto
 For the full changelog, see [CHANGELOG.md](https://github.com/mab056/ops-health-dashboard/blob/main/CHANGELOG.md).
 
 == Upgrade Notices ==
+
+= 0.6.2 =
+Health Dashboard UX refresh, Alert Settings usability improvements, and Dashboard Widget timing/deep-link updates. No breaking changes.
 
 = 0.6.1 =
 HMAC webhook signature fix, multisite uninstall support, improved build reliability. No breaking changes.

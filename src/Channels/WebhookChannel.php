@@ -2,8 +2,8 @@
 /**
  * Webhook Alert Channel
  *
- * Canale di alert che invia notifiche via webhook generico (HTTP POST JSON).
- * Supporta firma HMAC opzionale per autenticazione.
+ * Alert channel that sends notifications via generic webhook (HTTP POST JSON).
+ * Supports optional HMAC signature for authentication.
  *
  * @package OpsHealthDashboard\Channels
  */
@@ -25,19 +25,19 @@ use OpsHealthDashboard\Interfaces\StorageInterface;
 /**
  * Class WebhookChannel
  *
- * Implementazione del canale webhook per gli alert.
+ * Webhook channel implementation for alerts.
  */
 class WebhookChannel implements AlertChannelInterface {
 
 	/**
-	 * Storage per le impostazioni
+	 * Storage for settings
 	 *
 	 * @var StorageInterface
 	 */
 	private $storage;
 
 	/**
-	 * Client HTTP con protezione anti-SSRF
+	 * HTTP client with anti-SSRF protection
 	 *
 	 * @var HttpClientInterface
 	 */
@@ -46,8 +46,8 @@ class WebhookChannel implements AlertChannelInterface {
 	/**
 	 * Constructor
 	 *
-	 * @param StorageInterface    $storage     Storage per le impostazioni.
-	 * @param HttpClientInterface $http_client Client HTTP sicuro.
+	 * @param StorageInterface    $storage     Storage for settings.
+	 * @param HttpClientInterface $http_client Secure HTTP client.
 	 */
 	public function __construct( StorageInterface $storage, HttpClientInterface $http_client ) {
 		$this->storage     = $storage;
@@ -55,7 +55,7 @@ class WebhookChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Ottiene l'identificatore del canale
+	 * Gets the channel identifier
 	 *
 	 * @return string
 	 */
@@ -64,7 +64,7 @@ class WebhookChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Ottiene il nome del canale
+	 * Gets the channel name
 	 *
 	 * @return string
 	 */
@@ -73,7 +73,7 @@ class WebhookChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Verifica se il canale è abilitato
+	 * Checks if the channel is enabled
 	 *
 	 * @return bool
 	 */
@@ -83,23 +83,23 @@ class WebhookChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Invia un alert via webhook
+	 * Sends an alert via webhook
 	 *
-	 * Quando un secret HMAC è configurato, aggiunge un header custom
-	 * `X-OpsHealth-Signature` contenente la firma SHA-256 del body JSON.
-	 * I consumer possono verificare l'autenticità ricalcolando:
+	 * When an HMAC secret is configured, adds a custom `X-OpsHealth-Signature`
+	 * header containing the SHA-256 signature of the JSON body. Consumers can
+	 * verify authenticity by recalculating:
 	 * `hash_hmac('sha256', $raw_body, $secret)`.
 	 *
-	 * @param array $payload Dati dell'alert.
-	 * @return array Risultato con chiavi success e error.
+	 * @param array $payload Alert data.
+	 * @return array Result with success and error keys.
 	 */
 	public function send( array $payload ): array {
 		$settings = $this->get_channel_settings();
 		$url      = isset( $settings['url'] ) ? $settings['url'] : '';
 		$secret   = isset( $settings['secret'] ) ? $settings['secret'] : '';
 
-		// Serializza il body una sola volta per garantire che la firma HMAC
-		// corrisponda esattamente ai byte inviati (nessun doppio json_encode).
+		// Serializes the body once to ensure the HMAC signature matches the
+		// exact bytes sent (no double json_encode).
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 		$raw_body = json_encode( $payload );
 
@@ -125,7 +125,7 @@ class WebhookChannel implements AlertChannelInterface {
 	}
 
 	/**
-	 * Ottiene le impostazioni del canale
+	 * Gets the channel settings
 	 *
 	 * @return array
 	 */

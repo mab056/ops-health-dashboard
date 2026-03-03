@@ -1,8 +1,8 @@
 <?php
 /**
- * Unit Test per AlertSettings
+ * Unit Test for AlertSettings
  *
- * Test unitario con Brain\Monkey per AlertSettings.
+ * Unit test with Brain\Monkey for AlertSettings.
  *
  * @package OpsHealthDashboard\Tests\Unit\Admin
  */
@@ -19,13 +19,13 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class AlertSettingsTest
  *
- * Unit test per AlertSettings.
+ * Unit test for AlertSettings.
  */
 class AlertSettingsTest extends TestCase {
 	use MockeryPHPUnitIntegration;
 
 	/**
-	 * Setup per ogni test
+	 * Setup for each test
 	 */
 	protected function setUp(): void {
 		parent::setUp();
@@ -33,7 +33,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Teardown dopo ogni test
+	 * Teardown after each test
 	 */
 	protected function tearDown(): void {
 		unset(
@@ -60,7 +60,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che AlertSettings può essere istanziato
+	 * Tests that AlertSettings can be instantiated
 	 */
 	public function test_can_be_instantiated() {
 		$storage  = Mockery::mock( StorageInterface::class );
@@ -72,7 +72,7 @@ class AlertSettingsTest extends TestCase {
 	// ─── register_hooks ─────────────────────────────────────────────
 
 	/**
-	 * Testa che register_hooks registra l'hook admin_enqueue_scripts
+	 * Tests that register_hooks registers the admin_enqueue_scripts hook
 	 */
 	public function test_register_hooks_adds_admin_enqueue_scripts() {
 		$storage  = Mockery::mock( StorageInterface::class );
@@ -97,7 +97,7 @@ class AlertSettingsTest extends TestCase {
 	// ─── enqueue_assets ─────────────────────────────────────────────
 
 	/**
-	 * Testa che enqueue_assets carica CSS e JS sulla schermata alert settings
+	 * Tests that enqueue_assets loads CSS and JS on the alert settings screen
 	 */
 	public function test_enqueue_assets_on_alert_settings_screen() {
 		if ( ! defined( 'OPS_HEALTH_DASHBOARD_FILE' ) ) {
@@ -147,7 +147,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che enqueue_assets NON carica per utenti non admin
+	 * Tests that enqueue_assets does NOT load for non-admin users
 	 */
 	public function test_enqueue_assets_skips_for_non_admin() {
 		Functions\expect( 'current_user_can' )
@@ -163,7 +163,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che enqueue_assets NON carica su schermate diverse
+	 * Tests that enqueue_assets does NOT load on different screens
 	 */
 	public function test_enqueue_assets_skips_on_other_screens() {
 		$screen     = new \stdClass();
@@ -186,7 +186,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che enqueue_assets gestisce screen null
+	 * Tests that enqueue_assets handles null screen
 	 */
 	public function test_enqueue_assets_handles_null_screen() {
 		Functions\expect( 'current_user_can' )
@@ -208,7 +208,7 @@ class AlertSettingsTest extends TestCase {
 	// ─── render: collapsible sections ──────────────────────────────
 
 	/**
-	 * Testa che render mostra sezioni collassabili con details/summary
+	 * Tests that render shows collapsible sections with details/summary
 	 */
 	public function test_render_shows_collapsible_sections() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -230,7 +230,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che canale abilitato ha sezione aperta e badge Enabled
+	 * Tests that enabled channel has open section and Enabled badge
 	 */
 	public function test_render_enabled_channel_has_open_section_and_badge() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -257,7 +257,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che canale disabilitato ha badge Disabled senza open
+	 * Tests that disabled channel has Disabled badge without open
 	 */
 	public function test_render_disabled_channel_has_disabled_badge() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -278,7 +278,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che ogni canale ha un ID univoco sulla sezione details
+	 * Tests that each channel has a unique ID on the details section
 	 */
 	public function test_render_each_channel_has_unique_id() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -302,7 +302,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che General (cooldown) è fuori dalle sezioni collassabili
+	 * Tests that General (cooldown) is outside the collapsible sections
 	 */
 	public function test_render_general_section_is_not_collapsible() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -318,7 +318,7 @@ class AlertSettingsTest extends TestCase {
 		$settings->render();
 		$output = ob_get_clean();
 
-		// General è prima delle sezioni details e non wrappato in details.
+		// General is before the details sections and not wrapped in details.
 		$general_pos = strpos( $output, 'General' );
 		$first_details_pos = strpos( $output, '<details' );
 		$this->assertNotFalse( $general_pos );
@@ -329,7 +329,7 @@ class AlertSettingsTest extends TestCase {
 	// ─── process_actions ────────────────────────────────────────────
 
 	/**
-	 * Testa che process_actions() ritorna subito senza POST action
+	 * Tests that process_actions() returns early without POST action
 	 */
 	public function test_process_actions_returns_early_without_post_action() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -344,7 +344,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che process_actions() ritorna subito con nonce invalido
+	 * Tests that process_actions() returns early with invalid nonce
 	 */
 	public function test_process_actions_returns_early_with_invalid_nonce() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -366,7 +366,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che process_actions() ritorna subito senza capability
+	 * Tests that process_actions() returns early without capability
 	 */
 	public function test_process_actions_returns_early_without_capability() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -393,7 +393,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che process_actions() salva le impostazioni email
+	 * Tests that process_actions() saves the email settings
 	 */
 	public function test_process_actions_saves_email_settings() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -424,7 +424,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che process_actions() salva le impostazioni webhook
+	 * Tests that process_actions() saves the webhook settings
 	 */
 	public function test_process_actions_saves_webhook_settings() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -457,7 +457,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che process_actions() salva le impostazioni Slack
+	 * Tests that process_actions() saves the Slack settings
 	 */
 	public function test_process_actions_saves_slack_settings() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -488,7 +488,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che process_actions() salva le impostazioni Telegram
+	 * Tests that process_actions() saves the Telegram settings
 	 */
 	public function test_process_actions_saves_telegram_settings() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -521,7 +521,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che process_actions() salva le impostazioni WhatsApp
+	 * Tests that process_actions() saves the WhatsApp settings
 	 */
 	public function test_process_actions_saves_whatsapp_settings() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -556,7 +556,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che process_actions() salva il cooldown
+	 * Tests that process_actions() saves the cooldown
 	 */
 	public function test_process_actions_saves_cooldown_minutes() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -585,7 +585,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che cooldown negativo viene convertito in valore assoluto (absint)
+	 * Tests that negative cooldown is converted to absolute value (absint)
 	 */
 	public function test_process_actions_absint_negative_cooldown() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -615,7 +615,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che canale disabilitato ha enabled=false
+	 * Tests that disabled channel has enabled=false
 	 */
 	public function test_process_actions_disabled_channel_has_false_enabled() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -623,7 +623,7 @@ class AlertSettingsTest extends TestCase {
 
 		$_POST['ops_health_alert_action'] = 'save';
 		$_POST['_ops_health_alert_nonce'] = 'valid';
-		// Non imposta email_enabled → deve essere false.
+		// Does not set email_enabled → must be false.
 
 		$this->mock_save_functions();
 
@@ -644,7 +644,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che process_actions() reindirizza dopo il salvataggio
+	 * Tests that process_actions() redirects after save
 	 */
 	public function test_process_actions_redirects_after_save() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -687,7 +687,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che render() blocca utenti senza capability
+	 * Tests that render() blocks users without capability
 	 */
 	public function test_render_blocks_unauthorized_users() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -717,7 +717,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che render() mostra il form con i campi
+	 * Tests that render() shows the form with fields
 	 */
 	public function test_render_shows_form_fields() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -745,7 +745,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che render() mostra i valori correnti delle impostazioni
+	 * Tests that render() shows the current settings values
 	 */
 	public function test_render_shows_current_settings() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -772,7 +772,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che render() contiene campo nonce
+	 * Tests that render() contains nonce field
 	 */
 	public function test_render_contains_nonce_field() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -792,7 +792,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che render() mostra notice quando transient presente
+	 * Tests that render() shows notice when transient is set
 	 */
 	public function test_render_shows_notice_when_transient_set() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -854,7 +854,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che render() gestisce settings non-array dallo storage
+	 * Tests that render() handles non-array settings from storage
 	 */
 	public function test_render_handles_non_array_settings() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -870,12 +870,12 @@ class AlertSettingsTest extends TestCase {
 		$settings->render();
 		$output = ob_get_clean();
 
-		// Deve comunque renderizzare senza errori.
+		// Must still render without errors.
 		$this->assertStringContainsString( 'Alert Settings', $output );
 	}
 
 	/**
-	 * Testa che render() NON inserisce segreti nel DOM (value="")
+	 * Tests that render() does NOT insert secrets into the DOM (value="")
 	 */
 	public function test_render_does_not_prefill_password_fields() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -919,7 +919,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che build_settings_from_post gestisce existing settings corrotti (non array)
+	 * Tests that build_settings_from_post handles corrupted existing settings (non array)
 	 */
 	public function test_process_actions_handles_corrupted_existing_settings() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -952,7 +952,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che campo password vuoto preserva il segreto esistente
+	 * Tests that empty password field preserves the existing secret
 	 */
 	public function test_process_actions_preserves_existing_secret_when_post_empty() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -1012,7 +1012,7 @@ class AlertSettingsTest extends TestCase {
 	// ─── Help tabs ───────────────────────────────────────────────
 
 	/**
-	 * Testa che add_help_tabs registra 3 tab
+	 * Tests that add_help_tabs registers 3 tabs
 	 */
 	public function test_add_help_tabs_registers_three_tabs() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -1037,7 +1037,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che add_help_tabs usa gli ID corretti
+	 * Tests that add_help_tabs uses the correct IDs
 	 */
 	public function test_add_help_tabs_tab_ids_are_correct() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -1070,7 +1070,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che add_help_tabs imposta la sidebar con GitHub e Health Dashboard
+	 * Tests that add_help_tabs sets the sidebar with GitHub and Health Dashboard
 	 */
 	public function test_add_help_tabs_sets_sidebar() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -1101,7 +1101,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che add_help_tabs gestisce screen null senza errori
+	 * Tests that add_help_tabs handles null screen without errors
 	 */
 	public function test_add_help_tabs_handles_null_screen() {
 		$storage = Mockery::mock( StorageInterface::class );
@@ -1117,7 +1117,7 @@ class AlertSettingsTest extends TestCase {
 	// ─── Pattern enforcement ───────────────────────────────────────
 
 	/**
-	 * Testa che la classe NON è final
+	 * Tests that the class is NOT final
 	 */
 	public function test_class_is_not_final() {
 		$reflection = new \ReflectionClass( AlertSettings::class );
@@ -1125,7 +1125,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono metodi static
+	 * Tests that there are NO static methods
 	 */
 	public function test_no_static_methods() {
 		$reflection = new \ReflectionClass( AlertSettings::class );
@@ -1142,7 +1142,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Testa che NON esistono proprietà static
+	 * Tests that there are NO static properties
 	 */
 	public function test_no_static_properties() {
 		$reflection = new \ReflectionClass( AlertSettings::class );
@@ -1152,7 +1152,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Helper: mock comuni per process_actions
+	 * Helper: common mocks for process_actions
 	 *
 	 * @return void
 	 */
@@ -1169,7 +1169,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Helper: mock completi per salvataggio
+	 * Helper: complete mocks for save
 	 *
 	 * @return void
 	 */
@@ -1199,7 +1199,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Helper: crea mock parziale con do_exit() disabilitato
+	 * Helper: creates partial mock with do_exit() disabled
 	 *
 	 * @param \Mockery\MockInterface $storage Storage mock.
 	 * @return \Mockery\MockInterface
@@ -1215,7 +1215,7 @@ class AlertSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Helper: mock comuni per render
+	 * Helper: common mocks for render
 	 *
 	 * @return void
 	 */

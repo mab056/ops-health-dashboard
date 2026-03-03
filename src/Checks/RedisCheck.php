@@ -2,8 +2,8 @@
 /**
  * Redis Check
  *
- * Verifica la disponibilità e le performance di Redis.
- * Graceful degradation: Redis è opzionale, tutti i fallimenti sono 'warning'.
+ * Verifies Redis availability and performance.
+ * Graceful degradation: Redis is optional, all failures are 'warning'.
  *
  * @package OpsHealthDashboard\Checks
  */
@@ -24,41 +24,41 @@ use OpsHealthDashboard\Interfaces\RedactionInterface;
 /**
  * Class RedisCheck
  *
- * Check per la salute di Redis con rilevamento estensione,
- * test di connessione e smoke test SET/GET/DEL.
+ * Redis health check with extension detection,
+ * connection test, and SET/GET/DEL smoke test.
  */
 class RedisCheck implements CheckInterface {
 
 	/**
-	 * Chiave usata per lo smoke test
+	 * Key used for the smoke test
 	 *
 	 * @var string
 	 */
 	const SMOKE_TEST_KEY = 'ops_health_smoke_test';
 
 	/**
-	 * Valore usato per lo smoke test
+	 * Value used for the smoke test
 	 *
 	 * @var string
 	 */
 	const SMOKE_TEST_VALUE = 'ops_health_test_value';
 
 	/**
-	 * Soglia tempo di risposta in secondi (100ms)
+	 * Response time threshold in seconds (100ms)
 	 *
 	 * @var float
 	 */
 	const SLOW_THRESHOLD = 0.1;
 
 	/**
-	 * Timeout di connessione in secondi
+	 * Connection timeout in seconds
 	 *
 	 * @var float
 	 */
 	const CONNECT_TIMEOUT = 2.0;
 
 	/**
-	 * Servizio di redazione dati sensibili
+	 * Sensitive data redaction service
 	 *
 	 * @var RedactionInterface
 	 */
@@ -67,21 +67,21 @@ class RedisCheck implements CheckInterface {
 	/**
 	 * Constructor
 	 *
-	 * @param RedactionInterface $redaction Servizio di redazione dati sensibili.
+	 * @param RedactionInterface $redaction Sensitive data redaction service.
 	 */
 	public function __construct( RedactionInterface $redaction ) {
 		$this->redaction = $redaction;
 	}
 
 	/**
-	 * Esegue il check di Redis
+	 * Runs the Redis check
 	 *
-	 * @return array Risultati del check.
+	 * @return array Check results.
 	 */
 	public function run(): array {
 		$start = microtime( true );
 
-		// 1. Verifica estensione Redis.
+		// 1. Check Redis extension.
 		if ( ! $this->is_extension_loaded() ) {
 			return $this->build_result(
 				'warning',
@@ -91,10 +91,10 @@ class RedisCheck implements CheckInterface {
 			);
 		}
 
-		// 2. Configurazione.
+		// 2. Configuration.
 		$config = $this->get_redis_config();
 
-		// 3. Connessione.
+		// 3. Connection.
 		try {
 			$redis = $this->create_redis_instance();
 			$redis->connect( $config['host'], $config['port'], self::CONNECT_TIMEOUT );
@@ -107,7 +107,7 @@ class RedisCheck implements CheckInterface {
 			);
 		}
 
-		// 4. Autenticazione (se configurata).
+		// 4. Authentication (if configured).
 		if ( '' !== $config['password'] ) {
 			try {
 				$redis->auth( $config['password'] );
@@ -122,7 +122,7 @@ class RedisCheck implements CheckInterface {
 			}
 		}
 
-		// 5. Selezione database (se diverso da 0).
+		// 5. Database selection (if not 0).
 		if ( 0 !== $config['database'] ) {
 			try {
 				$redis->select( $config['database'] );
@@ -137,7 +137,7 @@ class RedisCheck implements CheckInterface {
 			}
 		}
 
-		// 6. Smoke test SET/GET/DEL (chiave unica per evitare race condition).
+		// 6. SET/GET/DEL smoke test (unique key to avoid race conditions).
 		$smoke_key   = self::SMOKE_TEST_KEY . '_' . uniqid( '', true );
 		$smoke_start = microtime( true );
 
@@ -181,7 +181,7 @@ class RedisCheck implements CheckInterface {
 
 		$this->close_connection( $redis );
 
-		// 7. Valuta tempo di risposta.
+		// 7. Evaluate response time.
 		$response_time_ms = round( $smoke_duration * 1000, 2 ) . 'ms';
 		$redacted_host    = $this->redaction->redact( $config['host'] );
 
@@ -197,7 +197,7 @@ class RedisCheck implements CheckInterface {
 			);
 		}
 
-		// 8. Tutto ok.
+		// 8. All ok.
 		return $this->build_result(
 			'ok',
 			__( 'Redis connection healthy', 'ops-health-dashboard' ),
@@ -210,62 +210,62 @@ class RedisCheck implements CheckInterface {
 	}
 
 	/**
-	 * Ottiene l'ID del check
+	 * Gets the check ID
 	 *
-	 * @return string ID del check.
+	 * @return string Check ID.
 	 */
 	public function get_id(): string {
 		return 'redis';
 	}
 
 	/**
-	 * Ottiene il nome del check
+	 * Gets the check name
 	 *
-	 * @return string Nome del check.
+	 * @return string Check name.
 	 */
 	public function get_name(): string {
 		return __( 'Redis Cache', 'ops-health-dashboard' );
 	}
 
 	/**
-	 * Verifica se il check è abilitato
+	 * Checks if the check is enabled
 	 *
-	 * @return bool True se abilitato.
+	 * @return bool True if enabled.
 	 */
 	public function is_enabled(): bool {
 		return true;
 	}
 
 	/**
-	 * Verifica se l'estensione Redis PHP è caricata
+	 * Checks if the Redis PHP extension is loaded
 	 *
-	 * @return bool True se l'estensione è disponibile.
+	 * @return bool True if the extension is available.
 	 */
 	protected function is_extension_loaded(): bool {
 		return extension_loaded( 'redis' );
 	}
 
 	/**
-	 * Crea una nuova istanza Redis
+	 * Creates a new Redis instance
 	 *
-	 * @return \Redis Istanza Redis.
+	 * @return \Redis Redis instance.
 	 */
 	protected function create_redis_instance(): \Redis {
 		return new \Redis();
 	}
 
 	/**
-	 * Ottiene la configurazione Redis dalle costanti WordPress
+	 * Gets the Redis configuration from WordPress constants
 	 *
-	 * Legge WP_REDIS_HOST, WP_REDIS_PORT, WP_REDIS_PASSWORD, WP_REDIS_DATABASE.
+	 * Reads WP_REDIS_HOST, WP_REDIS_PORT, WP_REDIS_PASSWORD, WP_REDIS_DATABASE.
 	 *
 	 * @return array {
-	 *     Configurazione Redis.
+	 *     Redis configuration.
 	 *
-	 *     @type string $host     Host Redis (default 127.0.0.1).
-	 *     @type int    $port     Porta Redis (default 6379).
-	 *     @type string $password Password Redis (default '').
-	 *     @type int    $database Database Redis (default 0).
+	 *     @type string $host     Redis host (default 127.0.0.1).
+	 *     @type int    $port     Redis port (default 6379).
+	 *     @type string $password Redis password (default '').
+	 *     @type int    $database Redis database (default 0).
 	 * }
 	 */
 	protected function get_redis_config(): array {
@@ -278,43 +278,43 @@ class RedisCheck implements CheckInterface {
 	}
 
 	/**
-	 * Chiude la connessione Redis in modo sicuro
+	 * Safely closes the Redis connection
 	 *
-	 * @param \Redis $redis Istanza Redis.
+	 * @param \Redis $redis Redis instance.
 	 */
 	private function close_connection( $redis ): void {
 		try {
 			$redis->close();
 			// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 		} catch ( \Throwable $e ) {
-			// Ignora errori di chiusura.
+			// Ignore close errors.
 		}
 	}
 
 	/**
-	 * Cleanup dello smoke test key e chiusura connessione
+	 * Cleans up the smoke test key and closes the connection
 	 *
-	 * @param \Redis $redis     Istanza Redis.
-	 * @param string $smoke_key Chiave smoke test da cancellare.
+	 * @param \Redis $redis     Redis instance.
+	 * @param string $smoke_key Smoke test key to delete.
 	 */
 	private function cleanup_and_close( $redis, string $smoke_key ): void {
 		try {
 			$redis->del( $smoke_key );
 			// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 		} catch ( \Throwable $e ) {
-			// Ignora errori di cleanup.
+			// Ignore cleanup errors.
 		}
 		$this->close_connection( $redis );
 	}
 
 	/**
-	 * Costruisce l'array di risultato standard
+	 * Builds the standard result array
 	 *
-	 * @param string $status   Stato del check.
-	 * @param string $message  Messaggio descrittivo.
-	 * @param array  $details  Dettagli aggiuntivi.
-	 * @param float  $duration Durata dell'esecuzione.
-	 * @return array Risultato formattato.
+	 * @param string $status   Check status.
+	 * @param string $message  Descriptive message.
+	 * @param array  $details  Additional details.
+	 * @param float  $duration Execution duration.
+	 * @return array Formatted result.
 	 */
 	private function build_result( string $status, string $message, array $details, float $duration ): array {
 		return [
