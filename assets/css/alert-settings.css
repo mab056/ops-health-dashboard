@@ -15,6 +15,7 @@
 	border: 1px solid #c3c4c7;
 	border-radius: 4px;
 	background: #fff;
+	overflow: hidden;
 }
 
 .ops-health-alert-section summary {
@@ -25,27 +26,93 @@
 	cursor: pointer;
 	font-size: 14px;
 	font-weight: 600;
+	list-style: none;
+	user-select: none;
+}
+
+.ops-health-alert-section summary::-webkit-details-marker {
+	display: none;
+}
+
+.ops-health-alert-section summary::before {
+	content: "\25B6";
+	display: inline-block;
+	font-size: 10px;
+	color: #50575e;
+	transition: transform 0.15s ease;
+}
+
+.ops-health-alert-section[open] > summary::before {
+	transform: rotate(90deg);
 }
 
 .ops-health-alert-section summary:hover {
 	background: #f6f7f7;
 }
 
+.ops-health-alert-section summary:focus {
+	outline: 2px solid #2271b1;
+	outline-offset: -2px;
+}
+
+/* --- Form table inside section --- */
+
 .ops-health-alert-section .form-table {
 	margin: 0;
-	padding: 0 16px 16px;
+	padding: 0;
+	border-top: 1px solid #f0f0f1;
+}
+
+.ops-health-alert-section .form-table tr {
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.ops-health-alert-section .form-table tr:last-child {
+	border-bottom: none;
+}
+
+.ops-health-alert-section .form-table th {
+	padding: 12px 16px;
+	font-weight: 500;
+	color: #1d2327;
+	width: 160px;
+	vertical-align: middle;
+}
+
+.ops-health-alert-section .form-table td {
+	padding: 12px 16px;
+	vertical-align: middle;
+}
+
+.ops-health-alert-section .form-table .regular-text {
+	width: 100%;
+	max-width: 400px;
+}
+
+.ops-health-alert-section .form-table .description {
+	margin-top: 4px;
+	color: #787c82;
+	font-size: 12px;
+}
+
+/* --- Dimmed state for disabled channels --- */
+
+.ops-health-alert-section .form-table tr[style*="opacity: 0.5"] th {
+	color: #a7aaad;
 }
 
 /* --- Enabled/Disabled badge --- */
 
 .ops-health-alert-status {
 	display: inline-block;
+	margin-left: auto;
 	padding: 2px 8px;
 	border-radius: 10px;
 	font-size: 11px;
 	font-weight: 600;
 	line-height: 1.4;
 	text-transform: uppercase;
+	letter-spacing: 0.3px;
 }
 
 .ops-health-alert-status-enabled {
@@ -56,4 +123,12 @@
 .ops-health-alert-status-disabled {
 	background: #f0f0f1;
 	color: #787c82;
+}
+
+/* --- General section --- */
+
+.wrap > form > h2:first-of-type {
+	margin-top: 20px;
+	padding-bottom: 8px;
+	border-bottom: 1px solid #c3c4c7;
 }
