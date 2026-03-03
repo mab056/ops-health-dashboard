@@ -274,7 +274,7 @@ class AlertManager implements AlertManagerInterface {
 	 * Sends the payload to all enabled channels
 	 *
 	 * @param array $payload Alert payload.
-	 * @return array Dispatch results per channel.
+	 * @return array Dispatch results for each channel.
 	 */
 	private function dispatch_to_channels( array $payload ): array {
 		$results = [];

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 #
-# Genera il file ZIP del plugin pronto per upload su WordPress.
-# Esclude file di sviluppo (test, CI, IDE, docs dev, etc.)
+# Builds the plugin ZIP file ready for WordPress upload.
+# Excludes development files (tests, CI, IDE metadata, dev docs, etc.).
 #
-# Uso:
-#   bin/build-zip.sh              # genera dist/ops-health-dashboard-0.1.0.zip
-#   bin/build-zip.sh --output /tmp/plugin.zip  # path custom
+# Usage:
+#   bin/build-zip.sh                        # generates dist/ops-health-dashboard-0.1.0.zip
+#   bin/build-zip.sh --output /tmp/plugin.zip  # custom output path
 #
 
 set -euo pipefail
@@ -13,12 +13,12 @@ set -euo pipefail
 PLUGIN_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 PLUGIN_SLUG="ops-health-dashboard"
 
-# Legge la versione dal file principale del plugin.
+# Reads the version from the main plugin file.
 VERSION=$(grep -oP "Version:\s*\K[0-9.]+" "$PLUGIN_DIR/$PLUGIN_SLUG.php" || echo "0.0.0")
 
 OUTPUT=""
 
-# Parse argomenti.
+# Parse arguments.
 while [[ $# -gt 0 ]]; do
 	case "$1" in
 		--output)
@@ -44,16 +44,16 @@ if [ -z "$OUTPUT" ]; then
 	OUTPUT="$PLUGIN_DIR/dist/${PLUGIN_SLUG}-${VERSION}.zip"
 fi
 
-# Converte in path assoluto.
+# Convert to an absolute path.
 case "$OUTPUT" in
 	/*) ;;
 	*) OUTPUT="$(pwd)/$OUTPUT" ;;
 esac
 
-# Crea la directory di output se necessario.
+# Create the output directory if needed.
 mkdir -p "$(dirname "$OUTPUT")"
 
-# Directory temporanea per il build.
+# Temporary build directory.
 BUILD_DIR=$(mktemp -d)
 trap 'rm -rf "$BUILD_DIR"' EXIT
 
@@ -62,7 +62,7 @@ mkdir -p "$DEST"
 
 echo "Building $PLUGIN_SLUG v$VERSION ..."
 
-# Copia solo i file necessari per il plugin in produzione.
+# Copy only production files required by the plugin.
 cp "$PLUGIN_DIR/$PLUGIN_SLUG.php" "$DEST/"
 cp "$PLUGIN_DIR/LICENSE" "$DEST/"
 cp "$PLUGIN_DIR/README.md" "$DEST/"
@@ -86,13 +86,13 @@ fi
 rm -f "$DEST/composer.json" "$DEST/composer.lock"
 cd - > /dev/null
 
-# Rimuovi eventuali file nascosti o di test nei vendor.
+# Remove hidden/test files from vendor packages.
 find "$DEST/vendor" -name ".git" -type d -exec rm -rf {} + 2>/dev/null || true
 find "$DEST/vendor" -name "tests" -type d -exec rm -rf {} + 2>/dev/null || true
 find "$DEST/vendor" -name "Tests" -type d -exec rm -rf {} + 2>/dev/null || true
 find "$DEST/vendor" -name ".github" -type d -exec rm -rf {} + 2>/dev/null || true
 
-# Genera lo ZIP: usa il comando zip se disponibile, altrimenti PHP ZipArchive.
+# Generate ZIP: use the `zip` command when available, otherwise PHP ZipArchive.
 if command -v zip > /dev/null 2>&1; then
 	cd "$BUILD_DIR"
 	zip -rq "$OUTPUT" "$PLUGIN_SLUG"

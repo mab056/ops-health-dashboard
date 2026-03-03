@@ -206,7 +206,7 @@ run_tests_for_version() {
 		echo ""
 	fi
 
-	# Salva risultati: su file per modalita' parallela, su array per sequenziale.
+	# Save results: file output for parallel mode, in-memory arrays for sequential mode.
 	if [ -n "$RESULTS_DIR" ]; then
 		printf '%s\n' "$status" "${duration}s" "$details" > "${RESULTS_DIR}/${version}.result"
 	else
