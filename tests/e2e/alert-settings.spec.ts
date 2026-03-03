@@ -3,7 +3,8 @@
  *
  * Tests for the alert settings admin page: form rendering, nonce,
  * channel sections (Email, Webhook, Slack, Telegram, WhatsApp),
- * cooldown input, save action, password field security, and checkboxes.
+ * cooldown input, save action, password field security, checkboxes,
+ * collapsible sections, conditional field toggling, and status badges.
  *
  * @module tests/e2e/alert-settings
  */
@@ -33,29 +34,29 @@ test.describe('Alert Settings', () => {
 		await expect(button).toBeAttached();
 	});
 
-	test('email section heading is present', async ({ page }) => {
-		const heading = page.locator('h2', { hasText: 'Email' });
-		await expect(heading).toBeAttached();
+	test('email channel section is present', async ({ page }) => {
+		const summary = page.locator(ALERT_SETTINGS.CHANNEL_SUMMARY, { hasText: 'Email' });
+		await expect(summary).toBeAttached();
 	});
 
-	test('webhook section heading is present', async ({ page }) => {
-		const heading = page.locator('h2', { hasText: 'Webhook' });
-		await expect(heading).toBeAttached();
+	test('webhook channel section is present', async ({ page }) => {
+		const summary = page.locator(ALERT_SETTINGS.CHANNEL_SUMMARY, { hasText: 'Webhook' });
+		await expect(summary).toBeAttached();
 	});
 
-	test('slack section heading is present', async ({ page }) => {
-		const heading = page.locator('h2', { hasText: 'Slack' });
-		await expect(heading).toBeAttached();
+	test('slack channel section is present', async ({ page }) => {
+		const summary = page.locator(ALERT_SETTINGS.CHANNEL_SUMMARY, { hasText: 'Slack' });
+		await expect(summary).toBeAttached();
 	});
 
-	test('telegram section heading is present', async ({ page }) => {
-		const heading = page.locator('h2', { hasText: 'Telegram' });
-		await expect(heading).toBeAttached();
+	test('telegram channel section is present', async ({ page }) => {
+		const summary = page.locator(ALERT_SETTINGS.CHANNEL_SUMMARY, { hasText: 'Telegram' });
+		await expect(summary).toBeAttached();
 	});
 
-	test('whatsapp section heading is present', async ({ page }) => {
-		const heading = page.locator('h2', { hasText: 'WhatsApp' });
-		await expect(heading).toBeAttached();
+	test('whatsapp channel section is present', async ({ page }) => {
+		const summary = page.locator(ALERT_SETTINGS.CHANNEL_SUMMARY, { hasText: 'WhatsApp' });
+		await expect(summary).toBeAttached();
 	});
 
 	test('cooldown input is present', async ({ page }) => {
@@ -100,5 +101,43 @@ test.describe('Alert Settings', () => {
 
 		const button = page.locator(ALERT_SETTINGS.SUBMIT_BUTTON);
 		await expect(button).toBeAttached();
+	});
+
+	/* v0.6.2 — Collapsible sections */
+
+	test('five collapsible channel sections are present', async ({ page }) => {
+		const sections = page.locator(ALERT_SETTINGS.CHANNEL_SECTION);
+		const count = await sections.count();
+		expect(count).toBe(5);
+	});
+
+	test('each channel section has an enabled or disabled badge', async ({ page }) => {
+		const badges = page.locator(ALERT_SETTINGS.CHANNEL_BADGE);
+		const count = await badges.count();
+		expect(count).toBe(5);
+
+		for (let i = 0; i < count; i++) {
+			const text = await badges.nth(i).textContent();
+			expect(text?.trim()).toMatch(/^(Enabled|Disabled)$/);
+		}
+	});
+
+	test('unchecked channel has disabled config fields', async ({ page }) => {
+		// Find the first channel section.
+		const section = page.locator(ALERT_SETTINGS.CHANNEL_SECTION).first();
+		const checkbox = section.locator('input[type="checkbox"][name$="_enabled"]');
+
+		// Ensure checkbox is unchecked.
+		if (await checkbox.isChecked()) {
+			await checkbox.uncheck();
+		}
+
+		// Wait for JS toggle to apply.
+		await page.waitForTimeout(200);
+
+		// Config fields (not the checkbox row) should be disabled.
+		const disabledInputs = section.locator('tr:not(:has(input[name$="_enabled"])) input:disabled');
+		const count = await disabledInputs.count();
+		expect(count).toBeGreaterThanOrEqual(1);
 	});
 });

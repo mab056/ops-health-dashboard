@@ -99,6 +99,7 @@ class Uninstaller {
 			'ops_health_activated_at',
 			'ops_health_version',
 			'ops_health_latest_results',
+			'ops_health_last_run_at',
 			'ops_health_alert_settings',
 			'ops_health_alert_log',
 		];

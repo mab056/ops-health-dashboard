@@ -28,6 +28,13 @@ use OpsHealthDashboard\Interfaces\StorageInterface;
 class AlertSettings {
 
 	/**
+	 * Screen ID per la pagina alert settings
+	 *
+	 * @var string
+	 */
+	const SCREEN_ID = 'ops-health_page_ops-health-alert-settings';
+
+	/**
 	 * Storage per leggere/salvare le impostazioni
 	 *
 	 * @var StorageInterface
@@ -41,6 +48,49 @@ class AlertSettings {
 	 */
 	public function __construct( StorageInterface $storage ) {
 		$this->storage = $storage;
+	}
+
+	/**
+	 * Registra gli hook WordPress
+	 *
+	 * @return void
+	 */
+	public function register_hooks(): void {
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_assets' ] );
+	}
+
+	/**
+	 * Carica JS e CSS sulla pagina alert settings
+	 *
+	 * Enqueue solo sulla schermata corretta per admin autorizzati.
+	 *
+	 * @return void
+	 */
+	public function enqueue_assets(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$screen = get_current_screen();
+
+		if ( null === $screen || self::SCREEN_ID !== $screen->id ) {
+			return;
+		}
+
+		wp_enqueue_style(
+			'ops-health-alert-settings',
+			plugin_dir_url( OPS_HEALTH_DASHBOARD_FILE ) . 'assets/css/alert-settings.css',
+			[],
+			OPS_HEALTH_DASHBOARD_VERSION
+		);
+
+		wp_enqueue_script(
+			'ops-health-alert-settings',
+			plugin_dir_url( OPS_HEALTH_DASHBOARD_FILE ) . 'assets/js/alert-settings.js',
+			[],
+			OPS_HEALTH_DASHBOARD_VERSION,
+			true
+		);
 	}
 
 	/**
@@ -147,6 +197,12 @@ class AlertSettings {
 		$wa_phone           = isset( $whatsapp['phone_number'] ) ? $whatsapp['phone_number'] : '';
 		$has_wa_token       = isset( $whatsapp['api_token'] ) && '' !== $whatsapp['api_token'];
 
+		$email_enabled    = ! empty( $email['enabled'] );
+		$webhook_enabled  = ! empty( $webhook['enabled'] );
+		$slack_enabled    = ! empty( $slack['enabled'] );
+		$telegram_enabled = ! empty( $telegram['enabled'] );
+		$whatsapp_enabled = ! empty( $whatsapp['enabled'] );
+
 		?>
 		<div class="wrap">
 			<h1><?php echo esc_html__( 'Alert Settings', 'ops-health-dashboard' ); ?></h1>
@@ -161,13 +217,34 @@ class AlertSettings {
 				<?php wp_nonce_field( 'ops_health_alert_settings', '_ops_health_alert_nonce' ); ?>
 				<input type="hidden" name="ops_health_alert_action" value="save" />
 
-				<h2><?php echo esc_html__( 'Email', 'ops-health-dashboard' ); ?></h2>
+				<h2><?php echo esc_html__( 'General', 'ops-health-dashboard' ); ?></h2>
+				<table class="form-table">
+					<tr>
+						<th><?php echo esc_html__( 'Cooldown (minutes)', 'ops-health-dashboard' ); ?></th>
+						<td>
+							<input type="number" name="cooldown_minutes" min="0" class="small-text"
+								value="<?php echo esc_attr( (string) $cooldown ); ?>" />
+							<p class="description">
+							<?php
+								echo esc_html__(
+									'Minimum time between alerts for the same check.',
+									'ops-health-dashboard'
+								);
+							?>
+							</p>
+						</td>
+					</tr>
+				</table>
+
+				<?php
+				$this->render_channel_section( 'email', 'Email', $email_enabled );
+				?>
 				<table class="form-table">
 					<tr>
 						<th><?php echo esc_html__( 'Enabled', 'ops-health-dashboard' ); ?></th>
 						<td>
 							<input type="checkbox" name="email_enabled" value="1"
-								<?php checked( ! empty( $email['enabled'] ) ); ?> />
+								<?php checked( $email_enabled ); ?> />
 						</td>
 					</tr>
 					<tr>
@@ -181,14 +258,15 @@ class AlertSettings {
 						</td>
 					</tr>
 				</table>
+				</details>
 
-				<h2><?php echo esc_html__( 'Webhook', 'ops-health-dashboard' ); ?></h2>
+				<?php $this->render_channel_section( 'webhook', 'Webhook', $webhook_enabled ); ?>
 				<table class="form-table">
 					<tr>
 						<th><?php echo esc_html__( 'Enabled', 'ops-health-dashboard' ); ?></th>
 						<td>
 							<input type="checkbox" name="webhook_enabled" value="1"
-								<?php checked( ! empty( $webhook['enabled'] ) ); ?> />
+								<?php checked( $webhook_enabled ); ?> />
 						</td>
 					</tr>
 					<tr>
@@ -208,14 +286,15 @@ class AlertSettings {
 						</td>
 					</tr>
 				</table>
+				</details>
 
-				<h2><?php echo esc_html__( 'Slack', 'ops-health-dashboard' ); ?></h2>
+				<?php $this->render_channel_section( 'slack', 'Slack', $slack_enabled ); ?>
 				<table class="form-table">
 					<tr>
 						<th><?php echo esc_html__( 'Enabled', 'ops-health-dashboard' ); ?></th>
 						<td>
 							<input type="checkbox" name="slack_enabled" value="1"
-								<?php checked( ! empty( $slack['enabled'] ) ); ?> />
+								<?php checked( $slack_enabled ); ?> />
 						</td>
 					</tr>
 					<tr>
@@ -226,14 +305,15 @@ class AlertSettings {
 						</td>
 					</tr>
 				</table>
+				</details>
 
-				<h2><?php echo esc_html__( 'Telegram', 'ops-health-dashboard' ); ?></h2>
+				<?php $this->render_channel_section( 'telegram', 'Telegram', $telegram_enabled ); ?>
 				<table class="form-table">
 					<tr>
 						<th><?php echo esc_html__( 'Enabled', 'ops-health-dashboard' ); ?></th>
 						<td>
 							<input type="checkbox" name="telegram_enabled" value="1"
-								<?php checked( ! empty( $telegram['enabled'] ) ); ?> />
+								<?php checked( $telegram_enabled ); ?> />
 						</td>
 					</tr>
 					<tr>
@@ -253,14 +333,15 @@ class AlertSettings {
 						</td>
 					</tr>
 				</table>
+				</details>
 
-				<h2><?php echo esc_html__( 'WhatsApp', 'ops-health-dashboard' ); ?></h2>
+				<?php $this->render_channel_section( 'whatsapp', 'WhatsApp', $whatsapp_enabled ); ?>
 				<table class="form-table">
 					<tr>
 						<th><?php echo esc_html__( 'Enabled', 'ops-health-dashboard' ); ?></th>
 						<td>
 							<input type="checkbox" name="whatsapp_enabled" value="1"
-								<?php checked( ! empty( $whatsapp['enabled'] ) ); ?> />
+								<?php checked( $whatsapp_enabled ); ?> />
 						</td>
 					</tr>
 					<tr>
@@ -287,25 +368,7 @@ class AlertSettings {
 						</td>
 					</tr>
 				</table>
-
-				<h2><?php echo esc_html__( 'General', 'ops-health-dashboard' ); ?></h2>
-				<table class="form-table">
-					<tr>
-						<th><?php echo esc_html__( 'Cooldown (minutes)', 'ops-health-dashboard' ); ?></th>
-						<td>
-							<input type="number" name="cooldown_minutes" min="0" class="small-text"
-								value="<?php echo esc_attr( (string) $cooldown ); ?>" />
-							<p class="description">
-							<?php
-								echo esc_html__(
-									'Minimum time between alerts for the same check.',
-									'ops-health-dashboard'
-								);
-							?>
-							</p>
-						</td>
-					</tr>
-				</table>
+				</details>
 
 				<?php
 				submit_button(
@@ -317,6 +380,46 @@ class AlertSettings {
 				?>
 			</form>
 		</div>
+		<?php
+	}
+
+	/**
+	 * Renderizza l'apertura di una sezione canale collassabile
+	 *
+	 * Ogni sezione è un elemento details/summary con badge di stato.
+	 * Il contenuto (form-table) segue nella chiamata, chiuso da </details>.
+	 *
+	 * @param string $channel_id ID del canale.
+	 * @param string $label      Label del canale.
+	 * @param bool   $is_enabled Se il canale è abilitato.
+	 * @return void
+	 */
+	private function render_channel_section(
+		string $channel_id,
+		string $label,
+		bool $is_enabled
+	): void {
+		$open_attr   = $is_enabled ? ' open' : '';
+		$badge_text  = $is_enabled
+			? __( 'Enabled', 'ops-health-dashboard' )
+			: __( 'Disabled', 'ops-health-dashboard' );
+		$badge_class = $is_enabled
+			? 'ops-health-alert-status-enabled'
+			: 'ops-health-alert-status-disabled';
+		?>
+		<details class="ops-health-alert-section"
+			id="alert-<?php echo esc_attr( $channel_id ); ?>"
+			<?php
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static string.
+			echo $open_attr;
+			?>
+		>
+			<summary>
+				<?php echo esc_html( $label ); ?>
+				<span class="ops-health-alert-status <?php echo esc_attr( $badge_class ); ?>">
+					<?php echo esc_html( $badge_text ); ?>
+				</span>
+			</summary>
 		<?php
 	}
 

@@ -28,6 +28,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## 0.6.2 - 2026-03-03
+
+### Added
+- **HealthScreen UI refresh** — "Site Health vibe" summary banner with overall status icon, affected checks list, timing meta (last run / next run), and link to Alert Settings
+- **HealthScreen status badges** — Inline colored pill badges (Ok/Warning/Critical/Unknown) on each check card header with `aria-hidden` status icons for accessibility
+- **HealthScreen expandable details** — HTML5 `<details>/<summary>` per check with check-specific breakdowns: database query time, error log severity counts + file size, Redis response time, disk free/total/percent, WP/PHP versions + available updates
+- **HealthScreen check timestamps** — "Checked X ago" relative time on each card using `human_time_diff()`
+- **HealthScreen anchor IDs** — Each check card has `id="check-{check_id}"` for deep linking from DashboardWidget
+- **AlertSettings collapsible sections** — Each channel wrapped in `<details class="ops-health-alert-section">` with `<summary>` showing channel name + Enabled/Disabled badge; enabled channels default `open`
+- **AlertSettings conditional fields** — ES5 JavaScript (`assets/js/alert-settings.js`, ~60 lines) toggles config fields disabled/dimmed when channel's "Enabled" checkbox is unchecked
+- **AlertSettings asset enqueue** — `register_hooks()` + `enqueue_assets()` with screen guard, new CSS (`assets/css/alert-settings.css`) and JS enqueued only on the alert settings page
+- **DashboardWidget timing** — "Last run: X ago" paragraph below check list using `StorageInterface` for `last_run_at`
+- **DashboardWidget check links** — Check names are `<a>` links with `#check-{id}` anchors pointing to HealthScreen cards
+- **`last_run_at` timestamp** — `CheckRunner.run_all()` saves `last_run_at` via Storage; `clear_results()` deletes it; `Uninstaller` cleans `ops_health_last_run_at`
+- **StorageInterface** injection into HealthScreen and DashboardWidget constructors for timing data access
+
+### Changed
+- **HealthScreen constructor** — Now accepts `CheckRunnerInterface` + `StorageInterface` (was `CheckRunnerInterface` only)
+- **DashboardWidget constructor** — Now accepts `CheckRunnerInterface` + `StorageInterface` (was `CheckRunnerInterface` only)
+- **AlertSettings render** — Channel sections migrated from `<h2>` headings to `<details>/<summary>` collapsible sections; General section (cooldown) remains outside collapsibles
+- **Plugin.php** — Calls `$alert_settings->register_hooks()` in `init()`
+- **bootstrap.php** — Passes `StorageInterface` to HealthScreen and DashboardWidget
+- **health-screen.css** — Extended with summary banner, badge, check header, details, timestamp, meta, updates list styles
+- **dashboard-widget.css** — Extended with timing and check link styles
+
+### Tests
+- +41 unit tests: HealthScreen (summary banner, timing, affected checks, icons, badges, details, versions updates ~25 tests), AlertSettings (register_hooks, enqueue_assets, collapsible sections ~9 tests), DashboardWidget (timing, check links ~5 tests), CheckRunner (last_run_at ~2 tests)
+- Updated unit tests: PluginTest (AlertSettings register_hooks mock), all HealthScreen/DashboardWidget tests (StorageInterface constructor)
+- Updated integration tests: HealthScreenTest, DashboardWidgetTest, MenuTest (StorageInterface constructor)
+- Updated E2E: +6 health-dashboard scenarios (summary banner, timing meta, alert settings link, badges, anchor IDs, expandable details), +3 alert-settings scenarios (collapsible sections, badges, disabled fields), +2 dashboard-widget scenarios (timing, check links)
+- New E2E selectors: SUMMARY_BANNER, SUMMARY_HEADER, SUMMARY_AFFECTED, SUMMARY_META, META_ITEM, STATUS_ICON, BADGE, CHECK_HEADER, CHECK_METRIC, CHECK_TIMESTAMP, CHECK_DETAILS, CHANNEL_SECTION, CHANNEL_SUMMARY, CHANNEL_BADGE, BADGE_ENABLED, BADGE_DISABLED, WIDGET_TIMING, CHECK_LINK
+
+---
+
 ## 0.6.1 - 2026-02-15
 
 ### Fixed

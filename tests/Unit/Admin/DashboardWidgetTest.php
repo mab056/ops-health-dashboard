@@ -15,6 +15,7 @@ use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use OpsHealthDashboard\Admin\DashboardWidget;
 use OpsHealthDashboard\Interfaces\CheckRunnerInterface;
+use OpsHealthDashboard\Interfaces\StorageInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -51,6 +52,20 @@ class DashboardWidgetTest extends TestCase {
 	}
 
 	/**
+	 * Crea un mock di StorageInterface
+	 *
+	 * @param int $last_run_at Timestamp last run (0 = mai eseguito).
+	 * @return \Mockery\MockInterface|StorageInterface
+	 */
+	private function create_storage_mock( int $last_run_at = 0 ) {
+		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'get' )
+			->with( 'last_run_at', 0 )
+			->andReturn( $last_run_at );
+		return $storage;
+	}
+
+	/**
 	 * Configura i mock comuni per il rendering
 	 */
 	private function mock_render_functions(): void {
@@ -60,7 +75,10 @@ class DashboardWidgetTest extends TestCase {
 		Functions\when( 'esc_attr' )->returnArg();
 		Functions\when( 'esc_url' )->returnArg();
 		Functions\when( 'current_user_can' )->justReturn( true );
-		Functions\when( 'admin_url' )->justReturn( 'http://example.com/wp-admin/admin.php?page=ops-health-dashboard' );
+		Functions\when( 'admin_url' )->justReturn(
+			'http://example.com/wp-admin/admin.php?page=ops-health-dashboard'
+		);
+		Functions\when( 'human_time_diff' )->justReturn( '3 mins' );
 	}
 
 	// ─── Pattern Enforcement ──────────────────────────────────────────
@@ -104,11 +122,12 @@ class DashboardWidgetTest extends TestCase {
 	// ─── Instantiation ───────────────────────────────────────────────
 
 	/**
-	 * Testa che DashboardWidget si istanzia con CheckRunnerInterface
+	 * Testa che DashboardWidget si istanzia con CheckRunnerInterface e StorageInterface
 	 */
-	public function test_instantiates_with_runner() {
-		$runner = $this->create_runner_mock();
-		$widget = new DashboardWidget( $runner );
+	public function test_instantiates_with_runner_and_storage() {
+		$runner  = $this->create_runner_mock();
+		$storage = $this->create_storage_mock();
+		$widget  = new DashboardWidget( $runner, $storage );
 		$this->assertInstanceOf( DashboardWidget::class, $widget );
 	}
 
@@ -118,8 +137,9 @@ class DashboardWidgetTest extends TestCase {
 	 * Testa che register_hooks registra l'hook wp_dashboard_setup
 	 */
 	public function test_register_hooks_adds_dashboard_setup() {
-		$runner = $this->create_runner_mock();
-		$widget = new DashboardWidget( $runner );
+		$runner  = $this->create_runner_mock();
+		$storage = $this->create_storage_mock();
+		$widget  = new DashboardWidget( $runner, $storage );
 
 		$hooks = [];
 		Functions\expect( 'add_action' )
@@ -141,8 +161,9 @@ class DashboardWidgetTest extends TestCase {
 	 * Testa che register_hooks registra l'hook admin_enqueue_scripts
 	 */
 	public function test_register_hooks_adds_admin_enqueue_scripts() {
-		$runner = $this->create_runner_mock();
-		$widget = new DashboardWidget( $runner );
+		$runner  = $this->create_runner_mock();
+		$storage = $this->create_storage_mock();
+		$widget  = new DashboardWidget( $runner, $storage );
 
 		$hooks = [];
 		Functions\expect( 'add_action' )
@@ -198,8 +219,9 @@ class DashboardWidgetTest extends TestCase {
 				Mockery::type( 'string' )
 			);
 
-		$runner = $this->create_runner_mock();
-		$widget = new DashboardWidget( $runner );
+		$runner  = $this->create_runner_mock();
+		$storage = $this->create_storage_mock();
+		$widget  = new DashboardWidget( $runner, $storage );
 		$widget->enqueue_styles();
 	}
 
@@ -212,8 +234,9 @@ class DashboardWidgetTest extends TestCase {
 			->with( 'manage_options' )
 			->andReturn( false );
 
-		$runner = $this->create_runner_mock();
-		$widget = new DashboardWidget( $runner );
+		$runner  = $this->create_runner_mock();
+		$storage = $this->create_storage_mock();
+		$widget  = new DashboardWidget( $runner, $storage );
 		$widget->enqueue_styles();
 
 		// wp_enqueue_style non deve essere chiamato.
@@ -236,8 +259,9 @@ class DashboardWidgetTest extends TestCase {
 			->once()
 			->andReturn( $screen );
 
-		$runner = $this->create_runner_mock();
-		$widget = new DashboardWidget( $runner );
+		$runner  = $this->create_runner_mock();
+		$storage = $this->create_storage_mock();
+		$widget  = new DashboardWidget( $runner, $storage );
 		$widget->enqueue_styles();
 
 		// wp_enqueue_style non deve essere chiamato.
@@ -257,8 +281,9 @@ class DashboardWidgetTest extends TestCase {
 			->once()
 			->andReturn( null );
 
-		$runner = $this->create_runner_mock();
-		$widget = new DashboardWidget( $runner );
+		$runner  = $this->create_runner_mock();
+		$storage = $this->create_storage_mock();
+		$widget  = new DashboardWidget( $runner, $storage );
 		$widget->enqueue_styles();
 
 		// wp_enqueue_style non deve essere chiamato.
@@ -277,8 +302,9 @@ class DashboardWidgetTest extends TestCase {
 			->with( 'manage_options' )
 			->andReturn( false );
 
-		$runner = $this->create_runner_mock();
-		$widget = new DashboardWidget( $runner );
+		$runner  = $this->create_runner_mock();
+		$storage = $this->create_storage_mock();
+		$widget  = new DashboardWidget( $runner, $storage );
 
 		// Non deve chiamare wp_add_dashboard_widget.
 		$widget->add_widget();
@@ -294,8 +320,9 @@ class DashboardWidgetTest extends TestCase {
 			->with( 'manage_options' )
 			->andReturn( true );
 
-		$runner = $this->create_runner_mock();
-		$widget = new DashboardWidget( $runner );
+		$runner  = $this->create_runner_mock();
+		$storage = $this->create_storage_mock();
+		$widget  = new DashboardWidget( $runner, $storage );
 
 		Functions\expect( 'wp_add_dashboard_widget' )
 			->once()
@@ -325,8 +352,9 @@ class DashboardWidgetTest extends TestCase {
 			->with( 'manage_options' )
 			->andReturn( false );
 
-		$runner = $this->create_runner_mock();
-		$widget = new DashboardWidget( $runner );
+		$runner  = $this->create_runner_mock();
+		$storage = $this->create_storage_mock();
+		$widget  = new DashboardWidget( $runner, $storage );
 
 		ob_start();
 		$widget->render();
@@ -342,8 +370,9 @@ class DashboardWidgetTest extends TestCase {
 		$this->mock_render_functions();
 		$runner = $this->create_runner_mock();
 		$runner->shouldReceive( 'get_latest_results' )->andReturn( [] );
+		$storage = $this->create_storage_mock();
 
-		$widget = new DashboardWidget( $runner );
+		$widget = new DashboardWidget( $runner, $storage );
 
 		ob_start();
 		$widget->render();
@@ -372,8 +401,9 @@ class DashboardWidgetTest extends TestCase {
 				],
 			]
 		);
+		$storage = $this->create_storage_mock();
 
-		$widget = new DashboardWidget( $runner );
+		$widget = new DashboardWidget( $runner, $storage );
 
 		ob_start();
 		$widget->render();
@@ -400,8 +430,9 @@ class DashboardWidgetTest extends TestCase {
 				],
 			]
 		);
+		$storage = $this->create_storage_mock();
 
-		$widget = new DashboardWidget( $runner );
+		$widget = new DashboardWidget( $runner, $storage );
 
 		ob_start();
 		$widget->render();
@@ -430,8 +461,9 @@ class DashboardWidgetTest extends TestCase {
 				],
 			]
 		);
+		$storage = $this->create_storage_mock();
 
-		$widget = new DashboardWidget( $runner );
+		$widget = new DashboardWidget( $runner, $storage );
 
 		ob_start();
 		$widget->render();
@@ -455,8 +487,9 @@ class DashboardWidgetTest extends TestCase {
 				],
 			]
 		);
+		$storage = $this->create_storage_mock();
 
-		$widget = new DashboardWidget( $runner );
+		$widget = new DashboardWidget( $runner, $storage );
 
 		ob_start();
 		$widget->render();
@@ -473,6 +506,7 @@ class DashboardWidgetTest extends TestCase {
 		Functions\when( 'esc_html__' )->returnArg();
 		Functions\when( 'current_user_can' )->justReturn( true );
 		Functions\when( 'admin_url' )->justReturn( 'http://example.com/' );
+		Functions\when( 'human_time_diff' )->justReturn( '3 mins' );
 
 		Functions\expect( 'esc_html' )
 			->atLeast()
@@ -497,8 +531,9 @@ class DashboardWidgetTest extends TestCase {
 				],
 			]
 		);
+		$storage = $this->create_storage_mock();
 
-		$widget = new DashboardWidget( $runner );
+		$widget = new DashboardWidget( $runner, $storage );
 
 		ob_start();
 		$widget->render();
@@ -520,8 +555,9 @@ class DashboardWidgetTest extends TestCase {
 				],
 			]
 		);
+		$storage = $this->create_storage_mock();
 
-		$widget = new DashboardWidget( $runner );
+		$widget = new DashboardWidget( $runner, $storage );
 
 		ob_start();
 		$widget->render();
@@ -536,8 +572,9 @@ class DashboardWidgetTest extends TestCase {
 	 * Testa che overall status per risultati vuoti è 'unknown'
 	 */
 	public function test_overall_status_empty_is_unknown() {
-		$runner = $this->create_runner_mock();
-		$widget = new DashboardWidget( $runner );
+		$runner  = $this->create_runner_mock();
+		$storage = $this->create_storage_mock();
+		$widget  = new DashboardWidget( $runner, $storage );
 
 		$reflection = new \ReflectionMethod( DashboardWidget::class, 'determine_overall_status' );
 		$reflection->setAccessible( true );
@@ -550,8 +587,9 @@ class DashboardWidgetTest extends TestCase {
 	 * Testa che overall status prende il peggiore (critical > warning > ok)
 	 */
 	public function test_overall_status_worst_wins() {
-		$runner = $this->create_runner_mock();
-		$widget = new DashboardWidget( $runner );
+		$runner  = $this->create_runner_mock();
+		$storage = $this->create_storage_mock();
+		$widget  = new DashboardWidget( $runner, $storage );
 
 		$reflection = new \ReflectionMethod( DashboardWidget::class, 'determine_overall_status' );
 		$reflection->setAccessible( true );
@@ -571,8 +609,9 @@ class DashboardWidgetTest extends TestCase {
 	 * Testa che overall status per tutti ok è 'ok'
 	 */
 	public function test_overall_status_all_ok() {
-		$runner = $this->create_runner_mock();
-		$widget = new DashboardWidget( $runner );
+		$runner  = $this->create_runner_mock();
+		$storage = $this->create_storage_mock();
+		$widget  = new DashboardWidget( $runner, $storage );
 
 		$reflection = new \ReflectionMethod( DashboardWidget::class, 'determine_overall_status' );
 		$reflection->setAccessible( true );
@@ -588,8 +627,9 @@ class DashboardWidgetTest extends TestCase {
 	 * Testa che overall status gestisce risultati senza campo status
 	 */
 	public function test_overall_status_missing_status_field() {
-		$runner = $this->create_runner_mock();
-		$widget = new DashboardWidget( $runner );
+		$runner  = $this->create_runner_mock();
+		$storage = $this->create_storage_mock();
+		$widget  = new DashboardWidget( $runner, $storage );
 
 		$reflection = new \ReflectionMethod( DashboardWidget::class, 'determine_overall_status' );
 		$reflection->setAccessible( true );
@@ -618,8 +658,9 @@ class DashboardWidgetTest extends TestCase {
 				],
 			]
 		);
+		$storage = $this->create_storage_mock();
 
-		$widget = new DashboardWidget( $runner );
+		$widget = new DashboardWidget( $runner, $storage );
 
 		ob_start();
 		$widget->render();
@@ -646,8 +687,9 @@ class DashboardWidgetTest extends TestCase {
 				],
 			]
 		);
+		$storage = $this->create_storage_mock();
 
-		$widget = new DashboardWidget( $runner );
+		$widget = new DashboardWidget( $runner, $storage );
 
 		ob_start();
 		$widget->render();
@@ -660,8 +702,9 @@ class DashboardWidgetTest extends TestCase {
 	 * Testa overall status con solo status non riconosciuti e ok
 	 */
 	public function test_overall_status_unrecognized_with_ok() {
-		$runner = $this->create_runner_mock();
-		$widget = new DashboardWidget( $runner );
+		$runner  = $this->create_runner_mock();
+		$storage = $this->create_storage_mock();
+		$widget  = new DashboardWidget( $runner, $storage );
 
 		$reflection = new \ReflectionMethod( DashboardWidget::class, 'determine_overall_status' );
 		$reflection->setAccessible( true );
@@ -672,5 +715,142 @@ class DashboardWidgetTest extends TestCase {
 		];
 		// 'ok' ha priority 1, 'unrecognized' ha priority 0 → ok vince.
 		$this->assertEquals( 'ok', $reflection->invoke( $widget, $results ) );
+	}
+
+	// ─── v0.6.2: Clickable check names ─────────────────────────────
+
+	/**
+	 * Testa che i nomi dei check sono link con ancora alla dashboard
+	 */
+	public function test_check_names_are_links_with_anchor() {
+		$this->mock_render_functions();
+		$runner = $this->create_runner_mock();
+		$runner->shouldReceive( 'get_latest_results' )->andReturn(
+			[
+				'database' => [
+					'status'  => 'ok',
+					'message' => 'OK',
+					'name'    => 'Database',
+				],
+			]
+		);
+		$storage = $this->create_storage_mock();
+
+		$widget = new DashboardWidget( $runner, $storage );
+
+		ob_start();
+		$widget->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '#check-database', $output );
+		$this->assertStringContainsString( '<a href=', $output );
+	}
+
+	/**
+	 * Testa che ogni check ha link con ancora corretta
+	 */
+	public function test_each_check_has_correct_anchor() {
+		$this->mock_render_functions();
+		$runner = $this->create_runner_mock();
+		$runner->shouldReceive( 'get_latest_results' )->andReturn(
+			[
+				'database'  => [
+					'status' => 'ok',
+					'name'   => 'Database',
+				],
+				'error_log' => [
+					'status' => 'warning',
+					'name'   => 'Error Log',
+				],
+			]
+		);
+		$storage = $this->create_storage_mock();
+
+		$widget = new DashboardWidget( $runner, $storage );
+
+		ob_start();
+		$widget->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '#check-database', $output );
+		$this->assertStringContainsString( '#check-error_log', $output );
+	}
+
+	// ─── v0.6.2: Timing display ────────────────────────────────────
+
+	/**
+	 * Testa che il timing viene mostrato quando last_run_at è disponibile
+	 */
+	public function test_timing_shown_when_last_run_at_available() {
+		$this->mock_render_functions();
+		$runner = $this->create_runner_mock();
+		$runner->shouldReceive( 'get_latest_results' )->andReturn(
+			[
+				'database' => [
+					'status' => 'ok',
+					'name'   => 'Database',
+				],
+			]
+		);
+		$storage = $this->create_storage_mock( time() - 180 );
+
+		$widget = new DashboardWidget( $runner, $storage );
+
+		ob_start();
+		$widget->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'ops-health-widget-timing', $output );
+		$this->assertStringContainsString( 'Last run', $output );
+	}
+
+	/**
+	 * Testa che il timing NON viene mostrato quando last_run_at è 0
+	 */
+	public function test_timing_hidden_when_no_last_run() {
+		$this->mock_render_functions();
+		$runner = $this->create_runner_mock();
+		$runner->shouldReceive( 'get_latest_results' )->andReturn(
+			[
+				'database' => [
+					'status' => 'ok',
+					'name'   => 'Database',
+				],
+			]
+		);
+		$storage = $this->create_storage_mock( 0 );
+
+		$widget = new DashboardWidget( $runner, $storage );
+
+		ob_start();
+		$widget->render();
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'ops-health-widget-timing', $output );
+	}
+
+	/**
+	 * Testa che il timing include "ago" nel testo
+	 */
+	public function test_timing_includes_ago_text() {
+		$this->mock_render_functions();
+		$runner = $this->create_runner_mock();
+		$runner->shouldReceive( 'get_latest_results' )->andReturn(
+			[
+				'database' => [
+					'status' => 'ok',
+					'name'   => 'Database',
+				],
+			]
+		);
+		$storage = $this->create_storage_mock( time() - 300 );
+
+		$widget = new DashboardWidget( $runner, $storage );
+
+		ob_start();
+		$widget->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'ago', $output );
 	}
 }

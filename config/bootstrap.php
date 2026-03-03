@@ -146,7 +146,8 @@ function bootstrap(): Plugin {
 		Admin\HealthScreen::class,
 		function ( $c ) {
 			return new Admin\HealthScreen(
-				$c->make( Interfaces\CheckRunnerInterface::class )
+				$c->make( Interfaces\CheckRunnerInterface::class ),
+				$c->make( Interfaces\StorageInterface::class )
 			);
 		}
 	);
@@ -166,7 +167,8 @@ function bootstrap(): Plugin {
 		Admin\DashboardWidget::class,
 		function ( $c ) {
 			return new Admin\DashboardWidget(
-				$c->make( Interfaces\CheckRunnerInterface::class )
+				$c->make( Interfaces\CheckRunnerInterface::class ),
+				$c->make( Interfaces\StorageInterface::class )
 			);
 		}
 	);

@@ -43,7 +43,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 		$storage   = new Storage();
 		$redaction = new Redaction();
 		$runner    = new CheckRunner( $storage, $redaction );
-		return new HealthScreen( $runner );
+		return new HealthScreen( $runner, $storage );
 	}
 
 	/**
@@ -55,7 +55,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 		$storage   = new Storage();
 		$redaction = new Redaction();
 		$runner    = new CheckRunner( $storage, $redaction );
-		return new TestableHealthScreen( $runner );
+		return new TestableHealthScreen( $runner, $storage );
 	}
 
 	/**
@@ -71,7 +71,7 @@ class HealthScreenTest extends WP_UnitTestCase {
 		global $wpdb;
 		$runner->add_check( new DatabaseCheck( $wpdb, $redaction ) );
 
-		return new TestableHealthScreen( $runner );
+		return new TestableHealthScreen( $runner, $storage );
 	}
 
 	/**

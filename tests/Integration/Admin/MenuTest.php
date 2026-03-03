@@ -33,7 +33,7 @@ class MenuTest extends WP_UnitTestCase {
 		$storage       = new Storage();
 		$redaction     = new Redaction();
 		$runner        = new CheckRunner( $storage, $redaction );
-		$health_screen = new HealthScreen( $runner );
+		$health_screen = new HealthScreen( $runner, $storage );
 		return new Menu( $health_screen );
 	}
 
@@ -46,7 +46,7 @@ class MenuTest extends WP_UnitTestCase {
 		$storage        = new Storage();
 		$redaction      = new Redaction();
 		$runner         = new CheckRunner( $storage, $redaction );
-		$health_screen  = new HealthScreen( $runner );
+		$health_screen  = new HealthScreen( $runner, $storage );
 		$alert_settings = new AlertSettings( $storage );
 		return new Menu( $health_screen, $alert_settings );
 	}

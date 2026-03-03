@@ -107,8 +107,9 @@ class CheckRunner implements CheckRunnerInterface {
 			}
 		}
 
-		// Salva i risultati nello storage.
+		// Salva i risultati e il timestamp nello storage.
 		$this->storage->set( 'latest_results', $results );
+		$this->storage->set( 'last_run_at', time() );
 
 		return $results;
 	}
@@ -120,6 +121,7 @@ class CheckRunner implements CheckRunnerInterface {
 	 */
 	public function clear_results(): void {
 		$this->storage->delete( 'latest_results' );
+		$this->storage->delete( 'last_run_at' );
 	}
 
 	/**

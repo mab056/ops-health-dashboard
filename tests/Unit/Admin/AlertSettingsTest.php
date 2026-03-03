@@ -69,6 +69,265 @@ class AlertSettingsTest extends TestCase {
 		$this->assertInstanceOf( AlertSettings::class, $settings );
 	}
 
+	// ─── register_hooks ─────────────────────────────────────────────
+
+	/**
+	 * Testa che register_hooks registra l'hook admin_enqueue_scripts
+	 */
+	public function test_register_hooks_adds_admin_enqueue_scripts() {
+		$storage  = Mockery::mock( StorageInterface::class );
+		$settings = new AlertSettings( $storage );
+
+		$hooks = [];
+		Functions\expect( 'add_action' )
+			->atLeast()
+			->times( 1 )
+			->andReturnUsing(
+				function ( $hook, $callback ) use ( &$hooks ) {
+					$hooks[ $hook ] = $callback;
+				}
+			);
+
+		$settings->register_hooks();
+
+		$this->assertArrayHasKey( 'admin_enqueue_scripts', $hooks );
+		$this->assertSame( [ $settings, 'enqueue_assets' ], $hooks['admin_enqueue_scripts'] );
+	}
+
+	// ─── enqueue_assets ─────────────────────────────────────────────
+
+	/**
+	 * Testa che enqueue_assets carica CSS e JS sulla schermata alert settings
+	 */
+	public function test_enqueue_assets_on_alert_settings_screen() {
+		if ( ! defined( 'OPS_HEALTH_DASHBOARD_FILE' ) ) {
+			define( 'OPS_HEALTH_DASHBOARD_FILE', '/fake/ops-health-dashboard.php' );
+		}
+		if ( ! defined( 'OPS_HEALTH_DASHBOARD_VERSION' ) ) {
+			define( 'OPS_HEALTH_DASHBOARD_VERSION', '0.6.0' );
+		}
+
+		$screen     = new \stdClass();
+		$screen->id = AlertSettings::SCREEN_ID;
+
+		Functions\expect( 'current_user_can' )
+			->once()
+			->with( 'manage_options' )
+			->andReturn( true );
+
+		Functions\expect( 'get_current_screen' )
+			->once()
+			->andReturn( $screen );
+
+		Functions\expect( 'plugin_dir_url' )
+			->andReturn( 'http://example.com/wp-content/plugins/ops-health-dashboard/' );
+
+		Functions\expect( 'wp_enqueue_style' )
+			->once()
+			->with(
+				'ops-health-alert-settings',
+				Mockery::type( 'string' ),
+				[],
+				Mockery::type( 'string' )
+			);
+
+		Functions\expect( 'wp_enqueue_script' )
+			->once()
+			->with(
+				'ops-health-alert-settings',
+				Mockery::type( 'string' ),
+				[],
+				Mockery::type( 'string' ),
+				true
+			);
+
+		$storage  = Mockery::mock( StorageInterface::class );
+		$settings = new AlertSettings( $storage );
+		$settings->enqueue_assets();
+	}
+
+	/**
+	 * Testa che enqueue_assets NON carica per utenti non admin
+	 */
+	public function test_enqueue_assets_skips_for_non_admin() {
+		Functions\expect( 'current_user_can' )
+			->once()
+			->with( 'manage_options' )
+			->andReturn( false );
+
+		$storage  = Mockery::mock( StorageInterface::class );
+		$settings = new AlertSettings( $storage );
+		$settings->enqueue_assets();
+
+		$this->assertInstanceOf( AlertSettings::class, $settings );
+	}
+
+	/**
+	 * Testa che enqueue_assets NON carica su schermate diverse
+	 */
+	public function test_enqueue_assets_skips_on_other_screens() {
+		$screen     = new \stdClass();
+		$screen->id = 'plugins';
+
+		Functions\expect( 'current_user_can' )
+			->once()
+			->with( 'manage_options' )
+			->andReturn( true );
+
+		Functions\expect( 'get_current_screen' )
+			->once()
+			->andReturn( $screen );
+
+		$storage  = Mockery::mock( StorageInterface::class );
+		$settings = new AlertSettings( $storage );
+		$settings->enqueue_assets();
+
+		$this->assertInstanceOf( AlertSettings::class, $settings );
+	}
+
+	/**
+	 * Testa che enqueue_assets gestisce screen null
+	 */
+	public function test_enqueue_assets_handles_null_screen() {
+		Functions\expect( 'current_user_can' )
+			->once()
+			->with( 'manage_options' )
+			->andReturn( true );
+
+		Functions\expect( 'get_current_screen' )
+			->once()
+			->andReturn( null );
+
+		$storage  = Mockery::mock( StorageInterface::class );
+		$settings = new AlertSettings( $storage );
+		$settings->enqueue_assets();
+
+		$this->assertInstanceOf( AlertSettings::class, $settings );
+	}
+
+	// ─── render: collapsible sections ──────────────────────────────
+
+	/**
+	 * Testa che render mostra sezioni collassabili con details/summary
+	 */
+	public function test_render_shows_collapsible_sections() {
+		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'get' )
+			->with( 'alert_settings', [] )
+			->andReturn( [] );
+
+		$this->mock_render_functions();
+
+		$settings = new AlertSettings( $storage );
+
+		ob_start();
+		$settings->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '<details', $output );
+		$this->assertStringContainsString( '<summary>', $output );
+		$this->assertStringContainsString( 'ops-health-alert-section', $output );
+	}
+
+	/**
+	 * Testa che canale abilitato ha sezione aperta e badge Enabled
+	 */
+	public function test_render_enabled_channel_has_open_section_and_badge() {
+		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'get' )
+			->with( 'alert_settings', [] )
+			->andReturn( [
+				'email' => [
+					'enabled'    => true,
+					'recipients' => 'test@example.com',
+				],
+			] );
+
+		$this->mock_render_functions();
+
+		$settings = new AlertSettings( $storage );
+
+		ob_start();
+		$settings->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'open', $output );
+		$this->assertStringContainsString( 'ops-health-alert-status-enabled', $output );
+		$this->assertStringContainsString( 'Enabled', $output );
+	}
+
+	/**
+	 * Testa che canale disabilitato ha badge Disabled senza open
+	 */
+	public function test_render_disabled_channel_has_disabled_badge() {
+		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'get' )
+			->with( 'alert_settings', [] )
+			->andReturn( [] );
+
+		$this->mock_render_functions();
+
+		$settings = new AlertSettings( $storage );
+
+		ob_start();
+		$settings->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'ops-health-alert-status-disabled', $output );
+		$this->assertStringContainsString( 'Disabled', $output );
+	}
+
+	/**
+	 * Testa che ogni canale ha un ID univoco sulla sezione details
+	 */
+	public function test_render_each_channel_has_unique_id() {
+		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'get' )
+			->with( 'alert_settings', [] )
+			->andReturn( [] );
+
+		$this->mock_render_functions();
+
+		$settings = new AlertSettings( $storage );
+
+		ob_start();
+		$settings->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'id="alert-email"', $output );
+		$this->assertStringContainsString( 'id="alert-webhook"', $output );
+		$this->assertStringContainsString( 'id="alert-slack"', $output );
+		$this->assertStringContainsString( 'id="alert-telegram"', $output );
+		$this->assertStringContainsString( 'id="alert-whatsapp"', $output );
+	}
+
+	/**
+	 * Testa che General (cooldown) è fuori dalle sezioni collassabili
+	 */
+	public function test_render_general_section_is_not_collapsible() {
+		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'get' )
+			->with( 'alert_settings', [] )
+			->andReturn( [] );
+
+		$this->mock_render_functions();
+
+		$settings = new AlertSettings( $storage );
+
+		ob_start();
+		$settings->render();
+		$output = ob_get_clean();
+
+		// General è prima delle sezioni details e non wrappato in details.
+		$general_pos = strpos( $output, 'General' );
+		$first_details_pos = strpos( $output, '<details' );
+		$this->assertNotFalse( $general_pos );
+		$this->assertNotFalse( $first_details_pos );
+		$this->assertLessThan( $first_details_pos, $general_pos );
+	}
+
+	// ─── process_actions ────────────────────────────────────────────
+
 	/**
 	 * Testa che process_actions() ritorna subito senza POST action
 	 */
@@ -545,6 +804,8 @@ class AlertSettingsTest extends TestCase {
 			->with( 'manage_options' )
 			->andReturn( true );
 
+		Functions\when( '__' )->returnArg();
+
 		Functions\expect( 'esc_html__' )
 			->andReturnUsing( function ( $text ) {
 				return $text;
@@ -855,6 +1116,8 @@ class AlertSettingsTest extends TestCase {
 		Functions\expect( 'current_user_can' )
 			->with( 'manage_options' )
 			->andReturn( true );
+
+		Functions\when( '__' )->returnArg();
 
 		Functions\expect( 'esc_html__' )
 			->andReturnUsing( function ( $text ) {

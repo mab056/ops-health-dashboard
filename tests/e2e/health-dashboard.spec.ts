@@ -2,7 +2,8 @@
  * Health Dashboard E2E Tests
  *
  * Tests for the main health dashboard page: page load, Run Now,
- * Clear Cache, check results display, and status classes.
+ * Clear Cache, check results display, status classes, summary
+ * banner, badges, timing, expandable details, and anchor IDs.
  *
  * @module tests/e2e/health-dashboard
  */
@@ -128,5 +129,69 @@ test.describe('Health Dashboard', () => {
 			const classAttr = await check.getAttribute('class');
 			expect(classAttr).toMatch(/ops-health-check-(ok|warning|critical|unknown)/);
 		}
+	});
+
+	/* v0.6.2 — Summary banner */
+
+	test('summary banner shows overall status after run', async ({ page }) => {
+		await page.locator(HEALTH_DASHBOARD.RUN_NOW_BUTTON).click();
+		await page.waitForLoadState('networkidle');
+
+		const banner = page.locator(HEALTH_DASHBOARD.SUMMARY_BANNER);
+		await expect(banner).toBeAttached();
+
+		const header = page.locator(HEALTH_DASHBOARD.SUMMARY_HEADER);
+		await expect(header).toBeVisible();
+	});
+
+	test('summary banner shows timing meta', async ({ page }) => {
+		await page.locator(HEALTH_DASHBOARD.RUN_NOW_BUTTON).click();
+		await page.waitForLoadState('networkidle');
+
+		const meta = page.locator(HEALTH_DASHBOARD.SUMMARY_META);
+		await expect(meta).toBeAttached();
+
+		const metaItems = page.locator(HEALTH_DASHBOARD.META_ITEM);
+		const count = await metaItems.count();
+		expect(count).toBeGreaterThanOrEqual(1);
+	});
+
+	test('summary banner has Alert Settings link', async ({ page }) => {
+		await page.locator(HEALTH_DASHBOARD.RUN_NOW_BUTTON).click();
+		await page.waitForLoadState('networkidle');
+
+		const link = page.locator('.ops-health-summary-meta a[href*="ops-health-alert-settings"]');
+		await expect(link).toBeAttached();
+	});
+
+	test('each check has a status badge', async ({ page }) => {
+		await page.locator(HEALTH_DASHBOARD.RUN_NOW_BUTTON).click();
+		await page.waitForLoadState('networkidle');
+
+		const badges = page.locator(HEALTH_DASHBOARD.BADGE);
+		const count = await badges.count();
+		expect(count).toBeGreaterThanOrEqual(3);
+	});
+
+	test('each check card has an anchor ID', async ({ page }) => {
+		await page.locator(HEALTH_DASHBOARD.RUN_NOW_BUTTON).click();
+		await page.waitForLoadState('networkidle');
+
+		const checks = page.locator(HEALTH_DASHBOARD.CHECK_RESULT);
+		const count = await checks.count();
+
+		for (let i = 0; i < count; i++) {
+			const id = await checks.nth(i).getAttribute('id');
+			expect(id).toMatch(/^check-/);
+		}
+	});
+
+	test('check cards have expandable details', async ({ page }) => {
+		await page.locator(HEALTH_DASHBOARD.RUN_NOW_BUTTON).click();
+		await page.waitForLoadState('networkidle');
+
+		const details = page.locator(HEALTH_DASHBOARD.CHECK_DETAILS);
+		const count = await details.count();
+		expect(count).toBeGreaterThanOrEqual(1);
 	});
 });

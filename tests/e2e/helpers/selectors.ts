@@ -26,6 +26,24 @@ export const HEALTH_DASHBOARD = {
 	CHECK_RESULT: '.ops-health-check',
 	CHECK_STATUS: '.ops-health-check .status',
 	NO_RESULTS: '.notice-info',
+
+	/* v0.6.2 — Summary banner */
+	SUMMARY_BANNER: '.ops-health-summary',
+	SUMMARY_HEADER: '.ops-health-summary-header',
+	SUMMARY_AFFECTED: '.ops-health-summary-affected',
+	SUMMARY_ISSUES: '.ops-health-summary-issues',
+	SUMMARY_META: '.ops-health-summary-meta',
+	META_ITEM: '.ops-health-meta-item',
+
+	/* v0.6.2 — Status icons and badges */
+	STATUS_ICON: '.ops-health-status-icon',
+	BADGE: '.ops-health-badge',
+
+	/* v0.6.2 — Check cards */
+	CHECK_HEADER: '.ops-health-check-header',
+	CHECK_METRIC: '.ops-health-check-metric',
+	CHECK_TIMESTAMP: '.ops-health-check-timestamp',
+	CHECK_DETAILS: '.ops-health-check-details',
 };
 
 export const ALERT_SETTINGS = {
@@ -34,6 +52,13 @@ export const ALERT_SETTINGS = {
 	SUBMIT_BUTTON: 'input[name="ops_health_alert_submit"]',
 	NONCE_FIELD: 'input[name="_ops_health_alert_nonce"]',
 	COOLDOWN_INPUT: 'input[name="cooldown_minutes"]',
+
+	/* v0.6.2 — Collapsible channel sections */
+	CHANNEL_SECTION: '.ops-health-alert-section',
+	CHANNEL_SUMMARY: '.ops-health-alert-section summary',
+	CHANNEL_BADGE: '.ops-health-alert-status',
+	BADGE_ENABLED: '.ops-health-alert-status-enabled',
+	BADGE_DISABLED: '.ops-health-alert-status-disabled',
 };
 
 export const DASHBOARD_WIDGET = {
@@ -41,4 +66,8 @@ export const DASHBOARD_WIDGET = {
 	STATUS: '.ops-health-widget-status',
 	CHECK_LIST: '.ops-health-widget-checks',
 	DASHBOARD_LINK: 'a[href*="ops-health-dashboard"]',
+
+	/* v0.6.2 — Timing and check links */
+	WIDGET_TIMING: '.ops-health-widget-timing',
+	CHECK_LINK: '.ops-health-widget-checks a',
 };

@@ -11,6 +11,7 @@ namespace OpsHealthDashboard\Tests\Integration\Admin;
 
 use OpsHealthDashboard\Admin\DashboardWidget;
 use OpsHealthDashboard\Interfaces\CheckRunnerInterface;
+use OpsHealthDashboard\Interfaces\StorageInterface;
 use OpsHealthDashboard\Services\CheckRunner;
 use OpsHealthDashboard\Services\Redaction;
 use OpsHealthDashboard\Services\Storage;
@@ -27,8 +28,9 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 	 * Testa che DashboardWidget si istanzia con CheckRunnerInterface
 	 */
 	public function test_instantiation() {
-		$runner = new CheckRunner( new Storage(), new Redaction() );
-		$widget = new DashboardWidget( $runner );
+		$storage = new Storage();
+		$runner  = new CheckRunner( $storage, new Redaction() );
+		$widget  = new DashboardWidget( $runner, $storage );
 		$this->assertInstanceOf( DashboardWidget::class, $widget );
 	}
 
@@ -36,8 +38,9 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 	 * Testa che register_hooks aggiunge l'action wp_dashboard_setup
 	 */
 	public function test_register_hooks_adds_action() {
-		$runner = new CheckRunner( new Storage(), new Redaction() );
-		$widget = new DashboardWidget( $runner );
+		$storage = new Storage();
+		$runner  = new CheckRunner( $storage, new Redaction() );
+		$widget  = new DashboardWidget( $runner, $storage );
 		$widget->register_hooks();
 
 		$this->assertNotFalse(
@@ -57,8 +60,9 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 		wp_set_current_user( $user_id );
 		set_current_screen( 'dashboard' );
 
-		$runner = new CheckRunner( new Storage(), new Redaction() );
-		$widget = new DashboardWidget( $runner );
+		$storage = new Storage();
+		$runner  = new CheckRunner( $storage, new Redaction() );
+		$widget  = new DashboardWidget( $runner, $storage );
 		$widget->add_widget();
 
 		// wp_add_dashboard_widget registers via add_meta_box into $wp_meta_boxes.
@@ -84,8 +88,9 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 		$user_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
 		wp_set_current_user( $user_id );
 
-		$runner = new CheckRunner( new Storage(), new Redaction() );
-		$widget = new DashboardWidget( $runner );
+		$storage = new Storage();
+		$runner  = new CheckRunner( $storage, new Redaction() );
+		$widget  = new DashboardWidget( $runner, $storage );
 		$widget->add_widget();
 
 		// Verifica che il widget NON è stato registrato.
@@ -100,8 +105,9 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
 		wp_set_current_user( $user_id );
 
-		$runner = new CheckRunner( new Storage(), new Redaction() );
-		$widget = new DashboardWidget( $runner );
+		$storage = new Storage();
+		$runner  = new CheckRunner( $storage, new Redaction() );
+		$widget  = new DashboardWidget( $runner, $storage );
 
 		ob_start();
 		$widget->render();
@@ -117,8 +123,9 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 		$user_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
 		wp_set_current_user( $user_id );
 
-		$runner = new CheckRunner( new Storage(), new Redaction() );
-		$widget = new DashboardWidget( $runner );
+		$storage = new Storage();
+		$runner  = new CheckRunner( $storage, new Redaction() );
+		$widget  = new DashboardWidget( $runner, $storage );
 
 		ob_start();
 		$widget->render();
@@ -148,7 +155,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 		);
 
 		$runner = new CheckRunner( $storage, new Redaction() );
-		$widget = new DashboardWidget( $runner );
+		$widget = new DashboardWidget( $runner, $storage );
 
 		ob_start();
 		$widget->render();
@@ -169,8 +176,9 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
 		wp_set_current_user( $user_id );
 
-		$runner = new CheckRunner( new Storage(), new Redaction() );
-		$widget = new DashboardWidget( $runner );
+		$storage = new Storage();
+		$runner  = new CheckRunner( $storage, new Redaction() );
+		$widget  = new DashboardWidget( $runner, $storage );
 
 		ob_start();
 		$widget->render();
@@ -189,8 +197,9 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 		wp_set_current_user( $user_id );
 		set_current_screen( 'dashboard' );
 
-		$runner = new CheckRunner( new Storage(), new Redaction() );
-		$widget = new DashboardWidget( $runner );
+		$storage = new Storage();
+		$runner  = new CheckRunner( $storage, new Redaction() );
+		$widget  = new DashboardWidget( $runner, $storage );
 		$widget->enqueue_styles();
 
 		$this->assertTrue( wp_style_is( 'ops-health-dashboard-widget', 'enqueued' ) );
@@ -206,8 +215,9 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 		wp_set_current_user( $user_id );
 		set_current_screen( 'dashboard' );
 
-		$runner = new CheckRunner( new Storage(), new Redaction() );
-		$widget = new DashboardWidget( $runner );
+		$storage = new Storage();
+		$runner  = new CheckRunner( $storage, new Redaction() );
+		$widget  = new DashboardWidget( $runner, $storage );
 		$widget->enqueue_styles();
 
 		$this->assertFalse( wp_style_is( 'ops-health-dashboard-widget', 'enqueued' ) );
@@ -221,8 +231,9 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 		wp_set_current_user( $user_id );
 		set_current_screen( 'plugins' );
 
-		$runner = new CheckRunner( new Storage(), new Redaction() );
-		$widget = new DashboardWidget( $runner );
+		$storage = new Storage();
+		$runner  = new CheckRunner( $storage, new Redaction() );
+		$widget  = new DashboardWidget( $runner, $storage );
 		$widget->enqueue_styles();
 
 		$this->assertFalse( wp_style_is( 'ops-health-dashboard-widget', 'enqueued' ) );
@@ -232,8 +243,9 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 	 * Testa che register_hooks aggiunge l'action admin_enqueue_scripts
 	 */
 	public function test_register_hooks_adds_enqueue_action() {
-		$runner = new CheckRunner( new Storage(), new Redaction() );
-		$widget = new DashboardWidget( $runner );
+		$storage = new Storage();
+		$runner  = new CheckRunner( $storage, new Redaction() );
+		$widget  = new DashboardWidget( $runner, $storage );
 		$widget->register_hooks();
 
 		$this->assertNotFalse(
@@ -263,7 +275,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 		);
 
 		$runner = new CheckRunner( $storage, new Redaction() );
-		$widget = new DashboardWidget( $runner );
+		$widget = new DashboardWidget( $runner, $storage );
 
 		ob_start();
 		$widget->render();

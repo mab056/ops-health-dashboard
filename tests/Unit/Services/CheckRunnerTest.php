@@ -99,8 +99,10 @@ class CheckRunnerTest extends TestCase {
 	public function test_run_all_executes_enabled_checks() {
 		$storage = Mockery::mock( StorageInterface::class );
 		$storage->shouldReceive( 'set' )
-			->once()
 			->with( 'latest_results', Mockery::type( 'array' ) )
+			->andReturn( true );
+		$storage->shouldReceive( 'set' )
+			->with( 'last_run_at', Mockery::type( 'int' ) )
 			->andReturn( true );
 		$redaction = $this->create_redaction_mock();
 
@@ -196,10 +198,12 @@ class CheckRunnerTest extends TestCase {
 	public function test_run_all_saves_results_to_storage() {
 		$storage = Mockery::mock( StorageInterface::class );
 		$storage->shouldReceive( 'set' )
-			->once()
 			->with( 'latest_results', Mockery::on( function ( $arg ) {
 				return is_array( $arg ) && isset( $arg['check1'] );
 			} ) )
+			->andReturn( true );
+		$storage->shouldReceive( 'set' )
+			->with( 'last_run_at', Mockery::type( 'int' ) )
 			->andReturn( true );
 		$redaction = $this->create_redaction_mock();
 
@@ -305,8 +309,49 @@ class CheckRunnerTest extends TestCase {
 	public function test_clear_results_deletes_from_storage() {
 		$storage = Mockery::mock( StorageInterface::class );
 		$storage->shouldReceive( 'delete' )
-			->once()
 			->with( 'latest_results' )
+			->andReturn( true );
+		$storage->shouldReceive( 'delete' )
+			->with( 'last_run_at' )
+			->andReturn( true );
+		$redaction = $this->create_redaction_mock();
+
+		$runner = new CheckRunner( $storage, $redaction );
+		$runner->clear_results();
+	}
+
+	/**
+	 * Testa che run_all() salva il timestamp last_run_at nello storage
+	 */
+	public function test_run_all_stores_last_run_at_timestamp() {
+		$before  = time();
+		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'set' )
+			->with( 'latest_results', Mockery::type( 'array' ) )
+			->andReturn( true );
+		$storage->shouldReceive( 'set' )
+			->once()
+			->with( 'last_run_at', Mockery::on( function ( $ts ) use ( $before ) {
+				return is_int( $ts ) && $ts >= $before && $ts <= time();
+			} ) )
+			->andReturn( true );
+		$redaction = $this->create_redaction_mock();
+
+		$runner = new CheckRunner( $storage, $redaction );
+		$runner->run_all();
+	}
+
+	/**
+	 * Testa che clear_results() cancella anche last_run_at dallo storage
+	 */
+	public function test_clear_results_deletes_last_run_at() {
+		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'delete' )
+			->with( 'latest_results' )
+			->andReturn( true );
+		$storage->shouldReceive( 'delete' )
+			->once()
+			->with( 'last_run_at' )
 			->andReturn( true );
 		$redaction = $this->create_redaction_mock();
 

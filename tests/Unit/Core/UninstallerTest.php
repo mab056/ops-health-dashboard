@@ -116,6 +116,7 @@ class UninstallerTest extends TestCase {
 			'ops_health_activated_at',
 			'ops_health_version',
 			'ops_health_latest_results',
+			'ops_health_last_run_at',
 			'ops_health_alert_settings',
 			'ops_health_alert_log',
 		];
@@ -151,7 +152,7 @@ class UninstallerTest extends TestCase {
 		$wpdb = $this->create_wpdb_mock();
 		$this->mock_single_site();
 
-		Functions\expect( 'delete_option' )->times( 5 );
+		Functions\expect( 'delete_option' )->times( 6 );
 
 		Functions\expect( 'wp_clear_scheduled_hook' )
 			->once()
@@ -173,7 +174,7 @@ class UninstallerTest extends TestCase {
 		$wpdb = $this->create_wpdb_mock();
 		$this->mock_single_site();
 
-		Functions\expect( 'delete_option' )->times( 5 );
+		Functions\expect( 'delete_option' )->times( 6 );
 		Functions\expect( 'wp_clear_scheduled_hook' )->once();
 
 		$expected_transients = [
@@ -202,7 +203,7 @@ class UninstallerTest extends TestCase {
 		$wpdb = $this->create_wpdb_mock();
 		$this->mock_single_site();
 
-		Functions\expect( 'delete_option' )->times( 5 );
+		Functions\expect( 'delete_option' )->times( 6 );
 		Functions\expect( 'wp_clear_scheduled_hook' )->once();
 		Functions\expect( 'delete_transient' )->times( 3 );
 
@@ -232,7 +233,7 @@ class UninstallerTest extends TestCase {
 		$wpdb = $this->create_wpdb_mock();
 		$this->mock_single_site();
 
-		Functions\expect( 'delete_option' )->times( 5 );
+		Functions\expect( 'delete_option' )->times( 6 );
 		Functions\expect( 'wp_clear_scheduled_hook' )->once();
 		Functions\expect( 'delete_transient' )->times( 3 );
 
@@ -261,7 +262,7 @@ class UninstallerTest extends TestCase {
 		$wpdb->options = 'custom_prefix_options';
 		$this->mock_single_site();
 
-		Functions\expect( 'delete_option' )->times( 5 );
+		Functions\expect( 'delete_option' )->times( 6 );
 		Functions\expect( 'wp_clear_scheduled_hook' )->once();
 		Functions\expect( 'delete_transient' )->times( 3 );
 
@@ -291,7 +292,7 @@ class UninstallerTest extends TestCase {
 		$wpdb = $this->create_wpdb_mock();
 		$this->mock_single_site();
 
-		Functions\expect( 'delete_option' )->times( 10 );
+		Functions\expect( 'delete_option' )->times( 12 );
 		Functions\expect( 'wp_clear_scheduled_hook' )->times( 2 );
 		Functions\expect( 'delete_transient' )->times( 6 );
 
@@ -336,7 +337,7 @@ class UninstallerTest extends TestCase {
 	 * @return void
 	 */
 	private function expect_single_site_cleanup( $wpdb, int $times = 1 ) {
-		Functions\expect( 'delete_option' )->times( 5 * $times );
+		Functions\expect( 'delete_option' )->times( 6 * $times );
 		Functions\expect( 'wp_clear_scheduled_hook' )->times( $times );
 		Functions\expect( 'delete_transient' )->times( 3 * $times );
 		$wpdb->shouldReceive( 'prepare' )->times( $times )->andReturn( '' );

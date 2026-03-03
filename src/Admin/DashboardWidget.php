@@ -3,7 +3,7 @@
  * Dashboard Widget
  *
  * Widget per la dashboard di wp-admin che mostra lo stato globale
- * dei check di salute operativi.
+ * dei check di salute operativi con timing e link diretti.
  *
  * @package OpsHealthDashboard\Admin
  */
@@ -19,6 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use OpsHealthDashboard\Interfaces\CheckRunnerInterface;
+use OpsHealthDashboard\Interfaces\StorageInterface;
 
 /**
  * Class DashboardWidget
@@ -35,12 +36,21 @@ class DashboardWidget {
 	private $runner;
 
 	/**
+	 * Storage per leggere last_run_at
+	 *
+	 * @var StorageInterface
+	 */
+	private $storage;
+
+	/**
 	 * Constructor
 	 *
-	 * @param CheckRunnerInterface $runner CheckRunner per i risultati.
+	 * @param CheckRunnerInterface $runner  CheckRunner per i risultati.
+	 * @param StorageInterface     $storage Storage per dati di timing.
 	 */
-	public function __construct( CheckRunnerInterface $runner ) {
-		$this->runner = $runner;
+	public function __construct( CheckRunnerInterface $runner, StorageInterface $storage ) {
+		$this->runner  = $runner;
+		$this->storage = $storage;
 	}
 
 	/**
@@ -112,10 +122,22 @@ class DashboardWidget {
 
 		if ( empty( $results ) ) {
 			?>
-			<p><?php echo esc_html__( 'No health checks have been run yet.', 'ops-health-dashboard' ); ?></p>
+			<p>
+				<?php
+				echo esc_html__(
+					'No health checks have been run yet.',
+					'ops-health-dashboard'
+				);
+				?>
+			</p>
 			<p>
 				<a href="<?php echo esc_url( $dashboard_url ); ?>">
-					<?php echo esc_html__( 'Go to Ops Health Dashboard', 'ops-health-dashboard' ); ?>
+					<?php
+					echo esc_html__(
+						'Go to Ops Health Dashboard',
+						'ops-health-dashboard'
+					);
+					?>
 				</a>
 			</p>
 			<?php
@@ -146,13 +168,37 @@ class DashboardWidget {
 				<?php
 				$status = isset( $result['status'] ) ? $result['status'] : 'unknown';
 				$name   = isset( $result['name'] ) ? $result['name'] : ucfirst( $check_id );
+				$anchor = $dashboard_url . '#check-' . $check_id;
 				?>
 				<li class="ops-health-widget-check-<?php echo esc_attr( $status ); ?>">
-					<?php echo esc_html( $name ); ?>:
+					<a href="<?php echo esc_url( $anchor ); ?>">
+						<?php echo esc_html( $name ); ?>
+					</a>:
 					<strong><?php echo esc_html( ucfirst( $status ) ); ?></strong>
 				</li>
 			<?php endforeach; ?>
 		</ul>
+
+		<?php
+		$last_run_at = (int) $this->storage->get( 'last_run_at', 0 );
+		if ( $last_run_at > 0 ) :
+			?>
+			<p class="ops-health-widget-timing">
+				<?php
+				printf(
+					/* translators: %s: relative time */
+					esc_html__( 'Last run: %s', 'ops-health-dashboard' ),
+					esc_html(
+						sprintf(
+							/* translators: %s: time difference */
+							__( '%s ago', 'ops-health-dashboard' ),
+							human_time_diff( $last_run_at, time() )
+						)
+					)
+				);
+				?>
+			</p>
+		<?php endif; ?>
 
 		<p class="ops-health-widget-footer">
 			<a href="<?php echo esc_url( $dashboard_url ); ?>">

@@ -88,6 +88,22 @@
 	background: #787c82;
 }
 
+.ops-health-widget-checks a {
+	text-decoration: none;
+}
+
+.ops-health-widget-checks a:hover {
+	text-decoration: underline;
+}
+
+/* --- Timing --- */
+
+.ops-health-widget-timing {
+	margin: 8px 0 0;
+	color: #787c82;
+	font-size: 12px;
+}
+
 /* --- Footer --- */
 
 .ops-health-widget-footer {

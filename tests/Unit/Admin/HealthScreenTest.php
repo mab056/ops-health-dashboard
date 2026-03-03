@@ -14,6 +14,7 @@ use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use OpsHealthDashboard\Admin\HealthScreen;
 use OpsHealthDashboard\Interfaces\CheckRunnerInterface;
+use OpsHealthDashboard\Interfaces\StorageInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -42,11 +43,26 @@ class HealthScreenTest extends TestCase {
 	}
 
 	/**
+	 * Crea un mock StorageInterface per i test
+	 *
+	 * @param int $last_run_at Valore di last_run_at da restituire.
+	 * @return \Mockery\MockInterface
+	 */
+	private function create_storage_mock( int $last_run_at = 0 ) {
+		$storage = Mockery::mock( StorageInterface::class );
+		$storage->shouldReceive( 'get' )
+			->with( 'last_run_at', 0 )
+			->andReturn( $last_run_at );
+		return $storage;
+	}
+
+	/**
 	 * Testa che HealthScreen può essere istanziato con dipendenze
 	 */
 	public function test_health_screen_can_be_instantiated() {
-		$runner = Mockery::mock( CheckRunnerInterface::class );
-		$screen = new HealthScreen( $runner );
+		$runner  = Mockery::mock( CheckRunnerInterface::class );
+		$storage = Mockery::mock( StorageInterface::class );
+		$screen  = new HealthScreen( $runner, $storage );
 
 		$this->assertInstanceOf( HealthScreen::class, $screen );
 	}
@@ -60,16 +76,18 @@ class HealthScreenTest extends TestCase {
 			->once()
 			->andReturn( [
 				'database' => [
-					'status'  => 'ok',
-					'message' => 'Database OK',
-					'name'    => 'Database Connection',
-					'details' => [],
+					'status'   => 'ok',
+					'message'  => 'Database OK',
+					'name'     => 'Database Connection',
+					'details'  => [],
+					'duration' => 0,
 				],
 			] );
 
+		$storage = $this->create_storage_mock();
 		$this->mock_render_functions();
 
-		$screen = new HealthScreen( $runner );
+		$screen = new HealthScreen( $runner, $storage );
 
 		ob_start();
 		$screen->render();
@@ -89,9 +107,10 @@ class HealthScreenTest extends TestCase {
 			->once()
 			->andReturn( [] );
 
+		$storage = $this->create_storage_mock();
 		$this->mock_render_functions();
 
-		$screen = new HealthScreen( $runner );
+		$screen = new HealthScreen( $runner, $storage );
 
 		ob_start();
 		$screen->render();
@@ -105,7 +124,8 @@ class HealthScreenTest extends TestCase {
 	 * Testa che render() blocca utenti senza capability
 	 */
 	public function test_render_blocks_unauthorized_users() {
-		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner  = Mockery::mock( CheckRunnerInterface::class );
+		$storage = Mockery::mock( StorageInterface::class );
 
 		Functions\expect( 'current_user_can' )
 			->once()
@@ -117,7 +137,6 @@ class HealthScreenTest extends TestCase {
 				return $text;
 			} );
 
-		// wp_die lancia eccezione per fermare l'esecuzione come in WordPress reale.
 		Functions\expect( 'wp_die' )
 			->once()
 			->with( \Mockery::type( 'string' ) )
@@ -125,7 +144,7 @@ class HealthScreenTest extends TestCase {
 				throw new \RuntimeException( 'wp_die called' );
 			} );
 
-		$screen = new HealthScreen( $runner );
+		$screen = new HealthScreen( $runner, $storage );
 
 		$this->expectException( \RuntimeException::class );
 		$this->expectExceptionMessage( 'wp_die called' );
@@ -141,13 +160,15 @@ class HealthScreenTest extends TestCase {
 			->once()
 			->andReturn( [
 				'test_check' => [
-					'details' => [],
+					'details'  => [],
+					'duration' => 0,
 				],
 			] );
 
+		$storage = $this->create_storage_mock();
 		$this->mock_render_functions();
 
-		$screen = new HealthScreen( $runner );
+		$screen = new HealthScreen( $runner, $storage );
 
 		ob_start();
 		$screen->render();
@@ -182,6 +203,11 @@ class HealthScreenTest extends TestCase {
 				return $text;
 			} );
 
+		Functions\expect( 'esc_url' )
+			->andReturnUsing( function ( $url ) {
+				return $url;
+			} );
+
 		Functions\expect( 'wp_nonce_field' )
 			->andReturnUsing( function ( $action, $name ) {
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -196,7 +222,23 @@ class HealthScreenTest extends TestCase {
 		Functions\expect( 'get_transient' )
 			->andReturn( false );
 
+		Functions\expect( 'wp_next_scheduled' )
+			->andReturn( 0 );
+
+		Functions\expect( 'admin_url' )
+			->andReturnUsing( function ( $path ) {
+				return 'http://example.com/wp-admin/' . $path;
+			} );
+
 		Functions\when( '__' )->returnArg();
+
+		Functions\expect( '_n' )
+			->andReturnUsing( function ( $single, $plural, $count ) {
+				return $count === 1 ? $single : $plural;
+			} );
+
+		Functions\expect( 'human_time_diff' )
+			->andReturn( '5 mins' );
 	}
 
 	/**
@@ -206,9 +248,10 @@ class HealthScreenTest extends TestCase {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
 		$runner->shouldReceive( 'get_latest_results' )->andReturn( [] );
 
+		$storage = $this->create_storage_mock();
 		$this->mock_render_functions();
 
-		$screen = new HealthScreen( $runner );
+		$screen = new HealthScreen( $runner, $storage );
 
 		ob_start();
 		$screen->render();
@@ -224,9 +267,10 @@ class HealthScreenTest extends TestCase {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
 		$runner->shouldReceive( 'get_latest_results' )->andReturn( [] );
 
+		$storage = $this->create_storage_mock();
 		$this->mock_render_functions();
 
-		$screen = new HealthScreen( $runner );
+		$screen = new HealthScreen( $runner, $storage );
 
 		ob_start();
 		$screen->render();
@@ -242,9 +286,10 @@ class HealthScreenTest extends TestCase {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
 		$runner->shouldReceive( 'get_latest_results' )->andReturn( [] );
 
+		$storage = $this->create_storage_mock();
 		$this->mock_render_functions();
 
-		$screen = new HealthScreen( $runner );
+		$screen = new HealthScreen( $runner, $storage );
 
 		ob_start();
 		$screen->render();
@@ -256,11 +301,16 @@ class HealthScreenTest extends TestCase {
 	/**
 	 * Helper: crea un mock parziale di HealthScreen con do_exit() disabilitato
 	 *
-	 * @param \Mockery\MockInterface $runner CheckRunner mock.
+	 * @param \Mockery\MockInterface $runner  CheckRunner mock.
+	 * @param \Mockery\MockInterface $storage Storage mock.
 	 * @return \Mockery\MockInterface
 	 */
-	private function create_testable_screen( $runner ) {
-		$screen = Mockery::mock( HealthScreen::class, [ $runner ] )
+	private function create_testable_screen( $runner, $storage = null ) {
+		if ( null === $storage ) {
+			$storage = Mockery::mock( StorageInterface::class );
+		}
+
+		$screen = Mockery::mock( HealthScreen::class, [ $runner, $storage ] )
 			->makePartial()
 			->shouldAllowMockingProtectedMethods();
 
@@ -295,13 +345,14 @@ class HealthScreenTest extends TestCase {
 	 * Testa che process_actions() ritorna subito senza POST action
 	 */
 	public function test_process_actions_returns_early_without_post_action() {
-		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner  = Mockery::mock( CheckRunnerInterface::class );
+		$storage = Mockery::mock( StorageInterface::class );
 		$runner->shouldNotReceive( 'run_all' );
 		$runner->shouldNotReceive( 'clear_results' );
 
 		unset( $_POST['ops_health_action'] );
 
-		$screen = new HealthScreen( $runner );
+		$screen = new HealthScreen( $runner, $storage );
 		$screen->process_actions();
 
 		$this->assertArrayNotHasKey( 'ops_health_action', $_POST );
@@ -311,7 +362,8 @@ class HealthScreenTest extends TestCase {
 	 * Testa che process_actions() ritorna subito con nonce invalido
 	 */
 	public function test_process_actions_returns_early_with_invalid_nonce() {
-		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner  = Mockery::mock( CheckRunnerInterface::class );
+		$storage = Mockery::mock( StorageInterface::class );
 		$runner->shouldNotReceive( 'run_all' );
 		$runner->shouldNotReceive( 'clear_results' );
 
@@ -324,12 +376,11 @@ class HealthScreenTest extends TestCase {
 			->once()
 			->andReturn( false );
 
-		$screen = new HealthScreen( $runner );
+		$screen = new HealthScreen( $runner, $storage );
 		$screen->process_actions();
 
 		unset( $_POST['ops_health_action'], $_POST['_ops_health_nonce'] );
 
-		// Mockery verifica shouldNotReceive automaticamente via MockeryPHPUnitIntegration.
 		$this->assertInstanceOf( HealthScreen::class, $screen );
 	}
 
@@ -337,7 +388,8 @@ class HealthScreenTest extends TestCase {
 	 * Testa che process_actions() ritorna subito senza capability
 	 */
 	public function test_process_actions_returns_early_without_capability() {
-		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner  = Mockery::mock( CheckRunnerInterface::class );
+		$storage = Mockery::mock( StorageInterface::class );
 		$runner->shouldNotReceive( 'run_all' );
 		$runner->shouldNotReceive( 'clear_results' );
 
@@ -355,10 +407,9 @@ class HealthScreenTest extends TestCase {
 			->with( 'manage_options' )
 			->andReturn( false );
 
-		$screen = new HealthScreen( $runner );
+		$screen = new HealthScreen( $runner, $storage );
 		$screen->process_actions();
 
-		// Mockery verifica shouldNotReceive automaticamente via MockeryPHPUnitIntegration.
 		$this->assertInstanceOf( HealthScreen::class, $screen );
 	}
 
@@ -366,7 +417,8 @@ class HealthScreenTest extends TestCase {
 	 * Testa che process_actions() esegue run_all con action run_now
 	 */
 	public function test_process_actions_runs_checks_on_run_now() {
-		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner  = Mockery::mock( CheckRunnerInterface::class );
+		$storage = Mockery::mock( StorageInterface::class );
 		$runner->shouldReceive( 'run_all' )
 			->once()
 			->andReturn( [] );
@@ -397,10 +449,9 @@ class HealthScreenTest extends TestCase {
 			->once()
 			->with( 'http://example.com/wp-admin/admin.php?page=ops-health-dashboard' );
 
-		$screen = $this->create_testable_screen( $runner );
+		$screen = $this->create_testable_screen( $runner, $storage );
 		$screen->process_actions();
 
-		// Mockery/Brain\Monkey verificano expectations via MockeryPHPUnitIntegration.
 		$this->assertInstanceOf( HealthScreen::class, $screen );
 	}
 
@@ -408,7 +459,8 @@ class HealthScreenTest extends TestCase {
 	 * Testa che process_actions() esegue clear_results con action clear_cache
 	 */
 	public function test_process_actions_clears_cache_on_clear_cache() {
-		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner  = Mockery::mock( CheckRunnerInterface::class );
+		$storage = Mockery::mock( StorageInterface::class );
 		$runner->shouldReceive( 'clear_results' )
 			->once();
 
@@ -437,10 +489,9 @@ class HealthScreenTest extends TestCase {
 		Functions\expect( 'wp_safe_redirect' )
 			->once();
 
-		$screen = $this->create_testable_screen( $runner );
+		$screen = $this->create_testable_screen( $runner, $storage );
 		$screen->process_actions();
 
-		// Mockery/Brain\Monkey verificano expectations via MockeryPHPUnitIntegration.
 		$this->assertInstanceOf( HealthScreen::class, $screen );
 	}
 
@@ -452,6 +503,8 @@ class HealthScreenTest extends TestCase {
 		$runner->shouldReceive( 'get_latest_results' )
 			->once()
 			->andReturn( [] );
+
+		$storage = $this->create_storage_mock();
 
 		Functions\expect( 'current_user_can' )
 			->with( 'manage_options' )
@@ -491,7 +544,10 @@ class HealthScreenTest extends TestCase {
 			->once()
 			->with( 'ops_health_admin_notice' );
 
-		$screen = new HealthScreen( $runner );
+		Functions\expect( 'wp_next_scheduled' )
+			->andReturn( 0 );
+
+		$screen = new HealthScreen( $runner, $storage );
 
 		ob_start();
 		$screen->render();
@@ -507,8 +563,9 @@ class HealthScreenTest extends TestCase {
 	 * Testa che register_hooks registra l'hook admin_enqueue_scripts
 	 */
 	public function test_register_hooks_adds_admin_enqueue_scripts() {
-		$runner = Mockery::mock( CheckRunnerInterface::class );
-		$screen = new HealthScreen( $runner );
+		$runner  = Mockery::mock( CheckRunnerInterface::class );
+		$storage = Mockery::mock( StorageInterface::class );
+		$screen  = new HealthScreen( $runner, $storage );
 
 		$hooks = [];
 		Functions\expect( 'add_action' )
@@ -569,8 +626,9 @@ class HealthScreenTest extends TestCase {
 				Mockery::type( 'string' )
 			);
 
-		$runner = Mockery::mock( CheckRunnerInterface::class );
-		$screen = new HealthScreen( $runner );
+		$runner  = Mockery::mock( CheckRunnerInterface::class );
+		$storage = Mockery::mock( StorageInterface::class );
+		$screen  = new HealthScreen( $runner, $storage );
 		$screen->enqueue_styles();
 	}
 
@@ -585,8 +643,9 @@ class HealthScreenTest extends TestCase {
 			->once()
 			->andReturn( $screen_obj );
 
-		$runner = Mockery::mock( CheckRunnerInterface::class );
-		$screen = new HealthScreen( $runner );
+		$runner  = Mockery::mock( CheckRunnerInterface::class );
+		$storage = Mockery::mock( StorageInterface::class );
+		$screen  = new HealthScreen( $runner, $storage );
 		$screen->enqueue_styles();
 
 		$this->assertTrue( true );
@@ -600,8 +659,9 @@ class HealthScreenTest extends TestCase {
 			->once()
 			->andReturn( null );
 
-		$runner = Mockery::mock( CheckRunnerInterface::class );
-		$screen = new HealthScreen( $runner );
+		$runner  = Mockery::mock( CheckRunnerInterface::class );
+		$storage = Mockery::mock( StorageInterface::class );
+		$screen  = new HealthScreen( $runner, $storage );
 		$screen->enqueue_styles();
 
 		$this->assertTrue( true );
@@ -613,8 +673,9 @@ class HealthScreenTest extends TestCase {
 	 * Testa che overall status per risultati vuoti è 'unknown'
 	 */
 	public function test_overall_status_empty_is_unknown() {
-		$runner = Mockery::mock( CheckRunnerInterface::class );
-		$screen = new HealthScreen( $runner );
+		$runner  = Mockery::mock( CheckRunnerInterface::class );
+		$storage = Mockery::mock( StorageInterface::class );
+		$screen  = new HealthScreen( $runner, $storage );
 
 		$reflection = new \ReflectionMethod( $screen, 'determine_overall_status' );
 		$reflection->setAccessible( true );
@@ -626,8 +687,9 @@ class HealthScreenTest extends TestCase {
 	 * Testa che overall status con tutti ok è 'ok'
 	 */
 	public function test_overall_status_all_ok() {
-		$runner = Mockery::mock( CheckRunnerInterface::class );
-		$screen = new HealthScreen( $runner );
+		$runner  = Mockery::mock( CheckRunnerInterface::class );
+		$storage = Mockery::mock( StorageInterface::class );
+		$screen  = new HealthScreen( $runner, $storage );
 
 		$reflection = new \ReflectionMethod( $screen, 'determine_overall_status' );
 		$reflection->setAccessible( true );
@@ -643,8 +705,9 @@ class HealthScreenTest extends TestCase {
 	 * Testa che overall status worst wins (critical > ok)
 	 */
 	public function test_overall_status_worst_wins() {
-		$runner = Mockery::mock( CheckRunnerInterface::class );
-		$screen = new HealthScreen( $runner );
+		$runner  = Mockery::mock( CheckRunnerInterface::class );
+		$storage = Mockery::mock( StorageInterface::class );
+		$screen  = new HealthScreen( $runner, $storage );
 
 		$reflection = new \ReflectionMethod( $screen, 'determine_overall_status' );
 		$reflection->setAccessible( true );
@@ -660,8 +723,9 @@ class HealthScreenTest extends TestCase {
 	 * Testa che overall status con status mancante usa default
 	 */
 	public function test_overall_status_missing_status_field() {
-		$runner = Mockery::mock( CheckRunnerInterface::class );
-		$screen = new HealthScreen( $runner );
+		$runner  = Mockery::mock( CheckRunnerInterface::class );
+		$storage = Mockery::mock( StorageInterface::class );
+		$screen  = new HealthScreen( $runner, $storage );
 
 		$reflection = new \ReflectionMethod( $screen, 'determine_overall_status' );
 		$reflection->setAccessible( true );
@@ -673,7 +737,7 @@ class HealthScreenTest extends TestCase {
 		$this->assertEquals( 'ok', $reflection->invoke( $screen, $results ) );
 	}
 
-	// ─── render (HTML changes) ─────────────────────────────────────
+	// ─── render (HTML) ────────────────────────────────────────────
 
 	/**
 	 * Testa che render non contiene inline styles
@@ -682,9 +746,10 @@ class HealthScreenTest extends TestCase {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
 		$runner->shouldReceive( 'get_latest_results' )->andReturn( [] );
 
+		$storage = $this->create_storage_mock();
 		$this->mock_render_functions();
 
-		$screen = new HealthScreen( $runner );
+		$screen = new HealthScreen( $runner, $storage );
 
 		ob_start();
 		$screen->render();
@@ -700,15 +765,18 @@ class HealthScreenTest extends TestCase {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
 		$runner->shouldReceive( 'get_latest_results' )->andReturn( [
 			'database' => [
-				'status'  => 'ok',
-				'message' => 'OK',
-				'name'    => 'Database',
+				'status'   => 'ok',
+				'message'  => 'OK',
+				'name'     => 'Database',
+				'details'  => [],
+				'duration' => 0,
 			],
 		] );
 
+		$storage = $this->create_storage_mock();
 		$this->mock_render_functions();
 
-		$screen = new HealthScreen( $runner );
+		$screen = new HealthScreen( $runner, $storage );
 
 		ob_start();
 		$screen->render();
@@ -724,15 +792,764 @@ class HealthScreenTest extends TestCase {
 		$runner = Mockery::mock( CheckRunnerInterface::class );
 		$runner->shouldReceive( 'get_latest_results' )->andReturn( [] );
 
+		$storage = $this->create_storage_mock();
 		$this->mock_render_functions();
 
-		$screen = new HealthScreen( $runner );
+		$screen = new HealthScreen( $runner, $storage );
 
 		ob_start();
 		$screen->render();
 		$output = ob_get_clean();
 
 		$this->assertStringNotContainsString( 'ops-health-summary', $output );
+	}
+
+	// ─── v0.6.2: Summary banner enhancements ──────────────────────
+
+	/**
+	 * Testa che il banner mostra il conteggio dei check problematici
+	 */
+	public function test_render_shows_affected_count_in_banner() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [
+			'database' => [
+				'status'   => 'ok',
+				'message'  => 'OK',
+				'name'     => 'Database',
+				'details'  => [],
+				'duration' => 0,
+			],
+			'error_log' => [
+				'status'   => 'warning',
+				'message'  => '5 warnings',
+				'name'     => 'Error Log',
+				'details'  => [],
+				'duration' => 0,
+			],
+		] );
+
+		$storage = $this->create_storage_mock();
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner, $storage );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'requires attention', $output );
+		$this->assertStringContainsString( 'ops-health-summary-affected', $output );
+	}
+
+	/**
+	 * Testa che il banner non mostra affected count quando tutti OK
+	 */
+	public function test_render_hides_affected_when_all_ok() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [
+			'database' => [
+				'status'   => 'ok',
+				'message'  => 'OK',
+				'name'     => 'Database',
+				'details'  => [],
+				'duration' => 0,
+			],
+		] );
+
+		$storage = $this->create_storage_mock();
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner, $storage );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'requires attention', $output );
+	}
+
+	/**
+	 * Testa che il banner mostra la lista dei check problematici
+	 */
+	public function test_render_shows_affected_check_names_in_banner() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [
+			'error_log' => [
+				'status'   => 'warning',
+				'message'  => '5 warnings detected',
+				'name'     => 'Error Log Summary',
+				'details'  => [],
+				'duration' => 0,
+			],
+		] );
+
+		$storage = $this->create_storage_mock();
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner, $storage );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'ops-health-summary-issues', $output );
+		$this->assertStringContainsString( 'Error Log Summary', $output );
+		$this->assertStringContainsString( '5 warnings detected', $output );
+	}
+
+	/**
+	 * Testa che il banner mostra last run quando timestamp disponibile
+	 */
+	public function test_render_shows_last_run_time() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [
+			'database' => [
+				'status'   => 'ok',
+				'message'  => 'OK',
+				'name'     => 'Database',
+				'details'  => [],
+				'duration' => 0,
+			],
+		] );
+
+		$storage = $this->create_storage_mock( time() - 300 );
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner, $storage );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Last run:', $output );
+		$this->assertStringContainsString( 'ops-health-summary-meta', $output );
+	}
+
+	/**
+	 * Testa che il banner mostra next run quando schedulato
+	 */
+	public function test_render_shows_next_run_time() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [
+			'database' => [
+				'status'   => 'ok',
+				'message'  => 'OK',
+				'name'     => 'Database',
+				'details'  => [],
+				'duration' => 0,
+			],
+		] );
+
+		$storage = $this->create_storage_mock();
+
+		Functions\expect( 'current_user_can' )
+			->with( 'manage_options' )
+			->andReturn( true );
+
+		Functions\expect( 'esc_html__' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
+
+		Functions\expect( 'esc_html' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
+
+		Functions\expect( 'esc_attr' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
+
+		Functions\expect( 'esc_url' )
+			->andReturnUsing( function ( $url ) {
+				return $url;
+			} );
+
+		Functions\expect( 'wp_nonce_field' )
+			->andReturnUsing( function ( $action, $name ) {
+				echo '<input type="hidden" name="' . $name . '" value="nonce_token" />';
+			} );
+
+		Functions\expect( 'submit_button' )
+			->andReturnUsing( function ( $text, $type, $name ) {
+				echo '<input type="submit" name="' . $name . '" value="' . $text . '" />';
+			} );
+
+		Functions\expect( 'get_transient' )
+			->andReturn( false );
+
+		Functions\expect( 'wp_next_scheduled' )
+			->andReturn( time() + 600 );
+
+		Functions\expect( 'admin_url' )
+			->andReturnUsing( function ( $path ) {
+				return 'http://example.com/wp-admin/' . $path;
+			} );
+
+		Functions\when( '__' )->returnArg();
+
+		Functions\expect( '_n' )
+			->andReturnUsing( function ( $single, $plural, $count ) {
+				return $count === 1 ? $single : $plural;
+			} );
+
+		Functions\expect( 'human_time_diff' )
+			->andReturn( '10 mins' );
+
+		$screen = new HealthScreen( $runner, $storage );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Next run:', $output );
+	}
+
+	/**
+	 * Testa che il banner nasconde timing quando non disponibile
+	 */
+	public function test_render_hides_timing_when_no_data() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [
+			'database' => [
+				'status'   => 'ok',
+				'message'  => 'OK',
+				'name'     => 'Database',
+				'details'  => [],
+				'duration' => 0,
+			],
+		] );
+
+		$storage = $this->create_storage_mock( 0 );
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner, $storage );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'Last run:', $output );
+	}
+
+	/**
+	 * Testa che il banner contiene il link alle Alert Settings
+	 */
+	public function test_render_shows_alert_settings_link() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [
+			'database' => [
+				'status'   => 'ok',
+				'message'  => 'OK',
+				'name'     => 'Database',
+				'details'  => [],
+				'duration' => 0,
+			],
+		] );
+
+		$storage = $this->create_storage_mock();
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner, $storage );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Alert Settings', $output );
+		$this->assertStringContainsString( 'ops-health-alert-settings', $output );
+	}
+
+	/**
+	 * Testa che il banner usa notice-error per stato critical
+	 */
+	public function test_render_uses_notice_error_for_critical() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [
+			'database' => [
+				'status'   => 'critical',
+				'message'  => 'DB down',
+				'name'     => 'Database',
+				'details'  => [],
+				'duration' => 0,
+			],
+		] );
+
+		$storage = $this->create_storage_mock();
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner, $storage );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'notice-error', $output );
+	}
+
+	// ─── v0.6.2: Cards with badges and anchors ─────────────────────
+
+	/**
+	 * Testa che le card hanno un ID attributo per anchor
+	 */
+	public function test_render_card_has_id_attribute() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [
+			'database' => [
+				'status'   => 'ok',
+				'message'  => 'OK',
+				'name'     => 'Database',
+				'details'  => [],
+				'duration' => 0,
+			],
+		] );
+
+		$storage = $this->create_storage_mock();
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner, $storage );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'id="check-database"', $output );
+	}
+
+	/**
+	 * Testa che le card contengono status badge
+	 */
+	public function test_render_card_contains_badge() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [
+			'database' => [
+				'status'   => 'ok',
+				'message'  => 'OK',
+				'name'     => 'Database',
+				'details'  => [],
+				'duration' => 0,
+			],
+		] );
+
+		$storage = $this->create_storage_mock();
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner, $storage );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'ops-health-badge', $output );
+		$this->assertStringContainsString( 'ops-health-badge-ok', $output );
+	}
+
+	/**
+	 * Testa che le card contengono icona di stato
+	 */
+	public function test_render_card_contains_status_icon() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [
+			'database' => [
+				'status'   => 'ok',
+				'message'  => 'OK',
+				'name'     => 'Database',
+				'details'  => [],
+				'duration' => 0,
+			],
+		] );
+
+		$storage = $this->create_storage_mock();
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner, $storage );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'ops-health-status-icon', $output );
+		$this->assertStringContainsString( 'aria-hidden="true"', $output );
+	}
+
+	/**
+	 * Testa che le card mostrano "Checked X ago" quando timestamp disponibile
+	 */
+	public function test_render_card_shows_checked_timestamp() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [
+			'database' => [
+				'status'   => 'ok',
+				'message'  => 'OK',
+				'name'     => 'Database',
+				'details'  => [],
+				'duration' => 0,
+			],
+		] );
+
+		$storage = $this->create_storage_mock( time() - 300 );
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner, $storage );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Checked', $output );
+		$this->assertStringContainsString( 'ops-health-check-timestamp', $output );
+	}
+
+	// ─── v0.6.2: Expandable details ───────────────────────────────
+
+	/**
+	 * Testa che i dettagli espandibili sono presenti quando il check ha details
+	 */
+	public function test_render_check_details_shows_details_element() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [
+			'database' => [
+				'status'   => 'ok',
+				'message'  => 'OK',
+				'name'     => 'Database',
+				'details'  => [ 'query_time' => '2.34ms' ],
+				'duration' => 0.00234,
+			],
+		] );
+
+		$storage = $this->create_storage_mock();
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner, $storage );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '<details', $output );
+		$this->assertStringContainsString( 'ops-health-check-details', $output );
+		$this->assertStringContainsString( 'Details', $output );
+	}
+
+	/**
+	 * Testa che i dettagli non compaiono quando vuoti e senza duration
+	 */
+	public function test_render_check_details_hidden_when_empty() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [
+			'database' => [
+				'status'   => 'ok',
+				'message'  => 'OK',
+				'name'     => 'Database',
+				'details'  => [],
+				'duration' => 0,
+			],
+		] );
+
+		$storage = $this->create_storage_mock();
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner, $storage );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( '<details', $output );
+	}
+
+	/**
+	 * Testa che i dettagli mostrano la duration in millisecondi
+	 */
+	public function test_render_check_details_shows_duration_ms() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [
+			'database' => [
+				'status'   => 'ok',
+				'message'  => 'OK',
+				'name'     => 'Database',
+				'details'  => [ 'query_time' => '2.34ms' ],
+				'duration' => 0.123,
+			],
+		] );
+
+		$storage = $this->create_storage_mock();
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner, $storage );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '123.0 ms', $output );
+		$this->assertStringContainsString( 'Duration:', $output );
+	}
+
+	/**
+	 * Testa che i dettagli database mostrano query_time
+	 */
+	public function test_render_database_details() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [
+			'database' => [
+				'status'   => 'ok',
+				'message'  => 'OK',
+				'name'     => 'Database',
+				'details'  => [ 'query_time' => '2.34ms' ],
+				'duration' => 0.00234,
+			],
+		] );
+
+		$storage = $this->create_storage_mock();
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner, $storage );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Query Time', $output );
+		$this->assertStringContainsString( '2.34ms', $output );
+	}
+
+	/**
+	 * Testa che i dettagli error_log mostrano severity counts
+	 */
+	public function test_render_error_log_details_shows_severity_counts() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [
+			'error_log' => [
+				'status'   => 'warning',
+				'message'  => '5 warnings',
+				'name'     => 'Error Log',
+				'details'  => [
+					'counts'    => [
+						'fatal'   => 0,
+						'warning' => 5,
+						'notice'  => 2,
+					],
+					'file_size' => '2.5 MB',
+				],
+				'duration' => 0.05,
+			],
+		] );
+
+		$storage = $this->create_storage_mock();
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner, $storage );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Fatal', $output );
+		$this->assertStringContainsString( 'Warning', $output );
+		$this->assertStringContainsString( 'Notice', $output );
+		$this->assertStringContainsString( 'Log size:', $output );
+		$this->assertStringContainsString( '2.5 MB', $output );
+	}
+
+	/**
+	 * Testa che i dettagli redis mostrano response_time
+	 */
+	public function test_render_redis_details_shows_response_time() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [
+			'redis' => [
+				'status'   => 'ok',
+				'message'  => 'OK',
+				'name'     => 'Redis',
+				'details'  => [ 'response_time' => '5.23ms' ],
+				'duration' => 0.00523,
+			],
+		] );
+
+		$storage = $this->create_storage_mock();
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner, $storage );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Response Time', $output );
+		$this->assertStringContainsString( '5.23ms', $output );
+	}
+
+	/**
+	 * Testa che i dettagli disk mostrano percentuale e capacità
+	 */
+	public function test_render_disk_details_shows_free_space() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [
+			'disk' => [
+				'status'   => 'ok',
+				'message'  => '49.1% free',
+				'name'     => 'Disk Space',
+				'details'  => [
+					'free_percent' => 49.1,
+					'free_bytes'   => 245300000000,
+					'total_bytes'  => 500000000000,
+				],
+				'duration' => 0.01,
+			],
+		] );
+
+		$storage = $this->create_storage_mock();
+		$this->mock_render_functions();
+
+		Functions\expect( 'size_format' )
+			->andReturnUsing( function ( $bytes ) {
+				return round( $bytes / 1000000000, 1 ) . ' GB';
+			} );
+
+		$screen = new HealthScreen( $runner, $storage );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '49.1%', $output );
+		$this->assertStringContainsString( 'Capacity', $output );
+	}
+
+	/**
+	 * Testa che i dettagli versions mostrano WP/PHP versions
+	 */
+	public function test_render_versions_details_shows_versions() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [
+			'versions' => [
+				'status'   => 'ok',
+				'message'  => 'All up to date',
+				'name'     => 'Versions',
+				'details'  => [
+					'wp_version'        => '6.4.2',
+					'php_version'       => '8.3.0',
+					'updates_available' => [],
+				],
+				'duration' => 0.2,
+			],
+		] );
+
+		$storage = $this->create_storage_mock();
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner, $storage );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'WordPress', $output );
+		$this->assertStringContainsString( '6.4.2', $output );
+		$this->assertStringContainsString( 'PHP', $output );
+		$this->assertStringContainsString( '8.3.0', $output );
+	}
+
+	/**
+	 * Testa che i dettagli versions mostrano gli update disponibili
+	 */
+	public function test_render_versions_details_shows_updates_list() {
+		$runner = Mockery::mock( CheckRunnerInterface::class );
+		$runner->shouldReceive( 'get_latest_results' )->andReturn( [
+			'versions' => [
+				'status'   => 'warning',
+				'message'  => 'Updates available',
+				'name'     => 'Versions',
+				'details'  => [
+					'wp_version'        => '6.4.2',
+					'php_version'       => '8.3.0',
+					'updates_available' => [
+						'WordPress 6.5 available',
+						'3 plugin update(s) available',
+					],
+				],
+				'duration' => 0.2,
+			],
+		] );
+
+		$storage = $this->create_storage_mock();
+		$this->mock_render_functions();
+
+		$screen = new HealthScreen( $runner, $storage );
+
+		ob_start();
+		$screen->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'WordPress 6.5 available', $output );
+		$this->assertStringContainsString( '3 plugin update(s) available', $output );
+		$this->assertStringContainsString( 'ops-health-updates-list', $output );
+	}
+
+	/**
+	 * Testa che dettagli per check sconosciuto non produce output
+	 */
+	public function test_render_specific_details_ignores_unknown_check() {
+		$runner  = Mockery::mock( CheckRunnerInterface::class );
+		$storage = Mockery::mock( StorageInterface::class );
+		$screen  = new HealthScreen( $runner, $storage );
+
+		$reflection = new \ReflectionMethod( $screen, 'render_specific_details' );
+		$reflection->setAccessible( true );
+
+		ob_start();
+		$reflection->invoke( $screen, 'nonexistent_check', [ 'some' => 'data' ] );
+		$output = ob_get_clean();
+
+		$this->assertEmpty( $output );
+	}
+
+	// ─── get_status_icon ──────────────────────────────────────────
+
+	/**
+	 * Testa che get_status_icon restituisce le icone corrette
+	 */
+	public function test_get_status_icon_returns_correct_icons() {
+		$runner  = Mockery::mock( CheckRunnerInterface::class );
+		$storage = Mockery::mock( StorageInterface::class );
+		$screen  = new HealthScreen( $runner, $storage );
+
+		$reflection = new \ReflectionMethod( $screen, 'get_status_icon' );
+		$reflection->setAccessible( true );
+
+		$this->assertEquals( "\xe2\x9c\x94", $reflection->invoke( $screen, 'ok' ) );
+		$this->assertEquals( "\xe2\x9a\xa0", $reflection->invoke( $screen, 'warning' ) );
+		$this->assertEquals( "\xe2\x9c\x96", $reflection->invoke( $screen, 'critical' ) );
+		$this->assertEquals( '?', $reflection->invoke( $screen, 'unknown' ) );
+		$this->assertEquals( '?', $reflection->invoke( $screen, 'invalid' ) );
+	}
+
+	// ─── get_affected_checks ──────────────────────────────────────
+
+	/**
+	 * Testa che get_affected_checks filtra solo check non-OK
+	 */
+	public function test_get_affected_checks_filters_non_ok() {
+		$runner  = Mockery::mock( CheckRunnerInterface::class );
+		$storage = Mockery::mock( StorageInterface::class );
+		$screen  = new HealthScreen( $runner, $storage );
+
+		$reflection = new \ReflectionMethod( $screen, 'get_affected_checks' );
+		$reflection->setAccessible( true );
+
+		$results = [
+			'a' => [ 'status' => 'ok', 'name' => 'A', 'message' => 'ok' ],
+			'b' => [ 'status' => 'warning', 'name' => 'B', 'message' => 'warn' ],
+			'c' => [ 'status' => 'critical', 'name' => 'C', 'message' => 'crit' ],
+		];
+
+		$affected = $reflection->invoke( $screen, $results );
+
+		$this->assertCount( 2, $affected );
+		$this->assertEquals( 'B', $affected[0]['name'] );
+		$this->assertEquals( 'C', $affected[1]['name'] );
 	}
 
 	// ─── Pattern enforcement ───────────────────────────────────────

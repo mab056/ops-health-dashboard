@@ -2,8 +2,8 @@
  * Dashboard Widget E2E Tests
  *
  * Tests for the wp-admin dashboard widget: visibility for admin,
- * hidden for subscriber, status display, check list, and
- * navigation link to full health dashboard.
+ * hidden for subscriber, status display, check list, navigation
+ * link, timing display, and clickable check links with anchors.
  *
  * @module tests/e2e/dashboard-widget
  */
@@ -71,5 +71,40 @@ test.describe('Dashboard Widget', () => {
 		const link = page.locator('#ops_health_dashboard_widget a[href*="ops-health-dashboard"]');
 		await link.click();
 		await expect(page).toHaveURL(/page=ops-health-dashboard/);
+	});
+
+	/* v0.6.2 — Timing and check links */
+
+	test('widget shows timing after checks are run', async ({ page }) => {
+		await loginAsAdmin(page);
+
+		// Run checks first.
+		await page.goto('/wp-admin/admin.php?page=ops-health-dashboard');
+		await page.locator('input[value="Run Now"]').click();
+		await page.waitForLoadState('networkidle');
+
+		await page.goto('/wp-admin/');
+		const timing = page.locator(DASHBOARD_WIDGET.WIDGET_TIMING);
+		await expect(timing).toBeAttached();
+		await expect(timing).toContainText('Last run');
+	});
+
+	test('check names are clickable links with anchor', async ({ page }) => {
+		await loginAsAdmin(page);
+
+		// Run checks first.
+		await page.goto('/wp-admin/admin.php?page=ops-health-dashboard');
+		await page.locator('input[value="Run Now"]').click();
+		await page.waitForLoadState('networkidle');
+
+		await page.goto('/wp-admin/');
+		const links = page.locator(DASHBOARD_WIDGET.CHECK_LINK);
+		const count = await links.count();
+		expect(count).toBeGreaterThanOrEqual(3);
+
+		for (let i = 0; i < count; i++) {
+			const href = await links.nth(i).getAttribute('href');
+			expect(href).toMatch(/ops-health-dashboard#check-/);
+		}
 	});
 });

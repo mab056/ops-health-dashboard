@@ -56,6 +56,79 @@
 	background: #f0f0f1;
 }
 
+.ops-health-summary-header {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.ops-health-summary-affected {
+	color: #50575e;
+	font-size: 13px;
+}
+
+.ops-health-summary-issues {
+	margin: 8px 0 0;
+	padding-left: 20px;
+	list-style: disc;
+}
+
+.ops-health-summary-issues li {
+	margin-bottom: 2px;
+	font-size: 13px;
+}
+
+.ops-health-summary-meta {
+	display: flex;
+	gap: 16px;
+	flex-wrap: wrap;
+	margin-top: 8px;
+	color: #50575e;
+	font-size: 12px;
+}
+
+.ops-health-meta-item {
+	white-space: nowrap;
+}
+
+/* --- Status icon --- */
+
+.ops-health-status-icon {
+	font-size: 16px;
+	line-height: 1;
+}
+
+/* --- Badge pill --- */
+
+.ops-health-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 10px;
+	color: #fff;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.4;
+	text-transform: uppercase;
+}
+
+.ops-health-badge-ok {
+	background: #00a32a;
+}
+
+.ops-health-badge-warning {
+	background: #dba617;
+	color: #1d2327;
+}
+
+.ops-health-badge-critical {
+	background: #d63638;
+}
+
+.ops-health-badge-unknown {
+	background: #787c82;
+}
+
 /* --- Check cards grid --- */
 
 .ops-health-checks {
@@ -86,15 +159,27 @@
 	font-size: 14px;
 }
 
-.ops-health-check .status {
+.ops-health-check-header {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	margin-bottom: 8px;
+}
+
+.ops-health-check-header h3 {
+	margin: 0;
+}
+
+.ops-health-check-metric {
 	margin: 0 0 4px;
+	color: #1d2327;
 	font-size: 13px;
 }
 
-.ops-health-check .message {
-	margin: 0;
-	color: #50575e;
-	font-size: 13px;
+.ops-health-check-timestamp {
+	margin: 4px 0 0;
+	color: #787c82;
+	font-size: 12px;
 }
 
 /* Status variants — card left border color */
@@ -113,4 +198,54 @@
 
 .ops-health-check-unknown {
 	border-left-color: #787c82;
+}
+
+/* --- Expandable details --- */
+
+.ops-health-check-details {
+	margin-top: 8px;
+	border-top: 1px solid #f0f0f1;
+	padding-top: 8px;
+}
+
+.ops-health-check-details summary {
+	cursor: pointer;
+	color: #2271b1;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.ops-health-check-details summary:hover {
+	color: #135e96;
+}
+
+.ops-health-check-details-content {
+	margin-top: 8px;
+}
+
+.ops-health-detail-list {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 4px 12px;
+	margin: 0;
+	font-size: 12px;
+}
+
+.ops-health-detail-list dt {
+	color: #50575e;
+	font-weight: 600;
+}
+
+.ops-health-detail-list dd {
+	margin: 0;
+}
+
+.ops-health-updates-list {
+	margin: 8px 0 0;
+	padding-left: 20px;
+	font-size: 12px;
+}
+
+.ops-health-updates-list li {
+	margin-bottom: 2px;
 }
