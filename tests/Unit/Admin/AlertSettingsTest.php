@@ -1009,6 +1009,113 @@ class AlertSettingsTest extends TestCase {
 		$this->assertInstanceOf( AlertSettings::class, $screen );
 	}
 
+	// ─── Help tabs ───────────────────────────────────────────────
+
+	/**
+	 * Testa che add_help_tabs registra 3 tab
+	 */
+	public function test_add_help_tabs_registers_three_tabs() {
+		$storage = Mockery::mock( StorageInterface::class );
+
+		$screen_mock = Mockery::mock( 'WP_Screen' );
+		$screen_mock->shouldReceive( 'add_help_tab' )->times( 3 );
+		$screen_mock->shouldReceive( 'set_help_sidebar' )->once();
+
+		Functions\expect( 'get_current_screen' )->once()->andReturn( $screen_mock );
+		Functions\when( '__' )->returnArg();
+		Functions\expect( 'esc_url' )->andReturnUsing( function ( $url ) {
+			return $url;
+		} );
+		Functions\expect( 'admin_url' )->andReturnUsing( function ( $path ) {
+			return 'http://example.com/wp-admin/' . $path;
+		} );
+
+		$settings = new AlertSettings( $storage );
+		$settings->add_help_tabs();
+
+		$this->assertInstanceOf( AlertSettings::class, $settings );
+	}
+
+	/**
+	 * Testa che add_help_tabs usa gli ID corretti
+	 */
+	public function test_add_help_tabs_tab_ids_are_correct() {
+		$storage = Mockery::mock( StorageInterface::class );
+
+		$captured_ids = [];
+		$screen_mock  = Mockery::mock( 'WP_Screen' );
+		$screen_mock->shouldReceive( 'add_help_tab' )
+			->times( 3 )
+			->andReturnUsing( function ( $args ) use ( &$captured_ids ) {
+				$captured_ids[] = $args['id'];
+			} );
+		$screen_mock->shouldReceive( 'set_help_sidebar' )->once();
+
+		Functions\expect( 'get_current_screen' )->once()->andReturn( $screen_mock );
+		Functions\when( '__' )->returnArg();
+		Functions\expect( 'esc_url' )->andReturnUsing( function ( $url ) {
+			return $url;
+		} );
+		Functions\expect( 'admin_url' )->andReturnUsing( function ( $path ) {
+			return 'http://example.com/wp-admin/' . $path;
+		} );
+
+		$settings = new AlertSettings( $storage );
+		$settings->add_help_tabs();
+
+		$this->assertSame(
+			[ 'ops_health_alert_overview', 'ops_health_alert_channels', 'ops_health_alert_config' ],
+			$captured_ids
+		);
+	}
+
+	/**
+	 * Testa che add_help_tabs imposta la sidebar con GitHub e Health Dashboard
+	 */
+	public function test_add_help_tabs_sets_sidebar() {
+		$storage = Mockery::mock( StorageInterface::class );
+
+		$captured_sidebar = '';
+		$screen_mock      = Mockery::mock( 'WP_Screen' );
+		$screen_mock->shouldReceive( 'add_help_tab' )->times( 3 );
+		$screen_mock->shouldReceive( 'set_help_sidebar' )
+			->once()
+			->andReturnUsing( function ( $html ) use ( &$captured_sidebar ) {
+				$captured_sidebar = $html;
+			} );
+
+		Functions\expect( 'get_current_screen' )->once()->andReturn( $screen_mock );
+		Functions\when( '__' )->returnArg();
+		Functions\expect( 'esc_url' )->andReturnUsing( function ( $url ) {
+			return $url;
+		} );
+		Functions\expect( 'admin_url' )->andReturnUsing( function ( $path ) {
+			return 'http://example.com/wp-admin/' . $path;
+		} );
+
+		$settings = new AlertSettings( $storage );
+		$settings->add_help_tabs();
+
+		$this->assertStringContainsString( 'github.com', $captured_sidebar );
+		$this->assertStringContainsString( 'ops-health-dashboard', $captured_sidebar );
+	}
+
+	/**
+	 * Testa che add_help_tabs gestisce screen null senza errori
+	 */
+	public function test_add_help_tabs_handles_null_screen() {
+		$storage = Mockery::mock( StorageInterface::class );
+
+		Functions\expect( 'get_current_screen' )->once()->andReturn( null );
+
+		$settings = new AlertSettings( $storage );
+		$settings->add_help_tabs();
+
+		$this->assertInstanceOf( AlertSettings::class, $settings );
+	}
+
+	// ─── Pattern enforcement ───────────────────────────────────────
+
 	/**
 	 * Testa che la classe NON è final
 	 */

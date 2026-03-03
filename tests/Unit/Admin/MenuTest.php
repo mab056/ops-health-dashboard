@@ -87,7 +87,7 @@ class MenuTest extends TestCase {
 			->andReturn( 'ops-health-page' );
 
 		Functions\expect( 'add_action' )
-			->once()
+			->twice()
 			->with(
 				'load-ops-health-page',
 				\Mockery::type( 'array' )
@@ -159,9 +159,9 @@ class MenuTest extends TestCase {
 			)
 			->andReturn( 'ops-health-alerts-page' );
 
-		// add_action: load-ops-health-page + load-ops-health-alerts-page.
+		// add_action: 2× load-ops-health-page + 2× load-ops-health-alerts-page.
 		Functions\expect( 'add_action' )
-			->twice()
+			->times( 4 )
 			->with( \Mockery::type( 'string' ), \Mockery::type( 'array' ) );
 
 		$health_screen  = \Mockery::mock( \OpsHealthDashboard\Admin\HealthScreen::class );
@@ -188,7 +188,7 @@ class MenuTest extends TestCase {
 		Functions\expect( 'add_submenu_page' )->never();
 
 		Functions\expect( 'add_action' )
-			->once()
+			->twice()
 			->with(
 				'load-ops-health-page',
 				\Mockery::type( 'array' )
@@ -245,9 +245,9 @@ class MenuTest extends TestCase {
 			->once()
 			->andReturn( false );
 
-		// Solo il load-hook del menu principale.
+		// Solo i load-hook del menu principale (process_actions + add_help_tabs).
 		Functions\expect( 'add_action' )
-			->once()
+			->twice()
 			->with(
 				'load-ops-health-page',
 				\Mockery::type( 'array' )
@@ -259,6 +259,39 @@ class MenuTest extends TestCase {
 		$menu->add_menu();
 
 		$this->assertInstanceOf( Menu::class, $menu );
+	}
+
+	/**
+	 * Testa che add_menu registra il callback add_help_tabs
+	 */
+	public function test_add_menu_registers_help_tabs_callback() {
+		Functions\expect( '__' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
+
+		Functions\expect( 'add_menu_page' )
+			->once()
+			->andReturn( 'ops-health-page' );
+
+		$captured_callbacks = [];
+		Functions\expect( 'add_action' )
+			->twice()
+			->with( \Mockery::type( 'string' ), \Mockery::type( 'array' ) )
+			->andReturnUsing( function ( $hook, $callback ) use ( &$captured_callbacks ) {
+				$captured_callbacks[] = $callback;
+			} );
+
+		$health_screen = \Mockery::mock( \OpsHealthDashboard\Admin\HealthScreen::class );
+		$menu          = new Menu( $health_screen );
+		$menu->add_menu();
+
+		$methods = array_map( function ( $cb ) {
+			return $cb[1];
+		}, $captured_callbacks );
+
+		$this->assertContains( 'add_help_tabs', $methods );
+		$this->assertContains( 'process_actions', $methods );
 	}
 
 	/**

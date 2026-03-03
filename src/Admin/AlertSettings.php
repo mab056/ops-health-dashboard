@@ -94,6 +94,133 @@ class AlertSettings {
 	}
 
 	/**
+	 * Registers contextual help tabs for the alert settings screen
+	 *
+	 * Called on the load-{$hook} action to add WordPress-native help tabs.
+	 *
+	 * @return void
+	 */
+	public function add_help_tabs(): void {
+		$screen = get_current_screen();
+
+		if ( null === $screen ) {
+			return;
+		}
+
+		$this->add_alert_overview_help_tab( $screen );
+		$this->add_alert_channels_help_tab( $screen );
+		$this->add_alert_config_help_tab( $screen );
+
+		$github_url   = esc_url( 'https://github.com/mab056/ops-health-dashboard' );
+		$dash_url     = esc_url(
+			admin_url( 'admin.php?page=ops-health-dashboard' )
+		);
+		$github_label = __( 'GitHub Repository', 'ops-health-dashboard' );
+		$dash_label   = __( 'Health Dashboard', 'ops-health-dashboard' );
+		$more_info    = __( 'For more information:', 'ops-health-dashboard' );
+
+		$screen->set_help_sidebar(
+			'<p><strong>' . $more_info . '</strong></p>'
+			. '<p><a href="' . $github_url . '" target="_blank">'
+			. $github_label . '</a></p>'
+			. '<p><a href="' . $dash_url . '">'
+			. $dash_label . '</a></p>'
+		);
+	}
+
+	/**
+	 * Aggiunge la tab Overview all'help screen
+	 *
+	 * @param \WP_Screen $screen Schermata corrente.
+	 * @return void
+	 */
+	private function add_alert_overview_help_tab( $screen ): void {
+		$monitor  = __( 'The alert system monitors health check status changes.', 'ops-health-dashboard' );
+		$notify   = __(
+			'Notifications are sent when a check transitions to Warning or Critical.',
+			'ops-health-dashboard'
+		);
+		$toggle   = __( 'Each channel can be independently enabled or disabled.', 'ops-health-dashboard' );
+		$preserve = __( 'Disabled channels preserve their configuration.', 'ops-health-dashboard' );
+
+		$content = '<p>' . $monitor . ' ' . $notify . '</p>'
+			. '<p>' . $toggle . ' ' . $preserve . '</p>';
+
+		$screen->add_help_tab(
+			[
+				'id'      => 'ops_health_alert_overview',
+				'title'   => __( 'Overview', 'ops-health-dashboard' ),
+				'content' => $content,
+			]
+		);
+	}
+
+	/**
+	 * Aggiunge la tab Channels all'help screen
+	 *
+	 * @param \WP_Screen $screen Schermata corrente.
+	 * @return void
+	 */
+	private function add_alert_channels_help_tab( $screen ): void {
+		$intro     = __( 'Five notification channels are available:', 'ops-health-dashboard' );
+		$email     = __( 'Email', 'ops-health-dashboard' );
+		$email_d   = __( 'Sends alerts via wp_mail to comma-separated recipients.', 'ops-health-dashboard' );
+		$webhook   = __( 'Webhook', 'ops-health-dashboard' );
+		$webhook_d = __( 'Posts JSON to a URL with an HMAC signature.', 'ops-health-dashboard' );
+		$slack     = __( 'Slack', 'ops-health-dashboard' );
+		$slack_d   = __( 'Sends Block Kit messages to a Slack incoming webhook.', 'ops-health-dashboard' );
+		$tg        = __( 'Telegram', 'ops-health-dashboard' );
+		$tg_d      = __( 'Sends messages via Bot API using a token and chat ID.', 'ops-health-dashboard' );
+		$wa        = __( 'WhatsApp', 'ops-health-dashboard' );
+		$wa_d      = __( 'Sends messages via a webhook with Bearer auth.', 'ops-health-dashboard' );
+
+		$content = '<p>' . $intro . '</p><ul>'
+			. '<li><strong>' . $email . '</strong> &mdash; ' . $email_d . '</li>'
+			. '<li><strong>' . $webhook . '</strong> &mdash; ' . $webhook_d . '</li>'
+			. '<li><strong>' . $slack . '</strong> &mdash; ' . $slack_d . '</li>'
+			. '<li><strong>' . $tg . '</strong> &mdash; ' . $tg_d . '</li>'
+			. '<li><strong>' . $wa . '</strong> &mdash; ' . $wa_d . '</li>'
+			. '</ul>';
+
+		$screen->add_help_tab(
+			[
+				'id'      => 'ops_health_alert_channels',
+				'title'   => __( 'Channels', 'ops-health-dashboard' ),
+				'content' => $content,
+			]
+		);
+	}
+
+	/**
+	 * Aggiunge la tab Configuration all'help screen
+	 *
+	 * @param \WP_Screen $screen Schermata corrente.
+	 * @return void
+	 */
+	private function add_alert_config_help_tab( $screen ): void {
+		$cd_label = __( 'Cooldown', 'ops-health-dashboard' );
+		$cd_desc  = __( 'Minimum time between repeated alerts for the same check.', 'ops-health-dashboard' );
+		$cr_label = __( 'Credentials', 'ops-health-dashboard' );
+		$cr_desc  = __(
+			'Sensitive fields are never displayed. Leave empty to keep existing values.',
+			'ops-health-dashboard'
+		);
+
+		$content = '<p><strong>' . $cd_label . '</strong> &mdash; '
+			. $cd_desc . '</p>'
+			. '<p><strong>' . $cr_label . '</strong> &mdash; '
+			. $cr_desc . '</p>';
+
+		$screen->add_help_tab(
+			[
+				'id'      => 'ops_health_alert_config',
+				'title'   => __( 'Configuration', 'ops-health-dashboard' ),
+				'content' => $content,
+			]
+		);
+	}
+
+	/**
 	 * Processa le azioni del form (salvataggio impostazioni)
 	 *
 	 * Verifica nonce e capability prima di salvare.

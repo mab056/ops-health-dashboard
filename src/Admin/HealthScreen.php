@@ -93,6 +93,140 @@ class HealthScreen {
 	}
 
 	/**
+	 * Registers contextual help tabs for the health dashboard screen
+	 *
+	 * Called on the load-{$hook} action to add WordPress-native help tabs.
+	 *
+	 * @return void
+	 */
+	public function add_help_tabs(): void {
+		$screen = get_current_screen();
+
+		if ( null === $screen ) {
+			return;
+		}
+
+		$this->add_overview_help_tab( $screen );
+		$this->add_checks_help_tab( $screen );
+		$this->add_actions_help_tab( $screen );
+
+		$github_url   = esc_url( 'https://github.com/mab056/ops-health-dashboard' );
+		$alerts_url   = esc_url(
+			admin_url( 'admin.php?page=ops-health-alert-settings' )
+		);
+		$github_label = __( 'GitHub Repository', 'ops-health-dashboard' );
+		$alerts_label = __( 'Alert Settings', 'ops-health-dashboard' );
+		$more_info    = __( 'For more information:', 'ops-health-dashboard' );
+
+		$screen->set_help_sidebar(
+			'<p><strong>' . $more_info . '</strong></p>'
+			. '<p><a href="' . $github_url . '" target="_blank">'
+			. $github_label . '</a></p>'
+			. '<p><a href="' . $alerts_url . '">'
+			. $alerts_label . '</a></p>'
+		);
+	}
+
+	/**
+	 * Aggiunge la tab Overview all'help screen
+	 *
+	 * @param \WP_Screen $screen Schermata corrente.
+	 * @return void
+	 */
+	private function add_overview_help_tab( $screen ): void {
+		$intro   = __( 'This screen displays the results of automated health checks.', 'ops-health-dashboard' );
+		$status  = __( 'The summary banner at the top shows the overall status:', 'ops-health-dashboard' );
+		$healthy = __( 'Healthy', 'ops-health-dashboard' );
+		$warning = __( 'Warning', 'ops-health-dashboard' );
+		$crit    = __( 'Critical', 'ops-health-dashboard' );
+
+		$content = '<p>' . $intro . '</p>'
+			. '<p>' . $status . '</p><ul>'
+			. '<li><strong>' . $healthy . '</strong> &mdash; '
+			. __( 'All checks passed.', 'ops-health-dashboard' ) . '</li>'
+			. '<li><strong>' . $warning . '</strong> &mdash; '
+			. __( 'One or more checks need attention.', 'ops-health-dashboard' ) . '</li>'
+			. '<li><strong>' . $crit . '</strong> &mdash; '
+			. __( 'Immediate action is required.', 'ops-health-dashboard' ) . '</li>'
+			. '</ul>';
+
+		$screen->add_help_tab(
+			[
+				'id'      => 'ops_health_overview',
+				'title'   => __( 'Overview', 'ops-health-dashboard' ),
+				'content' => $content,
+			]
+		);
+	}
+
+	/**
+	 * Aggiunge la tab Health Checks all'help screen
+	 *
+	 * @param \WP_Screen $screen Schermata corrente.
+	 * @return void
+	 */
+	private function add_checks_help_tab( $screen ): void {
+		$intro = __( 'The following checks are performed:', 'ops-health-dashboard' );
+
+		$db_label  = __( 'Database Connection', 'ops-health-dashboard' );
+		$db_desc   = __( 'Tests the database connection and measures query time.', 'ops-health-dashboard' );
+		$log_label = __( 'Error Log Summary', 'ops-health-dashboard' );
+		$log_desc  = __( 'Reads the PHP error log and aggregates entries by severity.', 'ops-health-dashboard' );
+		$red_label = __( 'Redis Cache', 'ops-health-dashboard' );
+		$red_desc  = __( 'Checks the Redis extension, connection, and smoke test.', 'ops-health-dashboard' );
+		$dsk_label = __( 'Disk Space', 'ops-health-dashboard' );
+		$dsk_desc  = __( 'Monitors available disk space with configurable thresholds.', 'ops-health-dashboard' );
+		$ver_label = __( 'Versions', 'ops-health-dashboard' );
+		$ver_desc  = __( 'Reports WordPress and PHP versions and available updates.', 'ops-health-dashboard' );
+
+		$content = '<p>' . $intro . '</p><ul>'
+			. '<li><strong>' . $db_label . '</strong> &mdash; ' . $db_desc . '</li>'
+			. '<li><strong>' . $log_label . '</strong> &mdash; ' . $log_desc . '</li>'
+			. '<li><strong>' . $red_label . '</strong> &mdash; ' . $red_desc . '</li>'
+			. '<li><strong>' . $dsk_label . '</strong> &mdash; ' . $dsk_desc . '</li>'
+			. '<li><strong>' . $ver_label . '</strong> &mdash; ' . $ver_desc . '</li>'
+			. '</ul>';
+
+		$screen->add_help_tab(
+			[
+				'id'      => 'ops_health_checks',
+				'title'   => __( 'Health Checks', 'ops-health-dashboard' ),
+				'content' => $content,
+			]
+		);
+	}
+
+	/**
+	 * Aggiunge la tab Actions all'help screen
+	 *
+	 * @param \WP_Screen $screen Schermata corrente.
+	 * @return void
+	 */
+	private function add_actions_help_tab( $screen ): void {
+		$intro     = __( 'Use the buttons at the top of the page to manage checks:', 'ops-health-dashboard' );
+		$run_label = __( 'Run Now', 'ops-health-dashboard' );
+		$run_desc  = __( 'Executes all health checks immediately.', 'ops-health-dashboard' );
+		$clr_label = __( 'Clear Cache', 'ops-health-dashboard' );
+		$clr_desc  = __( 'Removes cached results so the next run starts fresh.', 'ops-health-dashboard' );
+		$cron_note = __( 'Checks also run automatically via WP-Cron every 15 minutes.', 'ops-health-dashboard' );
+
+		$content = '<p>' . $intro . '</p><ul>'
+			. '<li><strong>' . $run_label . '</strong> &mdash; '
+			. $run_desc . '</li>'
+			. '<li><strong>' . $clr_label . '</strong> &mdash; '
+			. $clr_desc . '</li></ul>'
+			. '<p>' . $cron_note . '</p>';
+
+		$screen->add_help_tab(
+			[
+				'id'      => 'ops_health_actions',
+				'title'   => __( 'Actions', 'ops-health-dashboard' ),
+				'content' => $content,
+			]
+		);
+	}
+
+	/**
 	 * Processa le azioni admin (Run Now, Clear Cache)
 	 *
 	 * Verifica nonce e capability prima di eseguire.

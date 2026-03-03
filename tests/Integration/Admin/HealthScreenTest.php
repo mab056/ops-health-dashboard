@@ -440,6 +440,45 @@ class HealthScreenTest extends WP_UnitTestCase {
 		$this->assertSame( 'unknown', $reflection->invoke( $screen, [] ) );
 	}
 
+	// ─── Help tabs ────────────────────────────────────────────────
+
+	/**
+	 * Testa che add_help_tabs registra 3 tab sulla schermata health
+	 */
+	public function test_add_help_tabs_registers_tabs_on_health_screen() {
+		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $user_id );
+		set_current_screen( 'toplevel_page_ops-health-dashboard' );
+
+		$screen = $this->create_health_screen();
+		$screen->add_help_tabs();
+
+		$wp_screen = get_current_screen();
+		$tabs      = $wp_screen->get_help_tabs();
+
+		$tab_ids = array_column( $tabs, 'id' );
+		$this->assertContains( 'ops_health_overview', $tab_ids );
+		$this->assertContains( 'ops_health_checks', $tab_ids );
+		$this->assertContains( 'ops_health_actions', $tab_ids );
+	}
+
+	/**
+	 * Testa che add_help_tabs imposta la sidebar con link GitHub
+	 */
+	public function test_add_help_tabs_sets_sidebar_on_health_screen() {
+		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $user_id );
+		set_current_screen( 'toplevel_page_ops-health-dashboard' );
+
+		$screen = $this->create_health_screen();
+		$screen->add_help_tabs();
+
+		$wp_screen = get_current_screen();
+		$sidebar   = $wp_screen->get_help_sidebar();
+
+		$this->assertStringContainsString( 'github.com', $sidebar );
+	}
+
 	// ─── Pattern enforcement ───────────────────────────────────────
 
 	/**

@@ -106,6 +106,43 @@ class AlertSettingsTest extends WP_UnitTestCase {
 		);
 	}
 
+	// ─── Help tabs ────────────────────────────────────────────────
+
+	/**
+	 * Testa che add_help_tabs registra 3 tab sulla schermata alert settings
+	 */
+	public function test_add_help_tabs_registers_tabs_on_alert_screen() {
+		$this->set_admin_user();
+		set_current_screen( 'ops-health_page_ops-health-alert-settings' );
+
+		$screen = new AlertSettings( $this->storage );
+		$screen->add_help_tabs();
+
+		$wp_screen = get_current_screen();
+		$tabs      = $wp_screen->get_help_tabs();
+
+		$tab_ids = array_column( $tabs, 'id' );
+		$this->assertContains( 'ops_health_alert_overview', $tab_ids );
+		$this->assertContains( 'ops_health_alert_channels', $tab_ids );
+		$this->assertContains( 'ops_health_alert_config', $tab_ids );
+	}
+
+	/**
+	 * Testa che add_help_tabs imposta la sidebar con link GitHub
+	 */
+	public function test_add_help_tabs_sets_sidebar_on_alert_screen() {
+		$this->set_admin_user();
+		set_current_screen( 'ops-health_page_ops-health-alert-settings' );
+
+		$screen = new AlertSettings( $this->storage );
+		$screen->add_help_tabs();
+
+		$wp_screen = get_current_screen();
+		$sidebar   = $wp_screen->get_help_sidebar();
+
+		$this->assertStringContainsString( 'github.com', $sidebar );
+	}
+
 	/**
 	 * Testa che la classe NON è final
 	 *

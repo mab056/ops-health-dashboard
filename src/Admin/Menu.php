@@ -82,6 +82,10 @@ class Menu {
 				'load-' . $hook,
 				[ $this->health_screen, 'process_actions' ]
 			);
+			add_action(
+				'load-' . $hook,
+				[ $this->health_screen, 'add_help_tabs' ]
+			);
 		}
 
 		if ( null !== $this->alert_settings ) {
@@ -128,6 +132,10 @@ class Menu {
 			add_action(
 				'load-' . $hook,
 				[ $this->alert_settings, 'process_actions' ]
+			);
+			add_action(
+				'load-' . $hook,
+				[ $this->alert_settings, 'add_help_tabs' ]
 			);
 		}
 	}
