@@ -1,6 +1,6 @@
 {
 	"name": "ops-health-dashboard",
-	"version": "0.6.1",
+	"version": "0.6.2",
 	"private": true,
 	"description": "WordPress plugin for operational monitoring with health checks and alerting",
 	"scripts": {

@@ -54,7 +54,7 @@ test.describe('Dashboard Widget', () => {
 	test('widget has link to full dashboard', async ({ page }) => {
 		await loginAsAdmin(page);
 		await page.goto('/wp-admin/');
-		const link = page.locator('#ops_health_dashboard_widget a[href*="ops-health-dashboard"]');
+		const link = page.locator(DASHBOARD_WIDGET.DASHBOARD_LINK);
 		await expect(link).toBeAttached();
 	});
 
@@ -68,7 +68,7 @@ test.describe('Dashboard Widget', () => {
 	test('widget link navigates to health dashboard', async ({ page }) => {
 		await loginAsAdmin(page);
 		await page.goto('/wp-admin/');
-		const link = page.locator('#ops_health_dashboard_widget a[href*="ops-health-dashboard"]');
+		const link = page.locator(DASHBOARD_WIDGET.DASHBOARD_LINK);
 		await link.click();
 		await expect(page).toHaveURL(/page=ops-health-dashboard/);
 	});

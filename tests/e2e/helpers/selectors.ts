@@ -65,7 +65,7 @@ export const DASHBOARD_WIDGET = {
 	WIDGET: '#ops_health_dashboard_widget',
 	STATUS: '.ops-health-widget-status',
 	CHECK_LIST: '.ops-health-widget-checks',
-	DASHBOARD_LINK: 'a[href*="ops-health-dashboard"]',
+	DASHBOARD_LINK: '.ops-health-widget-footer a',
 
 	/* v0.6.2 — Timing and check links */
 	WIDGET_TIMING: '.ops-health-widget-timing',
