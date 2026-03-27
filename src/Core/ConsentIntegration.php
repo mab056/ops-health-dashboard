@@ -39,9 +39,7 @@ class ConsentIntegration {
 
 		add_filter(
 			'wp_consent_api_registered_' . $basename,
-			function () {
-				return true;
-			}
+			'__return_true'
 		);
 
 		add_action( 'admin_init', [ $this, 'add_privacy_policy_content' ] );
@@ -60,7 +58,7 @@ class ConsentIntegration {
 		$content = $this->build_privacy_policy_text();
 
 		wp_add_privacy_policy_content(
-			'Ops Health Dashboard',
+			__( 'Ops Health Dashboard', 'ops-health-dashboard' ),
 			$content
 		);
 	}
@@ -132,15 +130,15 @@ class ConsentIntegration {
 		);
 		// phpcs:enable Generic.Files.LineLength.MaxExceeded
 
-		return '<h2>' . $heading . '</h2>'
-			. '<p>' . $overview . '</p>'
-			. '<h3>' . $cookies_heading . '</h3>'
-			. '<p>' . $cookies_text . '</p>'
-			. '<h3>' . $alerts_heading . '</h3>'
-			. '<p>' . $alerts_text . '</p>'
-			. '<h3>' . $redaction_heading . '</h3>'
-			. '<p>' . $redaction_text . '</p>'
-			. '<h3>' . $storage_heading . '</h3>'
-			. '<p>' . $storage_text . '</p>';
+		return '<h2>' . esc_html( $heading ) . '</h2>'
+			. '<p>' . esc_html( $overview ) . '</p>'
+			. '<h3>' . esc_html( $cookies_heading ) . '</h3>'
+			. '<p>' . esc_html( $cookies_text ) . '</p>'
+			. '<h3>' . esc_html( $alerts_heading ) . '</h3>'
+			. '<p>' . esc_html( $alerts_text ) . '</p>'
+			. '<h3>' . esc_html( $redaction_heading ) . '</h3>'
+			. '<p>' . esc_html( $redaction_text ) . '</p>'
+			. '<h3>' . esc_html( $storage_heading ) . '</h3>'
+			. '<p>' . esc_html( $storage_text ) . '</p>';
 	}
 }

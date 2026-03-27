@@ -28,6 +28,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+- **WP Consent API integration** — New `ConsentIntegration` class declares plugin compatibility with the [WP Consent API](https://wordpress.org/plugins/wp-consent-api/) via `wp_consent_api_registered_{plugin}` filter using `__return_true`
+- **Privacy Policy content** — Suggested privacy policy text registered via `wp_add_privacy_policy_content()` documenting: no cookies, external alert services (Email, Webhook, Slack, Telegram, WhatsApp), automatic data redaction, and data storage/removal
+
+### Security
+- Privacy policy HTML output escaped with `esc_html()` on all translated strings
+- Plugin name in `wp_add_privacy_policy_content()` wrapped with `__()` for i18n
+
+### Tests
+- +14 unit tests for `ConsentIntegration` (100% coverage): consent API filter registration (`__return_true`), privacy policy content (external services, cookies, admin-only, redaction, esc_html verification), pattern enforcement (no final, no static)
+- Updated `PluginTest` (init registers ConsentIntegration hooks, idempotency)
+
+---
+
 ## 0.6.2 - 2026-03-03
 
 ### Added

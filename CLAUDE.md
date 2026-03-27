@@ -616,18 +616,19 @@ Requires PHP 7.4-8.5 installed (via PPA sury) + Docker + Node.js for E2E. See `b
 **Milestone M6 - WordPress.org Readiness** ✅ COMPLETED
 
 **Current State:**
-- ✅ **574 unit tests** (Brain\Monkey), 1336 assertions
-- ✅ **322 integration tests** (WP Test Suite), 655 assertions (single-site) / 684 assertions (multisite)
-- ✅ **46 E2E scenarios** x 3 viewports = 138 local runs; CI desktop-only (46 tests)
+- ✅ **637 unit tests** (Brain\Monkey), 1502 assertions
+- ✅ **326 integration tests** (WP Test Suite), 655 assertions (single-site) / 684 assertions (multisite)
+- ✅ **57 E2E scenarios** x 3 viewports = 171 local runs; CI desktop-only (57 tests)
 - ✅ PHPCS 100% compliance (0 errors, 0 warnings)
 - ✅ PHPStan level 6: 0 errors (szepeviktor/phpstan-wordpress)
 - ✅ Full CI/CD with PHP 7.4-8.5 + E2E Playwright (desktop-only in CI)
 - ✅ Coverage: **100%** classes, methods, lines (unit + integration single-site + multisite combined)
-- ✅ 31 source files, 55 PHP test files (31 unit + 24 integration), 5 E2E spec files, 2 CSS files
+- ✅ 32 source files, 56 PHP test files (32 unit + 24 integration), 5 E2E spec files, 4 CSS files, 1 JS file
 - ✅ Pattern enforcement (NO singleton/static/final)
 - ✅ WordPress.org ready: uninstall.php, readme.txt, ABSPATH guards
 - ✅ HealthScreen UI: card grid, summary banner, dedicated CSS with native WordPress palette
 - ✅ Multisite: Uninstaller supports multisite, uninstall.php with multisite fallback
+- ✅ WP Consent API: ConsentIntegration with `__return_true` filter + Privacy Policy content
 
 **Implemented Components (M1+M2+M3+M4+M5+M6):**
 - StorageInterface, CheckInterface, RedactionInterface, CheckRunnerInterface (DI contracts)
@@ -655,6 +656,7 @@ Requires PHP 7.4-8.5 installed (via PPA sury) + Docker + Node.js for E2E. See `b
 - DashboardWidget (wp-admin dashboard widget, worst-status, capability check, CheckRunnerInterface)
 - Activator (uses Scheduler::HOOK_NAME/INTERVAL constants)
 - Uninstaller ($wpdb injection, multisite support with `uninstall_network()`, options/cron/transient cleanup, bulk delete cooldown via LIKE query)
+- ConsentIntegration (WP Consent API `__return_true` filter, `wp_add_privacy_policy_content()` with esc_html, i18n)
 
 **WordPress.org Readiness (M6):**
 - uninstall.php with WP_UNINSTALL_PLUGIN guard + multisite fallback

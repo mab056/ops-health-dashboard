@@ -87,7 +87,7 @@ class ConsentIntegrationTest extends TestCase {
 	}
 
 	/**
-	 * Tests that register_hooks adds the consent API filter
+	 * Tests that register_hooks adds the consent API filter with __return_true
 	 */
 	public function test_register_hooks_adds_consent_api_filter() {
 		$filter_name     = null;
@@ -116,32 +116,7 @@ class ConsentIntegrationTest extends TestCase {
 			'wp_consent_api_registered_ops-health-dashboard/ops-health-dashboard.php',
 			$filter_name
 		);
-	}
-
-	/**
-	 * Tests that the consent API filter callback returns true
-	 */
-	public function test_consent_api_filter_returns_true() {
-		$filter_callback = null;
-
-		Functions\expect( 'add_filter' )
-			->once()
-			->andReturnUsing( function ( $name, $callback ) use ( &$filter_callback ) {
-				$filter_callback = $callback;
-				return true;
-			} );
-
-		Functions\expect( 'plugin_basename' )
-			->once()
-			->andReturn( 'ops-health-dashboard/ops-health-dashboard.php' );
-
-		Functions\expect( 'add_action' )
-			->once();
-
-		$consent = new ConsentIntegration();
-		$consent->register_hooks();
-
-		$this->assertTrue( $filter_callback() );
+		$this->assertSame( '__return_true', $filter_callback );
 	}
 
 	/**
@@ -176,122 +151,60 @@ class ConsentIntegrationTest extends TestCase {
 	 * Tests that add_privacy_policy_content calls wp_add_privacy_policy_content
 	 */
 	public function test_add_privacy_policy_content_calls_wp_function() {
-		$policy_plugin_name = null;
-		$policy_content     = null;
+		$result = $this->invoke_privacy_policy();
 
-		Functions\expect( 'wp_add_privacy_policy_content' )
-			->once()
-			->andReturnUsing( function ( $name, $content ) use ( &$policy_plugin_name, &$policy_content ) {
-				$policy_plugin_name = $name;
-				$policy_content     = $content;
-			} );
-
-		Functions\expect( '__' )
-			->andReturnUsing( function ( $text ) {
-				return $text;
-			} );
-
-		$consent = new ConsentIntegration();
-		$consent->add_privacy_policy_content();
-
-		$this->assertSame( 'Ops Health Dashboard', $policy_plugin_name );
-		$this->assertStringContainsString( '<h2>', $policy_content );
+		$this->assertSame( 'Ops Health Dashboard', $result['name'] );
+		$this->assertStringContainsString( '<h2>', $result['content'] );
 	}
 
 	/**
 	 * Tests that privacy policy content mentions external services
 	 */
 	public function test_privacy_policy_mentions_external_services() {
-		$policy_content = null;
+		$content = $this->invoke_privacy_policy()['content'];
 
-		Functions\expect( 'wp_add_privacy_policy_content' )
-			->once()
-			->andReturnUsing( function ( $name, $content ) use ( &$policy_content ) {
-				$policy_content = $content;
-			} );
-
-		Functions\expect( '__' )
-			->andReturnUsing( function ( $text ) {
-				return $text;
-			} );
-
-		$consent = new ConsentIntegration();
-		$consent->add_privacy_policy_content();
-
-		$this->assertStringContainsString( 'Email', $policy_content );
-		$this->assertStringContainsString( 'Slack', $policy_content );
-		$this->assertStringContainsString( 'Telegram', $policy_content );
-		$this->assertStringContainsString( 'WhatsApp', $policy_content );
-		$this->assertStringContainsString( 'Webhook', $policy_content );
+		$this->assertStringContainsString( 'Email', $content );
+		$this->assertStringContainsString( 'Slack', $content );
+		$this->assertStringContainsString( 'Telegram', $content );
+		$this->assertStringContainsString( 'WhatsApp', $content );
+		$this->assertStringContainsString( 'Webhook', $content );
 	}
 
 	/**
 	 * Tests that privacy policy content mentions no cookies
 	 */
 	public function test_privacy_policy_mentions_no_cookies() {
-		$policy_content = null;
+		$content = $this->invoke_privacy_policy()['content'];
 
-		Functions\expect( 'wp_add_privacy_policy_content' )
-			->once()
-			->andReturnUsing( function ( $name, $content ) use ( &$policy_content ) {
-				$policy_content = $content;
-			} );
-
-		Functions\expect( '__' )
-			->andReturnUsing( function ( $text ) {
-				return $text;
-			} );
-
-		$consent = new ConsentIntegration();
-		$consent->add_privacy_policy_content();
-
-		$this->assertStringContainsString( 'cookie', strtolower( $policy_content ) );
+		$this->assertStringContainsString( 'cookie', strtolower( $content ) );
 	}
 
 	/**
 	 * Tests that privacy policy content mentions admin-only
 	 */
 	public function test_privacy_policy_mentions_admin_only() {
-		$policy_content = null;
+		$content = $this->invoke_privacy_policy()['content'];
 
-		Functions\expect( 'wp_add_privacy_policy_content' )
-			->once()
-			->andReturnUsing( function ( $name, $content ) use ( &$policy_content ) {
-				$policy_content = $content;
-			} );
-
-		Functions\expect( '__' )
-			->andReturnUsing( function ( $text ) {
-				return $text;
-			} );
-
-		$consent = new ConsentIntegration();
-		$consent->add_privacy_policy_content();
-
-		$this->assertStringContainsString( 'admin', strtolower( $policy_content ) );
+		$this->assertStringContainsString( 'admin', strtolower( $content ) );
 	}
 
 	/**
 	 * Tests that privacy policy content mentions redaction
 	 */
 	public function test_privacy_policy_mentions_redaction() {
-		$policy_content = null;
+		$content = $this->invoke_privacy_policy()['content'];
 
-		Functions\expect( 'wp_add_privacy_policy_content' )
-			->once()
-			->andReturnUsing( function ( $name, $content ) use ( &$policy_content ) {
-				$policy_content = $content;
-			} );
+		$this->assertStringContainsString( 'redact', strtolower( $content ) );
+	}
 
-		Functions\expect( '__' )
-			->andReturnUsing( function ( $text ) {
-				return $text;
-			} );
+	/**
+	 * Tests that privacy policy content is escaped with esc_html
+	 */
+	public function test_privacy_policy_content_is_escaped() {
+		$content = $this->invoke_privacy_policy()['content'];
 
-		$consent = new ConsentIntegration();
-		$consent->add_privacy_policy_content();
-
-		$this->assertStringContainsString( 'redact', strtolower( $policy_content ) );
+		// esc_html mock wraps text with [esc:...], verify it was called.
+		$this->assertStringContainsString( '[esc:', $content );
 	}
 
 	/**
@@ -309,5 +222,42 @@ class ConsentIntegrationTest extends TestCase {
 		$result = $reflection->invoke( $consent );
 
 		$this->assertSame( 'ops-health-dashboard/ops-health-dashboard.php', $result );
+	}
+
+	/**
+	 * Invokes add_privacy_policy_content and captures the arguments
+	 *
+	 * Helper to reduce boilerplate in privacy policy content tests.
+	 *
+	 * @return array{name: string, content: string} Captured plugin name and content.
+	 */
+	private function invoke_privacy_policy(): array {
+		$policy_plugin_name = '';
+		$policy_content     = '';
+
+		Functions\expect( 'wp_add_privacy_policy_content' )
+			->once()
+			->andReturnUsing( function ( $name, $content ) use ( &$policy_plugin_name, &$policy_content ) {
+				$policy_plugin_name = $name;
+				$policy_content     = $content;
+			} );
+
+		Functions\expect( '__' )
+			->andReturnUsing( function ( $text ) {
+				return $text;
+			} );
+
+		Functions\expect( 'esc_html' )
+			->andReturnUsing( function ( $text ) {
+				return '[esc:' . $text . ']';
+			} );
+
+		$consent = new ConsentIntegration();
+		$consent->add_privacy_policy_content();
+
+		return [
+			'name'    => $policy_plugin_name,
+			'content' => $policy_content,
+		];
 	}
 }

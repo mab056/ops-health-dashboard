@@ -44,6 +44,7 @@ This plugin provides an operational dashboard in wp-admin with automated health 
 - **Admin UI** - Health Dashboard page, Alert Settings page, Dashboard widget | [details](https://github.com/mab056/ops-health-dashboard/wiki/Admin-UI)
 - **WP-Cron Scheduling** - Automated checks every 15 minutes with status-change alerting
 - **Anti-SSRF** - DNS pinning, private IP blocking, scheme/port restriction on all outbound HTTP
+- **WP Consent API** - Declared compatible; suggested Privacy Policy content registered automatically
 
 ## Architecture
 
@@ -96,11 +97,11 @@ Current milestone: **M6 - WordPress.org Readiness**
 
 ### Statistics
 
-- **31 source files** in `src/`, 2 CSS files in `assets/css/`
-- **55 PHP test files** (31 unit + 24 integration)
-- **574 unit tests**, 1336 assertions (Brain\Monkey)
-- **322 integration tests**, 655 assertions single-site / 684 multisite (WP Test Suite)
-- **46 E2E scenarios** x 3 viewports = 138 test executions (Playwright)
+- **32 source files** in `src/`, 4 asset files in `assets/` (CSS + JS)
+- **56 PHP test files** (32 unit + 24 integration)
+- **637 unit tests**, 1502 assertions (Brain\Monkey)
+- **326 integration tests**, 655 assertions single-site / 684 multisite (WP Test Suite)
+- **57 E2E scenarios** x 3 viewports = 171 test executions (Playwright)
 - **Coverage**: 100% classes, 100% methods, 100% lines (unit + integration + multisite combined)
 - **PHPCS**: 100% compliance (0 errors, 0 warnings)
 - **PHPStan**: level 6, 0 errors
