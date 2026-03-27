@@ -184,6 +184,15 @@ function bootstrap(): Plugin {
 		}
 	);
 
+	// WP Consent API integration and privacy policy.
+	$container->share(
+		Core\ConsentIntegration::class,
+		// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
+		function ( $c ) {
+			return new Core\ConsentIntegration();
+		}
+	);
+
 	// Create and return the plugin instance.
 	return new Plugin( $container );
 }

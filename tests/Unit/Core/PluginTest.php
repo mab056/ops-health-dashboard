@@ -63,12 +63,14 @@ class PluginTest extends TestCase {
 		$health_screen  = Mockery::mock( 'OpsHealthDashboard\Admin\HealthScreen' );
 		$alert_settings = Mockery::mock( 'OpsHealthDashboard\Admin\AlertSettings' );
 		$scheduler      = Mockery::mock( 'OpsHealthDashboard\Services\Scheduler' );
+		$consent        = Mockery::mock( 'OpsHealthDashboard\Core\ConsentIntegration' );
 
 		$menu->shouldReceive( 'register_hooks' )->once();
 		$widget->shouldReceive( 'register_hooks' )->once();
 		$health_screen->shouldReceive( 'register_hooks' )->once();
 		$alert_settings->shouldReceive( 'register_hooks' )->once();
 		$scheduler->shouldReceive( 'register_hooks' )->once();
+		$consent->shouldReceive( 'register_hooks' )->once();
 
 		$container->shouldReceive( 'make' )
 			->with( 'OpsHealthDashboard\Admin\Menu' )
@@ -94,6 +96,11 @@ class PluginTest extends TestCase {
 			->with( 'OpsHealthDashboard\Services\Scheduler' )
 			->once()
 			->andReturn( $scheduler );
+
+		$container->shouldReceive( 'make' )
+			->with( 'OpsHealthDashboard\Core\ConsentIntegration' )
+			->once()
+			->andReturn( $consent );
 
 		$plugin = new Plugin( $container );
 		$plugin->init();
@@ -112,6 +119,7 @@ class PluginTest extends TestCase {
 		$health_screen  = Mockery::mock( 'OpsHealthDashboard\Admin\HealthScreen' );
 		$alert_settings = Mockery::mock( 'OpsHealthDashboard\Admin\AlertSettings' );
 		$scheduler      = Mockery::mock( 'OpsHealthDashboard\Services\Scheduler' );
+		$consent        = Mockery::mock( 'OpsHealthDashboard\Core\ConsentIntegration' );
 
 		// Gli hook devono essere registrati SOLO UNA volta (idempotenza).
 		$menu->shouldReceive( 'register_hooks' )->once();
@@ -119,6 +127,7 @@ class PluginTest extends TestCase {
 		$health_screen->shouldReceive( 'register_hooks' )->once();
 		$alert_settings->shouldReceive( 'register_hooks' )->once();
 		$scheduler->shouldReceive( 'register_hooks' )->once();
+		$consent->shouldReceive( 'register_hooks' )->once();
 
 		$container->shouldReceive( 'make' )
 			->with( 'OpsHealthDashboard\Admin\Menu' )
@@ -144,6 +153,11 @@ class PluginTest extends TestCase {
 			->with( 'OpsHealthDashboard\Services\Scheduler' )
 			->once()
 			->andReturn( $scheduler );
+
+		$container->shouldReceive( 'make' )
+			->with( 'OpsHealthDashboard\Core\ConsentIntegration' )
+			->once()
+			->andReturn( $consent );
 
 		$plugin = new Plugin( $container );
 

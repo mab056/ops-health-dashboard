@@ -79,6 +79,10 @@ class Plugin {
 		$scheduler = $this->container->make( \OpsHealthDashboard\Services\Scheduler::class );
 		$scheduler->register_hooks();
 
+		// WP Consent API integration.
+		$consent = $this->container->make( ConsentIntegration::class );
+		$consent->register_hooks();
+
 		$this->initialized = true;
 	}
 
