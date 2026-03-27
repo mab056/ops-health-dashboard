@@ -92,7 +92,7 @@ Implemented in `src/Services/HttpClient.php` via `HttpClientInterface`.
 - `EmailChannel`: recipient validation with `is_email()`
 - `WhatsAppChannel`: E.164 phone validation (`/^\+[1-9]\d{6,14}$/`)
 - `WebhookChannel`: optional HMAC SHA-256 signature via `X-OpsHealth-Signature` header (body pre-serialized to avoid signature discrepancies)
-- `AlertSettings`: tokens and secrets use `type="password"` + `autocomplete="off"`, `value=""` + `placeholder="********"` (credentials never present in the DOM source)
+- `AlertSettings`: tokens and secrets use `type="password"` + `autocomplete="off"`, `value=""` + `placeholder="********"` (credentials are never present in the DOM source)
 - `AlertManager`: cooldown set before dispatch, per-channel isolation via `try/catch \Throwable`
 - `Scheduler`: wraps `alert_manager->process()` in `catch (\Throwable)` for cron resilience
 
@@ -107,7 +107,7 @@ Implemented in `src/Services/HttpClient.php` via `HttpClientInterface`.
 ### Architecture Security Posture
 
 - No singleton pattern
-- No static methods in business logic
+- No static methods or properties in business logic
 - Constructor dependency injection for explicit, auditable dependencies
 
 ## Scope

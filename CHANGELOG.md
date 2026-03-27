@@ -31,12 +31,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- **WP Consent API integration** — New `ConsentIntegration` class declares plugin compatibility with the [WP Consent API](https://wordpress.org/plugins/wp-consent-api/) via `wp_consent_api_registered_{plugin}` filter using `__return_true`
-- **Privacy Policy content** — Suggested privacy policy text registered via `wp_add_privacy_policy_content()` documenting: no cookies, external alert services (Email, Webhook, Slack, Telegram, WhatsApp), automatic data redaction, and data storage/removal
+- **WP Consent API integration** — New `ConsentIntegration` class declares plugin compatibility with the [WP Consent API](https://wordpress.org/plugins/wp-consent-api/) via the `wp_consent_api_registered_{plugin}` filter using `__return_true`
+- **Privacy policy content** — Suggested privacy policy text registered via `wp_add_privacy_policy_content()`, documenting no cookies, external alert services (Email, Webhook, Slack, Telegram, WhatsApp), automatic data redaction, and data storage/removal
 
 ### Security
 - Privacy policy HTML output escaped with `esc_html()` on all translated strings
-- Plugin name in `wp_add_privacy_policy_content()` wrapped with `__()` for i18n
+- Plugin name in `wp_add_privacy_policy_content()` wrapped with `__()` for i18n support
 
 ### Tests
 - +14 unit tests for `ConsentIntegration` (100% coverage): consent API filter registration (`__return_true`), privacy policy content (external services, cookies, admin-only, redaction, esc_html verification), pattern enforcement (no final, no static)
@@ -47,18 +47,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 0.6.2 - 2026-03-03
 
 ### Added
-- **HealthScreen UI refresh** — "Site Health vibe" summary banner with overall status icon, affected checks list, timing meta (last run / next run), and link to Alert Settings
+- **HealthScreen UI refresh** — "Site Health"-style summary banner with overall status icon, affected checks list, timing meta (last run / next run), and a link to Alert Settings
 - **HealthScreen status badges** — Inline colored pill badges (Ok/Warning/Critical/Unknown) on each check card header with `aria-hidden` status icons for accessibility
 - **HealthScreen expandable details** — HTML5 `<details>/<summary>` per check with check-specific breakdowns: database query time, error log severity counts + file size, Redis response time, disk free/total/percent, WP/PHP versions + available updates
 - **HealthScreen check timestamps** — "Checked X ago" relative time on each card using `human_time_diff()`
 - **HealthScreen anchor IDs** — Each check card has `id="check-{check_id}"` for deep linking from DashboardWidget
-- **AlertSettings collapsible sections** — Each channel wrapped in `<details class="ops-health-alert-section">` with `<summary>` showing channel name + Enabled/Disabled badge; enabled channels default `open`
+- **AlertSettings collapsible sections** — Each channel wrapped in `<details class="ops-health-alert-section">` with `<summary>` showing the channel name + Enabled/Disabled badge; enabled channels are `open` by default
 - **AlertSettings conditional fields** — ES5 JavaScript (`assets/js/alert-settings.js`, ~60 lines) toggles config fields disabled/dimmed when channel's "Enabled" checkbox is unchecked
 - **AlertSettings asset enqueue** — `register_hooks()` + `enqueue_assets()` with screen guard, new CSS (`assets/css/alert-settings.css`) and JS enqueued only on the alert settings page
 - **DashboardWidget timing** — "Last run: X ago" paragraph below check list using `StorageInterface` for `last_run_at`
 - **DashboardWidget check links** — Check names are `<a>` links with `#check-{id}` anchors pointing to HealthScreen cards
-- **`last_run_at` timestamp** — `CheckRunner.run_all()` saves `last_run_at` via Storage; `clear_results()` deletes it; `Uninstaller` cleans `ops_health_last_run_at`
-- **StorageInterface** injection into HealthScreen and DashboardWidget constructors for timing data access
+- **`last_run_at` timestamp** — `CheckRunner::run_all()` saves `last_run_at` via Storage; `clear_results()` deletes it; `Uninstaller` cleans `ops_health_last_run_at`
+- **`StorageInterface` injection** — Injected into the HealthScreen and DashboardWidget constructors for timing data access
 
 ### Changed
 - **HealthScreen constructor** — Now accepts `CheckRunnerInterface` + `StorageInterface` (was `CheckRunnerInterface` only)

@@ -44,11 +44,11 @@ This plugin provides an operational dashboard in wp-admin with automated health 
 - **Admin UI** - Health Dashboard page, Alert Settings page, Dashboard widget | [details](https://github.com/mab056/ops-health-dashboard/wiki/Admin-UI)
 - **WP-Cron Scheduling** - Automated checks every 15 minutes with status-change alerting
 - **Anti-SSRF** - DNS pinning, private IP blocking, scheme/port restriction on all outbound HTTP
-- **WP Consent API** - Declared compatible; suggested Privacy Policy content registered automatically
+- **WP Consent API** - Declared compatible; suggested privacy policy content is registered automatically
 
 ## Architecture
 
-Built with dependency injection, interface-first design, and strict TDD. No singleton, no static, no final.
+Built with dependency injection, interface-first design, and strict TDD. No singletons, no static methods/properties, no final classes/methods.
 
 See the [Architecture](https://github.com/mab056/ops-health-dashboard/wiki/Architecture) wiki page for design patterns, directory structure, component graph, and core principles.
 
@@ -57,7 +57,7 @@ See the [Architecture](https://github.com/mab056/ops-health-dashboard/wiki/Archi
 - **PHP**: 7.4+ (minimum), 8.3+ (recommended)
 - **WordPress**: 5.8+
 - **MySQL**: 5.7+ or MariaDB 10.2+
-- **Composer**: For development dependencies
+- **Composer**: Required for development dependencies
 
 ## Installation
 
@@ -93,14 +93,14 @@ For the full security model, see the [Security](https://github.com/mab056/ops-he
 
 ## Project Status
 
-Current milestone: **M6 - WordPress.org Readiness**
+Current baseline: **v0.6.2**. Milestones **M0-M6** are complete; the next planned milestone is **M7 - Extensibility API**.
 
 ### Statistics
 
-- **32 source files** in `src/`, 4 asset files in `assets/` (CSS + JS)
+- **32 source files** in `src/`, 4 asset files in `assets/` (CSS and JS)
 - **56 PHP test files** (32 unit + 24 integration)
 - **637 unit tests**, 1502 assertions (Brain\Monkey)
-- **326 integration tests**, 655 assertions single-site / 684 multisite (WP Test Suite)
+- **326 integration tests**, 655 assertions (single-site) / 684 assertions (multisite) (WP Test Suite)
 - **57 E2E scenarios** x 3 viewports = 171 test executions (Playwright)
 - **Coverage**: 100% classes, 100% methods, 100% lines (unit + integration + multisite combined)
 - **PHPCS**: 100% compliance (0 errors, 0 warnings)
@@ -114,7 +114,7 @@ Current milestone: **M6 - WordPress.org Readiness**
 - [x] **M3**: Redis Check
 - [x] **M4**: Alerting System (Email, Webhook, Slack, Telegram, WhatsApp + anti-SSRF)
 - [x] **M5**: New Checks + Dashboard Widget + E2E Testing (Playwright)
-- [x] **M6**: WordPress.org Readiness (uninstall.php, readme.txt, ABSPATH guards)
+- [x] **M6**: WordPress.org Readiness (uninstall.php, readme.txt, ABSPATH guards, HealthScreen UI, WP Consent API)
 
 See the [Roadmap](https://github.com/mab056/ops-health-dashboard/wiki/Roadmap) wiki page for future milestones (M7-M9).
 
@@ -139,7 +139,7 @@ GPL-3.0-or-later - see [LICENSE](LICENSE).
 
 - Mattia Bondrano - [GitHub](https://github.com/mab056)
 
-Developed with the support of Claude Code (Opus 4.5, 4.6, Sonnet 4.5) and Codex (Codex 5.2, 5.3).
+Built with support from Claude Code (Opus 4.5, 4.6, Sonnet 4.5) and Codex (Codex 5.2, 5.3).
 
 ## Support
 

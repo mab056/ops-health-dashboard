@@ -20,10 +20,10 @@ Before contributing, ensure you have:
 - PHP 7.4+ (8.3+ recommended)
 - Composer
 - Git
-- Local WordPress dev environment
+- Local WordPress development environment
 - Familiarity with PHPUnit and TDD
 
-## Setup
+## Set Up
 
 ### 1. Fork and Clone
 
@@ -50,7 +50,7 @@ composer install-wp-tests
 ### 3. Create a Branch
 
 ```bash
-# Update the main branch
+# Update the `dev` branch
 git checkout dev
 git pull upstream dev
 
@@ -113,7 +113,7 @@ class MyNewServiceTest extends TestCase {
 }
 ```
 
-**Run the test: it should FAIL.**
+**Run the test. It should fail.**
 
 ```bash
 composer test
@@ -145,7 +145,7 @@ class MyNewService {
 }
 ```
 
-**Run the test: it should PASS.**
+**Run the test. It should pass.**
 
 ```bash
 composer test
@@ -196,7 +196,7 @@ composer analyse
 
 ## Pattern Enforcement
 
-### DO NOT Use the Singleton Pattern
+### Do Not Use the Singleton Pattern
 
 ```php
 // WRONG - This will FAIL tests
@@ -214,7 +214,7 @@ class BadService {
 }
 ```
 
-### DO Use Dependency Injection
+### Use Dependency Injection
 
 ```php
 // CORRECT
@@ -240,7 +240,7 @@ function bootstrap(): Plugin {
 }
 ```
 
-### DO NOT Use Static Methods
+### Do Not Use Static Methods
 
 ```php
 // WRONG
@@ -251,7 +251,7 @@ class BadHelper {
 }
 ```
 
-### DO Use Instance Methods
+### Use Instance Methods
 
 ```php
 // CORRECT
