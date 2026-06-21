@@ -86,6 +86,9 @@ No. All health check results are processed through a redaction service that auto
 
 == Changelog ==
 
+= Unreleased =
+* Security (breaking): the HTTP client now rejects outbound alert webhook targets resolving to CGNAT addresses (100.64.0.0/10) by default. This may affect alerts sent to internal endpoints over Tailscale, tailnet, or overlay networks. A general override for internal/private ranges is not included and would require a separate change.
+
 = 0.6.2 =
 * Refreshed Health Dashboard UI with summary banner, status badges, and expandable check details
 * Added Alert Settings collapsible channel sections with conditional field enable/disable
@@ -126,6 +129,9 @@ No. All health check results are processed through a redaction service that auto
 For the full changelog, see [CHANGELOG.md](https://github.com/mab056/ops-health-dashboard/blob/main/CHANGELOG.md).
 
 == Upgrade Notices ==
+
+= Unreleased =
+Breaking: the HTTP client now rejects outbound alert webhook targets resolving to CGNAT (100.64.0.0/10) by default. If you send alerts to internal endpoints over Tailscale, tailnet, or overlay networks, those webhooks will be rejected. No override is included; a general internal/private-range policy would require a separate change.
 
 = 0.6.2 =
 Health Dashboard UX refresh, Alert Settings usability improvements, and Dashboard Widget timing/deep-link updates. No breaking changes.

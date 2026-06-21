@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 - Privacy policy HTML output escaped with `esc_html()` on all translated strings
 - Plugin name in `wp_add_privacy_policy_content()` wrapped with `__()` for i18n support
+- **Anti-SSRF: CGNAT range blocked by default (BREAKING)** — The HTTP client now rejects outbound alert webhook targets resolving to CGNAT addresses (`100.64.0.0/10`, RFC 6598) by default, aligning CGNAT with the existing private/loopback/link-local denylist. This may affect deployments that send alerts to internal endpoints over Tailscale, tailnet, or overlay networks (Tailscale assigns tailnet node IPs from this range). A general override policy for internal/private ranges is not included and would require a separate change.
 
 ### Tests
 - +14 unit tests for `ConsentIntegration` (100% coverage): consent API filter registration (`__return_true`), privacy policy content (external services, cookies, admin-only, redaction, esc_html verification), pattern enforcement (no final, no static)

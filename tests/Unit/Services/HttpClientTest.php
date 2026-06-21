@@ -374,6 +374,76 @@ class HttpClientTest extends TestCase {
 		$this->assertTrue( $client->is_safe_url( 'https://api.example.com/webhook' ) );
 	}
 
+	/**
+	 * Tests that CGNAT 100.64.0.0/10 (internal address) is blocked
+	 *
+	 * @return void
+	 */
+	public function test_is_safe_url_blocks_cgnat_internal() {
+		$client = $this->create_client_with_resolved_ip(
+			$this->create_redaction_mock(),
+			'100.100.50.1'
+		);
+
+		$this->assertFalse( $client->is_safe_url( 'https://tailnet-node.internal/api' ) );
+	}
+
+	/**
+	 * Tests that CGNAT lower boundary 100.64.0.0 is blocked
+	 *
+	 * @return void
+	 */
+	public function test_is_safe_url_blocks_cgnat_lower_boundary() {
+		$client = $this->create_client_with_resolved_ip(
+			$this->create_redaction_mock(),
+			'100.64.0.0'
+		);
+
+		$this->assertFalse( $client->is_safe_url( 'https://cgnat-low.internal/api' ) );
+	}
+
+	/**
+	 * Tests that CGNAT upper boundary 100.127.255.255 is blocked
+	 *
+	 * @return void
+	 */
+	public function test_is_safe_url_blocks_cgnat_upper_boundary() {
+		$client = $this->create_client_with_resolved_ip(
+			$this->create_redaction_mock(),
+			'100.127.255.255'
+		);
+
+		$this->assertFalse( $client->is_safe_url( 'https://cgnat-high.internal/api' ) );
+	}
+
+	/**
+	 * Tests that 100.63.255.255 (just below CGNAT) is allowed
+	 *
+	 * @return void
+	 */
+	public function test_is_safe_url_allows_cgnat_lower_adjacent() {
+		$client = $this->create_client_with_resolved_ip(
+			$this->create_redaction_mock(),
+			'100.63.255.255'
+		);
+
+		$this->assertTrue( $client->is_safe_url( 'https://public-below.example.com/api' ) );
+	}
+
+	/**
+	 * Tests that 100.128.0.0 (just above CGNAT) is allowed
+	 *
+	 * @return void
+	 */
+	public function test_is_safe_url_allows_cgnat_upper_adjacent() {
+		$client = $this->create_client_with_resolved_ip(
+			$this->create_redaction_mock(),
+			'100.128.0.0'
+		);
+
+		$this->assertTrue( $client->is_safe_url( 'https://public-above.example.com/api' ) );
+	}
+
 	// ---------------------------------------------------
 	// is_safe_url() - Ports
 	// ---------------------------------------------------

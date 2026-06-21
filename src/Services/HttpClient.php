@@ -310,6 +310,11 @@ class HttpClient implements HttpClientInterface {
 			return true;
 		}
 
+		// CGNAT 100.64.0.0/10 (RFC 6598 shared address space).
+		if ( ( $long & 0xFFC00000 ) === 0x64400000 ) {
+			return true;
+		}
+
 		return false;
 	}
 }

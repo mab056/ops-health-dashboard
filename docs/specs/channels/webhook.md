@@ -2,7 +2,7 @@
 
 > Stato: canonica dal change `webhook-json-encode-guard`.
 > Linguaggio di stato: questo documento descrive il comportamento corrente garantito dal canale Webhook, non le modifiche che lo hanno prodotto.
-> Fonte attiva: `specs/channels/webhook.md`
+> Fonte attiva: `docs/specs/channels/webhook.md`
 > Sorgente principale: `src/Channels/WebhookChannel.php`, interfaccia `src/Interfaces/AlertChannelInterface.php`.
 
 ---
@@ -130,6 +130,8 @@ Il canale non implementa in proprio:
 Queste responsabilità appartengono al client HTTP del progetto.
 
 La spec del canale Webhook dichiara quindi la delega al client HTTP, non certifica il livello effettivo delle protezioni implementate dal client.
+
+Il contratto del client HTTP e della denylist anti-SSRF è descritto in [http-client.md](../services/http-client.md).
 
 ---
 
@@ -279,7 +281,7 @@ Un test è significativo solo se protegge un rischio concreto.
 
 Fonte attiva:
 
-* `specs/channels/webhook.md`
+* `docs/specs/channels/webhook.md`
 
 Artefatti storici del change che ha estratto questa spec:
 
