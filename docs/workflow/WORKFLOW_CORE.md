@@ -188,6 +188,41 @@ Prima del commit verificare:
 
 ---
 
+## Regola 9 — Gate inter-fase delle concern
+
+A ogni transizione di fase, il maintainer verifica esplicitamente che ogni concern emersa nella fase
+precedente sia stata trasformata in decisione, rischio, acceptance criterion o rejection motivata.
+Se una concern resta sospesa o sparisce dagli artefatti, la fase non avanza.
+
+Owner: maintainer. Momento: gate inter-fase.
+
+Transizioni minime coperte:
+
+* candidate selection → current-state;
+* current-state → change-delta;
+* change-delta → plan;
+* plan → tasks;
+* tasks → analyze;
+* analyze → RED validation;
+* RED validation → implementation;
+* implementation → closeout.
+
+Il gate copre anche l'esistenza reale di path e artefatti: i path e gli artefatti citati devono
+esistere davvero dove dichiarato. Se un path risulta stale o spostato, la fase non avanza finché non
+viene aggiornato o motivatamente respinto.
+
+### Perché questa regola esiste
+
+Nel ciclo 2 il gate ha cambiato outcome tre volte: una concern di compatibilità (Tailscale/CGNAT)
+trasformata in decisione (`A3`); una concern di completezza (grep outbound) trasformata in un recon
+esteso; un path stale (`specs/...` vs la verità di terra `docs/specs/...`) rilevato e corretto.
+
+Limite dichiarato: il ciclo 2 prova che il gate intercetta concern reali e cambia outcome, ma non
+prova ancora che il maintainer lo applichi in modo affidabile da solo — l'intercettazione è stata
+sostenuta da reviewer esterni e check a terra. La portabilità a maintainer-solo va validata nel ciclo 3.
+
+---
+
 ## Retrospettiva minima obbligatoria
 
 Ogni ciclo deve rispondere a una domanda:
