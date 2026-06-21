@@ -494,4 +494,102 @@ class WebhookChannelTest extends TestCase
 		$this->assertTrue( $result['success'] );
 		$this->assertNull( $result['error'] );
 	}
+
+	/**
+	 * Creates an HttpClientInterface spy that records whether post() is called
+	 *
+	 * The spy returns a success response so send() always returns normally,
+	 * letting the test assert on the return value (rather than catching an
+	 * exception from a never() expectation).
+	 *
+	 * @param bool $called Receives true if post() is invoked.
+	 * @return \Mockery\MockInterface|HttpClientInterface
+	 */
+	private function create_http_client_spy( &$called )
+	{
+		$http_client = Mockery::mock( HttpClientInterface::class );
+		$http_client->shouldReceive( 'post' )
+			->andReturnUsing(
+				function () use ( &$called ) {
+					$called = true;
+					return [
+						'success' => true,
+						'code'    => 200,
+						'body'    => 'ok',
+						'error'   => null,
+					];
+				}
+			);
+		return $http_client;
+	}
+
+	/**
+	 * Tests send rejects an unserializable payload (invalid UTF-8) fail-closed
+	 *
+	 * post() must NOT be called and send() must return failure.
+	 *
+	 * @return void
+	 */
+	public function test_send_returns_failure_when_payload_contains_invalid_utf8()
+	{
+		$this->mock_i18n();
+
+		$settings = [
+			'webhook' => [
+				'enabled' => true,
+				'url'     => 'https://hooks.example.com/alert',
+			],
+		];
+
+		$called      = false;
+		$http_client = $this->create_http_client_spy( $called );
+
+		$channel = new WebhookChannel(
+			$this->create_storage_mock( $settings ),
+			$http_client
+		);
+
+		// Invalid UTF-8 -> json_encode() returns false.
+		$payload = [ 'x' => "\xB1\x31" ];
+		$result  = $channel->send( $payload );
+
+		$this->assertFalse( $called, 'post() must NOT be called when the payload cannot be encoded' );
+		$this->assertFalse( $result['success'], 'send() must return success=false on encode failure' );
+		$this->assertNotEmpty( $result['error'], 'send() must return an error message on encode failure' );
+	}
+
+	/**
+	 * Tests send rejects a non-finite float payload (NAN) fail-closed
+	 *
+	 * post() must NOT be called and send() must return failure.
+	 *
+	 * @return void
+	 */
+	public function test_send_returns_failure_when_payload_contains_non_finite_float()
+	{
+		$this->mock_i18n();
+
+		$settings = [
+			'webhook' => [
+				'enabled' => true,
+				'url'     => 'https://hooks.example.com/alert',
+			],
+		];
+
+		$called      = false;
+		$http_client = $this->create_http_client_spy( $called );
+
+		$channel = new WebhookChannel(
+			$this->create_storage_mock( $settings ),
+			$http_client
+		);
+
+		// NAN cannot be JSON-encoded -> json_encode() returns false.
+		$payload = [ 'value' => NAN ];
+		$result  = $channel->send( $payload );
+
+		$this->assertFalse( $called, 'post() must NOT be called when the payload cannot be encoded' );
+		$this->assertFalse( $result['success'], 'send() must return success=false on encode failure' );
+		$this->assertNotEmpty( $result['error'], 'send() must return an error message on encode failure' );
+	}
 }

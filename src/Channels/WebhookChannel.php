@@ -103,6 +103,15 @@ class WebhookChannel implements AlertChannelInterface {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 		$raw_body = json_encode( $payload );
 
+		// Fail closed: an unserializable payload (invalid UTF-8, NAN/INF) must
+		// not be signed and sent as a malformed body reported as delivered.
+		if ( false === $raw_body ) {
+			return [
+				'success' => false,
+				'error'   => __( 'Failed to encode webhook payload.', 'ops-health-dashboard' ),
+			];
+		}
+
 		$headers = [];
 		if ( '' !== $secret ) {
 			$signature                        = hash_hmac( 'sha256', $raw_body, $secret );
